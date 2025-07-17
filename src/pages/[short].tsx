@@ -27,7 +27,7 @@ export const getServerSideProps = async ({ params }: any) => {
   }
 }
 
-export const RedirectPage = () => {
+const RedirectPage = () => {
   return (
     <div style={{ padding: '2rem', textAlign: 'center' }}>
       <h1>Redireccionando...</h1>
@@ -35,3 +35,5 @@ export const RedirectPage = () => {
   );
 }
 //aqui dejareun placeholder
+
+export default RedirectPage;
