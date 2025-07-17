@@ -9,9 +9,9 @@ export default function Home() {
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
 
-  const validateUrl = (url) => {
+  const validateUrl = (input) => {
     try {
-      new URL(url);
+      new URL(input);
       return true;
     } catch {
       return false;
@@ -19,13 +19,18 @@ export default function Home() {
   };
 
   const handleShorten = async () => {
-    if (!url) {
+    let cleanedUrl = url.trim();
+    if (!cleanedUrl) {
       setError('Por favor ingresa una URL');
       return;
     }
 
-    if (!validateUrl(url)) {
-      setError('Por favor ingresa una URL válida (incluye https://)');
+    if (!/^https?:\/\//i.test(cleanedUrl)) {
+      cleanedUrl = 'https://' + cleanedUrl;
+    }
+
+    if (!validateUrl(cleanedUrl)) {
+      setError('La URL ingresada no es válida');
       return;
     }
 
@@ -33,10 +38,10 @@ export default function Home() {
     setIsLoading(true);
 
     try {
-      const response = await fetch('https://iny.one/api/shorten', {
+      const response = await fetch('/api/shorten', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url, utm }),
+        body: JSON.stringify({ url: cleanedUrl, utm }),
       });
 
       if (!response.ok) throw new Error('Error al acortar la URL');
@@ -237,3 +242,4 @@ export default function Home() {
     </div>
   );
 }
+
