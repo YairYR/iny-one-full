@@ -41,7 +41,7 @@ export default function Home() {
       linkedin: 'LinkedIn'
     },
     en: {
-      title: 'iny.one',
+      title: 'iny one',
       subtitle: 'Tiny URLs for anyone',
       urlPlaceholder: 'https://example.com',
       urlLabel: 'URL to shorten',
