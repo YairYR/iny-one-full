@@ -144,7 +144,6 @@ export default function Home() {
     </Head>
     
     <main className="container mx-auto px-4 py-8 flex-grow">
-      <main className="container mx-auto px-4 py-8 flex-grow">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
