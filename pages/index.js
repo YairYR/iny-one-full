@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Copy, ExternalLink, Link, Zap } from 'lucide-react';
+import Head from 'next/head';
 
 export default function Home() {
   const [url, setUrl] = useState('');
@@ -17,7 +18,9 @@ export default function Home() {
 
   const texts = {
     es: {
-      title: 'iny one',
+      metaTitle: 'Iny.One – Tiny URLs for anyone',
+      metaDescription: 'iny.one te permite acortar enlaces fácilmente y agregar parámetros UTM para mejorar el seguimiento de tus campañas.',
+      title: 'Iny One',
       subtitle: 'Tiny URLs for anyone',
       urlPlaceholder: 'https://ejemplo.com',
       urlLabel: 'URL a acortar',
@@ -41,6 +44,8 @@ export default function Home() {
       linkedin: 'LinkedIn'
     },
     en: {
+      metaTitle: 'Iny.One – Tiny URLs for anyone',
+      metaDescription: 'iny.one lets you shorten links easily and add UTM parameters to improve your campaign tracking.',
       title: 'iny one',
       subtitle: 'Tiny URLs for anyone',
       urlPlaceholder: 'https://example.com',
@@ -130,7 +135,15 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-br from-blue-50 to-indigo-100">
+  <div className="min-h-screen flex flex-col justify-between bg-gradient-to-br from-blue-50 to-indigo-100">
+    <Head>
+      <title>{texts[lang].metaTitle}</title>
+      <meta name="description" content={texts[lang].metaDescription} />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <meta charSet="UTF-8" />
+    </Head>
+    
+    <main className="container mx-auto px-4 py-8 flex-grow">
       <main className="container mx-auto px-4 py-8 flex-grow">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
