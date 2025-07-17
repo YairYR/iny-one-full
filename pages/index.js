@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Copy, ExternalLink, Link, Zap } from 'lucide-react';
 
 export default function Home() {
@@ -8,6 +8,63 @@ export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState('');
+  const [lang, setLang] = useState('en');
+
+  useEffect(() => {
+    const userLang = navigator.language || navigator.userLanguage;
+    if (userLang.startsWith('es')) setLang('es');
+  }, []);
+
+  const texts = {
+    es: {
+      title: 'iny one',
+      subtitle: 'Tiny URLs for anyone',
+      urlPlaceholder: 'https://ejemplo.com',
+      urlLabel: 'URL a acortar',
+      utmLabel: 'Parámetros UTM (opcional)',
+      shortenBtn: 'Acortar URL',
+      cleanBtn: 'Limpiar',
+      success: '¡URL acortada exitosamente!',
+      copy: 'Copiar URL',
+      open: 'Abrir URL',
+      copied: '¡Copiado al portapapeles!',
+      requiredUrl: 'Por favor ingresa una URL',
+      invalidUrl: 'La URL ingresada no es válida',
+      fast: 'Rápido',
+      utmReady: 'UTM Ready',
+      easy: 'Fácil de usar',
+      fastDesc: 'Acorta tus URLs en segundos con nuestra interfaz intuitiva',
+      utmDesc: 'Agrega parámetros UTM automáticamente para tracking',
+      easyDesc: 'Copia y comparte tus URLs acortadas con un solo click',
+      shortening: 'Acortando...',
+      footer: '¿Dudas o problemas? Contáctame por',
+      linkedin: 'LinkedIn'
+    },
+    en: {
+      title: 'iny.one',
+      subtitle: 'Tiny URLs for anyone',
+      urlPlaceholder: 'https://example.com',
+      urlLabel: 'URL to shorten',
+      utmLabel: 'UTM Parameters (optional)',
+      shortenBtn: 'Shorten URL',
+      cleanBtn: 'Clear',
+      success: 'URL successfully shortened!',
+      copy: 'Copy URL',
+      open: 'Open URL',
+      copied: 'Copied to clipboard!',
+      requiredUrl: 'Please enter a URL',
+      invalidUrl: 'The entered URL is not valid',
+      fast: 'Fast',
+      utmReady: 'UTM Ready',
+      easy: 'Easy to use',
+      fastDesc: 'Shorten your URLs in seconds with our intuitive interface',
+      utmDesc: 'Automatically add UTM parameters for tracking',
+      easyDesc: 'Copy and share your short URLs with one click',
+      shortening: 'Shortening...',
+      footer: 'Questions or issues? Contact me on',
+      linkedin: 'LinkedIn'
+    }
+  };
 
   const validateUrl = (input) => {
     try {
@@ -21,7 +78,7 @@ export default function Home() {
   const handleShorten = async () => {
     let cleanedUrl = url.trim();
     if (!cleanedUrl) {
-      setError('Por favor ingresa una URL');
+      setError(texts[lang].requiredUrl);
       return;
     }
 
@@ -30,7 +87,7 @@ export default function Home() {
     }
 
     if (!validateUrl(cleanedUrl)) {
-      setError('La URL ingresada no es válida');
+      setError(texts[lang].invalidUrl);
       return;
     }
 
@@ -44,11 +101,11 @@ export default function Home() {
         body: JSON.stringify({ url: cleanedUrl, utm }),
       });
 
-      if (!response.ok) throw new Error('Error al acortar la URL');
+      if (!response.ok) throw new Error();
 
       const data = await response.json();
       setShortUrl(data.short);
-    } catch (err) {
+    } catch {
       setError('Error al acortar la URL');
     } finally {
       setIsLoading(false);
@@ -73,27 +130,25 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-br from-blue-50 to-indigo-100">
+      <main className="container mx-auto px-4 py-8 flex-grow">
         <div className="max-w-2xl mx-auto">
           <div className="text-center mb-8">
             <div className="flex items-center justify-center mb-4">
               <Link className="h-8 w-8 text-indigo-600 mr-2" />
-              <h1 className="text-4xl font-bold text-gray-800">iny.one</h1>
+              <h1 className="text-4xl font-bold text-gray-800">{texts[lang].title}</h1>
             </div>
-            <p className="text-lg text-gray-600">
-              Acorta tus URLs y agrega parámetros UTM para mejor tracking
-            </p>
+            <p className="text-lg text-gray-600">{texts[lang].subtitle}</p>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                URL a acortar
+                {texts[lang].urlLabel}
               </label>
               <input
                 type="url"
-                placeholder="https://ejemplo.com"
+                placeholder={texts[lang].urlPlaceholder}
                 value={url}
                 onChange={(e) => setUrl(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
@@ -102,7 +157,7 @@ export default function Home() {
 
             <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-3">
-                Parámetros UTM (opcional)
+                {texts[lang].utmLabel}
               </label>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <input
@@ -144,12 +199,12 @@ export default function Home() {
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                    Acortando...
+                    {texts[lang].shortening}
                   </>
                 ) : (
                   <>
                     <Zap className="h-5 w-5 mr-2" />
-                    Acortar URL
+                    {texts[lang].shortenBtn}
                   </>
                 )}
               </button>
@@ -158,7 +213,7 @@ export default function Home() {
                 onClick={clearForm}
                 className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
               >
-                Limpiar
+                {texts[lang].cleanBtn}
               </button>
             </div>
 
@@ -169,12 +224,12 @@ export default function Home() {
                     <Link className="h-4 w-4 text-green-600" />
                   </div>
                   <h3 className="text-lg font-semibold text-green-800">
-                    ¡URL acortada exitosamente!
+                    {texts[lang].success}
                   </h3>
                 </div>
 
                 <div className="bg-white border border-green-200 rounded-lg p-4 mb-4">
-                  <p className="text-sm text-gray-600 mb-2">Tu URL acortada:</p>
+                  <p className="text-sm text-gray-600 mb-2">{texts[lang].copy}</p>
                   <div className="flex items-center justify-between">
                     <a
                       href={shortUrl}
@@ -188,7 +243,7 @@ export default function Home() {
                       <button
                         onClick={copyToClipboard}
                         className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-                        title="Copiar URL"
+                        title={texts[lang].copy}
                       >
                         <Copy className="h-4 w-4" />
                       </button>
@@ -197,7 +252,7 @@ export default function Home() {
                         target="_blank"
                         rel="noopener noreferrer"
                         className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-                        title="Abrir URL"
+                        title={texts[lang].open}
                       >
                         <ExternalLink className="h-4 w-4" />
                       </a>
@@ -206,7 +261,7 @@ export default function Home() {
                 </div>
 
                 {copied && (
-                  <p className="text-green-600 text-sm">¡Copiado al portapapeles!</p>
+                  <p className="text-green-600 text-sm">{texts[lang].copied}</p>
                 )}
               </div>
             )}
@@ -215,31 +270,36 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg p-6 text-center shadow-sm">
               <Zap className="h-8 w-8 text-indigo-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-800 mb-2">Rápido</h3>
-              <p className="text-sm text-gray-600">
-                Acorta tus URLs en segundos con nuestra interfaz intuitiva
-              </p>
+              <h3 className="font-semibold text-gray-800 mb-2">{texts[lang].fast}</h3>
+              <p className="text-sm text-gray-600">{texts[lang].fastDesc}</p>
             </div>
 
             <div className="bg-white rounded-lg p-6 text-center shadow-sm">
               <Link className="h-8 w-8 text-indigo-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-800 mb-2">UTM Ready</h3>
-              <p className="text-sm text-gray-600">
-                Agrega parámetros UTM automáticamente para tracking
-              </p>
+              <h3 className="font-semibold text-gray-800 mb-2">{texts[lang].utmReady}</h3>
+              <p className="text-sm text-gray-600">{texts[lang].utmDesc}</p>
             </div>
 
             <div className="bg-white rounded-lg p-6 text-center shadow-sm">
               <Copy className="h-8 w-8 text-indigo-600 mx-auto mb-3" />
-              <h3 className="font-semibold text-gray-800 mb-2">Fácil de usar</h3>
-              <p className="text-sm text-gray-600">
-                Copia y comparte tus URLs acortadas con un solo click
-              </p>
+              <h3 className="font-semibold text-gray-800 mb-2">{texts[lang].easy}</h3>
+              <p className="text-sm text-gray-600">{texts[lang].easyDesc}</p>
             </div>
           </div>
         </div>
-      </div>
+      </main>
+
+      <footer className="bg-white py-6 text-center text-sm text-gray-500">
+        {texts[lang].footer}{' '}
+        <a
+          href="https://www.linkedin.com/in/yair-yuhaniak"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-indigo-600 hover:text-indigo-800 font-medium"
+        >
+          {texts[lang].linkedin}
+        </a>
+      </footer>
     </div>
   );
 }
-
