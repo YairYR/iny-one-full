@@ -2,7 +2,7 @@ export async function getServerSideProps({ params }) {
   const { short } = params;
 
   try {
-    const response = await fetch('https://raw.githubusercontent.com/YairYR/iny-one-full/main//data/urls.json');
+    const response = await fetch('https://raw.githubusercontent.com/YairYR/iny-one-full/main/data/urls.json');
     const urls = await response.json();
 
     const destination = urls[short];
