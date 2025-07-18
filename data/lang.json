@@ -22,7 +22,7 @@
         "utmDesc": "Automatically add UTM parameters for tracking",
         "easyDesc": "Copy and share your short URLs with one click",
         "shortening": "Shortening...",
-        "footer": "",
+        "footer": "Iny.one is a free URL shortener with UTM tracking support. Create custom short links and measure the performance of your marketing campaigns.",
         "linkedin": "LinkedIn"
     },
     "es": {
@@ -48,7 +48,7 @@
         "utmDesc": "Agrega parámetros UTM automáticamente para tracking",
         "easyDesc": "Copia y comparte tus URLs acortadas con un solo click",
         "shortening": "Acortando...",
-        "footer": "",
+        "footer": "Iny.one es un acortador de URLs gratuito con parámetros UTM. Crea enlaces cortos personalizados y mide el rendimiento de tus campañas.",
         "linkedin": "LinkedIn"
     }
 }
