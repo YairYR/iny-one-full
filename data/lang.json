@@ -22,7 +22,7 @@
         "utmDesc": "Automatically add UTM parameters for tracking",
         "easyDesc": "Copy and share your short URLs with one click",
         "shortening": "Shortening...",
-        "footer": "Questions or issues? Contact me on",
+        "footer": "",
         "linkedin": "LinkedIn"
     },
     "es": {
@@ -48,7 +48,7 @@
         "utmDesc": "Agrega parámetros UTM automáticamente para tracking",
         "easyDesc": "Copia y comparte tus URLs acortadas con un solo click",
         "shortening": "Acortando...",
-        "footer": "¿Dudas o problemas? Contáctame por",
+        "footer": "",
         "linkedin": "LinkedIn"
     }
 }
