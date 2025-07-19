@@ -1,8 +1,9 @@
-import Navbar from '@/components/navbar';
-import Form from '@/components/containers/form';
+import Navbar from '@/components/Navbar';
+import UrlShortForm from '@/components/UrlShortForm';
 import { AppProvider, useAppContext } from '@/contexts/app.context';
-import Layout from '@/components/layout';
+import Layout from '@/components/Layout';
 import Head from 'next/head';
+import UtmInfoSmall from "@/components/UtmInfoSmall";
 
 function Home() {
   const { lang } = useAppContext();
@@ -12,19 +13,18 @@ function Home() {
       <Head>
           <title>{lang.get('metaTitle')}</title>
           <meta name="description" content={lang.get('metaDescription')} />
-          <meta name="viewport" content="width=device-width, initial-scale=1" />
-          <meta charSet="UTF-8" />
       </Head>
 
       <Layout>
         <Navbar />
-        <Form />
+        <UrlShortForm />
+        <UtmInfoSmall />
       </Layout>
     </>
   );
 }
 
-export default function() {
+export default function Init() {
   return (
     <AppProvider>
       <Home />

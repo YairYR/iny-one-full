@@ -1,4 +1,5 @@
 import { nanoid } from 'nanoid';
+import { NextApiRequest, NextApiResponse } from "next";
 
 // Configura tus datos de GitHub
 const GITHUB_USERNAME = 'YairYR';
@@ -7,7 +8,7 @@ const FILE_PATH = 'data/urls.json';
 const BRANCH = 'main';
 const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');

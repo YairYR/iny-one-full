@@ -1,4 +1,8 @@
-export const getServerSideProps = async ({ params }: any) => {
+interface Props {
+  params: { short: string }
+}
+
+export const getServerSideProps = async ({ params }: Props) => {
   const { short } = params;
 
   try {
