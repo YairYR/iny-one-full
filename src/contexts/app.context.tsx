@@ -20,5 +20,5 @@ export function useAppContext() {
 }
 
 interface IAppContext {
-    lang: any;
+    lang: ReturnType<typeof useLang>;
 }
