@@ -3,7 +3,7 @@ export async function getServerSideProps({ res }) {
 
   const urls = [
     '',
-    // Puedes agregar más rutas manualmente si es necesario
+    'about',
   ];
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
@@ -30,3 +30,4 @@ export async function getServerSideProps({ res }) {
 export default function Sitemap() {
   return null;
 }
+
