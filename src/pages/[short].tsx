@@ -1,3 +1,6 @@
+import { getShortenUrl } from "@/lib/utils/query";
+import { ShortenUrl } from "@/lib/types";
+
 interface Props {
   params: { short: string }
 }
@@ -6,12 +9,12 @@ export const getServerSideProps = async ({ params }: Props) => {
   const { short } = params;
 
   try {
-    const response = await fetch('https://raw.githubusercontent.com/YairYR/iny-one-full/main/data/urls.json');
-    const urls = await response.json();
+    const uri = await getShortenUrl(short);
+    console.dir(uri, { depth: null });
 
-    const destination = urls[short];
+    if (uri) {
+      const destination = formatShortenUrl(uri);
 
-    if (destination) {
       return {
         redirect: {
           destination,
@@ -29,6 +32,28 @@ export const getServerSideProps = async ({ params }: Props) => {
       notFound: true,
     };
   }
+}
+
+const formatShortenUrl = (uri: ShortenUrl) => {
+  let formatted = `${uri.protocol}://`;
+
+  if(uri.subdomain) formatted += `${uri.subdomain}.`;
+  formatted += uri.domain;
+  if(uri.path) formatted += uri.path;
+  if(uri.hash) formatted += uri.hash;
+
+  if(uri.utms.length > 0) {
+    const utmParams = uri.utms.reduce((prev, current, index) => {
+      if(index === 0) {
+        return `?${current.name}=${current.content}`;
+      }
+      return prev + `&${current.name}=${current.content}`;
+    }, '');
+
+    formatted += utmParams;
+  }
+
+  return formatted;
 }
 
 const RedirectPage = () => {
