@@ -5,7 +5,7 @@ export default function AboutPage() {
   const [lang, setLang] = useState<'en' | 'es'>('en');
 
   useEffect(() => {
-    const userLang = navigator.language;;
+    const userLang = navigator.language;
     if (userLang.startsWith('es')) setLang('es');
   }, []);
 
@@ -23,6 +23,29 @@ export default function AboutPage() {
         'Panel de gestión para usuarios registrados',
       ],
       contact: '¿Tienes ideas o detectaste un problema? Estoy abierto a sugerencias.',
+      faqTitle: 'Preguntas Frecuentes',
+      faqs: [
+        {
+          q: '¿Qué es iny.one?',
+          a: 'Es una herramienta gratuita para acortar URLs y añadir parámetros UTM fácilmente, permitiendo un mejor seguimiento de campañas.'
+        },
+        {
+          q: '¿iny.one es gratuito?',
+          a: 'Sí, el servicio es completamente gratuito y no requiere registro.'
+        },
+        {
+          q: '¿Qué son los parámetros UTM?',
+          a: 'Los parámetros UTM permiten rastrear el origen del tráfico web en tus campañas de marketing.'
+        },
+        {
+          q: '¿Puedo ver estadísticas de los enlaces?',
+          a: 'Por ahora no, pero estamos trabajando en ello.'
+        },
+        {
+          q: '¿iny.one guarda mis datos?',
+          a: 'No recopilamos ni almacenamos datos personales. Las URLs acortadas se usan solo para redirección.'
+        }
+      ]
     },
     en: {
       title: 'About iny.one',
@@ -37,7 +60,30 @@ export default function AboutPage() {
         'Dashboard for registered users',
       ],
       contact: 'Have ideas or found a bug? I’m open to feedback.',
-    },
+      faqTitle: 'Frequently Asked Questions',
+      faqs: [
+        {
+          q: 'What is iny.one?',
+          a: 'It’s a free tool to shorten URLs and add UTM parameters for better campaign tracking.'
+        },
+        {
+          q: 'Is iny.one free?',
+          a: 'Yes, the service is completely free and does not require registration.'
+        },
+        {
+          q: 'What are UTM parameters?',
+          a: 'UTM parameters let you track the origin of web traffic in your marketing campaigns.'
+        },
+        {
+          q: 'Can I see stats for my links?',
+          a: 'Not yet, but we’re working on it.'
+        },
+        {
+          q: 'Does iny.one store my data?',
+          a: 'We don’t collect or store personal data. Shortened URLs are used only for redirection.'
+        }
+      ]
+    }
   };
 
   const t = texts[lang];
@@ -48,6 +94,23 @@ export default function AboutPage() {
         <title>{t.metaTitle}</title>
         <meta name="description" content={t.metaDescription} />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              '@context': 'https://schema.org',
+              '@type': 'FAQPage',
+              mainEntity: t.faqs.map(faq => ({
+                '@type': 'Question',
+                name: faq.q,
+                acceptedAnswer: {
+                  '@type': 'Answer',
+                  text: faq.a
+                }
+              }))
+            })
+          }}
+        />
       </Head>
 
       <main className="container mx-auto px-6 py-12 max-w-3xl">
@@ -63,7 +126,17 @@ export default function AboutPage() {
           ))}
         </ul>
 
-        <p className="text-lg text-gray-700">{t.contact}</p>
+        <p className="text-lg text-gray-700 mb-12">{t.contact}</p>
+
+        <h2 className="text-2xl font-semibold text-gray-800 mb-6">{t.faqTitle}</h2>
+        <div className="space-y-6">
+          {t.faqs.map((faq, i) => (
+            <div key={i}>
+              <h3 className="font-semibold text-gray-800">{faq.q}</h3>
+              <p className="text-gray-600">{faq.a}</p>
+            </div>
+          ))}
+        </div>
       </main>
     </div>
   );
