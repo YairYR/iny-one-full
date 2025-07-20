@@ -1,0 +1,21 @@
+-- CreateTable
+CREATE TABLE "ShortenUrl" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "domain" TEXT NOT NULL,
+    "path" TEXT NOT NULL,
+    "short" TEXT NOT NULL,
+    "active" BOOLEAN NOT NULL,
+    "updatedAt" DATETIME,
+    "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "userId" INTEGER,
+    CONSTRAINT "ShortenUrl_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User" ("id") ON DELETE SET NULL ON UPDATE CASCADE
+);
+
+-- CreateTable
+CREATE TABLE "UrlUtm" (
+    "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    "name" TEXT NOT NULL,
+    "content" TEXT NOT NULL,
+    "urlId" INTEGER NOT NULL,
+    CONSTRAINT "UrlUtm_urlId_fkey" FOREIGN KEY ("urlId") REFERENCES "ShortenUrl" ("id") ON DELETE RESTRICT ON UPDATE CASCADE
+);
