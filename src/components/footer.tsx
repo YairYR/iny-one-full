@@ -1,11 +1,16 @@
+import Link from 'next/link';
 import { useAppContext } from "@/contexts/app.context"
 
 export default function Footer() {
-    const { lang } = useAppContext();
+  const { lang } = useAppContext();
 
-    return (
-        <footer className="bg-white py-6 text-center text-sm text-gray-500">
-            {lang.get('footer')}
-        </footer>
-    )
+  return (
+    <footer className="bg-white py-6 text-center text-sm text-gray-500">
+      {lang.get('footer')}{' '}
+      |{' '}
+      <Link href="/about" className="text-indigo-600 hover:text-indigo-800 font-medium">
+        About
+      </Link>
+    </footer>
+  );
 }
