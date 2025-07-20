@@ -72,13 +72,6 @@ export default function Form() {
 
   return (
     <>
-      <h1 className="text-3xl font-bold text-center text-gray-900 mb-4">
-        {lang.get('h1Title')}
-      </h1>
-      <h2 className="text-xl text-center text-gray-600 mb-8">
-        {lang.get('h2Subtitle')}
-      </h2>
-
       <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
         <div className="mb-6">
           <label className="block text-sm font-medium text-gray-700 mb-2">
