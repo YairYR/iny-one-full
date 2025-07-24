@@ -1,22 +1,19 @@
 import prisma from "@/lib/db";
-import { Utm } from "@/lib/types";
 
 export const getShortenUrl = (short: string) => {
-  return prisma.shortenUrl.findFirst({
+  return prisma.url.findFirst({
     where: {
-      short,
-      active: true
+      code: short,
+      status: true,
     },
-    include: {
-      utms: true
-    }
   });
 }
 
+/*
 export const addShortenUrl = (uri: URL, short: string, active: boolean, utms: Utm[]) => {
   const [ subdomain, domain ] = uri.host.split(".");
 
-  return prisma.shortenUrl.create({
+  return prisma.url.create({
     data: {
       protocol: uri.protocol.substring(0, uri.protocol.length - 1), // remove ":"
       subdomain: (!domain) ? null : subdomain,
@@ -30,3 +27,4 @@ export const addShortenUrl = (uri: URL, short: string, active: boolean, utms: Ut
     }
   })
 }
+ */
