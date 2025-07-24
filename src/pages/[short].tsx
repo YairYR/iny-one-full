@@ -1,5 +1,5 @@
 import { getShortenUrl } from "@/lib/utils/query";
-import { ShortenUrl } from "@/lib/types";
+import { Url } from "@/prisma/client";
 
 interface Props {
   params: { short: string }
@@ -34,26 +34,18 @@ export const getServerSideProps = async ({ params }: Props) => {
   }
 }
 
-const formatShortenUrl = (uri: ShortenUrl) => {
-  let formatted = `${uri.protocol}://`;
+const formatShortenUrl = (uri: Url) => {
+  const url = new URL(uri.reference);
 
-  if(uri.subdomain) formatted += `${uri.subdomain}.`;
-  formatted += uri.domain;
-  if(uri.path) formatted += uri.path;
-  if(uri.hash) formatted += uri.hash;
+  if(uri.utm_source) url.searchParams.set("utm_source", uri.utm_source);
+  if(uri.utm_medium) url.searchParams.set("utm_medium", uri.utm_medium);
+  if(uri.utm_campain) url.searchParams.set("utm_campain", uri.utm_campain);
+  if(uri.utm_content) url.searchParams.set("utm_content", uri.utm_content);
+  if(uri.utm_term)url.searchParams.set("utm_term", uri.utm_term);
+  if(uri.utm_id)url.searchParams.set("id", uri.utm_id);
+  if(uri.utm_product)url.searchParams.set("utm_product", uri.utm_product);
 
-  if(uri.utms.length > 0) {
-    const utmParams = uri.utms.reduce((prev, current, index) => {
-      if(index === 0) {
-        return `?${current.name}=${current.content}`;
-      }
-      return prev + `&${current.name}=${current.content}`;
-    }, '');
-
-    formatted += utmParams;
-  }
-
-  return formatted;
+  return url.toString();
 }
 
 const RedirectPage = () => {
