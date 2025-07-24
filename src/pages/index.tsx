@@ -69,14 +69,6 @@ function Home() {
               </div>
             </div>
           </section>
-
-          <p className="text-sm text-center text-gray-500 mt-12">
-            {lang.get('aboutLink') || (
-              <>
-                ¿Quieres saber más? <a href="/about" className="text-indigo-600 underline">Conoce iny.one</a>.
-              </>
-            )}
-          </p>
         </main>
       </Layout>
     </>
