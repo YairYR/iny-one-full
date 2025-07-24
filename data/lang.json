@@ -22,7 +22,9 @@
     "utmDesc": "Automatically add UTM parameters for tracking",
     "easy": "Easy to use",
     "easyDesc": "Copy and share your short URLs with one click",
-    "aboutLink": "Want to know more? Learn about iny.one."
+    "aboutLink": "Want to know more? Learn about iny.one.",
+    "footerText": "Want to know more?",
+    "footerLink": "About"
   },
   "es": {
     "metaTitle": "iny.one – Acorta URLs y mide mejor",
@@ -47,6 +49,8 @@
     "utmDesc": "Agrega automáticamente parámetros UTM para hacer seguimiento",
     "easy": "Fácil de usar",
     "easyDesc": "Copia y comparte tus enlaces cortos con un clic",
-    "aboutLink": "¿Quieres saber más? Conoce iny.one."
+    "aboutLink": "¿Quieres saber más? Conoce iny.one.",
+    "footerText": "¿Quieres saber más?",
+    "footerLink": "Acerca de"
   }
 }
