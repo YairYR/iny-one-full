@@ -1,16 +1,10 @@
-import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-
+import { useAppContext } from '@/contexts/app.context';
 
 export default function AboutPage() {
-  const [lang, setLang] = useState<'en' | 'es'>('en');
-
-  useEffect(() => {
-    const userLang = navigator.language;
-    if (userLang.startsWith('es')) setLang('es');
-  }, []);
+  const { lang } = useAppContext(); // 🚀 idioma centralizado
 
   const texts = {
     es: {
@@ -28,26 +22,11 @@ export default function AboutPage() {
       contact: '¿Tienes ideas o detectaste un problema? Estoy abierto a sugerencias.',
       faqTitle: 'Preguntas Frecuentes',
       faqs: [
-        {
-          q: '¿Qué es iny.one?',
-          a: 'Es una herramienta gratuita para acortar URLs y añadir parámetros UTM fácilmente, permitiendo un mejor seguimiento de campañas.'
-        },
-        {
-          q: '¿iny.one es gratuito?',
-          a: 'Sí, el servicio es completamente gratuito y no requiere registro.'
-        },
-        {
-          q: '¿Qué son los parámetros UTM?',
-          a: 'Los parámetros UTM permiten rastrear el origen del tráfico web en tus campañas de marketing.'
-        },
-        {
-          q: '¿Puedo ver estadísticas de los enlaces?',
-          a: 'Por ahora no, pero estamos trabajando en ello.'
-        },
-        {
-          q: '¿iny.one guarda mis datos?',
-          a: 'No recopilamos ni almacenamos datos personales. Las URLs acortadas se usan solo para redirección.'
-        }
+        { q: '¿Qué es iny.one?', a: 'Es una herramienta gratuita para acortar URLs y añadir parámetros UTM fácilmente, permitiendo un mejor seguimiento de campañas.' },
+        { q: '¿iny.one es gratuito?', a: 'Sí, el servicio es completamente gratuito y no requiere registro.' },
+        { q: '¿Qué son los parámetros UTM?', a: 'Los parámetros UTM permiten rastrear el origen del tráfico web en tus campañas de marketing.' },
+        { q: '¿Puedo ver estadísticas de los enlaces?', a: 'Por ahora no, pero estamos trabajando en ello.' },
+        { q: '¿iny.one guarda mis datos?', a: 'No recopilamos ni almacenamos datos personales. Las URLs acortadas se usan solo para redirección.' }
       ]
     },
     en: {
@@ -65,26 +44,11 @@ export default function AboutPage() {
       contact: 'Have ideas or found a bug? I’m open to feedback.',
       faqTitle: 'Frequently Asked Questions',
       faqs: [
-        {
-          q: 'What is iny.one?',
-          a: 'It’s a free tool to shorten URLs and add UTM parameters for better campaign tracking.'
-        },
-        {
-          q: 'Is iny.one free?',
-          a: 'Yes, the service is completely free and does not require registration.'
-        },
-        {
-          q: 'What are UTM parameters?',
-          a: 'UTM parameters let you track the origin of web traffic in your marketing campaigns.'
-        },
-        {
-          q: 'Can I see stats for my links?',
-          a: 'Not yet, but we’re working on it.'
-        },
-        {
-          q: 'Does iny.one store my data?',
-          a: 'We don’t collect or store personal data. Shortened URLs are used only for redirection.'
-        }
+        { q: 'What is iny.one?', a: 'It’s a free tool to shorten URLs and add UTM parameters for better campaign tracking.' },
+        { q: 'Is iny.one free?', a: 'Yes, the service is completely free and does not require registration.' },
+        { q: 'What are UTM parameters?', a: 'UTM parameters let you track the origin of web traffic in your marketing campaigns.' },
+        { q: 'Can I see stats for my links?', a: 'Not yet, but we’re working on it.' },
+        { q: 'Does iny.one store my data?', a: 'We don’t collect or store personal data. Shortened URLs are used only for redirection.' }
       ]
     }
   };
@@ -132,7 +96,7 @@ export default function AboutPage() {
         <p className="text-lg text-gray-700 mb-12">{t.contact}</p>
 
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">{t.faqTitle}</h2>
-        <div className="space-y-6 mb-10">
+        <div className="space-y-6">
           {t.faqs.map((faq, i) => (
             <div key={i}>
               <h3 className="font-semibold text-gray-800">{faq.q}</h3>
@@ -140,14 +104,16 @@ export default function AboutPage() {
             </div>
           ))}
         </div>
-<Link
-  href="/"
-  className="inline-flex items-center justify-center bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
->
-  <ArrowLeft className="h-4 w-4 mr-2" />
-  Volver al inicio
-</Link>
 
+        <div className="mt-12 text-center">
+          <Link
+            href="/"
+            className="inline-flex items-center justify-center bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            {lang === 'es' ? 'Volver al inicio' : 'Back to Home'}
+          </Link>
+        </div>
       </main>
     </div>
   );
