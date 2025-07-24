@@ -38,9 +38,6 @@ function Home() {
       <Layout>
         <Navbar />
         <main className="px-4 py-12 max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-center text-gray-800 mb-8">
-            {lang.get('h1Main') || "iny.one – Acortador de URLs con parámetros UTM"}
-          </h1>
 
           <Form />
 
