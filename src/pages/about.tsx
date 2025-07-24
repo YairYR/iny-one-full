@@ -137,6 +137,17 @@ export default function AboutPage() {
             </div>
           ))}
         </div>
+        import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+
+<Link
+  href="/"
+  className="inline-flex items-center justify-center bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+>
+  <ArrowLeft className="h-4 w-4 mr-2" />
+  Volver al inicio
+</Link>
+
       </main>
     </div>
   );
