@@ -1,5 +1,8 @@
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import Link from 'next/link';
+import { ArrowLeft } from 'lucide-react';
+
 
 export default function AboutPage() {
   const [lang, setLang] = useState<'en' | 'es'>('en');
@@ -137,9 +140,6 @@ export default function AboutPage() {
             </div>
           ))}
         </div>
-        import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
-
 <Link
   href="/"
   className="inline-flex items-center justify-center bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
