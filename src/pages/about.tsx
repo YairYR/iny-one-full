@@ -132,7 +132,7 @@ export default function AboutPage() {
         <p className="text-lg text-gray-700 mb-12">{t.contact}</p>
 
         <h2 className="text-2xl font-semibold text-gray-800 mb-6">{t.faqTitle}</h2>
-        <div className="space-y-6">
+        <div className="space-y-6 mb-10">
           {t.faqs.map((faq, i) => (
             <div key={i}>
               <h3 className="font-semibold text-gray-800">{faq.q}</h3>
