@@ -1,9 +1,13 @@
+import fs from 'fs';
+import path from 'path';
+
 export const getServerSideProps = async ({ params }: any) => {
   const { short } = params;
 
   try {
-    const response = await fetch('https://raw.githubusercontent.com/YairYR/iny-one-full/main/data/urls.json');
-    const urls = await response.json();
+    const filePath = path.join(process.cwd(), 'data', 'urls.json');
+    const fileContent = fs.readFileSync(filePath, 'utf-8');
+    const urls = JSON.parse(fileContent);
 
     const destination = urls[short];
 
@@ -16,16 +20,12 @@ export const getServerSideProps = async ({ params }: any) => {
       };
     }
 
-    return {
-      notFound: true,
-    };
+    return { notFound: true };
   } catch (error) {
-    console.error('Error al leer URLs:', error);
-    return {
-      notFound: true,
-    };
+    console.error('Error reading local urls.json:', error);
+    return { notFound: true };
   }
-}
+};
 
 const RedirectPage = () => {
   return (
@@ -33,7 +33,6 @@ const RedirectPage = () => {
       <h1>Redireccionando...</h1>
     </div>
   );
-}
-//aqui dejareun placeholder
+};
 
 export default RedirectPage;
