@@ -13,17 +13,17 @@ export const getServerSideProps = async ({ params }: any) => {
       .from('short_links')
       .select('destination')
       .eq('slug', short)
-      .single();
+      .limit(1);
 
     if (error) {
       console.error('Error querying Supabase:', error.message);
       return { notFound: true };
     }
 
-    if (data?.destination) {
+    if (data && data.length > 0) {
       return {
         redirect: {
-          destination: data.destination,
+          destination: data[0].destination,
           permanent: false,
         },
       };
