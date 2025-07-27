@@ -1,11 +1,5 @@
+import { supabase } from '@/lib/supabase';
 import { nanoid } from 'nanoid';
-
-// Configura tus datos de GitHub
-const GITHUB_USERNAME = 'YairYR';
-const REPO_NAME = 'iny-one-full';
-const FILE_PATH = 'data/urls.json';
-const BRANCH = 'main';
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -22,14 +16,15 @@ export default async function handler(req, res) {
 
   const { url, utm } = req.body;
 
-  if (!url) return res.status(400).json({ error: 'URL faltante' });
+  if (!url) return res.status(400).json({ error: 'URL is required' });
 
-  // UTM handling
+  // Normalizar URL
   let fullUrl = url.trim();
   if (!/^https?:\/\//i.test(fullUrl)) {
     fullUrl = 'https://' + fullUrl;
   }
 
+  // Agregar parámetros UTM si existen
   const params = [];
   if (utm?.source) params.push(`utm_source=${utm.source}`);
   if (utm?.medium) params.push(`utm_medium=${utm.medium}`);
@@ -40,45 +35,26 @@ export default async function handler(req, res) {
     fullUrl += connector + params.join('&');
   }
 
-  const id = nanoid(6);
-  const shortUrl = `https://iny.one/${id}`;
+  const slug = nanoid(6);
 
-  try {
-    // Obtener el archivo actual
-    const getRes = await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}?ref=${BRANCH}`, {
-      headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
-        Accept: 'application/vnd.github.v3+json'
-      }
-    });
-
-    const { content, sha } = await getRes.json();
-    const decoded = Buffer.from(content, 'base64').toString('utf-8');
-    const urls = JSON.parse(decoded);
-
-    // Agregar nuevo ID
-    urls[id] = fullUrl;
-
-    // Codificar y subir
-    const updatedContent = Buffer.from(JSON.stringify(urls, null, 2)).toString('base64');
-
-    await fetch(`https://api.github.com/repos/${GITHUB_USERNAME}/${REPO_NAME}/contents/${FILE_PATH}`, {
-      method: 'PUT',
-      headers: {
-        Authorization: `Bearer ${GITHUB_TOKEN}`,
-        Accept: 'application/vnd.github.v3+json',
+  const { error } = await supabase
+    .from('short_links')
+    .insert([
+      {
+        slug,
+        destination: fullUrl,
+        utm_source: utm?.source ?? null,
+        utm_medium: utm?.medium ?? null,
+        utm_campaign: utm?.campaign ?? null,
+        user_id: null, // pública por ahora
       },
-      body: JSON.stringify({
-        message: `Add shortened URL for ${id}`,
-        content: updatedContent,
-        sha,
-        branch: BRANCH,
-      }),
-    });
+    ]);
 
-    res.status(200).json({ short: shortUrl });
-  } catch (err) {
-    console.error('Error al guardar en GitHub:', err);
-    res.status(500).json({ error: 'Error al guardar la URL' });
+  if (error) {
+    console.error('Supabase insert error:', error);
+    return res.status(500).json({ error: 'Error saving URL in database' });
   }
+
+  res.status(200).json({ short: `https://iny.one/${slug}` });
 }
+
