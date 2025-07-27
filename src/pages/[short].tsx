@@ -1,4 +1,9 @@
-import { supabase } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export const getServerSideProps = async ({ params }: any) => {
   const { short } = params;
@@ -31,13 +36,10 @@ export const getServerSideProps = async ({ params }: any) => {
   }
 };
 
-const RedirectPage = () => {
-  return (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Redireccionando...</h1>
-    </div>
-  );
-};
+const RedirectPage = () => (
+  <div style={{ padding: '2rem', textAlign: 'center' }}>
+    <h1>Redireccionando...</h1>
+  </div>
+);
 
 export default RedirectPage;
-
