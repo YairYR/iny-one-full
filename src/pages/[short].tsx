@@ -1,28 +1,32 @@
-import fs from 'fs';
-import path from 'path';
+import { supabase } from '@/lib/supabase';
 
 export const getServerSideProps = async ({ params }: any) => {
   const { short } = params;
 
   try {
-    const filePath = path.join(process.cwd(), 'data', 'urls.json');
-    const fileContent = fs.readFileSync(filePath, 'utf-8');
-    const urls = JSON.parse(fileContent);
+    const { data, error } = await supabase
+      .from('short_links')
+      .select('destination')
+      .eq('slug', short)
+      .single();
 
-    const destination = urls[short];
+    if (error) {
+      console.error('Error querying Supabase:', error.message);
+      return { notFound: true };
+    }
 
-    if (destination) {
+    if (data?.destination) {
       return {
         redirect: {
-          destination,
+          destination: data.destination,
           permanent: false,
         },
       };
     }
 
     return { notFound: true };
-  } catch (error) {
-    console.error('Error reading local urls.json:', error);
+  } catch (err) {
+    console.error('Unexpected error:', err);
     return { notFound: true };
   }
 };
@@ -36,3 +40,4 @@ const RedirectPage = () => {
 };
 
 export default RedirectPage;
+
