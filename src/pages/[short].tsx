@@ -18,7 +18,7 @@ export const getServerSideProps = async ({ params }: any) => {
     if (data && data.length > 0) {
       return {
         redirect: {
-          destination: data[0].destination,
+          destination: encodeURI(data[0].destination), // con EncodeURI soporta caracteres no ASCII
           permanent: false,
         },
       };
