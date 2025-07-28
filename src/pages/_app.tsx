@@ -2,8 +2,14 @@ import '@/styles/globals.css';
 import Head from 'next/head';
 import Script from 'next/script'; // 👈 nuevo import
 import { AppProvider } from '@/contexts/app.context';
+import React from "react";
 
-const App: React.FC<any> = ({ Component, pageProps }) => {
+interface Props {
+  Component: React.JSXElementConstructor<unknown>;
+  pageProps: object;
+}
+
+const App: React.FC<Props> = ({ Component, pageProps }) => {
   return (
     <AppProvider>
       <>

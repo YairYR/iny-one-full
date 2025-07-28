@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
@@ -84,8 +83,7 @@ export default function AboutPage() {
     }
   };
 
-  // Asegura que la clave sea 'en' o 'es'
-  const t = texts[lang.lang as 'en' | 'es'];
+  const t = texts[lang.lang];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
