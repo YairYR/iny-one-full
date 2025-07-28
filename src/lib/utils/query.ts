@@ -1,30 +1,35 @@
-import prisma from "@/lib/db";
+import db from "@/lib/db";
 
-export const getShortenUrl = (short: string) => {
-  return prisma.url.findFirst({
-    where: {
-      code: short,
-      status: true,
-    },
-  });
+export const getShortenUrl = async (short: string) => {
+  return db.from('short_links')
+            .select('destination')
+            .eq('slug', short)
+            .limit(1);
 }
 
-/*
-export const addShortenUrl = (uri: URL, short: string, active: boolean, utms: Utm[]) => {
-  const [ subdomain, domain ] = uri.host.split(".");
-
-  return prisma.url.create({
-    data: {
-      protocol: uri.protocol.substring(0, uri.protocol.length - 1), // remove ":"
-      subdomain: (!domain) ? null : subdomain,
-      domain: (!domain) ? subdomain : domain,
-      path: (uri.pathname.length > 0) ? uri.pathname : null,
-      short,
-      active,
-      utms: {
-        create: utms
-      }
-    }
-  })
+export const getBlockUrl = async (domain: string) => {
+  return db.from('blocklist_url')
+            .select("*")
+            .eq('domain', domain)
+            .limit(1);
 }
- */
+
+export const addShortenUrl = async (slug: string, url: string, utm: Partial<UtmParams>) => {
+  return db.from('short_links')
+            .insert([
+              {
+                slug,
+                destination: url,
+                utm_source: utm?.source ?? null,
+                utm_medium: utm?.medium ?? null,
+                utm_campaign: utm?.campaign ?? null,
+                user_id: null, // pública por ahora
+              },
+            ]);
+}
+
+interface UtmParams {
+  source: string;
+  medium: string;
+  campaign: string;
+}
