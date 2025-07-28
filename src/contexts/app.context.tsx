@@ -1,14 +1,12 @@
-import { createContext, useContext } from "react";
-import useLang from "@/hooks/useLang";
+import React, { createContext, useContext } from "react";
+import useInitialStateAppContext, {IAppContext} from "@/contexts/hooks/useInitialStateAppContext";
 
-export const AppContext = createContext<IAppContext>(undefined as any);
+export const AppContext = createContext<IAppContext>(undefined as never);
 
-export const AppProvider: React.FC<any> = ({ children }) => {
-    const lang = useLang('en');
+export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const initialState = useInitialStateAppContext();
 
-    return <AppContext.Provider value={{
-        lang,
-    }}>{children}</AppContext.Provider>
+    return <AppContext.Provider value={initialState}>{children}</AppContext.Provider>
 }
 
 export function useAppContext() {
@@ -17,8 +15,4 @@ export function useAppContext() {
         throw new Error('AppContext must be used within a AppProvider');
     }
     return context;
-}
-
-interface IAppContext {
-    lang: ReturnType<typeof useLang>;
 }

@@ -1,7 +1,8 @@
-import { supabase } from '@/lib/supabase';
 import { nanoid } from 'nanoid';
+import { NextApiRequest, NextApiResponse } from "next";
+import { addShortenUrl, getBlockUrl } from "@/lib/utils/query";
 
-export default async function handler(req, res) {
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
@@ -24,6 +25,25 @@ export default async function handler(req, res) {
     fullUrl = 'https://' + fullUrl;
   }
 
+  try {
+    const urlObject = new URL(fullUrl);
+    const urlBanned = await getBlockUrl(urlObject.host);
+
+    console.log({ urlBanned, data: urlBanned.data });
+
+    if(urlBanned.error) {
+      console.error(urlBanned.error);
+      return res.status(500).end();
+    }
+
+    if(urlBanned.data !== null && urlBanned.data.length > 0) {
+      return res.status(500).end();
+    }
+  } catch (err) {
+    console.error(err);
+    return res.status(500).end();
+  }
+
   // Agregar parámetros UTM si existen
   const params = [];
   if (utm?.source) params.push(`utm_source=${utm.source}`);
@@ -36,19 +56,7 @@ export default async function handler(req, res) {
   }
 
   const slug = nanoid(6);
-
-  const { error } = await supabase
-    .from('short_links')
-    .insert([
-      {
-        slug,
-        destination: fullUrl,
-        utm_source: utm?.source ?? null,
-        utm_medium: utm?.medium ?? null,
-        utm_campaign: utm?.campaign ?? null,
-        user_id: null, // pública por ahora
-      },
-    ]);
+  const { error } = await addShortenUrl(slug, fullUrl, utm);
 
   if (error) {
     console.error('Supabase insert error:', error);
@@ -57,4 +65,3 @@ export default async function handler(req, res) {
 
   res.status(200).json({ short: `https://iny.one/${slug}` });
 }
-

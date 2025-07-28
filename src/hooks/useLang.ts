@@ -7,13 +7,14 @@ const useLang = (defLang: LANG = 'en') => {
     const [currentLang, setCurrentLang] = useState(defLang);
 
     useEffect(() => {
-        const userLang = navigator.language || (navigator as any)?.userLanguage;
+        // @ts-expect-error Some navigators use "userLanguage"
+        const userLang = navigator.language || navigator?.userLanguage;
         if (userLang.startsWith('es')) setCurrentLang('es');
     }, []);
 
     const getText = (id: string) => {
-        // @ts-ignore
-        return langs[currentLang][id] || '[TEXT NOT FOUND]';
+        // @ts-expect-error "langs" is a JSON file
+        return langs[currentLang][id] ?? '[TEXT NOT FOUND]';
     }
 
     return {
