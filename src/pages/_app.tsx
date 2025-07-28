@@ -1,10 +1,11 @@
 import '@/styles/globals.css';
 import Head from 'next/head';
-import { AppProvider } from '@/contexts/app.context'; // 👈 Asegúrate de que esta ruta sea correcta
+import Script from 'next/script'; // 👈 nuevo import
+import { AppProvider } from '@/contexts/app.context';
 
 const App: React.FC<any> = ({ Component, pageProps }) => {
   return (
-    <AppProvider> {/* 👈 Aquí envolvemos la app */}
+    <AppProvider>
       <>
         <Head>
           <title>iny.one – Shorten URLs, Track Smarter</title>
@@ -33,6 +34,22 @@ const App: React.FC<any> = ({ Component, pageProps }) => {
           <meta name="twitter:image" content="https://www.iny.one/og-image.png" />
         </Head>
 
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-KT87SQKGT4"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-KT87SQKGT4', {
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
+
         <Component {...pageProps} />
       </>
     </AppProvider>
@@ -40,4 +57,5 @@ const App: React.FC<any> = ({ Component, pageProps }) => {
 };
 
 export default App;
+
 
