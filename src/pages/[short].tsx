@@ -1,14 +1,14 @@
-import { supabase } from '@/lib/supabase';
+import db from '@/lib/db';
 
 export const getServerSideProps = async ({ params }: any) => {
   const { short } = params;
 
   try {
-    const { data, error } = await supabase
-      .from('short_links')
-      .select('destination')
-      .eq('slug', short)
-      .limit(1);
+    const { data, error } = await db
+        .from('short_links')
+        .select('destination')
+        .eq('slug', short)
+        .limit(1);
 
     if (error) {
       console.error('Error querying Supabase:', error.message);
@@ -32,9 +32,9 @@ export const getServerSideProps = async ({ params }: any) => {
 };
 
 const RedirectPage = () => (
-  <div style={{ padding: '2rem', textAlign: 'center' }}>
-    <h1>Redireccionando...</h1>
-  </div>
+    <div style={{ padding: '2rem', textAlign: 'center' }}>
+      <h1>Redireccionando...</h1>
+    </div>
 );
 
 export default RedirectPage;

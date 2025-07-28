@@ -1,6 +1,11 @@
-import Footer from '@/components/footer';
+import Footer from '@/components/Footer';
+import React from "react";
 
-const Layout: React.FC<any> = ({ children }) => {
+interface Props {
+    children: React.ReactNode;
+}
+
+const Layout: React.FC<Props> = ({ children }) => {
     return (
         <div className="min-h-screen flex flex-col justify-between bg-gradient-to-br from-blue-50 to-indigo-100">
 
