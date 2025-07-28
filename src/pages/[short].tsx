@@ -1,14 +1,16 @@
-import db from '@/lib/db';
+import { getShortenUrl } from "@/lib/utils/query";
 
-export const getServerSideProps = async ({ params }: any) => {
+interface Props {
+  params: {
+    short: string;
+  }
+}
+
+export const getServerSideProps = async ({ params }: Props) => {
   const { short } = params;
 
   try {
-    const { data, error } = await db
-        .from('short_links')
-        .select('destination')
-        .eq('slug', short)
-        .limit(1);
+    const { data, error } = await getShortenUrl(short);
 
     if (error) {
       console.error('Error querying Supabase:', error.message);

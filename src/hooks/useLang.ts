@@ -4,7 +4,7 @@ import langs from '@/data/lang.json';
 type LANG = 'en'|'es';
 
 const useLang = (defLang: LANG = 'en') => {
-    const [currentLang, setCurrentLang] = useState(defLang);
+    const [currentLang, setCurrentLang] = useState<LANG>(defLang);
 
     useEffect(() => {
         // @ts-expect-error Some navigators use "userLanguage"
