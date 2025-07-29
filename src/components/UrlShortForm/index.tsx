@@ -1,39 +1,30 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Copy, ExternalLink, Link, Zap } from 'lucide-react';
 import { useAppContext } from '@/contexts/app.context';
 import useClipboard from '@/hooks/useClipboard';
+import { isURL } from "validator";
 
 export default function UrlShortForm() {
   const { lang } = useAppContext();
   const { copied, copyToClipboard } = useClipboard();
 
-  const [url, setUrl] = useState('');
+  const [curentUrl, setCurentUrl] = useState('');
   const [utm, setUtm] = useState({ source: '', medium: '', campaign: '' });
   const [shortUrl, setShortUrl] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const validateUrl = (input: string) => {
-    try {
-      new URL(input);
-      return true;
-    } catch {
-      return false;
-    }
-  };
+  const sanitize = (value: string) =>
+      value.replace(/[^a-zA-Z0-9-_]/g, '')
 
   const handleShorten = async () => {
-    let cleanedUrl = url.trim();
-    if (!cleanedUrl) {
+    const url = curentUrl.trim();
+    if (!url) {
       setError(lang.get('requiredUrl'));
       return;
     }
 
-    if (!/^https?:\/\//i.test(cleanedUrl)) {
-      cleanedUrl = 'https://' + cleanedUrl;
-    }
-
-    if (!validateUrl(cleanedUrl)) {
+    if (!isURL(url)) {
       setError(lang.get('invalidUrl'));
       return;
     }
@@ -45,7 +36,7 @@ export default function UrlShortForm() {
       const response = await fetch('/api/shorten', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ url: cleanedUrl, utm }),
+        body: JSON.stringify({ url, utm }),
       });
 
       if (!response.ok) throw new Error();
@@ -60,7 +51,7 @@ export default function UrlShortForm() {
   };
 
   const clearForm = () => {
-    setUrl('');
+    setCurentUrl('');
     setUtm({ source: '', medium: '', campaign: '' });
     setShortUrl('');
     setError('');
@@ -68,6 +59,19 @@ export default function UrlShortForm() {
 
   const onClickBtnCopy = async () => {
     await copyToClipboard(shortUrl)
+  }
+
+  const handleChangeUtmSource = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const value = sanitize(ev.target.value);
+    setUtm((prev) => ({ ...prev, source: value }))
+  }
+  const handleChangeUtmMedium = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const value = sanitize(ev.target.value);
+    setUtm((prev) => ({ ...prev, medium: value }))
+  }
+  const handleChangeUtmCampain = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    const value = sanitize(ev.target.value);
+    setUtm((prev) => ({ ...prev, campaign: value }))
   }
 
   return (
@@ -79,8 +83,8 @@ export default function UrlShortForm() {
         <input
           type="url"
           placeholder={lang.get('urlPlaceholder')}
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
+          value={curentUrl}
+          onChange={(e) => setCurentUrl(e.target.value)}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
         />
       </div>
@@ -94,21 +98,21 @@ export default function UrlShortForm() {
             type="text"
             placeholder="utm_source"
             value={utm.source}
-            onChange={(e) => setUtm({ ...utm, source: e.target.value })}
+            onChange={handleChangeUtmSource}
             className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
           />
           <input
             type="text"
             placeholder="utm_medium"
             value={utm.medium}
-            onChange={(e) => setUtm({ ...utm, medium: e.target.value })}
+            onChange={handleChangeUtmMedium}
             className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
           />
           <input
             type="text"
             placeholder="utm_campaign"
             value={utm.campaign}
-            onChange={(e) => setUtm({ ...utm, campaign: e.target.value })}
+            onChange={handleChangeUtmCampain}
             className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
           />
         </div>
