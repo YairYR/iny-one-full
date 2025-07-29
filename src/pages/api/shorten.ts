@@ -1,6 +1,12 @@
 import { nanoid } from 'nanoid';
 import { NextApiRequest, NextApiResponse } from "next";
 import { addShortenUrl, getBlockUrl } from "@/lib/utils/query";
+import tldts from 'tldts';
+import validator, { IsURLOptions } from 'validator';
+
+const urlOptions: IsURLOptions = {
+  protocols: ['http', 'https'],
+}
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -17,7 +23,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   const { url, utm } = req.body;
 
-  if (!url) return res.status(400).json({ error: 'URL is required' });
+  if (!url || !validator.isURL(url, urlOptions)) {
+    return res.status(400).json({ error: 'URL is required' });
+  }
 
   // Normalizar URL
   let fullUrl = url.trim();
@@ -25,30 +33,32 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     fullUrl = 'https://' + fullUrl;
   }
 
-  try {
-    const urlObject = new URL(fullUrl);
-    const urlBanned = await getBlockUrl(urlObject.host);
-
-    console.log({ urlBanned, data: urlBanned.data });
-
-    if(urlBanned.error) {
-      console.error(urlBanned.error);
-      return res.status(500).end();
-    }
-
-    if(urlBanned.data !== null && urlBanned.data.length > 0) {
-      return res.status(500).end();
-    }
-  } catch (err) {
-    console.error(err);
+  const urlInfo = tldts.parse(fullUrl);
+  if(urlInfo.domain === null || urlInfo.isIp || ["iny.one", "localhost"].includes(urlInfo.domain)) {
+    console.log('❌ La URL ingresada no es válida:', fullUrl)
     return res.status(500).end();
   }
 
+  const urlBanned = await getBlockUrl(urlInfo.domain);
+
+  if(urlBanned.error) {
+    console.error(urlBanned.error);
+    return res.status(500).end();
+  }
+
+  if(urlBanned.data !== null && urlBanned.data.length > 0) {
+    console.log('❗ El dominio de la URL ingresada está baneada:', fullUrl);
+    return res.status(500).end();
+  }
+
+  const sanitize = (value: string) =>
+      value.replace(/[^a-zA-Z0-9-_]/g, '')
+
   // Agregar parámetros UTM si existen
   const params = [];
-  if (utm?.source) params.push(`utm_source=${utm.source}`);
-  if (utm?.medium) params.push(`utm_medium=${utm.medium}`);
-  if (utm?.campaign) params.push(`utm_campaign=${utm.campaign}`);
+  if (utm?.source) params.push(`utm_source=${sanitize(utm.source.trim())}`);
+  if (utm?.medium) params.push(`utm_medium=${sanitize(utm.medium.trim())}`);
+  if (utm?.campaign) params.push(`utm_campaign=${sanitize(utm.campaign.trim())}`);
 
   if (params.length > 0) {
     const connector = fullUrl.includes('?') ? '&' : '?';
