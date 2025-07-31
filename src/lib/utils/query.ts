@@ -8,10 +8,10 @@ export const getShortenUrl = async (short: string) => {
 }
 
 export const getBlockUrl = async (domain: string) => {
-  return db.from('blocklist_url')
-            .select("*")
-            .eq('domain', domain)
-            .limit(1);
+  return db.schema('security')
+           .rpc('is_domain_secure', {
+             domain_to_check: domain
+           });
 }
 
 export const addShortenUrl = async (slug: string, url: string, utm: Partial<UtmParams>) => {
