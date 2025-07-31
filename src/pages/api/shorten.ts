@@ -46,7 +46,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(500).end();
   }
 
-  if(urlBanned.data !== null && urlBanned.data.length > 0) {
+  if(urlBanned.data !== null && urlBanned.data === false) {
     console.log('❗ El dominio de la URL ingresada está baneada:', fullUrl);
     return res.status(500).end();
   }
