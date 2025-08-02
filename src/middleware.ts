@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-const allowedOrigins = ['https://iny.one'];
+const allowedOrigins = ['https://iny.one', 'https://www.iny.one'];
 
 const corsOptions = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
