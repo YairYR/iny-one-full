@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Copy, ExternalLink, Link, Zap } from 'lucide-react';
 import { useAppContext } from '@/contexts/app.context';
 import useClipboard from '@/hooks/useClipboard';
 import { isURL } from "validator";
 
 export default function UrlShortForm() {
-  const { lang } = useAppContext();
+  const { lang, clientInfo } = useAppContext();
   const { copied, copyToClipboard } = useClipboard();
 
   const [curentUrl, setCurentUrl] = useState('');
@@ -15,7 +15,13 @@ export default function UrlShortForm() {
   const [error, setError] = useState('');
 
   const sanitize = (value: string) =>
-      value.replace(/[^a-zA-Z0-9-_]/g, '')
+      value.replace(/[^a-zA-Z0-9-_]/g, '');
+
+  useEffect(() => {
+    clientInfo.getIp()
+      .then(clientInfo.getCountry)
+      .catch((e) => console.error(e));
+  }, []);
 
   const handleShorten = async () => {
     const url = curentUrl.trim();
@@ -32,10 +38,22 @@ export default function UrlShortForm() {
     setError('');
     setIsLoading(true);
 
+    const ip = (await clientInfo
+        .getIp()
+        .catch(console.error));
+
+    const country = (await clientInfo
+      .getCountry(ip as string)
+      .catch(console.error));
+
     try {
       const response = await fetch('/api/shorten', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'x-forwarded-for': ip ?? '',
+          'x-forwarded-for-code': country ?? '',
+        },
         body: JSON.stringify({ url, utm }),
       });
 

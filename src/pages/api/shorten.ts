@@ -17,6 +17,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(405).end();
   }
 
+  const ip = (req.headers['x-forwarded-for'] as string) ?? null;
+  const countryCode = (req.headers['x-forwarded-for-code'] as string) ?? null;
+
   const { url, utm } = req.body;
 
   if (!url || !validator.isURL(url, urlOptions)) {
@@ -62,7 +65,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   const slug = nanoid(6);
-  const { error } = await addShortenUrl(slug, fullUrl, utm);
+  const { error } = await addShortenUrl(slug, fullUrl, utm, urlInfo.domain, {
+    ip,
+    countryCode,
+  });
 
   if (error) {
     console.error('Supabase insert error:', error);

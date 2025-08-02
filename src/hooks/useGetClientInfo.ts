@@ -15,15 +15,16 @@ export default function useGetClientInfo() {
             })
     }
 
-    const getCountry = async (ip: string): Promise<string|null> => {
-        if(!ip || ip.length === 0) return null;
+    const getCountry = async (client_ip?: string|null): Promise<string|null> => {
+        client_ip = client_ip ?? ip;
+        if(!client_ip || client_ip.length === 0) return null;
         if(country !== null) return country;
 
-        return fetch(`https://free.freeipapi.com/api/json/${ip}`)
+        return fetch(`https://free.freeipapi.com/api/json/${client_ip}`)
             .then((res) => res.json())
             .then((data) => {
-                setCountry(data.countryName)
-                return data.countryName;
+                setCountry(data.countryCode)
+                return data.countryCode;
             })
     }
 
