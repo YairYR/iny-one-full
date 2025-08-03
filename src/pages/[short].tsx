@@ -17,10 +17,14 @@ export const getServerSideProps = async ({ params }: Props) => {
       return { notFound: true };
     }
 
-    if (data && data.length > 0) {
+    // ✅ Aseguramos que sea un array y tipamos
+    const rows = (data ?? []) as { destination: string }[];
+
+    if (rows.length > 0) {
       return {
         redirect: {
-          destination: encodeURI(data[0].destination), // con EncodeURI soporta caracteres no ASCII
+          // ✅ EncodeURI para evitar errores de caracteres no ASCII
+          destination: encodeURI(rows[0].destination),
           permanent: false,
         },
       };
@@ -34,9 +38,9 @@ export const getServerSideProps = async ({ params }: Props) => {
 };
 
 const RedirectPage = () => (
-    <div style={{ padding: '2rem', textAlign: 'center' }}>
-      <h1>Redireccionando...</h1>
-    </div>
+  <div style={{ padding: '2rem', textAlign: 'center' }}>
+    <h1>Redireccionando...</h1>
+  </div>
 );
 
 export default RedirectPage;
