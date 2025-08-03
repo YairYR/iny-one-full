@@ -3,11 +3,10 @@ import db from "@/lib/db";
 export const getShortenUrl = async (short: string) => {
   return db
     .from('short_links')
-    .select('id, destination') // ✅ Incluimos id para analytics
+    .select('destination')
     .eq('slug', short)
-    .limit(1)
-    .single(); // ✅ Directamente un objeto
-};
+    .maybeSingle(); // ✅ Devuelve un solo objeto o null
+}
 
 export const getBlockUrl = async (domain: string) => {
   return db
@@ -15,7 +14,7 @@ export const getBlockUrl = async (domain: string) => {
     .rpc('is_domain_secure', {
       domain_to_check: domain
     });
-};
+}
 
 export const addShortenUrl = async (
   slug: string,
@@ -39,9 +38,8 @@ export const addShortenUrl = async (
         domain: domain ?? null,
       },
     ])
-    .select('id, slug') 
-    .single();          
-};
+    .select('slug'); // ✅ Solo devuelve el slug para evitar problemas con columnas
+}
 
 interface UtmParams {
   source: string;
