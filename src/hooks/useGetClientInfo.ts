@@ -1,17 +1,16 @@
 import {useState} from "react";
-import useLocalstorage from "@/hooks/useLocalstorage";
+import { addToLocalStorage, getFromLocalStorage } from "@/utils/localstorage";
 
 const maxTimeInSec = 15 * 60;
 
 export default function useGetClientInfo() {
   const [ip, setIp] = useState<string | null>(null);
   const [country, setCountry] = useState<string | null>(null);
-  const localData = useLocalstorage();
 
   const getIp = async (): Promise<string> => {
     if(ip !== null) return ip;
 
-    const ipLoaded = localData.get('ip')
+    const ipLoaded = getFromLocalStorage('ip')
     if(ipLoaded) {
       setIp(ipLoaded);
       return ipLoaded;
@@ -21,7 +20,7 @@ export default function useGetClientInfo() {
       .then((res) => res.json())
       .then((data) => {
         setIp(data.ip)
-        localData.set('ip', data.ip, maxTimeInSec)
+        addToLocalStorage('ip', data.ip, maxTimeInSec)
         return data.ip as string;
       });
   }
@@ -30,7 +29,7 @@ export default function useGetClientInfo() {
     client_ip = client_ip ?? ip;
     if(!client_ip || client_ip.length === 0) return null;
     if(country !== null) return country;
-    const countryLoaded = localData.get('country');
+    const countryLoaded = getFromLocalStorage('country');
     if(countryLoaded) {
       setCountry(countryLoaded);
       return countryLoaded;
@@ -40,7 +39,7 @@ export default function useGetClientInfo() {
       .then((res) => res.json())
       .then((data) => {
         setCountry(data.countryCode)
-        localData.set('country', data.countryCode, maxTimeInSec);
+        addToLocalStorage('country', data.countryCode, maxTimeInSec);
         return data.countryCode;
       });
   }
