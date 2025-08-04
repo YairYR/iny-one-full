@@ -27,14 +27,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   // Normalizar URL
-  let fullUrl = url.trim();
-  if (!/^https?:\/\//i.test(fullUrl)) {
-    fullUrl = 'https://' + fullUrl;
+  let urlWithSuffix = url.trim();
+  if (!/^https?:\/\//i.test(urlWithSuffix)) {
+    urlWithSuffix = 'https://' + urlWithSuffix;
   }
 
-  const urlInfo = tldts.parse(fullUrl);
+  const urlInfo = tldts.parse(urlWithSuffix);
   if(urlInfo.domain === null || urlInfo.isIp || ["iny.one", "localhost"].includes(urlInfo.domain)) {
-    console.log('❌ La URL ingresada no es válida:', fullUrl)
+    console.log('❌ La URL ingresada no es válida:', urlWithSuffix)
     return res.status(500).end();
   }
 
@@ -46,26 +46,15 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   if(urlBanned.data !== null && urlBanned.data === false) {
-    console.log('❗ El dominio de la URL ingresada está baneada:', fullUrl);
+    console.log('❗ El dominio de la URL ingresada está baneada:', urlWithSuffix);
     return res.status(500).end();
   }
 
-  const sanitize = (value: string) =>
-      value.replace(/[^a-zA-Z0-9-_]/g, '')
-
-  // Agregar parámetros UTM si existen
-  const params = [];
-  if (utm?.source) params.push(`utm_source=${sanitize(utm.source.trim())}`);
-  if (utm?.medium) params.push(`utm_medium=${sanitize(utm.medium.trim())}`);
-  if (utm?.campaign) params.push(`utm_campaign=${sanitize(utm.campaign.trim())}`);
-
-  if (params.length > 0) {
-    const connector = fullUrl.includes('?') ? '&' : '?';
-    fullUrl += connector + params.join('&');
-  }
+  const destination = buildDestination(urlWithSuffix, utm);
+  console.log(destination);
 
   const slug = nanoid(6);
-  const { error } = await addShortenUrl(slug, fullUrl, utm, urlInfo.domain, {
+  const { error } = await addShortenUrl(slug, destination, utm, urlInfo.domain, {
     ip,
     countryCode,
   });
@@ -76,4 +65,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   res.status(200).json({ short: `https://iny.one/${slug}` });
+}
+
+const buildDestination = (url: string, utm: Partial<UtmParams>) => {
+  const sanitize = (value: string) =>
+    value.replace(/[^a-zA-Z0-9-_]/g, '')
+
+  const destination = new URL(url);
+  if(utm?.source) destination.searchParams.set('utm_source', sanitize(utm.source.trim()));
+  if(utm?.medium) destination.searchParams.set('utm_medium', sanitize(utm.medium.trim()));
+  if(utm?.campaign) destination.searchParams.set('utm_campaign', sanitize(utm.campaign.trim()));
+
+  return decodeURI(destination.toString());
+}
+
+interface UtmParams {
+  source: string;
+  medium: string;
+  campaign: string;
 }
