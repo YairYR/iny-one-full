@@ -17,17 +17,12 @@ export default function UrlShortForm() {
   const sanitize = (value: string) =>
       value.replace(/[^a-zA-Z0-9-_]/g, '');
 
-  // ✅ useEffect corregido con dependencia
   useEffect(() => {
     clientInfo.getIp()
       .then(clientInfo.getCountry)
       .catch((e) => console.error(e));
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
-  /**
-   * Se deja el array vacío y se desactiva la advertencia de ESLint 
-   * porque solo queremos ejecutar esta llamada una vez al montar el componente.
-   */
+  }, []);
 
   const handleShorten = async () => {
     const url = curentUrl.trim();
