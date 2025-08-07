@@ -1,4 +1,3 @@
-import 'server-only';
 import db from "@/lib/db";
 import { ClientInfo, UtmParams } from "@/lib/types";
 
