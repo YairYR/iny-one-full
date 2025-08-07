@@ -24,6 +24,7 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   console.log({ ALLOWED_ORIGINS });
+  console.log({ ENV_VARS: process.env });
 
   Object.entries(corsOptions).forEach(([key, value]) => {
     response.headers.set(key, value);
