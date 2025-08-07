@@ -1,9 +1,5 @@
 import { NextRequest, MiddlewareConfig, NextResponse } from 'next/server';
-
-const allowedOrigins = ['https://iny.one', 'https://www.iny.one'];
-if(process.env.NODE_ENV === 'development') {
-  allowedOrigins.push('http://localhost:3000');
-}
+import { ALLOWED_ORIGINS } from "@/constants";
 
 const corsOptions = {
   'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
@@ -13,7 +9,7 @@ const corsOptions = {
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
   const origin = request.headers.get('Origin') ?? request.headers.get('origin') ?? '';
-  const isAllowedOrigin = allowedOrigins.includes(origin);
+  const isAllowedOrigin = ALLOWED_ORIGINS.includes(origin);
 
   const isPreflight = request.method === 'OPTIONS';
 
@@ -26,6 +22,8 @@ export async function middleware(request: NextRequest) {
   }
 
   const response = NextResponse.next();
+
+  console.log({ ALLOWED_ORIGINS });
 
   Object.entries(corsOptions).forEach(([key, value]) => {
     response.headers.set(key, value);
