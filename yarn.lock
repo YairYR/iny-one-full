@@ -15,6 +15,11 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
+"@edge-csrf/core@^2.5.3-cloudflare-rc1":
+  version "2.5.3-cloudflare-rc1"
+  resolved "https://registry.yarnpkg.com/@edge-csrf/core/-/core-2.5.3-cloudflare-rc1.tgz#32a343521aa0f063891853a8cdd24bd69e041d3c"
+  integrity sha512-cH7/dvHa6V5ZhmBHBGk1Y36sfutJ9gxUQ70dUrWiLLYgk12dn0KC68p2l7X7I+e8BWLN+UJFWp+NUi2Gut+/vw==
+
 "@emnapi/core@^1.4.3":
   version "1.4.5"
   resolved "https://registry.yarnpkg.com/@emnapi/core/-/core-1.4.5.tgz#bfbb0cbbbb9f96ec4e2c4fd917b7bbe5495ceccb"

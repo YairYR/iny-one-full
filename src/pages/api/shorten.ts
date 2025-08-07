@@ -8,22 +8,22 @@ const urlOptions: IsURLOptions = {
   protocols: ['http', 'https'],
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === 'OPTIONS') {
-    return res.status(200).end();
+export default async function handler(request: NextApiRequest, response: NextApiResponse) {
+  if (request.method === 'OPTIONS') {
+    return response.status(200).end();
   }
 
-  if (req.method !== 'POST') {
-    return res.status(405).end();
+  if (request.method !== 'PUT') {
+    return response.status(405).end();
   }
 
-  const ip = (req.headers['x-forwarded-for'] as string) ?? null;
-  const countryCode = (req.headers['x-forwarded-for-code'] as string) ?? null;
+  const ip = (request.headers['x-forwarded-for'] as string) ?? null;
+  const countryCode = (request.headers['x-forwarded-for-code'] as string) ?? null;
 
-  const { url, utm } = req.body;
+  const { url, utm } = request.body;
 
   if (!url || !validator.isURL(url, urlOptions)) {
-    return res.status(400).json({ error: 'URL is required' });
+    return response.status(400).json({ error: 'URL is required' });
   }
 
   // Normalizar URL
@@ -35,19 +35,19 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const urlInfo = tldts.parse(urlWithSuffix);
   if(urlInfo.domain === null || urlInfo.isIp || ["iny.one", "localhost"].includes(urlInfo.domain)) {
     console.log('❌ La URL ingresada no es válida:', urlWithSuffix)
-    return res.status(500).end();
+    return response.status(500).end();
   }
 
   const urlBanned = await getBlockUrl(urlInfo.domain);
 
   if(urlBanned.error) {
     console.error(urlBanned.error);
-    return res.status(500).end();
+    return response.status(500).end();
   }
 
   if(urlBanned.data !== null && urlBanned.data === false) {
     console.log('❗ El dominio de la URL ingresada está baneada:', urlWithSuffix);
-    return res.status(500).end();
+    return response.status(500).end();
   }
 
   const destination = buildDestination(urlWithSuffix, utm);
@@ -61,10 +61,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (error) {
     console.error('Supabase insert error:', error);
-    return res.status(500).json({ error: 'Error saving URL in database' });
+    return response.status(500).json({ error: 'Error saving URL in database' });
   }
 
-  res.status(200).json({ short: `https://iny.one/${slug}` });
+  const data = {
+    code: 0,
+    message: null,
+    data: {
+      short: `https://iny.one/${slug}`
+    }
+  }
+  response.status(200).json(data);
 }
 
 const buildDestination = (url: string, utm: Partial<UtmParams>) => {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import langs from '@/data/lang.json';
+import languages from '@/data/lang.json';
 
 type LANG = 'en'|'es';
 
@@ -12,9 +12,8 @@ const useLang = (defLang: LANG = 'en') => {
         if (userLang.startsWith('es')) setCurrentLang('es');
     }, []);
 
-    const getText = (id: string) => {
-        // @ts-expect-error "langs" is a JSON file
-        return langs[currentLang][id] ?? '[TEXT NOT FOUND]';
+    const getText = (id: KeysLang) => {
+        return languages[currentLang][id] ?? languages['en'][id] ?? '[TEXT NOT FOUND]';
     }
 
     return {
@@ -23,5 +22,8 @@ const useLang = (defLang: LANG = 'en') => {
         get: getText,
     }
 }
+
+type EnglishLang = typeof languages['en'];
+type KeysLang = keyof EnglishLang;
 
 export default useLang;

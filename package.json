@@ -8,8 +8,8 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.43.2",
     "@next/third-parties": "^15.4.4",
+    "@supabase/supabase-js": "^2.43.2",
     "lodash": "^4.17.21",
     "lucide-react": "^0.293.0",
     "nanoid": "^5.1.5",

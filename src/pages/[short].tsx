@@ -17,11 +17,10 @@ export const getServerSideProps = async ({ params }: Props) => {
       return { notFound: true };
     }
 
-    // ✅ data ahora es un objeto o null
     if (data?.destination) {
       return {
         redirect: {
-          destination: decodeURI(data.destination), // Encode para soportar caracteres especiales
+          destination: decodeURI(data.destination),
           permanent: false,
         },
       };
