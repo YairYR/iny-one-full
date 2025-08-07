@@ -1,11 +1,7 @@
-export const IS_PRODUCTION: boolean = process.env.VERCEL_ENV === 'production';
+export const IS_PRODUCTION = process.env.VERCEL_ENV === 'production';
+export const IS_DEVELOPMENT = process.env.VERCEL_ENV === 'development';
 
 export const ALLOWED_ORIGINS = ['https://iny.one', 'https://www.iny.one'];
 
-if(process.env.VERCEL_URL) {
-  ALLOWED_ORIGINS.push(`https://${process.env.VERCEL_URL}`);
-}
-
-if(!IS_PRODUCTION) {
-  ALLOWED_ORIGINS.push(`http://localhost:3000`);
-}
+if(process.env.VERCEL_URL) ALLOWED_ORIGINS.push(`https://${process.env.VERCEL_URL}`);
+if(IS_DEVELOPMENT) ALLOWED_ORIGINS.push(`http://localhost:3000`);
