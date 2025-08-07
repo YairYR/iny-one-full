@@ -2,6 +2,7 @@
   "en": {
     "title": "iny.one – UTM Link Shortener",
     "subtitle": "Boost your campaigns with smarter short links.",
+    "metaName": "iny.one",
     "metaTitle": "iny.one – Shorten URLs, Track Smarter",
     "metaDescription": "iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results.",
     "h1Main": "iny.one – Free URL Shortener with UTM Tracking",
@@ -33,6 +34,7 @@
   "es": {
     "title": "iny.one – Acortador de URLs con UTM",
     "subtitle": "Mejora tus campañas con enlaces inteligentes.",
+    "metaName": "iny.one",
     "metaTitle": "iny.one – Acorta URLs y mide mejor",
     "metaDescription": "iny.one es un acortador de URLs gratuito con seguimiento UTM. Crea enlaces cortos y mide tus resultados.",
     "h1Main": "iny.one – Acortador de URLs con parámetros UTM",
