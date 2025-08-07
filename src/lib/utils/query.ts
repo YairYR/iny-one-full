@@ -1,4 +1,6 @@
+import 'server-only';
 import db from "@/lib/db";
+import { ClientInfo, UtmParams } from "@/lib/types";
 
 export const getShortenUrl = async (short: string) => {
   return db
@@ -41,14 +43,4 @@ export const addShortenUrl = async (
     .select('slug'); // ✅ Solo devuelve el slug para evitar problemas con columnas
 }
 
-interface UtmParams {
-  source: string;
-  medium: string;
-  campaign: string;
-}
-
-interface ClientInfo {
-  ip: string | null;
-  countryCode: string | null;
-}
 

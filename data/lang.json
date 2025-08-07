@@ -26,7 +26,9 @@
     "easyDesc": "Copy and share your short URLs with one click",
     "aboutLink": "Want to know more? Learn about iny.one.",
     "footerText": "Want to know more?",
-    "footerLink": "About"
+    "footerLink": "About",
+    "errorNewShorten": "There were problems generating the link.",
+    "errorNewShortenRefresh": "There were problems generating the link. Please refresh the page!"
   },
   "es": {
     "title": "iny.one – Acortador de URLs con UTM",
@@ -55,6 +57,8 @@
     "easyDesc": "Copia y comparte tus enlaces cortos con un clic",
     "aboutLink": "¿Quieres saber más? Conoce iny.one.",
     "footerText": "¿Quieres saber más?",
-    "footerLink": "Acerca de"
+    "footerLink": "Acerca de",
+    "errorNewShorten": "Error al acortar la URL.",
+    "errorNewShortenRefresh": "Error al acortar la URL. Por favor recarga la página."
   }
 }

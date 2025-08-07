@@ -26,7 +26,21 @@ export const getFromLocalStorage = (name: string) => {
   if(!data[name]) return null;
   const value = data[name];
   const expiresIn = (new Date(value.expires)).getTime();
-  if((Date.now() - expiresIn) <= 0) return null;
+  if((Date.now() - expiresIn) >= 0) return null;
   return value.value;
 }
 
+export const addToSessionStorage = (name: string, value: string) => {
+  if(typeof window === 'undefined' || !window.sessionStorage) return;
+  window.sessionStorage.setItem(`data-${name}`, value);
+}
+
+export const getFromSessionStorage = (name: string) => {
+  if(typeof window === 'undefined' || !window.sessionStorage) return null;
+  return window.sessionStorage.getItem(`data-${name}`);
+}
+
+export const removeFromSessionStorage = (name: string) => {
+  if(typeof window === 'undefined' || !window.sessionStorage) return;
+  window.sessionStorage.removeItem(`data-${name}`);
+}

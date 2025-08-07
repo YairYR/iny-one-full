@@ -3,14 +3,23 @@ import { Copy, ExternalLink, Link, Zap } from 'lucide-react';
 import { useAppContext } from '@/contexts/app.context';
 import useClipboard from '@/hooks/useClipboard';
 import { isURL } from "validator";
+import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
+import {
+  addToSessionStorage,
+  getFromSessionStorage,
+  removeFromSessionStorage
+} from "@/utils/localstorage";
+import { useRouter } from "next/router";
 
 export default function UrlShortForm() {
   const { lang, clientInfo } = useAppContext();
   const { copied, copyToClipboard } = useClipboard();
+  const router = useRouter();
 
-  const [curentUrl, setCurentUrl] = useState('');
-  const [utm, setUtm] = useState({ source: '', medium: '', campaign: '' });
-  const [shortUrl, setShortUrl] = useState('');
+  const shortenedUrls = React.useRef<UrlHistory>({});
+  const [currentUrl, setCurrentUrl] = useState('');
+  const [utm, setUtm] = useState<UtmParams>({ source: '', medium: '', campaign: '' });
+  const [shortUrl, setShortUrl] = useState<string|null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -18,14 +27,37 @@ export default function UrlShortForm() {
       value.replace(/[^a-zA-Z0-9-_]/g, '');
 
   useEffect(() => {
+    const urlRefresh = getFromSessionStorage('url');
+    if(urlRefresh) {
+      const data = JSON.parse(urlRefresh);
+      setCurrentUrl(data.url);
+      setUtm(data.utm);
+      removeFromSessionStorage('url');
+    }
+
     clientInfo.getIp()
       .then(clientInfo.getCountry)
       .catch((e) => console.error(e));
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const getShortUrl = async (url: string, utm: UtmParams) => {
+    const ip = await clientInfo.getIp().catch(console.error);
+    const country = await clientInfo.getCountry(ip as string).catch(console.error);
+
+    return fetch('/api/shorten', {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-forwarded-for': ip ?? '',
+        'x-forwarded-for-code': country ?? '',
+      },
+      body: JSON.stringify({ url, utm }),
+    });
+  }
+
   const handleShorten = async () => {
-    const url = curentUrl.trim();
+    const url = currentUrl.trim();
     if (!url) {
       setError(lang.get('requiredUrl'));
       return;
@@ -36,43 +68,58 @@ export default function UrlShortForm() {
       return;
     }
 
+    setShortUrl(null);
     setError('');
     setIsLoading(true);
 
-    const ip = await clientInfo.getIp().catch(console.error);
-    const country = await clientInfo.getCountry(ip as string).catch(console.error);
-
-    try {
-      const response = await fetch('/api/shorten', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-forwarded-for': ip ?? '',
-          'x-forwarded-for-code': country ?? '',
-        },
-        body: JSON.stringify({ url, utm }),
-      });
-
-      if (!response.ok) throw new Error();
-
-      const data = await response.json();
-      setShortUrl(data.short);
-    } catch {
-      setError('Error al acortar la URL');
-    } finally {
-      setIsLoading(false);
+    // Evita requests innecesarios para urls ya generadas
+    if(shortenedUrls.current[url]) {
+      const shortened = shortenedUrls.current[url];
+      if(utm.source === shortened.utm.source &&
+        utm.medium === shortened.utm.medium &&
+        utm.campaign === shortened.utm.campaign) {
+        setShortUrl(shortened.short + '');
+        setIsLoading(false);
+        return;
+      }
     }
+
+    const response = await getShortUrl(url, utm);
+    const apiResponse: ApiResponse<{ short: string }> = await response.json();
+
+    if(response.ok) {
+      setShortUrl(apiResponse.data.short);
+      shortenedUrls.current[url] = {
+        url,
+        short: apiResponse.data.short,
+        utm
+      };
+    } else {
+      if(apiResponse.code === 1010) {
+        setError(lang.get('errorNewShortenRefresh'));
+        addToSessionStorage('url', JSON.stringify({ url, utm }))
+        setTimeout(() => {
+          router.reload();
+        }, 1000);
+      } else {
+        setError(lang.get('errorNewShorten'));
+      }
+    }
+
+    setIsLoading(false);
   };
 
   const clearForm = () => {
-    setCurentUrl('');
+    setCurrentUrl('');
     setUtm({ source: '', medium: '', campaign: '' });
-    setShortUrl('');
+    setShortUrl(null);
     setError('');
   };
 
   const onClickBtnCopy = async () => {
-    await copyToClipboard(shortUrl)
+    if(shortUrl) {
+      await copyToClipboard(shortUrl)
+    }
   }
 
   const handleChangeUtmSource = (ev: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,8 +144,8 @@ export default function UrlShortForm() {
         <input
           type="url"
           placeholder={lang.get('urlPlaceholder')}
-          value={curentUrl}
-          onChange={(e) => setCurentUrl(e.target.value)}
+          value={currentUrl}
+          onChange={(e) => setCurrentUrl(e.target.value)}
           className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
         />
       </div>
@@ -216,4 +263,3 @@ export default function UrlShortForm() {
     </div>
   );
 }
-

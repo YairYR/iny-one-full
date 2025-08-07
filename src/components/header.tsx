@@ -1,6 +1,7 @@
 import Head from "next/head"
 import Script from "next/script"
 import { useAppContext } from "@/contexts/app.context"
+import { IS_PRODUCTION } from "@/constants";
 
 const Header = () => {
   const { lang } = useAppContext()
@@ -33,19 +34,24 @@ const Header = () => {
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
       </Head>
 
-      {/* Google Analytics */}
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-KT87SQKGT4"
-        strategy="afterInteractive"
-      />
-      <Script id="gtag-init" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-KT87SQKGT4');
-        `}
-      </Script>
+      {IS_PRODUCTION && (
+        <>
+          {/* Google Analytics */}
+          <Script
+            src="https://www.googletagmanager.com/gtag/js?id=G-KT87SQKGT4"
+            strategy="afterInteractive"
+          />
+          <Script id="gtag-init" strategy="afterInteractive">
+            {`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-KT87SQKGT4');
+            `}
+              </Script>
+        </>
+      )}
+
     </>
   )
 }
