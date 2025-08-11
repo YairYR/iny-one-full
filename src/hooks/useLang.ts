@@ -1,24 +1,17 @@
-import { useEffect, useState } from "react";
 import languages from '@/data/lang.json';
+import { useRouter } from "next/router";
 
 type LANG = 'en'|'es';
 
-const useLang = (defLang: LANG = 'en') => {
-    const [currentLang, setCurrentLang] = useState<LANG>(defLang);
-
-    useEffect(() => {
-        // @ts-expect-error Some navigators use "userLanguage"
-        const userLang = navigator.language || navigator?.userLanguage;
-        if (userLang.startsWith('es')) setCurrentLang('es');
-    }, []);
+const useLang = () => {
+    const router = useRouter();
+    const currentLang: LANG = ((router.locale && languages[router.locale as never]) ? router.locale as never : 'en');
 
     const getText = (id: KeysLang) => {
         return languages[currentLang][id] ?? languages['en'][id] ?? '[TEXT NOT FOUND]';
     }
 
     return {
-        lang: currentLang,
-        setCurrentLang,
         get: getText,
     }
 }

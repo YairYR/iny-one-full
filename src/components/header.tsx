@@ -1,10 +1,10 @@
 import Head from "next/head"
 import Script from "next/script"
-import { useAppContext } from "@/contexts/app.context"
 import { IS_PRODUCTION } from "@/constants";
+import useLang from "@/hooks/useLang";
 
 const Header = () => {
-  const { lang } = useAppContext()
+  const lang = useLang();
 
   return (
     <>
