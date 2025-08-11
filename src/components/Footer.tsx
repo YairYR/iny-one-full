@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { useAppContext } from "@/contexts/app.context";
+import useLang from "@/hooks/useLang";
 
 export default function Footer() {
-  const { lang } = useAppContext();
+  const lang = useLang();
 
   return (
     <footer className="bg-white py-6 text-center text-sm text-gray-500">

@@ -10,10 +10,12 @@ import {
   removeFromSessionStorage
 } from "@/utils/localstorage";
 import { useRouter } from "next/router";
+import useLang from "@/hooks/useLang";
 
 export default function UrlShortForm() {
-  const { lang, clientInfo } = useAppContext();
+  const { clientInfo } = useAppContext();
   const { copied, copyToClipboard } = useClipboard();
+  const lang = useLang();
   const router = useRouter();
 
   const shortenedUrls = React.useRef<UrlHistory>({});
