@@ -229,7 +229,7 @@ export default function UrlShortForm() {
               <a
                 href={shortUrl}
                 target="_blank"
-                rel="noopener noreferrer"
+                rel="noopener noreferrer nofollow"
                 className="text-indigo-600 hover:text-indigo-800 font-medium break-all"
               >
                 {shortUrl}

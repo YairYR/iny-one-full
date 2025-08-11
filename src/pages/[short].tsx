@@ -1,13 +1,19 @@
+import type { GetServerSideProps } from "next";
 import { getShortenUrl } from "@/lib/utils/query";
 
-interface Props {
-  params: {
-    short: string;
-  }
+type Params = {
+  short: string;
 }
 
-export const getServerSideProps = async ({ params }: Props) => {
-  const { short } = params;
+export const getServerSideProps: GetServerSideProps<never, Params> = async (context) => {
+  const { short } = context?.params ?? {};
+
+  // Evita indexación de Google y otros buscadores
+  context.res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+
+  if(!short || short.length <= 0) {
+    return { notFound: true };
+  }
 
   try {
     const { data, error } = await getShortenUrl(short);
