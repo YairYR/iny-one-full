@@ -1,8 +1,8 @@
 import {Copy, Link, Zap} from "lucide-react";
-import { useAppContext } from "@/contexts/app.context";
+import useLang from "@/hooks/useLang";
 
 export default function UtmInfoSmall() {
-    const { lang } = useAppContext()
+    const lang = useLang();
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

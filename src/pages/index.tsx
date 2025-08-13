@@ -1,12 +1,13 @@
 import Navbar from '@/components/Navbar';
 import UrlShortForm from '@/components/UrlShortForm';
-import { AppProvider, useAppContext } from '@/contexts/app.context';
+import { AppProvider } from '@/contexts/app.context';
 import Layout from '@/components/Layout';
 import Head from 'next/head';
 import UtmInfoSmall from "@/components/UtmInfoSmall";
+import useLang from "@/hooks/useLang";
 
 function Home() {
-  const { lang } = useAppContext();
+  const lang = useLang();
 
   return (
     <>
