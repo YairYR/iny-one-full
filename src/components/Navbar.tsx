@@ -1,8 +1,8 @@
-import { useAppContext } from "@/contexts/app.context"
 import { Link } from 'lucide-react';
+import useLang from "@/hooks/useLang";
 
 export default function Navbar() {
-    const { lang } = useAppContext();
+    const lang = useLang();
 
     return (
         <div className="text-center mb-8">
