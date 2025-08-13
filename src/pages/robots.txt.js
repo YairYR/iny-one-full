@@ -1,6 +1,8 @@
 export async function getServerSideProps({ res }) {
   const content = `User-agent: *
 Allow: /
+Disallow: /studio/
+Disallow: /dashboard/
 
 Sitemap: https://iny.one/sitemap.xml
 `;
