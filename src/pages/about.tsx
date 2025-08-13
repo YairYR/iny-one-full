@@ -1,10 +1,10 @@
 import Head from 'next/head';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import { useAppContext } from '@/contexts/app.context';
+import useLang from "@/hooks/useLang";
 
 export default function AboutPage() {
-  const { lang } = useAppContext();
+  const lang = useLang();
 
   const texts = {
     es: {
@@ -83,7 +83,7 @@ export default function AboutPage() {
     }
   };
 
-  const t = texts[lang.lang];
+  const t = texts[lang.current];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
@@ -141,7 +141,7 @@ export default function AboutPage() {
             className="inline-flex items-center justify-center bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            {lang.lang === 'es' ? 'Volver al inicio' : 'Back to Home'}
+            {lang.current === 'es' ? 'Volver al inicio' : 'Back to Home'}
           </Link>
         </div>
       </main>
