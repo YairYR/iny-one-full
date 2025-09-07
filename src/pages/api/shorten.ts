@@ -3,6 +3,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import { addShortenUrl, getBlockUrl } from "@/lib/utils/query";
 import tldts from 'tldts';
 import validator, { IsURLOptions } from 'validator';
+import { createClient } from "@/utils/supabase/api";
 
 const urlOptions: IsURLOptions = {
   protocols: ['http', 'https'],
@@ -53,8 +54,12 @@ export default async function handler(request: NextApiRequest, response: NextApi
   const destination = buildDestination(urlWithSuffix, utm);
   console.log(destination);
 
+  const supabase = createClient(request, response);
+  const user = await supabase.auth.getUser();
+  const uid: string|null = user.data.user?.id ?? null;
+
   const slug = nanoid(6);
-  const { error } = await addShortenUrl(slug, destination, utm, urlInfo.domain, {
+  const { error } = await addShortenUrl(uid, slug, destination, utm, urlInfo.domain, {
     ip,
     countryCode,
   });

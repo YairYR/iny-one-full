@@ -1,10 +1,14 @@
-import Navbar from '@/components/Navbar';
+import HomeTitle from '@/components/HomeTitle';
 import UrlShortForm from '@/components/UrlShortForm';
 import { AppProvider } from '@/contexts/app.context';
-import Layout from '@/components/Layout';
+import LayoutMain from '@/components/layouts/LayoutMain';
 import Head from 'next/head';
 import UtmInfoSmall from "@/components/UtmInfoSmall";
 import useLang from "@/hooks/useLang";
+import type { GetServerSidePropsContext } from "next";
+import { createClient } from "@/utils/supabase/server";
+import { UserClient } from "@/lib/types";
+import { getCurrentUserFromSession } from "@/lib/utils/query";
 
 function Home() {
   const lang = useLang();
@@ -16,19 +20,29 @@ function Home() {
           <meta name="description" content={lang.get('metaDescription')} />
       </Head>
 
-      <Layout>
-        <Navbar />
+      <LayoutMain>
+        <HomeTitle />
         <UrlShortForm />
         <UtmInfoSmall />
-      </Layout>
+      </LayoutMain>
     </>
   );
 }
 
-export default function Init() {
+interface Props {
+  user?: UserClient;
+}
+
+export default function Index({ user }: Props) {
   return (
-    <AppProvider>
+    <AppProvider user={user}>
       <Home />
     </AppProvider>
   )
+}
+
+export async function getServerSideProps(context: GetServerSidePropsContext) {
+  const supabase = createClient(context)
+  const user = await getCurrentUserFromSession(supabase);
+  return { props: { user } };
 }

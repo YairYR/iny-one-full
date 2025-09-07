@@ -1,7 +1,7 @@
 import { Link } from 'lucide-react';
 import useLang from "@/hooks/useLang";
 
-export default function Navbar() {
+export default function HomeTitle() {
     const lang = useLang();
 
     return (
