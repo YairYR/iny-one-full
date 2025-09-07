@@ -1,6 +1,6 @@
 import '@/styles/globals.css';
 import Head from 'next/head';
-import Script from 'next/script'; // 👈 nuevo import
+import Script from 'next/script';
 import { AppProvider } from '@/contexts/app.context';
 import React from "react";
 
@@ -9,7 +9,7 @@ interface Props {
   pageProps: object;
 }
 
-const App: React.FC<Props> = ({ Component, pageProps }) => {
+export default function App({ Component, pageProps }: Props) {
   return (
     <AppProvider>
       <>
@@ -61,7 +61,3 @@ const App: React.FC<Props> = ({ Component, pageProps }) => {
     </AppProvider>
   );
 };
-
-export default App;
-
-

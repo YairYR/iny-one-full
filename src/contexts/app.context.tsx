@@ -1,10 +1,16 @@
 import React, { createContext, useContext } from "react";
 import useInitialStateAppContext, {IAppContext} from "@/contexts/hooks/useInitialStateAppContext";
+import { UserClient } from "@/lib/types";
 
 export const AppContext = createContext<IAppContext>(undefined as never);
 
-export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const initialState = useInitialStateAppContext();
+interface Props {
+    children: React.ReactNode;
+    user?: UserClient;
+}
+
+export const AppProvider: React.FC<Props> = ({ children, user }) => {
+    const initialState = useInitialStateAppContext(user);
 
     return <AppContext.Provider value={initialState}>{children}</AppContext.Provider>
 }

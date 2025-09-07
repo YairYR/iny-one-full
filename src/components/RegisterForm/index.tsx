@@ -2,29 +2,33 @@ import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from "next/router";
 
-import { createClient } from '@/utils/supabase/component';
 import { Mail, SquareAsterisk, SquareUserRound } from "lucide-react";
+import { GoogleButton } from "@/components/OAuth/GoogleButton";
 
 export default function RegisterForm() {
   const router = useRouter();
-  const supabase = createClient();
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
   const onClickSignIn = async () => {
-    await router.push("/login/sign-in");
+    await router.push("/auth/login");
   }
 
   const onSubmit = async () => {
-    const { error } = await supabase.auth.signUp({ email, password, options: {
-      data: {
-        display_name: name,
-      }
-      } });
-    if (error) {
-      console.error(error)
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({
+        name,
+        email,
+        password,
+      })
+    }).then(res => res.json());
+
+    if (response.error) {
+      console.error(response.error)
+      return;
     }
     router.push('/')
   }
@@ -42,6 +46,21 @@ export default function RegisterForm() {
   const onChangePassword = (ev: React.FormEvent<HTMLInputElement>) => {
     const value = ev.currentTarget.value;
     setPassword(value);
+  }
+
+  const onClickGoogle = async () => {
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({
+        provider: 'google'
+      })
+    }).then(res => res.json());
+
+    if (response.error) {
+      console.error(response.error)
+      return;
+    }
+    router.push(response.data.url);
   }
 
   return (
@@ -97,6 +116,18 @@ export default function RegisterForm() {
         <div className="text-sm font-light text-[#6B7280] ">Already have an account? <a href="#" onClick={onClickSignIn}
                                                                                     className="font-medium text-[#4F46E5] hover:underline">Login</a>
 
+        </div>
+      </form>
+      <div className="relative flex py-8 items-center">
+        <div className="grow border-t border-[1px] border-gray-200"></div>
+        <span className="shrink mx-4 font-medium text-gray-500">OR</span>
+        <div className="grow border-t border-[1px] border-gray-200"></div>
+      </div>
+      <form>
+        <div className="flex flex-row gap-2 justify-center">
+          <GoogleButton onClick={onClickGoogle}>
+            Sign in with Google
+          </GoogleButton>
         </div>
       </form>
     </div>

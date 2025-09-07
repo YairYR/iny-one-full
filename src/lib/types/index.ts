@@ -24,3 +24,10 @@ export interface ApiResponse<T = never> {
   message: string;
   data: T;
 }
+
+export interface UserClient {
+  email?: string;
+  name: string | null;
+  picture: string | null;
+  created_at: string;
+}
