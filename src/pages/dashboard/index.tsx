@@ -1,11 +1,9 @@
 import type { GetServerSidePropsContext } from 'next'
 
-import { createClient } from '@/utils/supabase/server'
 import LayoutMain from "@/components/layouts/LayoutMain";
 import { AppProvider, useAppContext } from "@/contexts/app.context";
 import React from "react";
 import { UserClient } from "@/lib/types";
-import { getCurrentUser, getUserUrls } from "@/lib/utils/query";
 import { useRouter } from "next/router";
 import { toLocaleDate } from "@/utils/date";
 import CustomTable, { DemoTabla } from "@/components/Table/CustomTable";

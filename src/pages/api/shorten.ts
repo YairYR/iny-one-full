@@ -18,8 +18,8 @@ export default async function handler(request: NextApiRequest, response: NextApi
     return response.status(405).end();
   }
 
-  const ip = (request.headers['x-forwarded-for'] as string) ?? null;
-  const countryCode = (request.headers['x-forwarded-for-code'] as string) ?? null;
+  const ip = (request.headers['x-vercel-forwarded-for'] ?? request.headers['x-forwarded-for'] ?? request.headers['x-real-ip'] ?? null) as string;
+  const countryCode = (request.headers['x-vercel-ip-country'] ?? null) as string;
 
   const { url, utm } = request.body;
 

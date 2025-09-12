@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Zap } from 'lucide-react';
-import { useAppContext } from '@/contexts/app.context';
 import { isURL } from "validator";
 import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
 import {
@@ -13,7 +12,6 @@ import useLang from "@/hooks/useLang";
 import ShortUrlCard from "@/components/ShortUrlCard";
 
 export default function UrlShortForm() {
-  const { clientInfo } = useAppContext();
   const lang = useLang();
   const router = useRouter();
 
@@ -35,23 +33,13 @@ export default function UrlShortForm() {
       setUtm(data.utm);
       removeFromSessionStorage('url');
     }
-
-    clientInfo.getIp()
-      .then(clientInfo.getCountry)
-      .catch((e) => console.error(e));
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const getShortUrl = async (url: string, utm: UtmParams) => {
-    const ip = await clientInfo.getIp().catch(console.error);
-    const country = await clientInfo.getCountry(ip as string).catch(console.error);
-
     return fetch('/api/shorten', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'x-forwarded-for': ip ?? '',
-        'x-forwarded-for-code': country ?? '',
       },
       body: JSON.stringify({ url, utm }),
     });
