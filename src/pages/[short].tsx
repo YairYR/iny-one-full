@@ -1,5 +1,5 @@
 import type { GetServerSideProps } from "next";
-import { getShortenUrl } from "@/lib/utils/query";
+import { clickShortUrl, getShortenUrl } from "@/lib/utils/query";
 
 type Params = {
   short: string;
@@ -24,6 +24,8 @@ export const getServerSideProps: GetServerSideProps<never, Params> = async (cont
     }
 
     if (data?.destination) {
+      await clickShortUrl(short);
+
       return {
         redirect: {
           destination: decodeURI(data.destination),
