@@ -92,3 +92,11 @@ export const getUserUrls = async (uid: string) => {
     .select('slug, destination, created_at, utm_source, utm_medium, utm_campaign')
     .eq('user_id', uid);
 }
+
+export const clickShortUrl = async (slug: string) => {
+  return db.schema('public').rpc('click_short_url', {
+    page_slug: slug,
+    user_ip: null,
+    user_country_code: null,
+  });
+}
