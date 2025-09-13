@@ -11,13 +11,15 @@ import { useRouter } from "next/router";
 import useLang from "@/hooks/useLang";
 import ShortUrlCard from "@/components/ShortUrlCard";
 
+type SomeUtmParams = Pick<UtmParams, 'source'|'medium'|'campaign'>;
+
 export default function UrlShortForm() {
   const lang = useLang();
   const router = useRouter();
 
-  const shortenedUrls = React.useRef<UrlHistory>({});
+  const shortenedUrls = React.useRef<UrlHistory<SomeUtmParams>>({});
   const [currentUrl, setCurrentUrl] = useState('');
-  const [utm, setUtm] = useState<UtmParams>({ source: '', medium: '', campaign: '' });
+  const [utm, setUtm] = useState<SomeUtmParams>({ source: '', medium: '', campaign: '' });
   const [shortUrl, setShortUrl] = useState<string|null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -35,7 +37,7 @@ export default function UrlShortForm() {
     }
   }, []);
 
-  const getShortUrl = async (url: string, utm: UtmParams) => {
+  const getShortUrl = async (url: string, utm: SomeUtmParams) => {
     return fetch('/api/shorten', {
       method: 'PUT',
       headers: {

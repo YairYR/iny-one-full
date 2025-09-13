@@ -3,6 +3,9 @@ import isEmail from "validator/lib/isEmail";
 import { createClient } from "@/utils/supabase/api";
 
 export default async function login(request: NextApiRequest, response: NextApiResponse) {
+  return response.status(404).end();
+
+  /*
   if(request.method === 'OPTIONS') {
     return response.status(200).end();
   }
@@ -29,4 +32,5 @@ export default async function login(request: NextApiRequest, response: NextApiRe
   }
 
   return response.status(200).json({});
+   */
 }

@@ -4,6 +4,7 @@ import { addShortenUrl, getBlockUrl } from "@/lib/utils/query";
 import tldts from 'tldts';
 import validator, { IsURLOptions } from 'validator';
 import { createClient } from "@/utils/supabase/api";
+import { UtmParams } from "@/lib/types";
 
 const urlOptions: IsURLOptions = {
   protocols: ['http', 'https'],
@@ -51,7 +52,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
     return response.status(500).end();
   }
 
-  const destination = buildDestination(urlWithSuffix, utm);
+  const { destination, utm: utmParams } = buildDestination(urlWithSuffix, utm);
   console.log(destination);
 
   const supabase = createClient(request, response);
@@ -59,7 +60,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
   const uid: string|null = user.data.user?.id ?? null;
 
   const slug = nanoid(6);
-  const { error } = await addShortenUrl(uid, slug, destination, utm, urlInfo.domain, {
+  const { error } = await addShortenUrl(uid, slug, destination, utmParams, urlInfo.domain, {
     ip,
     countryCode,
   });
@@ -80,19 +81,24 @@ export default async function handler(request: NextApiRequest, response: NextApi
 }
 
 const buildDestination = (url: string, utm: Partial<UtmParams>) => {
-  const sanitize = (value: string) =>
-    value.replace(/[^a-zA-Z0-9-_]/g, '')
+  const sanitize = (value: string | null) =>
+    value && value.replace(/[^a-zA-Z0-9-_]/g, '')
 
   const destination = new URL(url);
-  if(utm?.source) destination.searchParams.set('utm_source', sanitize(utm.source.trim()));
-  if(utm?.medium) destination.searchParams.set('utm_medium', sanitize(utm.medium.trim()));
-  if(utm?.campaign) destination.searchParams.set('utm_campaign', sanitize(utm.campaign.trim()));
+  const utmDestination: UtmParams = {
+    source: sanitize(utm?.source ?? destination.searchParams.get('utm_source')) ?? null as unknown as string,
+    medium: sanitize(utm?.medium ?? destination.searchParams.get('utm_medium')) ?? null as unknown as string,
+    campaign: sanitize(utm?.campaign ?? destination.searchParams.get('utm_campaign')) ?? null as unknown as string,
+    term: sanitize(destination.searchParams.get('utm_term')) ?? null as unknown as string,
+    content: sanitize(destination.searchParams.get('utm_content')) ?? null as unknown as string,
+    id: sanitize(destination.searchParams.get('utm_id')) ?? null as unknown as string,
+  };
+  if(utmDestination.source) destination.searchParams.set('utm_source', utmDestination.source);
+  if(utmDestination.medium) destination.searchParams.set('utm_medium', utmDestination.medium);
+  if(utmDestination.campaign) destination.searchParams.set('utm_campaign', utmDestination.campaign);
 
-  return decodeURI(destination.toString());
-}
-
-interface UtmParams {
-  source: string;
-  medium: string;
-  campaign: string;
+  return {
+    destination: decodeURI(destination.toString()),
+    utm: utmDestination,
+  }
 }
