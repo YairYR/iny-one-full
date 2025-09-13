@@ -96,10 +96,12 @@ export const getUserUrls = async (uid: string) => {
     .eq('user_id', uid);
 }
 
-export const clickShortUrl = async (slug: string) => {
-  return db.schema('public').rpc('click_short_url', {
+export const clickShortLink = async (slug: string, client?: Partial<ClientInfo>) => {
+  return db.schema('public').rpc('click_short_link', {
     page_slug: slug,
-    user_ip: null,
-    user_country_code: null,
+    user_ip: client?.ip ?? null,
+    user_country_code: client?.countryCode ?? null,
+    user_region: client?.region ?? null,
+    user_city: client?.city ?? null,
   });
 }
