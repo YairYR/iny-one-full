@@ -10,6 +10,8 @@ export interface UtmParams {
 export interface ClientInfo {
   ip: string | null;
   countryCode: string | null;
+  region: string | null;
+  city: string | null;
 }
 
 export interface UrlHistory<Utm = UtmParams> {
