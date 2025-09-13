@@ -2,6 +2,9 @@ export interface UtmParams {
   source: string;
   medium: string;
   campaign: string;
+  term: string;
+  content: string;
+  id: string;
 }
 
 export interface ClientInfo {
@@ -9,14 +12,14 @@ export interface ClientInfo {
   countryCode: string | null;
 }
 
-export interface UrlHistory {
-  [key: string]: ShortenedUrl;
+export interface UrlHistory<Utm = UtmParams> {
+  [key: string]: ShortenedUrl<Utm>;
 }
 
-export interface ShortenedUrl {
+export interface ShortenedUrl<Utm = UtmParams> {
   url: string;
   short: string;
-  utm: UtmParams;
+  utm: Utm;
 }
 
 export interface ApiResponse<T = never> {
