@@ -1,5 +1,5 @@
 import type { GetServerSideProps } from "next";
-import { clickShortUrl, getShortenUrl } from "@/lib/utils/query";
+import { clickShortLink, getShortenUrl } from "@/lib/utils/query";
 
 type Params = {
   short: string;
@@ -24,7 +24,16 @@ export const getServerSideProps: GetServerSideProps<never, Params> = async (cont
     }
 
     if (data?.destination) {
-      await clickShortUrl(short);
+      const ip = (context.req.headers['x-vercel-forwarded-for'] ?? context.req.headers['x-forwarded-for'] ?? context.req.headers['x-real-ip'] ?? null) as string;
+      const countryCode = (context.req.headers['x-vercel-ip-country'] ?? null) as string;
+      const region = (context.req.headers['x-vercel-ip-country-region'] ?? null) as string;
+      const city = (context.req.headers['x-vercel-ip-city'] ?? null) as string;
+      await clickShortLink(short, {
+        ip,
+        countryCode,
+        region,
+        city
+      });
 
       return {
         redirect: {
