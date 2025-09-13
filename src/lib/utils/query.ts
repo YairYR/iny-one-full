@@ -7,6 +7,7 @@ export const getShortenUrl = async (short: string) => {
     .from('short_links')
     .select('destination')
     .eq('slug', short)
+    .eq('status', true)
     .maybeSingle(); // ✅ Devuelve un solo objeto o null
 }
 
