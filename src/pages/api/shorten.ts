@@ -37,19 +37,19 @@ export default async function handler(request: NextApiRequest, response: NextApi
   const urlInfo = tldts.parse(urlWithSuffix);
   if(urlInfo.domain === null || urlInfo.isIp || ["iny.one", "localhost"].includes(urlInfo.domain)) {
     console.log('❌ La URL ingresada no es válida:', urlWithSuffix)
-    return response.status(500).end();
+    return response.status(400).json({ code: 1000 });
   }
 
   const urlBanned = await getBlockUrl(urlInfo.domain);
 
   if(urlBanned.error) {
     console.error(urlBanned.error);
-    return response.status(500).end();
+    return response.status(400).json({ code: 3001 });
   }
 
   if(urlBanned.data !== null && urlBanned.data === false) {
     console.log('❗ El dominio de la URL ingresada está baneada:', urlWithSuffix);
-    return response.status(500).end();
+    return response.status(400).json({ code: 3001 });
   }
 
   const { destination, utm: utmParams } = buildDestination(urlWithSuffix, utm);
