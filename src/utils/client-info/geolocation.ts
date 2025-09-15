@@ -10,6 +10,15 @@ export function getGeoLocation(headers: Record<string, string> | IncomingHttpHea
   const latitude = (headers['x-vercel-ip-latitude'] ?? null) as string;
   const longitude = (headers['x-vercel-ip-longitude'] ?? null) as string;
 
+  console.log('getGeoLocation', {
+    ip,
+    countryCode,
+    region,
+    city,
+    latitude,
+    longitude,
+  })
+
   return {
     ip: ip,
     countryCode: sanitize(countryCode),
