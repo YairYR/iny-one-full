@@ -98,11 +98,27 @@ export const getUserUrls = async (uid: string) => {
 }
 
 export const clickShortLink = async (slug: string, client?: Partial<ClientInfo>) => {
-  return db.schema('public').rpc('click_short_link', {
+  const agent = client?.userAgent;
+  const browser = agent?.browser;
+  const device = agent?.device;
+  const os = agent?.os;
+  return db.schema('public').rpc('click_short_link_2', {
     page_slug: slug,
     user_ip: client?.ip ?? null,
     user_country_code: client?.countryCode ?? null,
     user_region: client?.region ?? null,
     user_city: client?.city ?? null,
+    user_latitude: client?.latitude ?? null,
+    user_longitude: client?.longitude ?? null,
+    user_ua: client?.userAgent?.ua ?? null,
+    user_is_bot: agent?.isBot ?? false,
+    user_browser: browser?.name ?? null,
+    user_browser_version: browser?.major ?? browser?.version ?? null,
+    user_device_type: device?.type ?? null,
+    user_device_vendor: device?.vendor ?? null,
+    user_device_model: device?.model ?? null,
+    user_os: os?.name ?? null,
+    user_os_version: os?.version ?? null,
+    user_referer: client?.referer ?? null,
   });
 }

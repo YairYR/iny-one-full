@@ -1,5 +1,7 @@
 import type { GetServerSideProps } from "next";
 import { clickShortLink, getShortenUrl } from "@/lib/utils/query";
+import { userAgentFromString } from 'next/server';
+import { getGeoLocation } from "@/utils/client-info/geolocation";
 
 type Params = {
   short: string;
@@ -24,15 +26,13 @@ export const getServerSideProps: GetServerSideProps<never, Params> = async (cont
     }
 
     if (data?.destination) {
-      const ip = (context.req.headers['x-vercel-forwarded-for'] ?? context.req.headers['x-forwarded-for'] ?? context.req.headers['x-real-ip'] ?? null) as string;
-      const countryCode = (context.req.headers['x-vercel-ip-country'] ?? null) as string;
-      const region = (context.req.headers['x-vercel-ip-country-region'] ?? null) as string;
-      const city = (context.req.headers['x-vercel-ip-city'] ?? null) as string;
+      const headers = context.req.headers;
+      const geolocation = getGeoLocation(headers);
+      const userAgent = userAgentFromString(headers['user-agent']);
       await clickShortLink(short, {
-        ip,
-        countryCode,
-        region,
-        city
+        ...geolocation,
+        userAgent,
+        referer: headers['referer'],
       });
 
       return {
