@@ -1,3 +1,5 @@
+import type { userAgent } from "next/server";
+
 export interface UtmParams {
   source: string;
   medium: string;
@@ -12,6 +14,10 @@ export interface ClientInfo {
   countryCode: string | null;
   region: string | null;
   city: string | null;
+  latitude: string | null;
+  longitude: string | null;
+  userAgent?: ReturnType<typeof userAgent>;
+  referer?: string | null;
 }
 
 export interface UrlHistory<Utm = UtmParams> {
