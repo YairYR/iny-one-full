@@ -102,7 +102,7 @@ export const clickShortLink = async (slug: string, client?: Partial<ClientInfo>)
   const browser = agent?.browser;
   const device = agent?.device;
   const os = agent?.os;
-  return db.schema('public').rpc('click_short_link_2', {
+  return db.schema('public').rpc('click_short_link', {
     page_slug: slug,
     user_ip: client?.ip ?? null,
     user_country_code: client?.countryCode ?? null,
