@@ -1,14 +1,16 @@
-import { IncomingHttpHeaders } from "http";
+import type { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 
-export function getGeoLocation(headers: Record<string, string> | IncomingHttpHeaders) {
+export function getGeoLocation(headers: ReadonlyHeaders) {
   const sanitize = (str: string|null) => str && decodeURI(str.trim());
 
-  const ip = (headers['x-vercel-forwarded-for'] ?? headers['x-forwarded-for'] ?? headers['x-real-ip'] ?? null) as string;
-  const countryCode = (headers['x-vercel-ip-country'] ?? null) as string;
-  const region = (headers['x-vercel-ip-country-region'] ?? null) as string;
-  const city = (headers['x-vercel-ip-city'] ?? null) as string;
-  const latitude = (headers['x-vercel-ip-latitude'] ?? null) as string;
-  const longitude = (headers['x-vercel-ip-longitude'] ?? null) as string;
+  const ip = (headers.get('x-vercel-forwarded-for')
+                      ?? headers.get('x-forwarded-for')
+                      ?? headers.get('x-real-ip'));
+  const countryCode = headers.get('x-vercel-ip-country');
+  const region = headers.get('x-vercel-ip-country-region');
+  const city = headers.get('x-vercel-ip-city');
+  const latitude = headers.get('x-vercel-ip-latitude');
+  const longitude = headers.get('x-vercel-ip-longitude');
 
   return {
     ip: ip,
