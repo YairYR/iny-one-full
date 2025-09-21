@@ -10,11 +10,12 @@ import {
 import { useRouter } from "next/router";
 import useLang from "@/hooks/useLang";
 import ShortUrlCard from "@/components/ShortUrlCard";
+import { Button, Input, Fieldset, Field, Label } from '@headlessui/react';
 
 type SomeUtmParams = Pick<UtmParams, 'source'|'medium'|'campaign'>;
 
 export default function UrlShortForm() {
-  const lang = useLang();
+  const { t } = useLang();
   const router = useRouter();
 
   const shortenedUrls = React.useRef<UrlHistory<SomeUtmParams>>({});
@@ -50,12 +51,12 @@ export default function UrlShortForm() {
   const handleShorten = async () => {
     const url = currentUrl.trim();
     if (!url) {
-      setError(lang.get('requiredUrl'));
+      setError(t('requiredUrl'));
       return;
     }
 
     if (!isURL(url)) {
-      setError(lang.get('invalidUrl'));
+      setError(t('invalidUrl'));
       return;
     }
 
@@ -87,13 +88,13 @@ export default function UrlShortForm() {
       };
     } else {
       if(apiResponse.code === 1010) {
-        setError(lang.get('errorNewShortenRefresh'));
+        setError(t('errorNewShortenRefresh'));
         addToSessionStorage('url', JSON.stringify({ url, utm }))
         setTimeout(() => {
           router.reload();
         }, 1000);
       } else {
-        setError(lang.get('errorNewShorten'));
+        setError(t('errorNewShorten'));
       }
     }
 
@@ -121,47 +122,54 @@ export default function UrlShortForm() {
   }
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-8 mb-6">
+    <Fieldset className="bg-white rounded-xl shadow-lg p-8 mb-6">
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          {lang.get('urlLabel')}
-        </label>
-        <input
-          type="url"
-          placeholder={lang.get('urlPlaceholder')}
-          value={currentUrl}
-          onChange={(e) => setCurrentUrl(e.target.value)}
-          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-        />
+        <Field>
+          <Label className="block text-sm font-medium text-gray-700 mb-2" >{t('urlLabel')}</Label>
+          <Input
+            type="url"
+            name="url"
+            placeholder={t('urlPlaceholder')}
+            value={currentUrl}
+            onChange={(e) => setCurrentUrl(e.target.value)}
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+          />
+        </Field>
       </div>
 
       <div className="mb-6">
-        <label className="block text-sm font-medium text-gray-700 mb-3">
-          {lang.get('utmLabel')}
-        </label>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <input
-            type="text"
-            placeholder="utm_source"
-            value={utm.source}
-            onChange={handleChangeUtmSource}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-          />
-          <input
-            type="text"
-            placeholder="utm_medium"
-            value={utm.medium}
-            onChange={handleChangeUtmMedium}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-          />
-          <input
-            type="text"
-            placeholder="utm_campaign"
-            value={utm.campaign}
-            onChange={handleChangeUtmCampain}
-            className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-          />
-        </div>
+        <Field>
+          <Label htmlFor="input_utm_source" className="block text-sm font-medium text-gray-700 mb-3">{t('utmLabel')}</Label>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Input
+              type="text"
+              name="utm_source"
+              id="input_utm_source"
+              placeholder="utm_source"
+              value={utm.source}
+              onChange={handleChangeUtmSource}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+            />
+            <Input
+              type="text"
+              name="utm_medium"
+              id="input_utm_medium"
+              placeholder="utm_medium"
+              value={utm.medium}
+              onChange={handleChangeUtmMedium}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+            />
+            <Input
+              type="text"
+              name="utm_campaign"
+              id="input_utm_campaign"
+              placeholder="utm_campaign"
+              value={utm.campaign}
+              onChange={handleChangeUtmCampain}
+              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+            />
+          </div>
+        </Field>
       </div>
 
       {error && (
@@ -171,7 +179,7 @@ export default function UrlShortForm() {
       )}
 
       <div className="flex flex-col sm:flex-row gap-3 mb-6">
-        <button
+        <Button
           onClick={handleShorten}
           disabled={isLoading}
           className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
@@ -179,25 +187,25 @@ export default function UrlShortForm() {
           {isLoading ? (
             <>
               <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-              {lang.get('shortening')}
+              {t('shortening')}
             </>
           ) : (
             <>
               <Zap className="h-5 w-5 mr-2" />
-              {lang.get('shortenBtn')}
+              {t('shortenBtn')}
             </>
           )}
-        </button>
+        </Button>
 
-        <button
+        <Button
           onClick={clearForm}
           className="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
         >
-          {lang.get('cleanBtn')}
-        </button>
+          {t('cleanBtn')}
+        </Button>
       </div>
 
       {shortUrl && <ShortUrlCard shortUrl={shortUrl} />}
-    </div>
+    </Fieldset>
   );
 }
