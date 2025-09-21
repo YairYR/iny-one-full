@@ -14,6 +14,7 @@ const useLang = () => {
     return {
         current: currentLang as LANG,
         get: getText,
+        t: getText,
     }
 }
 
