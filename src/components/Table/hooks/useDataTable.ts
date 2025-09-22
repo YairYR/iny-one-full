@@ -2,43 +2,60 @@ import type React from 'react';
 import { useMemo, useState } from "react";
 
 export interface Column<T> {
-  key: keyof T;
+  key: keyof T|string;
   label: React.ReactNode;
   sortable?: boolean;
-  render?: (row: T, cell: {
-    rowIndex: number;
-    selected: boolean;
-    column: Column<T>;
-  }) => React.ReactNode; // 👈 render personalizado
+  render?: RenderFunc<T>;
   className?: string;
   cellClassName?: string;
+}
+
+export type RenderFunc<T> = (row: T, cell: Cell<T>) => React.ReactNode;
+export type Plugin<T> = (table: DataTableInstance<T>) => { rows: T[]; state?: never; api?: never; };
+
+export interface Cell<T> {
+  rowIndex: number;
+  selected: boolean;
+  column: Omit<Column<T>, 'render'>;
 }
 
 export interface UseDataTableOptions<T> {
   data: T[];
   columns: Column<T>[];
   selectable?: boolean;
-  pageSize?: number;
   onRowDoubleClick?: (row: T) => void;
   onRowRightClick?: (row: T, event: React.MouseEvent) => void;
   onRowSelect?: (selectedRows: T[]) => void;
+  plugins?: Plugin<T>[];
+}
+
+export interface DataTableInstance<T> {
+  columns: (Column<T> & { index: number })[];
+  data: T[];
+  selectable: boolean;
+  sortConfig: { key: string; direction: "asc" | "desc" } | null;
+  selectedRows: Set<string | number>;
+  handleSort: (key: keyof T|string) => void;
+  toggleRowSelection: (id: string | number) => void;
+  handleRowDoubleClick: (row: T) => void;
+  handleRowRightClick: (row: T, event: React.MouseEvent) => void;
 }
 
 export function useDataTable<T extends { id: string | number }>(
   options: UseDataTableOptions<T>
-) {
+): DataTableInstance<T> {
   const {
     data,
-    columns,
+    columns: originalColumns,
     selectable = false,
-    pageSize: initialPageSize,
     onRowDoubleClick,
     onRowRightClick,
-    onRowSelect
+    onRowSelect,
+    plugins,
   } = options;
 
   const [sortConfig, setSortConfig] = useState<{
-    key: keyof T;
+    key: string;
     direction: "asc" | "desc";
   } | null>(null);
 
@@ -46,14 +63,19 @@ export function useDataTable<T extends { id: string | number }>(
     new Set()
   );
 
-  const [pageIndex, setPageIndex] = useState(0);
-  const [pageSize, setPageSize] = useState(initialPageSize ?? data.length);
+  const columns = useMemo(() => {
+    return originalColumns.map((col, index) => ({
+      ...col,
+      sortable: col.sortable ?? false,
+      index,
+    }));
+  }, [originalColumns]);
 
   const sortedData = useMemo(() => {
     if (!sortConfig) return data;
     return [...data].sort((a, b) => {
-      const valA = a[sortConfig.key];
-      const valB = b[sortConfig.key];
+      const valA: T = a[sortConfig.key as never];
+      const valB: T = b[sortConfig.key as never];
 
       if (valA < valB) return sortConfig.direction === "asc" ? -1 : 1;
       if (valA > valB) return sortConfig.direction === "asc" ? 1 : -1;
@@ -61,22 +83,14 @@ export function useDataTable<T extends { id: string | number }>(
     });
   }, [data, sortConfig]);
 
-  const paginatedData = useMemo(() => {
-    if (!pageSize) return sortedData;
-    const start = pageIndex * pageSize;
-    return sortedData.slice(start, start + pageSize);
-  }, [sortedData, pageIndex, pageSize]);
-
-  const pageCount = Math.ceil(sortedData.length / pageSize);
-
-  const handleSort = (key: keyof T) => {
+  const handleSort = (key: (keyof T )|string) => {
     if (sortConfig?.key === key) {
       setSortConfig({
         key,
         direction: sortConfig.direction === "asc" ? "desc" : "asc",
       });
     } else {
-      setSortConfig({ key, direction: "asc" });
+      setSortConfig({ key: key as never, direction: "asc" });
     }
   };
 
@@ -100,30 +114,31 @@ export function useDataTable<T extends { id: string | number }>(
     onRowRightClick?.(row, event);
   };
 
-  const nextPage = () => {
-    setPageIndex((i) => Math.min(i + 1, pageCount - 1));
-  };
-
-  const prevPage = () => {
-    setPageIndex((i) => Math.max(i - 1, 0));
-  };
-
-  return {
+  const instance: DataTableInstance<T> = {
     columns,
-    data: paginatedData,
+    data: sortedData,
     selectable,
     sortConfig,
     selectedRows,
-    pageIndex,
-    pageSize,
-    pageCount,
     handleSort,
     toggleRowSelection,
     handleRowDoubleClick,
     handleRowRightClick,
-    setPageIndex,
-    setPageSize,
-    nextPage,
-    prevPage,
+  };
+
+  const pluginState: Record<string, never> = {};
+  if(plugins && plugins.length) {
+    let rows = instance.data;
+    for (const plugin of plugins) {
+      const { rows: newRows, state, api } = plugin(instance);
+      rows = newRows;
+      Object.assign(pluginState, { state, api });
+    }
+    instance.data = rows;
+  }
+
+  return {
+    ...instance,
+    ...pluginState,
   };
 }

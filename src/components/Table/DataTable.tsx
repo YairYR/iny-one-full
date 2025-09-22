@@ -2,22 +2,24 @@ import { useDataTable, UseDataTableOptions } from "@/components/Table/hooks/useD
 import type React from "react";
 import clsx from "clsx";
 import { Button } from "@headlessui/react";
+import { usePagination } from "@/components/Table/hooks/usePagination";
 
 export type DataTableProps<T> = UseDataTableOptions<T> & {
   title?: string;
   subtitle?: string;
+  pageSize?: number;
 }
 
-export default function DataTable<T extends { id: string | number }>(
+export default function DataTable<T extends { id: string | number } = { id: string, [key: string]: string }>(
   { title, subtitle, data, columns, selectable, pageSize, ...rest }: DataTableProps<T>
 ) {
   const table = useDataTable<T>({
     data,
     columns,
     selectable,
-    pageSize,
     ...rest
   });
+  const pagination = usePagination(table, { pageSize });
   const { selectedRows, toggleRowSelection } = table;
 
   return (
@@ -70,8 +72,8 @@ export default function DataTable<T extends { id: string | number }>(
                 {table.columns.map((col) => (
                   <td key={String(col.key)} className={clsx("px-3 py-2 whitespace-nowrap", col.cellClassName)}>
                     {col.render
-                      ? col.render(row, { rowIndex, selected: isSelected, column: col })
-                      : String(row[col.key])}
+                      ? col.render(row, { rowIndex, selected: isSelected } as never)
+                      : String(row[col.key as never])}
                   </td>
                 ))}
               </tr>
@@ -86,18 +88,18 @@ export default function DataTable<T extends { id: string | number }>(
         <div className="flex items-center justify-between">
           <Button
             className="px-3 py-1 border rounded disabled:opacity-50"
-            onClick={table.prevPage}
-            disabled={table.pageIndex === 0}
+            onClick={pagination.prevPage}
+            disabled={pagination.page === 0}
           >
             Anterior
           </Button>
           <span>
-            Página {table.pageIndex + 1} de {table.pageCount}
+            Página {pagination.page + 1} de {pagination.totalPages}
           </span>
           <Button
             className="px-3 py-1 border rounded disabled:opacity-50"
-            onClick={table.nextPage}
-            disabled={table.pageIndex >= table.pageCount - 1}
+            onClick={pagination.nextPage}
+            disabled={pagination.page >= pagination.totalPages - 1}
           >
             Siguiente
           </Button>
