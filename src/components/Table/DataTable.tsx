@@ -1,26 +1,24 @@
-import { useDataTable, UseDataTableOptions } from "@/components/Table/hooks/useDataTable";
+import { DataTableInstance } from "@/components/Table/hooks/useDataTable";
 import type React from "react";
 import clsx from "clsx";
 import { Button } from "@headlessui/react";
-import { usePagination } from "@/components/Table/hooks/usePagination";
+import { PaginationPlugin } from "@/components/Table/plugins";
 
-export type DataTableProps<T> = UseDataTableOptions<T> & {
+export type DataTableProps<T> = {
+  table: DataTableInstance<T>;
   title?: string;
   subtitle?: string;
-  pageSize?: number;
 }
 
 export default function DataTable<T extends { id: string | number } = { id: string, [key: string]: string }>(
-  { title, subtitle, data, columns, selectable, pageSize, ...rest }: DataTableProps<T>
+  { title, subtitle, table }: DataTableProps<T>
 ) {
-  const table = useDataTable<T>({
-    data,
-    columns,
-    selectable,
-    ...rest
-  });
-  const pagination = usePagination(table, { pageSize });
-  const { selectedRows, toggleRowSelection } = table;
+  const { selectedRows } = table;
+  
+  // @ts-expect-error - Plugin añadido dinámicamente
+  const pagination: PaginationPlugin<T> = table['pagination'];
+
+  console.log('table', table);
 
   return (
     <div className="bg-white text-gray-800 p-4 rounded-xl shadow-md border border-gray-200">
@@ -65,7 +63,7 @@ export default function DataTable<T extends { id: string | number } = { id: stri
                     <input
                       type="checkbox"
                       checked={isSelected}
-                      onChange={() => toggleRowSelection(row.id)}
+                      onChange={() => table.toggleRowSelection(row.id)}
                     />
                   </td>
                 )}
@@ -84,27 +82,48 @@ export default function DataTable<T extends { id: string | number } = { id: stri
       </div>
 
       {/* Controles de paginación */}
-      {typeof pageSize === 'number' && (
+      {pagination && (
         <div className="flex items-center justify-between">
           <Button
             className="px-3 py-1 border rounded disabled:opacity-50"
-            onClick={pagination.prevPage}
-            disabled={pagination.page === 0}
+            onClick={pagination.api.prevPage}
+            disabled={pagination.state.page === 0}
           >
             Anterior
           </Button>
           <span>
-            Página {pagination.page + 1} de {pagination.totalPages}
+            Página {pagination.state.page} de {pagination.state.totalPages}
           </span>
           <Button
             className="px-3 py-1 border rounded disabled:opacity-50"
-            onClick={pagination.nextPage}
-            disabled={pagination.page >= pagination.totalPages - 1}
+            onClick={pagination.api.nextPage}
+            disabled={pagination.state.page >= pagination.state.totalPages - 1}
           >
             Siguiente
           </Button>
         </div>
       )}
+      {/*{table.api && (*/}
+      {/*  <div className="flex items-center justify-between">*/}
+      {/*    <Button*/}
+      {/*      className="px-3 py-1 border rounded disabled:opacity-50"*/}
+      {/*      onClick={pagination.prevPage}*/}
+      {/*      disabled={pagination.page === 0}*/}
+      {/*    >*/}
+      {/*      Anterior*/}
+      {/*    </Button>*/}
+      {/*    <span>*/}
+      {/*      Página {pagination.page + 1} de {pagination.totalPages}*/}
+      {/*    </span>*/}
+      {/*    <Button*/}
+      {/*      className="px-3 py-1 border rounded disabled:opacity-50"*/}
+      {/*      onClick={pagination.nextPage}*/}
+      {/*      disabled={pagination.page >= pagination.totalPages - 1}*/}
+      {/*    >*/}
+      {/*      Siguiente*/}
+      {/*    </Button>*/}
+      {/*  </div>*/}
+      {/*)}*/}
     </div>
   );
 }

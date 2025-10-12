@@ -11,7 +11,14 @@ export interface Column<T> {
 }
 
 export type RenderFunc<T> = (row: T, cell: Cell<T>) => React.ReactNode;
-export type Plugin<T> = (table: DataTableInstance<T>) => { rows: T[]; state?: never; api?: never; };
+export type TablePluginFunc<T, S = any, A = any> =
+  (table: DataTableInstance<T>) => TablePlugin<T, S, A>;
+export type TablePlugin<T, S = Record<string, any>, A = Record<string, any>> = {
+  name: string,
+  rows: T[];
+  state: S;
+  api: A;
+};
 
 export interface Cell<T> {
   rowIndex: number;
@@ -26,7 +33,7 @@ export interface UseDataTableOptions<T> {
   onRowDoubleClick?: (row: T) => void;
   onRowRightClick?: (row: T, event: React.MouseEvent) => void;
   onRowSelect?: (selectedRows: T[]) => void;
-  plugins?: Plugin<T>[];
+  plugins?: TablePluginFunc<T>[];
 }
 
 export interface DataTableInstance<T> {
@@ -114,6 +121,7 @@ export function useDataTable<T extends { id: string | number }>(
     onRowRightClick?.(row, event);
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const instance: DataTableInstance<T> = {
     columns,
     data: sortedData,
@@ -126,16 +134,19 @@ export function useDataTable<T extends { id: string | number }>(
     handleRowRightClick,
   };
 
-  const pluginState: Record<string, never> = {};
-  if(plugins && plugins.length) {
-    let rows = instance.data;
-    for (const plugin of plugins) {
-      const { rows: newRows, state, api } = plugin(instance);
-      rows = newRows;
-      Object.assign(pluginState, { state, api });
+  const pluginState = useMemo(() => {
+    const _pluginState: Record<string, TablePlugin<T>> = {};
+    if(plugins && plugins.length) {
+      let rows = instance.data;
+      for (const plugin of plugins) {
+        const { rows: newRows, state, api, name } = plugin(instance);
+        rows = newRows;
+        Object.assign(_pluginState, { [name]: { state, api } });
+      }
+      instance.data = rows;
     }
-    instance.data = rows;
-  }
+    return _pluginState;
+  }, [plugins]);
 
   return {
     ...instance,
