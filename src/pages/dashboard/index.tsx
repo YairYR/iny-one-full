@@ -3,90 +3,21 @@ import dynamic from 'next/dynamic';
 
 import LayoutMain from "@/components/layouts/LayoutMain";
 import { AppProvider, useAppContext } from "@/contexts/app.context";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { UserClient } from "@/lib/types";
-import { useRouter } from "next/router";
-import { Column } from "@/components/Table/hooks/useDataTable";
-import { DataTableProps } from "@/components/Table/DataTable";
 import { SkeletonTable } from "@/components/Skeleton/Skeleton";
 import { Transition } from "@headlessui/react";
 
-const DataTable = dynamic<DataTableProps<UserUrl>>(() => import('@/components/Table/DataTable'), {
+const DashboardTable = dynamic(() => import('@/components/Table/DashboardTable'), {
   ssr: false,
-  loading: () => <SkeletonTable rows={9} />,
 });
 
 function DashboardPage({ urls }: { urls: UserUrl[] }) {
   const { user } = useAppContext();
-  const router = useRouter();
-  const locale = router.locale ?? 'en';
-
-  const [data, setData] = React.useState<UserUrl[]>(urls);
-
-  const columns: Column<UserUrl>[] = useMemo(() => [
-    // { key: "title", label: "TÍTULO" },
-    {
-      key: "destination",
-      label: "URL",
-      cellClassName: "text-indigo-600 font-medium truncate max-w-[200px]",
-      render: row => <span title={row.destination}>{row.destination}</span>,
-    },
-    // { key: "clicks", label: "CLICKS", sortable: true, render: (row) => (
-    //     <Tag color="bg-green-100 text-green-700">{row.clicks}</Tag>) },
-    {
-      key: "utm_source",
-      label: "SOURCE",
-      sortable: true,
-      render: (row) => {
-        // console.log(cell);
-        return <Tag color="bg-indigo-100 text-indigo-700">{row.utm_source}</Tag>;
-      },
-    },
-    {
-      key: "utm_medium",
-      label: "MEDIUM",
-      sortable: true,
-      render: (row) => <Tag color="bg-purple-100 text-purple-700">{row.utm_medium}</Tag>,
-    },
-    {
-      key: "utm_campaign",
-      label: "CAMPAIGN",
-      sortable: true,
-      render: (row) => <Tag color="bg-orange-100 text-orange-700">{row.utm_campaign}</Tag>,
-    },
-    {
-      key: "created_at",
-      label: "FECHA",
-      sortable: true,
-      render: (row) => (new Date(row.created_at)).toLocaleDateString(locale),
-    },
-    {
-      key: 'uwu',
-      label: 'uwu',
-      render: (row) => (<>Holis</>)
-    }
-  ], [locale]);
-
-  const sliceText = (text: string, max: number) => {
-    return text.length > max ? text.slice(0, max) + '...' : text;
-  }
-
-  const onClickEdit = (row: UserUrl) => {
-    return () => {
-      console.log('Edit!', row);
-    }
-  }
-
-  const onClickRemove = (row: UserUrl) => {
-    return () => {
-      console.log('Remove!', row);
-    }
-  }
 
   const [showComponent, setShowComponent] = useState(false);
 
   useEffect(() => {
-    // Trigger the component to show after a delay or based on user interaction
     setTimeout(() => setShowComponent(true), 400);
   }, []);
 
@@ -98,16 +29,11 @@ function DashboardPage({ urls }: { urls: UserUrl[] }) {
         <Transition show={!showComponent}>
           <div className="relative">
             <div className="w-full transition duration-300 ease-in data-closed:opacity-0">
-              <SkeletonTable rows={10} />
+              <SkeletonTable rows={4} />
             </div>
           </div>
         </Transition>
-        {showComponent && (<DataTable
-          data={data}
-          columns={columns}
-          // pageSize={5}
-          selectable={true}
-        />)}
+        {showComponent && <DashboardTable urls={urls} />}
       </div>
     </LayoutMain>
   )
@@ -286,11 +212,3 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
     }
   };
 }
-
-const Tag = ({ children, color }: { children: React.ReactNode; color: string }) => (
-  <span
-    className={`px-2 py-0.5 text-[11px] rounded-full font-medium ${color} whitespace-nowrap`}
-  >
-    {children}
-  </span>
-);

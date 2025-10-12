@@ -15,9 +15,7 @@ export interface UsePaginationResult<T> {
   setPage: (page: number) => void;
 }
 
-type TableType<T> = DataTableInstance<T>;
-
-export function usePagination<T>(table: TableType<T>, { pageSize }: UsePaginationOptions<T>): UsePaginationResult<T> {
+export function usePagination<T>(table: DataTableInstance<T>, { pageSize }: UsePaginationOptions<T>): UsePaginationResult<T> {
   const [page, setPage] = useState(1);
 
   const data = useMemo(() => table.data, [table.data]);
