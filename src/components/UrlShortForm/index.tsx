@@ -40,7 +40,7 @@ export default function UrlShortForm() {
 
   const getShortUrl = async (url: string, utm: SomeUtmParams) => {
     return fetch('/api/shorten', {
-      method: 'PUT',
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },

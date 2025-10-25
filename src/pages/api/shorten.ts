@@ -15,7 +15,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
     return response.status(200).end();
   }
 
-  if (request.method !== 'PUT') {
+  if (request.method !== 'POST') {
     return response.status(405).end();
   }
 
