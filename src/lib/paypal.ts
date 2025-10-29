@@ -112,3 +112,15 @@ export function createPaypalOrder(description: string, products: OrderProduct[],
     }
   });
 }
+
+export async function getPaypalSubscription(id: string) {
+  const client = getPayPalClient();
+  const builder = client.getRequestBuilderFactory()('GET', `/v1/billing/plans/${id}`);
+  builder.authenticate([ { oauth2: true } ]);
+
+  const response = await builder.call();
+  if (response.body && typeof response.body === 'string') {
+    response.result = JSON.parse(response.body);
+  }
+  return response;
+}

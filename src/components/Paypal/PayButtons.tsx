@@ -2,7 +2,11 @@ import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { LoadingSpinner } from "@/components/Spinner";
 import { PayPalButtonCreateOrder, PayPalButtonOnApprove } from "@paypal/paypal-js";
 
-export default function PayButtons() {
+interface Props {
+  planId: string;
+}
+
+export default function PayButtons({ planId }: Props) {
   const [state] = usePayPalScriptReducer();
   const { isPending } = state;
 
@@ -15,8 +19,7 @@ export default function PayButtons() {
       body: JSON.stringify({
         cart: [
           {
-            // TODO: Replace with actual product ID
-            id: '39314c6e-0178-a8e7-02a2-f5397a8bb8d4',
+            id: planId,
             quantity: 1,
           },
         ],

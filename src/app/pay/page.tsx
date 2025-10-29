@@ -1,9 +1,11 @@
 'use client';
 
 import { PayPalScriptProvider } from '@paypal/react-paypal-js';
-import PayButtons from "@/app/pay/components/PayButtons";
+import PayButtons from "@/components/Paypal/PayButtons";
 
 export default function PayPage() {
+  const planId = '39314c6e-0178-a8e7-02a2-f5397a8bb8d4';
+
   return (
     <div className="h-screen bg-slate-900 flex items-center justify-center">
       <PayPalScriptProvider
@@ -16,7 +18,7 @@ export default function PayPage() {
           debug: true,
           currency: 'USD',
         }}>
-        <PayButtons />
+        <PayButtons planId={planId} />
       </PayPalScriptProvider>
     </div>
   )

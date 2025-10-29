@@ -1,5 +1,5 @@
 import db from "@/lib/db";
-import { ClientInfo, UserClient, UtmParams } from "@/lib/types";
+import { ClientInfo, OrderPay, Subscription, UserClient, UtmParams } from "@/lib/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 export const getShortenUrl = async (short: string) => {
@@ -121,4 +121,52 @@ export const clickShortLink = async (slug: string, client?: Partial<ClientInfo>)
     user_os_version: os?.version ?? null,
     user_referer: client?.referer ?? null,
   });
+}
+
+export const getPlans = async () => {
+  return db
+    .from('services')
+    .select('id, name, description, type, price, currency, interval')
+    .eq('active', true)
+    .eq('type', 'subscription')
+    .order('price', { ascending: true });
+}
+
+export const getPlanById = async (id: string) => {
+  return db
+    .from('services')
+    .select(`
+      id,
+      name,
+      description,
+      type,
+      price,
+      currency,
+      interval,
+      service_gateway,
+      external_service_id`)
+    .eq('active', true)
+    .eq('type', 'subscription')
+    .eq('id', id)
+    .maybeSingle();
+}
+
+export const createSubscription = async (subscription: Partial<Subscription>) => {
+  return db
+    .from('subscriptions')
+    .insert(subscription)
+    .select();
+}
+
+export const createOrder = async (order: Partial<OrderPay>) => {
+  return db
+    .from('orders')
+    .insert(order);
+}
+
+export const updateOrder = async (id: string, order: Partial<OrderPay>) => {
+  return db
+    .from('orders')
+    .update(order)
+    .eq('id', id);
 }

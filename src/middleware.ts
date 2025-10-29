@@ -1,41 +1,19 @@
-import { NextRequest, MiddlewareConfig, NextResponse } from 'next/server';
-import { ALLOWED_ORIGINS } from "@/constants";
-
-const corsOptions = {
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-}
+import { type NextRequest } from 'next/server'
+import { updateSession } from "@/middlewares/session";
 
 export async function middleware(request: NextRequest) {
-  const path = request.nextUrl.pathname;
-  const origin = request.headers.get('Origin') ?? request.headers.get('origin') ?? '';
-  const isAllowedOrigin = ALLOWED_ORIGINS.includes(origin);
-
-  const isPreflight = request.method === 'OPTIONS';
-
-  if(isPreflight) {
-    const preflightHeaders = {
-      ...(isAllowedOrigin && { 'Access-Control-Allow-Origin': origin }),
-      ...corsOptions,
-    };
-    return NextResponse.json({}, { headers: preflightHeaders });
-  }
-
-  const response = NextResponse.next();
-
-  Object.entries(corsOptions).forEach(([key, value]) => {
-    response.headers.set(key, value);
-  });
-
-  if(isAllowedOrigin) {
-    response.headers.set('Access-Control-Allow-Origin', origin);
-  } else if(path.startsWith('/api/')) {
-    return Response.json({}, { status: 401, statusText: 'Not Allowed' });
-  }
-
-  return response;
+  return await updateSession(request);
 }
 
-export const config: MiddlewareConfig = {
-  matcher: '/api/:path*',
+export const config = {
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
+     */
+    '/((?!_next/static|_next/image|favicon.ico|site.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

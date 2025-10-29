@@ -25,6 +25,9 @@ export async function POST(request: NextRequest) {
 
   if(order && order.result) {
     console.log('order', order.result);
+
+
+
     return NextResponse.json({
       id: order.result.id,
       order: order.result
