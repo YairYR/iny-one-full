@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Zap } from 'lucide-react';
 import { isURL } from "validator";
 import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
@@ -9,117 +9,27 @@ import {
 } from "@/utils/localstorage";
 import { useRouter } from "next/router";
 import useLang from "@/hooks/useLang";
-import ShortUrlCard from "@/components/ShortUrlCard";
+import ShortUrlCard from "@/features/short_links/components/ShortUrlCard";
 import { Button, Input, Fieldset, Field, Label } from '@headlessui/react';
-
-type SomeUtmParams = Pick<UtmParams, 'source'|'medium'|'campaign'>;
+import { useUrlShortForm } from "@/features/short_links/hooks/useUrlShortForm";
 
 export default function UrlShortForm() {
-  const { t } = useLang();
-  const router = useRouter();
+  const {
+    t,
+    currentUrl,
+    utm,
+    shortUrl,
+    isLoading,
+    error,
 
-  const shortenedUrls = React.useRef<UrlHistory<SomeUtmParams>>({});
-  const [currentUrl, setCurrentUrl] = useState('');
-  const [utm, setUtm] = useState<SomeUtmParams>({ source: '', medium: '', campaign: '' });
-  const [shortUrl, setShortUrl] = useState<string|null>(null);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState('');
-
-  const sanitize = (value: string) =>
-      value.replace(/[^a-zA-Z0-9-_]/g, '');
-
-  useEffect(() => {
-    const urlRefresh = getFromSessionStorage('url');
-    if(urlRefresh) {
-      const data = JSON.parse(urlRefresh);
-      setCurrentUrl(data.url);
-      setUtm(data.utm);
-      removeFromSessionStorage('url');
-    }
-  }, []);
-
-  const getShortUrl = async (url: string, utm: SomeUtmParams) => {
-    return fetch('/api/shorten', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ url, utm }),
-    });
-  }
-
-  const handleShorten = async () => {
-    const url = currentUrl.trim();
-    if (!url) {
-      setError(t('requiredUrl'));
-      return;
-    }
-
-    if (!isURL(url)) {
-      setError(t('invalidUrl'));
-      return;
-    }
-
-    setShortUrl(null);
-    setError('');
-    setIsLoading(true);
-
-    // Evita requests innecesarios para urls ya generadas
-    if(shortenedUrls.current[url]) {
-      const shortened = shortenedUrls.current[url];
-      if(utm.source === shortened.utm.source &&
-        utm.medium === shortened.utm.medium &&
-        utm.campaign === shortened.utm.campaign) {
-        setShortUrl(shortened.short + '');
-        setIsLoading(false);
-        return;
-      }
-    }
-
-    const response = await getShortUrl(url, utm);
-    const apiResponse: ApiResponse<{ short: string }> = await response.json();
-
-    if(response.ok) {
-      setShortUrl(apiResponse.data.short);
-      shortenedUrls.current[url] = {
-        url,
-        short: apiResponse.data.short,
-        utm
-      };
-    } else {
-      if(apiResponse.code === 1010) {
-        setError(t('errorNewShortenRefresh'));
-        addToSessionStorage('url', JSON.stringify({ url, utm }))
-        setTimeout(() => {
-          router.reload();
-        }, 1000);
-      } else {
-        setError(t('errorNewShorten'));
-      }
-    }
-
-    setIsLoading(false);
-  };
-
-  const clearForm = () => {
-    setCurrentUrl('');
-    setUtm({ source: '', medium: '', campaign: '' });
-    setShortUrl(null);
-    setError('');
-  };
-
-  const handleChangeUtmSource = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const value = sanitize(ev.target.value);
-    setUtm((prev) => ({ ...prev, source: value }))
-  }
-  const handleChangeUtmMedium = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const value = sanitize(ev.target.value);
-    setUtm((prev) => ({ ...prev, medium: value }))
-  }
-  const handleChangeUtmCampain = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const value = sanitize(ev.target.value);
-    setUtm((prev) => ({ ...prev, campaign: value }))
-  }
+    // callbacks
+    handleShorten,
+    clearForm,
+    handleChangeUrl,
+    handleChangeUtmSource,
+    handleChangeUtmMedium,
+    handleChangeUtmCampaign
+  } = useUrlShortForm();
 
   return (
     <Fieldset className="bg-white rounded-xl shadow-lg p-8 mb-6">
@@ -131,7 +41,7 @@ export default function UrlShortForm() {
             name="url"
             placeholder={t('urlPlaceholder')}
             value={currentUrl}
-            onChange={(e) => setCurrentUrl(e.target.value)}
+            onChange={handleChangeUrl}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
           />
         </Field>
@@ -165,7 +75,7 @@ export default function UrlShortForm() {
               id="input_utm_campaign"
               placeholder="utm_campaign"
               value={utm.campaign}
-              onChange={handleChangeUtmCampain}
+              onChange={handleChangeUtmCampaign}
               className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
             />
           </div>

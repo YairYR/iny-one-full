@@ -1,5 +1,5 @@
 import HomeTitle from '@/components/HomeTitle';
-import UrlShortForm from '@/components/UrlShortForm';
+import UrlShortForm from '@/features/short_links/components/UrlShortForm';
 import { AppProvider } from '@/contexts/app.context';
 import LayoutMain from '@/components/layouts/LayoutMain';
 import Head from 'next/head';

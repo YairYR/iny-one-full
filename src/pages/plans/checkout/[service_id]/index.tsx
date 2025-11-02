@@ -1,6 +1,6 @@
 import LayoutMain from "@/components/layouts/LayoutMain";
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
-import PayButtons from "@/components/Paypal/PayButtons";
+import PayButtons from "@/features/payments/components/Paypal/PayButtons";
 import { GetServerSidePropsContext } from "next";
 import { getCurrentUser, getPlanById } from "@/lib/utils/query";
 import { Plan } from "@/lib/types";
@@ -41,19 +41,19 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createClient(context)
   const { user, raw } = await getCurrentUser(supabase);
 
-  if (!user) {
-    return {
-      redirect: {
-        destination: '/auth/login',
-        permanent: false,
-      },
-    };
-  }
+  // if (!user) {
+  //   return {
+  //     redirect: {
+  //       destination: '/auth/login',
+  //       permanent: false,
+  //     },
+  //   };
+  // }
 
   const { service_id } = context.query;
   const plan = await getPlanById(service_id as string);
 
-  if(!plan) {
+  if(!plan || !plan.data) {
     return {
       redirect: {
         destination: '/plans',
