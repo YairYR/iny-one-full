@@ -30,7 +30,9 @@ export async function middleware(request: NextRequest) {
   if(isAllowedOrigin) {
     response.headers.set('Access-Control-Allow-Origin', origin);
   } else if(path.startsWith('/api/')) {
-    return Response.json({}, { status: 401, statusText: 'Not Allowed' });
+    if(path !== '/api/webhooks') {
+      return Response.json({}, { status: 401, statusText: 'Not Allowed' });
+    }
   }
 
   return response;
