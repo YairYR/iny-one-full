@@ -1,5 +1,5 @@
 import LayoutMain from '@/components/layouts/LayoutMain';
-import LoginForm from "@/components/LoginForm";
+import LoginForm from "@/features/auth/components/LoginForm";
 import type { GetServerSidePropsContext } from "next";
 import { createClient } from "@/utils/supabase/server";
 import { getCurrentUser } from "@/lib/utils/query";

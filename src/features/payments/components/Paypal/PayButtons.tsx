@@ -1,17 +1,30 @@
-import { PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
+import { DISPATCH_ACTION, PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { LoadingSpinner } from "@/components/Spinner";
-import { PayPalButtonCreateOrder, PayPalButtonOnApprove } from "@paypal/paypal-js";
+import { PayPalButtonCreateSubscription, PayPalButtonOnApprove } from "@paypal/paypal-js";
+import { useEffect } from "react";
 
 interface Props {
   planId: string;
 }
 
 export default function PayButtons({ planId }: Props) {
-  const [state] = usePayPalScriptReducer();
+  const [state, dispatch] = usePayPalScriptReducer();
   const { isPending } = state;
 
-  const createOrder: PayPalButtonCreateOrder = async () => {
-    return fetch("/api/checkout/paypal/create-order", {
+  useEffect(() => {
+    dispatch({
+      type: DISPATCH_ACTION.RESET_OPTIONS,
+      value: {
+        ...state.options,
+        vault: true,
+        intent: "subscription",
+      }
+    })
+  }, []);
+
+  const createSubscription: PayPalButtonCreateSubscription = async (data, actions) => {
+    console.log('createSubscription click!', { data, actions });
+    return fetch("/api/checkout/paypal/create-subscription", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -30,18 +43,18 @@ export default function PayButtons({ planId }: Props) {
   }
 
   const onApprove: PayPalButtonOnApprove = async (data) => {
-    return fetch("/api/checkout/paypal/capture-order", {
-      method: "POST",
+    return fetch("/api/checkout/paypal/capture-subscription", {
+      method: "PATCH",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        orderID: data.orderID
+        id: data.subscriptionID
       })
     })
       .then((response) => response.json())
-      .then((orderData) => {
-        const name = orderData.order.payer.name.given_name;
+      .then((subscriptionData) => {
+        const name = subscriptionData.suscriber.name.given_name;
         alert(`Transaction completed by ${name}`);
       });
   }
@@ -53,7 +66,7 @@ export default function PayButtons({ planId }: Props) {
         : null}
       <PayPalButtons
         style={{ layout: 'vertical', color: 'silver' }}
-        createOrder={createOrder}
+        createSubscription={createSubscription}
         onApprove={onApprove}
         appSwitchWhenAvailable={false}
       />

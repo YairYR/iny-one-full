@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import { Mail, SquareAsterisk } from 'lucide-react';
 
 import isEmail from "validator/lib/isEmail";
-import { GoogleButton } from "@/components/OAuth/GoogleButton";
+import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
 
 export default function LoginForm() {
   const router = useRouter();

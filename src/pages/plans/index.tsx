@@ -29,7 +29,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createClient(context);
   const { data } = await supabase.auth.getSession();
 
-  const user = data.session?.user;
+  const user = data.session?.user ?? null;
 
   return {
     props: {

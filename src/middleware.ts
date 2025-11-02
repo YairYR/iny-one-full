@@ -1,8 +1,9 @@
 import { type NextRequest } from 'next/server'
-import { updateSession } from "@/middlewares/session";
+import { updateSession } from "@/lib/middlewares/session";
 
 export async function middleware(request: NextRequest) {
-  return await updateSession(request);
+  // TODO: remove comment
+  // return await updateSession(request);
 }
 
 export const config = {

@@ -3,7 +3,7 @@ import Image from 'next/image';
 import { useRouter } from "next/router";
 
 import { Mail, SquareAsterisk, SquareUserRound } from "lucide-react";
-import { GoogleButton } from "@/components/OAuth/GoogleButton";
+import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
 
 export default function RegisterForm() {
   const router = useRouter();
