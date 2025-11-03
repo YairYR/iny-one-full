@@ -35,6 +35,14 @@ export const SubscriptionRepository = {
       .order('created_at', { ascending: false });
   },
 
+  async generateUniqueUUID() {
+    return supabase
+      .rpc("generate_unique_uuid", {
+        p_table: 'subscriptions',
+        p_col: 'id'
+      });
+  },
+
   async create(subscription: Partial<Subscription>) {
     return supabase
       .from("subscriptions")

@@ -30,10 +30,13 @@ export const BillingRepository = {
     return response;
   },
 
-  async createSubscription(subscription: Omit<CreateSubscriptionRequestBody, 'shipping_amount'>) {
+  async createSubscription(subscription: Omit<CreateSubscriptionRequestBody, 'shipping_amount'>, requestId?: string) {
     const paypal = getPayPalClient();
     const builder = paypal.getRequestBuilderFactory()('POST', '/v1/billing/subscriptions');
     builder.authenticate([ { oauth2: true } ]);
+    if(requestId) {
+      builder.header('PayPal-Request-Id', requestId);
+    }
     builder.json(subscription);
 
     const response: ApiResponse<SubscriptionResponseBody> = await builder.call() as never;
@@ -57,25 +60,6 @@ export const BillingRepository = {
     }
 
     const response: ApiResponse<SubscriptionResponseBody> = await builder.call() as never;
-    if (response.body && typeof response.body === 'string') {
-      response.result = JSON.parse(response.body);
-    }
-    return response;
-  },
-
-  async setSubscriptionCustomId(id: string, custom_id: string) {
-    const paypal = getPayPalClient();
-    const builder = paypal.getRequestBuilderFactory()('PATCH', `/v1/billing/subscriptions/${id}`);
-    builder.authenticate([ { oauth2: true } ]);
-    builder.json([
-      {
-        op: "replace",
-        path: "custom_id",
-        value: custom_id,
-      }
-    ]);
-
-    const response = await builder.call();
     if (response.body && typeof response.body === 'string') {
       response.result = JSON.parse(response.body);
     }

@@ -3,13 +3,12 @@ import { type NextRequest, NextResponse } from "next/server";
 export async function checkWebhook(request: NextRequest) {
   const headers = request.headers;
 
-  // const isValidHeaders = verifyHeaders(headers);
-  // if(!isValidHeaders || event === null) {
-  //   return NextResponse.json(
-  //     { error: "Invalid headers" },
-  //     { status: 400 });
-  // }
-
+  const isValidHeaders = verifyHeaders(headers);
+  if(!isValidHeaders || request.body === null) {
+    return NextResponse.json(
+      { error: "Invalid headers" },
+      { status: 400 });
+  }
 }
 
 function verifyHeaders(headers: Headers): boolean {
