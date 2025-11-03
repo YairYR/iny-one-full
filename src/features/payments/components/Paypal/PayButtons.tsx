@@ -62,7 +62,7 @@ export default function PayButtons({ planId }: Props) {
   return (
     <>
       {isPending
-        ? <LoadingSpinner />
+        ? <LoadingSpinner className="text-blue-500" />
         : null}
       <PayPalButtons
         style={{ layout: 'vertical', color: 'silver' }}
