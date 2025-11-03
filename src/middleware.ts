@@ -1,9 +1,15 @@
 import { type NextRequest } from 'next/server'
 import { updateSession } from "@/lib/middlewares/session";
+import { checkWebhook } from "@/lib/middlewares/webhooks";
 
 export async function middleware(request: NextRequest) {
-  // TODO: remove comment
-  // return await updateSession(request);
+  const path = request.nextUrl.pathname;
+  // PayPal webhooks
+  if(path === '/api/webhooks') {
+    return checkWebhook(request);
+  }
+
+  return updateSession(request);
 }
 
 export const config = {

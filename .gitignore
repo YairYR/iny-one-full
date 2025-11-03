@@ -51,3 +51,4 @@ next-env.d.ts
 
 /scripts
 /supabase
+/data/cache

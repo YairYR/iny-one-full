@@ -1,9 +1,13 @@
-import { Loader } from "lucide-react";
+import { LoaderIcon } from "lucide-react";
 
-export function LoadingSpinner() {
+interface Props {
+  className?: string;
+}
+
+export function LoadingSpinner({ className = 'text-white' }: Props) {
   return (
-    <div className="flex justify-center items-center h-full">
-      <Loader className="w-8 h-8 text-blue-500 animate-spin" />
+    <div className={"flex justify-center items-center h-full " + className}>
+      <LoaderIcon className="w-8 h-8 animate-spin" />
     </div>
   );
 }
