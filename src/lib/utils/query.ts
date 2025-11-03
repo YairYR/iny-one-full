@@ -1,6 +1,8 @@
 import db from "@/lib/db";
 import { ClientInfo, OrderPay, Subscription, UserClient, UtmParams } from "@/lib/types";
 import { SupabaseClient } from "@supabase/supabase-js";
+import { WebhookEvent } from "@/core/entities";
+import supabase from "@/infra/db/supabase";
 
 export const getShortenUrl = async (short: string) => {
   return db
@@ -151,22 +153,8 @@ export const getPlanById = async (id: string) => {
     .maybeSingle();
 }
 
-export const createSubscription = async (subscription: Partial<Subscription>) => {
-  return db
-    .from('subscriptions')
-    .insert(subscription)
-    .select();
-}
-
-export const createOrder = async (order: Partial<OrderPay>) => {
-  return db
-    .from('orders')
-    .insert(order);
-}
-
-export const updateOrder = async (id: string, order: Partial<OrderPay>) => {
-  return db
-    .from('orders')
-    .update(order)
-    .eq('id', id);
+export const createWebhook = async (webhook: Omit<WebhookEvent, 'id'|'created_at'>) => {
+  return supabase
+    .from('webhook_events')
+    .insert(webhook);
 }

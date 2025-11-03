@@ -3,6 +3,8 @@ import crypto from 'crypto';
 // @ts-expect-error has default export
 import crc32 from 'buffer-crc32';
 import fs from 'fs/promises';
+import { createWebhook } from "@/lib/utils/query";
+import { Json } from "@/lib/types/db.types";
 
 const CACHE_DIR = process.env.CACHE_DIR || '/tmp'; // usa /tmp en Vercel
 const WEBHOOK_ID = process.env.WEBHOOK_ID; // <tu webhook ID de PayPal>
@@ -77,6 +79,14 @@ export async function POST(req: NextRequest) {
       // Aquí procesas el evento según el tipo
       // Ejemplo:
       // if (data.event_type === 'PAYMENT.CAPTURE.COMPLETED') { ... }
+
+      await createWebhook({
+        event_type: data.event_type,
+        gateway: 'paypal',
+        external_event_id: data.id,
+        payload: data as Json,
+        processed: false,
+      });
 
       return NextResponse.json({ ok: true });
     } else {
