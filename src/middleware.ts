@@ -4,7 +4,6 @@ import { checkWebhook } from "@/lib/middlewares/webhooks";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  // PayPal webhooks
   if(path === '/api/webhooks') {
     return checkWebhook(request);
   }

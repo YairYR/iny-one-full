@@ -59,7 +59,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
   const user = await supabase.auth.getUser();
   const uid: string|null = user.data.user?.id ?? null;
 
-  const slug = nanoid(6);
+  const slug = nanoid(7);
   const { error } = await addShortenUrl(uid, slug, destination, utmParams, urlInfo.domain, {
     ip,
     countryCode,

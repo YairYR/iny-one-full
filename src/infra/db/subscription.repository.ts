@@ -55,7 +55,15 @@ export const SubscriptionRepository = {
       .from("subscriptions")
       .update(subscription)
       .eq('id', id);
-  }
+  },
+
+  async updateByExternalId(id: string, gateway: string, subscription: Partial<Subscription>) {
+    return supabase
+      .from("subscriptions")
+      .update(subscription)
+      .eq('external_subscription_id', id)
+      .eq('subscription_gateway', gateway);
+  },
 }
 
 export type SubscriptionStatus = 'APPROVAL_PENDING' | 'APPROVED' | 'ACTIVE' | 'SUSPENDED' | 'CANCELLED' | 'EXPIRED';

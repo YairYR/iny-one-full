@@ -7,10 +7,17 @@ import supabase from "@/infra/db/supabase";
 export const getShortenUrl = async (short: string) => {
   return db
     .from('short_links')
-    .select('destination')
+    .select('destination, expires_at')
     .eq('slug', short)
     .eq('status', true)
     .maybeSingle(); // ✅ Devuelve un solo objeto o null
+}
+
+export const updateShortenUrl = async (short: string, status: boolean) => {
+  return supabase
+    .from('short_links')
+    .update({ status })
+    .eq('slug', short);
 }
 
 export const getBlockUrl = async (domain: string) => {
@@ -156,5 +163,13 @@ export const getPlanById = async (id: string) => {
 export const createWebhook = async (webhook: Omit<WebhookEvent, 'id'|'created_at'>) => {
   return supabase
     .from('webhook_events')
-    .insert(webhook);
+    .insert(webhook)
+    .select();
+}
+
+export const updateWebhook = async (id: string, processed: boolean) => {
+  return supabase
+    .from('webhook_events')
+    .update({ processed })
+    .eq('id', id);
 }

@@ -1,4 +1,5 @@
 import type { userAgent } from "next/server";
+import { LinkDescription } from "@paypal/paypal-server-sdk";
 
 export interface UtmParams {
   source: string;
@@ -89,4 +90,19 @@ export interface OrderPay {
   discount_id: string|null;
   discount_amount: number|null;
   subscription_id: string|null;
+}
+
+export type WebhookEventPaypal = {
+  id: string;
+  create_time: string;
+  resource_type: string;
+  event_type: string;
+  summary: string;
+  resource_version: string;
+  resource: Record<string, never>;
+  links: Array<{
+    href: string;
+    rel: string;
+    method?: string;
+  }>;
 }

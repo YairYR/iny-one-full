@@ -1,12 +1,13 @@
 import LayoutMain from "@/components/layouts/LayoutMain";
-import React from "react";
 import PricingCards from "@/components/PricingCards";
 import { AppProvider } from "@/contexts/app.context";
 import { GetServerSidePropsContext } from "next";
 import { createClient } from "@/utils/supabase/server";
+import type React from "react";
 
 interface Props {
   user: never;
+  children?: React.ReactNode;
 }
 
 export default function PlansPage({ user }: Props) {
