@@ -33,16 +33,6 @@ ChartJS.register(
   Colors,
 );
 
-// Mock data — reemplaza por tus datos reales o llamadas a la API
-const MOCK_OVERVIEW = {
-  totalLinks: 42,
-  totalClicks: 1280,
-  clicksLast24h: 120,
-  topLink: "/promo",
-  topCountry: "Chile",
-  avgCTR: "12.4%",
-};
-
 const MOCK_CLICKS_BY_DAY = {
   labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
   datasets: [
@@ -53,13 +43,6 @@ const MOCK_CLICKS_BY_DAY = {
     },
   ],
 };
-
-const MOCK_LINKS = [
-  { id: 1, alias: "promo", dest: "https://site.com/promo", clicks: 470, ctr: "18%", created: "2025-10-01", countryTop: "CL", deviceTop: "Mobile" },
-  { id: 2, alias: "blog", dest: "https://site.com/blog", clicks: 230, ctr: "9%", created: "2025-09-12", countryTop: "AR", deviceTop: "Desktop" },
-  { id: 3, alias: "video", dest: "https://yt.be/abcd", clicks: 180, ctr: "6%", created: "2025-08-22", countryTop: "CL", deviceTop: "Mobile" },
-  { id: 4, alias: "sale", dest: "https://shop.com/sale", clicks: 400, ctr: "14%", created: "2025-11-01", countryTop: "US", deviceTop: "Desktop" },
-];
 
 const MOCK_TRAFFIC_SOURCES = {
   labels: ["Directo", "Google", "Facebook", "Instagram", "Otros"],

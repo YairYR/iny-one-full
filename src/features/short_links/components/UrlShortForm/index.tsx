@@ -1,14 +1,5 @@
 import React from 'react';
 import { Zap } from 'lucide-react';
-import { isURL } from "validator";
-import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
-import {
-  addToSessionStorage,
-  getFromSessionStorage,
-  removeFromSessionStorage
-} from "@/utils/localstorage";
-import { useRouter } from "next/router";
-import useLang from "@/hooks/useLang";
 import ShortUrlCard from "@/features/short_links/components/ShortUrlCard";
 import { Button, Input, Fieldset, Field, Label } from '@headlessui/react';
 import { useUrlShortForm } from "@/features/short_links/hooks/useUrlShortForm";

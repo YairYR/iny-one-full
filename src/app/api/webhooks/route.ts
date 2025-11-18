@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
     console.log('Headers:', Object.fromEntries(headers.entries()));
     console.log('Body:', JSON.stringify(data, null, 2));
 
-    const isSignatureValid = true; //await verifySignature(rawBody, headers);
+    const isSignatureValid = await verifySignature(rawBody, headers);
 
     if (isSignatureValid) {
       console.log('✅ Firma válida. Procesando evento...');
