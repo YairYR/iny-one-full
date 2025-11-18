@@ -7,3 +7,4 @@ if(process.env.VERCEL_URL) ALLOWED_ORIGINS.push(`https://${process.env.VERCEL_UR
 if(IS_DEVELOPMENT) ALLOWED_ORIGINS.push(`http://localhost:3000`);
 
 export const PAYPAL_CLIENT_ID = process.env.PAYPAL_PUBLIC_API_CLIENT_ID!;
+
