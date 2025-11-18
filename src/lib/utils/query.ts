@@ -1,5 +1,5 @@
 import db from "@/lib/db";
-import { ClientInfo, OrderPay, Subscription, UserClient, UtmParams } from "@/lib/types";
+import { ClientInfo, UserClient, UtmParams } from "@/lib/types";
 import { SupabaseClient } from "@supabase/supabase-js";
 import { WebhookEvent } from "@/core/entities";
 import supabase from "@/infra/db/supabase";
@@ -102,8 +102,15 @@ export const getCurrentUserFromSession = async (supabase: SupabaseClient) => {
 export const getUserUrls = async (uid: string) => {
   return db
     .from('short_links')
-    .select('slug, destination, created_at, utm_source, utm_medium, utm_campaign')
+    .select('slug, destination, created_at, utm_source, utm_medium, utm_campaign, clicks')
     .eq('user_id', uid);
+}
+
+export const getStatsUrls = async (slugs: string[]) => {
+  return db
+    .from('short_links_stats')
+    .select('slug, total_clicks, unique_ips, last_click_at, country_counts, browser_counts, os_counts, device_type_counts, created_at, updated_at')
+    .in('slug', slugs);
 }
 
 export const clickShortLink = async (slug: string, client?: Partial<ClientInfo>) => {

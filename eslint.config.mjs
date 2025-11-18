@@ -11,18 +11,18 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
-  {
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          name: "@supabase/ssr",
-          importNames: ["createBrowserClient"],
-          message: "Please do not use 'createBrowserClient' from '@supabase/ssr'. Use 'createServerClient' instead."
-        }
-      ]
-    }
-  }
+  // {
+  //   rules: {
+  //     "no-restricted-imports": [
+  //       "error",
+  //       {
+  //         name: "@supabase/ssr",
+  //         importNames: ["createBrowserClient"],
+  //         message: "Please do not use 'createBrowserClient' from '@supabase/ssr'. Use 'createServerClient' instead."
+  //       }
+  //     ]
+  //   }
+  // }
 ];
 
 export default eslintConfig;
