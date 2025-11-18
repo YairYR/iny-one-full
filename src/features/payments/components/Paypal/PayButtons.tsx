@@ -20,6 +20,7 @@ export default function PayButtons({ planId }: Props) {
         intent: "subscription",
       }
     })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const createSubscription: PayPalButtonCreateSubscription = async (data, actions) => {

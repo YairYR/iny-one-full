@@ -4,7 +4,7 @@ import { ServiceRepository } from "@/infra/db/service.repository";
 import { User } from "@supabase/auth-js";
 import { retry } from "@/core/utils/retry";
 
-export async function createSubscription(plan_id: string, user: User, discount_code?: string|null) {
+export async function createSubscription(plan_id: string, user: User) {
   const plan = await ServiceRepository.findById(plan_id);
   if (plan.error || !plan.data || !plan.data.external_plan_id) {
     return Promise.reject("Plan not found");

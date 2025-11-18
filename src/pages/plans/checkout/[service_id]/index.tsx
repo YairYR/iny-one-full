@@ -39,7 +39,7 @@ export default function PlanCheckoutPage({ plan, user }: Props) {
 
 export async function getServerSideProps(context: GetServerSidePropsContext) {
   const supabase = createClient(context)
-  const { user, raw } = await getCurrentUser(supabase);
+  const { user } = await getCurrentUser(supabase);
 
   // if (!user) {
   //   return {

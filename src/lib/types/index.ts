@@ -1,5 +1,4 @@
 import type { userAgent } from "next/server";
-import { LinkDescription } from "@paypal/paypal-server-sdk";
 
 export interface UtmParams {
   source: string;

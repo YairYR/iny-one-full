@@ -1,10 +1,11 @@
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { BellIcon, MenuIcon, XIcon, LogInIcon } from 'lucide-react';
 import { useRouter } from "next/router";
 import React from "react";
 import { useAppContext } from "@/contexts/app.context";
 import UserProfileMenu from "@/components/Navbar/profile/UserProfileMenu";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Tab {
   name: string;
@@ -48,7 +49,7 @@ export default function NavbarMain() {
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
             <div className="flex shrink-0 items-center">
-              <img
+              <Image
                 alt="Your Company"
                 src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
                 className="h-8 w-auto"

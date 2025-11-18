@@ -4,9 +4,7 @@ import { userAgentFromString } from 'next/server';
 import { getGeoLocation } from '@/utils/client-info/geolocation';
 import { headers as getHeaders } from "next/headers";
 import { IS_PRODUCTION } from "@/constants";
-import { notFound } from 'next/navigation';
 import dayjs from "dayjs";
-import { NextURL } from "next/dist/server/web/next-url";
 
 type IData = {
   destination: string | null;
@@ -30,6 +28,7 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ short: str
     if (error) throw error;
     data = result;
   } catch (err) {
+    console.error(err);
     return new NextResponse('Unexpected error', { status: 500, headers });
   }
 
