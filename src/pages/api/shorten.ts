@@ -5,6 +5,7 @@ import tldts from 'tldts';
 import validator, { IsURLOptions } from 'validator';
 import { createClient } from "@/utils/supabase/api";
 import { UtmParams } from "@/lib/types";
+import { loadBloom } from "@/utils/check_domain";
 
 const urlOptions: IsURLOptions = {
   protocols: ['http', 'https'],
@@ -40,16 +41,19 @@ export default async function handler(request: NextApiRequest, response: NextApi
     return response.status(400).json({ code: 1000 });
   }
 
-  const urlBanned = await getBlockUrl(urlInfo.domain);
+  const bannedDomains = loadBloom();
+  if(bannedDomains.has(urlInfo.domain)) {
+    const urlBanned = await getBlockUrl(urlInfo.domain);
 
-  if(urlBanned.error) {
-    console.error(urlBanned.error);
-    return response.status(400).json({ code: 3001 });
-  }
+    if(urlBanned.error) {
+      console.error(urlBanned.error);
+      return response.status(400).json({ code: 3001 });
+    }
 
-  if(urlBanned.data !== null && urlBanned.data === false) {
-    console.log('❗ El dominio de la URL ingresada está baneada:', urlWithSuffix);
-    return response.status(400).json({ code: 3001 });
+    if(urlBanned.data !== null && urlBanned.data === false) {
+      console.log('❗ El dominio de la URL ingresada está baneada:', urlWithSuffix);
+      return response.status(400).json({ code: 3001 });
+    }
   }
 
   const { destination, utm: utmParams } = buildDestination(urlWithSuffix, utm);

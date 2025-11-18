@@ -1,9 +1,9 @@
 import type React from 'react';
 import { useState, useRef, useEffect } from "react";
-import { UtmParams } from "@/lib/types";
+import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
 import useLang from "@/hooks/useLang";
 import { useRouter } from "next/router";
-import { getFromSessionStorage } from "@/utils/localstorage";
+import { addToSessionStorage, getFromSessionStorage, removeFromSessionStorage } from "@/utils/localstorage";
 import { isURL } from "validator";
 
 type SomeUtmParams = Pick<UtmParams, 'source'|'medium'|'campaign'>;

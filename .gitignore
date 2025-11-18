@@ -49,6 +49,6 @@ next-env.d.ts
 /generated/prisma
 *.db
 
-/scripts
+/scripts/files
 /supabase
 /data/cache
