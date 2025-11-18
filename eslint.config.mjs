@@ -11,6 +11,9 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.config({
+    ignorePatterns: ['src/lib/types/db.types.d.ts']
+  }),
   // {
   //   rules: {
   //     "no-restricted-imports": [
