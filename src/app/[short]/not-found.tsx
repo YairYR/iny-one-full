@@ -1,5 +1,6 @@
 import { Home, Compass } from "lucide-react";
 import Link from "next/link";
+import '@/styles/globals.css';
 
 export default function NotFound() {
   return (

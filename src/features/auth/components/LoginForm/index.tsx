@@ -40,7 +40,7 @@ export default function LoginForm() {
       return;
     }
 
-    await router.push('/dashboard');
+    await router.push('/u/dashboard');
     setLoading(false);
   }
 

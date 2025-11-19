@@ -15,7 +15,7 @@ interface Tab {
 
 const navigation: Tab[] = [
   { name: 'Home', href: '/', current: true },
-  { name: 'Dashboard', href: '/dashboard', current: false },
+  { name: 'Dashboard', href: '/u/dashboard', current: false },
   { name: 'Team', href: '#', current: false },
   // { name: 'Projects', href: '#', current: false },
   // { name: 'Calendar', href: '#', current: false },
@@ -53,6 +53,7 @@ export default function NavbarMain() {
                 alt="Your Company"
                 src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
                 className="h-8 w-auto"
+                width={100} height={100}
               />
             </div>
             <div className="hidden sm:ml-6 sm:block">
