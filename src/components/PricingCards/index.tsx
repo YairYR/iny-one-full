@@ -1,6 +1,8 @@
+'use client';
+
 import React from "react";
 import PricingCard from "@/components/PricingCards/PricingCard";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 export default function PricingCards() {
   const router = useRouter();
@@ -48,7 +50,7 @@ export default function PricingCards() {
      * TODO: 1. verificar si está logueado. 2. redirigir al carrito. 3. pagar.
      */
 
-    await router.push('/plans/checkout/' + planId);
+    router.push('/plans/checkout/' + planId);
   }
 
   return (

@@ -47,13 +47,13 @@ export default function App({ Component, pageProps }: Props) {
         />
         <Script id="gtag-init" strategy="afterInteractive">
           {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-KT87SQKGT4', {
-              page_path: window.location.pathname,
-            });
-          `}
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-KT87SQKGT4', {
+                page_path: window.location.pathname,
+              });
+            `}
         </Script>
 
         <Component {...pageProps} />
@@ -61,3 +61,14 @@ export default function App({ Component, pageProps }: Props) {
     </AppProvider>
   );
 };
+
+// export async function getStaticProps(context: GetStaticPropsContext) {
+//   return {
+//     props: {
+//       // You can get the messages from anywhere you like. The recommended
+//       // pattern is to put them in JSON files separated by locale and read
+//       // the desired one based on the `locale` received from Next.js.
+//       messages: (await import(`../../data/lang/${context.locale}.json`)).default
+//     }
+//   };
+// }

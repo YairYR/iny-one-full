@@ -1,15 +1,24 @@
+'use client';
+
 import type React from 'react';
 import { useState, useRef, useEffect } from "react";
 import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
-import useLang from "@/hooks/useLang";
-import { useRouter } from "next/router";
+import { useRouter } from 'next/navigation';
 import { addToSessionStorage, getFromSessionStorage, removeFromSessionStorage } from "@/utils/localstorage";
-import { isURL } from "validator";
+import { url as isURLZod, regexes } from "zod/mini";
 
 type SomeUtmParams = Pick<UtmParams, 'source'|'medium'|'campaign'>;
 
-export function useUrlShortForm() {
-  const { t } = useLang();
+const zodUrl = isURLZod({
+  protocol: /^(https?|)$/,
+  hostname: regexes.domain,
+});
+
+interface Props {
+  t: (key: string) => string;
+}
+
+export function useUrlShortForm({ t }: Props) {
   const router = useRouter();
 
   const shortenedUrls = useRef<UrlHistory<SomeUtmParams>>({});
@@ -49,7 +58,9 @@ export function useUrlShortForm() {
       return;
     }
 
-    if (!isURL(url)) {
+    const isValid = zodUrl.safeParse(url).success;
+
+    if (!isValid) {
       setError(t('invalidUrl'));
       return;
     }
@@ -85,7 +96,7 @@ export function useUrlShortForm() {
         setError(t('errorNewShortenRefresh'));
         addToSessionStorage('url', JSON.stringify({ url, utm }))
         setTimeout(() => {
-          router.reload();
+          router.refresh();
         }, 1000);
       } else {
         setError(t('errorNewShorten'));

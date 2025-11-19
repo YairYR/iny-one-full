@@ -2,14 +2,15 @@ import { nanoid } from 'nanoid';
 import { NextApiRequest, NextApiResponse } from "next";
 import { addShortenUrl, getBlockUrl } from "@/lib/utils/query";
 import tldts from 'tldts';
-import validator, { IsURLOptions } from 'validator';
 import { createClient } from "@/utils/supabase/api";
 import { UtmParams } from "@/lib/types";
 import { loadBloom } from "@/utils/check_domain";
+import { url as isURLZod, regexes } from "zod/mini";
 
-const urlOptions: IsURLOptions = {
-  protocols: ['http', 'https'],
-}
+const zodUrl = isURLZod({
+  protocol: /^(https?|)$/,
+  hostname: regexes.domain,
+});
 
 export default async function handler(request: NextApiRequest, response: NextApiResponse) {
   if (request.method === 'OPTIONS') {
@@ -25,7 +26,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
 
   const { url, utm } = request.body;
 
-  if (!url || !validator.isURL(url, urlOptions)) {
+  if (!url || !zodUrl.safeParse(url).success) {
     return response.status(400).json({ error: 'URL is required' });
   }
 

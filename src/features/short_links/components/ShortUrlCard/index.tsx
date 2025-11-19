@@ -1,6 +1,8 @@
+'use client';
+
 import { Copy, ExternalLink, Link } from "lucide-react";
 import React from "react";
-import useLang from "@/hooks/useLang";
+import { useTranslations } from "next-intl";
 import useClipboard from "@/hooks/useClipboard";
 
 interface Props {
@@ -8,12 +10,12 @@ interface Props {
 }
 
 const ShortUrlCard: React.FC<Props> = ({ shortUrl }) => {
-  const lang = useLang();
+  const t = useTranslations('HomePage');
   const { copied, copyToClipboard } = useClipboard();
 
   const onClickBtnCopy = async () => {
     if(shortUrl) {
-      await copyToClipboard(shortUrl)
+      await copyToClipboard(shortUrl);
     }
   }
 
@@ -24,12 +26,12 @@ const ShortUrlCard: React.FC<Props> = ({ shortUrl }) => {
           <Link className="h-4 w-4 text-green-600" />
         </div>
         <h3 className="text-lg font-semibold text-green-800">
-          {lang.get('success')}
+          {t('success')}
         </h3>
       </div>
 
       <div className="bg-white border border-green-200 rounded-lg p-4 mb-4">
-        <p className="text-sm text-gray-600 mb-2">{lang.get('copy')}</p>
+        <p className="text-sm text-gray-600 mb-2">{t('copy')}</p>
         <div className="flex items-center justify-between">
           <a
             href={shortUrl}
@@ -43,7 +45,7 @@ const ShortUrlCard: React.FC<Props> = ({ shortUrl }) => {
             <button
               onClick={onClickBtnCopy}
               className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-              title={lang.get('copy')}
+              title={t('copy')}
             >
               <Copy className="h-4 w-4" />
             </button>
@@ -52,7 +54,7 @@ const ShortUrlCard: React.FC<Props> = ({ shortUrl }) => {
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-gray-500 hover:text-gray-700 transition-colors"
-              title={lang.get('open')}
+              title={t('open')}
             >
               <ExternalLink className="h-4 w-4" />
             </a>
@@ -61,7 +63,7 @@ const ShortUrlCard: React.FC<Props> = ({ shortUrl }) => {
       </div>
 
       {copied && (
-        <p className="text-green-600 text-sm">{lang.get('copied')}</p>
+        <p className="text-green-600 text-sm">{t('copied')}</p>
       )}
     </div>
   )

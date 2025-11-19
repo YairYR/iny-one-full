@@ -3,9 +3,11 @@ import Image from 'next/image';
 import { useRouter } from "next/router";
 import { Mail, SquareAsterisk } from 'lucide-react';
 
-import isEmail from "validator/lib/isEmail";
 import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
 import clsx from "clsx";
+import * as z from "zod/mini";
+
+const zodEmail = z.email();
 
 export default function LoginForm() {
   const router = useRouter();
@@ -22,7 +24,7 @@ export default function LoginForm() {
     ev.preventDefault();
     setLoading(true);
 
-    if(!email || !password || !isEmail(email)) {
+    if(!email || !password || !zodEmail.safeParse(email).success) {
       return;
     }
 
@@ -40,7 +42,7 @@ export default function LoginForm() {
       return;
     }
 
-    await router.push('/u/dashboard');
+    await router.push('/dashboard');
     setLoading(false);
   }
 

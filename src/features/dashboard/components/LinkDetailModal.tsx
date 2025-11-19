@@ -3,7 +3,7 @@ import React from "react";
 import { UserUrlStats } from "@/features/dashboard/types/types";
 
 interface Props {
-  link: UserUrlStats|null;
+  link?: UserUrlStats|null;
   onClose: () => void;
 }
 
