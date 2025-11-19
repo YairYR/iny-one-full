@@ -3,6 +3,7 @@ export async function getServerSideProps({ res }) {
 Allow: /
 Disallow: /studio/
 Disallow: /dashboard/
+Disallow: /u/dashboard/
 
 Sitemap: https://iny.one/sitemap.xml
 `;

@@ -10,7 +10,7 @@ export async function getServerSideProps(context: GetServerSidePropsContext) {
   let next = (searchParams['next'] as string) ?? ''
   if (!next.startsWith('/')) {
     // if "next" is not a relative URL, use the default
-    next = '/dashboard';
+    next = '/u/dashboard';
   }
 
   console.log('next', next);
