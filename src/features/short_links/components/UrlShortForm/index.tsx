@@ -1,12 +1,15 @@
+'use client';
+
 import React from 'react';
 import { Zap } from 'lucide-react';
 import ShortUrlCard from "@/features/short_links/components/ShortUrlCard";
 import { Button, Input, Fieldset, Field, Label } from '@headlessui/react';
 import { useUrlShortForm } from "@/features/short_links/hooks/useUrlShortForm";
+import { useTranslations,  } from "next-intl";
 
 export default function UrlShortForm() {
+  const t = useTranslations('HomePage');
   const {
-    t,
     currentUrl,
     utm,
     shortUrl,
@@ -20,7 +23,7 @@ export default function UrlShortForm() {
     handleChangeUtmSource,
     handleChangeUtmMedium,
     handleChangeUtmCampaign
-  } = useUrlShortForm();
+  } = useUrlShortForm({ t });
 
   return (
     <Fieldset className="bg-white rounded-xl shadow-lg p-8 mb-6">

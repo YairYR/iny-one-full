@@ -1,11 +1,12 @@
+'use client';
+
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
 import { BellIcon, MenuIcon, XIcon, LogInIcon } from 'lucide-react';
-import { useRouter } from "next/router";
 import React from "react";
-import { useAppContext } from "@/contexts/app.context";
 import UserProfileMenu from "@/components/Navbar/profile/UserProfileMenu";
 import Link from "next/link";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 interface Tab {
   name: string;
@@ -15,7 +16,7 @@ interface Tab {
 
 const navigation: Tab[] = [
   { name: 'Home', href: '/', current: true },
-  { name: 'Dashboard', href: '/u/dashboard', current: false },
+  { name: 'Dashboard', href: '/dashboard', current: false },
   { name: 'Team', href: '#', current: false },
   // { name: 'Projects', href: '#', current: false },
   // { name: 'Calendar', href: '#', current: false },
@@ -26,12 +27,14 @@ function classNames(...classes: string[]) {
 }
 
 export default function NavbarMain() {
-  const { user } = useAppContext();
-  const router = useRouter();
+  // const { user } = useAppContext();
+  const pathname = usePathname()
+
+  const user = false;
 
   const tabs = navigation.map((item) => ({
     ...item,
-    current: router.pathname === item.href,
+    current: pathname === item.href,
   }));
 
   return (

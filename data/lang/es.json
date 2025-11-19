@@ -1,0 +1,85 @@
+{
+  "Head":  {
+    "title": "iny.one – Acortador de URLs con UTM",
+    "subtitle": "Mejora tus campañas con enlaces inteligentes.",
+    "metaName": "iny.one",
+    "metaTitle": "iny.one – Acorta URLs y mide mejor",
+    "metaDescription": "iny.one es un acortador de URLs gratuito con seguimiento UTM. Crea enlaces cortos y mide tus resultados."
+  },
+  "HomePage": {
+    "title": "iny.one – Acortador de URLs con UTM",
+    "subtitle": "Mejora tus campañas con enlaces inteligentes.",
+    "metaName": "iny.one",
+    "metaTitle": "iny.one – Acorta URLs y mide mejor",
+    "metaDescription": "iny.one es un acortador de URLs gratuito con seguimiento UTM. Crea enlaces cortos y mide tus resultados.",
+    "h1Main": "iny.one – Acortador de URLs con parámetros UTM",
+    "benefitsTitle": "¿Por qué usar iny.one?",
+    "urlLabel": "URL a acortar",
+    "utmLabel": "Parámetros UTM (opcional)",
+    "urlPlaceholder": "https://ejemplo.com",
+    "shortenBtn": "Acortar URL",
+    "cleanBtn": "Limpiar",
+    "requiredUrl": "Debes ingresar una URL",
+    "invalidUrl": "Formato de URL no válido",
+    "shortening": "Acortando...",
+    "success": "¡Aquí tienes tu enlace corto!",
+    "copy": "Copiar enlace",
+    "copied": "¡Copiado!",
+    "open": "Abrir enlace",
+    "fast": "Rápido",
+    "fastDesc": "Acorta tus URLs en segundos con nuestra interfaz intuitiva",
+    "utmReady": "Compatible con UTM",
+    "utmDesc": "Agrega automáticamente parámetros UTM para hacer seguimiento",
+    "easy": "Fácil de usar",
+    "easyDesc": "Copia y comparte tus enlaces cortos con un clic",
+    "aboutLink": "¿Quieres saber más? Conoce iny.one.",
+    "footerText": "¿Quieres saber más?",
+    "footerLink": "Acerca de",
+    "errorNewShorten": "Error al acortar la URL.",
+    "errorNewShortenRefresh": "Error al acortar la URL. Por favor recarga la página."
+  },
+  "AboutPage": {
+    "title": "Acerca de iny.one",
+    "metaTitle": "Acerca de – iny.one",
+    "metaDescription": "Conoce más sobre el propósito, visión y futuro de iny.one, un acortador de enlaces ligero y gratuito.",
+    "intro": "iny.one es un acortador de URLs gratuito y ligero, pensado para marketers, desarrolladores y creadores de contenido que necesitan medir campañas fácilmente con parámetros UTM.",
+    "why": "Este proyecto nació de la necesidad de compartir enlaces limpios, medibles y sin depender de plataformas pesadas. Quise construir una solución rápida, funcional y enfocada en privacidad.",
+    "futureTitle": "¿Qué sigue?",
+    "backHome": "Volver al inicio",
+    "roadmap": [
+      "Generador de códigos QR integrado",
+      "Estadísticas básicas por enlace (clics, referer, etc.)",
+      "Panel de gestión para usuarios registrados"
+    ],
+    "contact": "¿Tienes ideas o detectaste un problema? Estoy abierto a sugerencias.",
+    "faqTitle": "Preguntas Frecuentes",
+    "faqs": [
+      {
+        "q": "¿Qué es iny.one?",
+        "a": "Es una herramienta gratuita para acortar URLs y añadir parámetros UTM fácilmente, permitiendo un mejor seguimiento de campañas."
+      },
+      {
+        "q": "¿iny.one es gratuito?",
+        "a": "Sí, el servicio es completamente gratuito y no requiere registro."
+      },
+      {
+        "q": "¿Qué son los parámetros UTM?",
+        "a": "Los parámetros UTM permiten rastrear el origen del tráfico web en tus campañas de marketing."
+      },
+      {
+        "q": "¿Puedo ver estadísticas de los enlaces?",
+        "a": "Por ahora no, pero estamos trabajando en ello."
+      },
+      {
+        "q": "¿iny.one guarda mis datos?",
+        "a": "No recopilamos ni almacenamos datos personales. Las URLs acortadas se usan solo para redirección."
+      }
+    ]
+  },
+  "PlansPage": {
+    "title": "Planes de Suscripción"
+  },
+  "DashboardPage": {
+    "title": "Panel de Control"
+  }
+}

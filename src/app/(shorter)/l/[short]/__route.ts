@@ -25,7 +25,10 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ short: str
   let data: IData|null;
   try {
     const { data: result, error } = await getShortenUrl(short);
-    if (error) throw error;
+    if (error) {
+      console.error('getShortenUrl error:', error);
+      throw new Error('Error fetching short URL');
+    }
     data = result;
   } catch (err) {
     console.error(err);
@@ -72,4 +75,3 @@ export async function GET(_req: NextRequest, ctx: { params: Promise<{ short: str
 
   return NextResponse.redirect(decodeURI(data.destination), { status: 302, headers });
 }
-

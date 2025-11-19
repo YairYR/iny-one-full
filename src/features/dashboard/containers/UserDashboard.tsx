@@ -54,7 +54,7 @@ const MOCK_TRAFFIC_SOURCES = {
 };
 
 export function UserDashboard(props: Props) {
-  const [selectedLink, setSelectedLink] = useState<UserUrlStats|null>(null);
+  const [selectedLink, setSelectedLink] = useState<UserUrlStats|undefined>();
 
   const { urls } = props;
 
@@ -162,7 +162,7 @@ export function UserDashboard(props: Props) {
 
       </div>
 
-      <LinkDetailModal link={selectedLink} onClose={() => setSelectedLink(null)} />
+      <LinkDetailModal link={selectedLink} onClose={() => setSelectedLink(undefined)} />
     </div>
   );
 }

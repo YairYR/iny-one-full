@@ -5,11 +5,13 @@ import { redirect } from "next/navigation";
 import { ILinkStats } from "@/features/dashboard/types/types";
 
 function DashboardPage({ urls, stats }: { urls: UserUrl[], stats: ILinkStats[] }) {
+  // const t = useTranslations('DashboardPage');
+
   return (
     <>
-      <h1>Hello!</h1>
+      {/*<h1>{t('title')}</h1>*/}
 
-      <div className="p-6">
+      <div>
         <UserDashboard urls={urls} stats={stats} />
       </div>
     </>

@@ -1,5 +1,5 @@
+import LayoutMain from "@/components/layouts/LayoutMain";
 import type React from "react";
-import '@/styles/globals.css';
 
 interface Props {
   children?: React.ReactNode;
@@ -7,8 +7,8 @@ interface Props {
 
 export default function Layout({ children }: Props) {
   return (
-    <html>
-    <body>{children}</body>
-    </html>
-  )
+    <LayoutMain>
+      {children}
+    </LayoutMain>
+  );
 }

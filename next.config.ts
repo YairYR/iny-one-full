@@ -1,21 +1,51 @@
 import { NextConfig } from "next";
+import createNextIntlPlugin from 'next-intl/plugin';
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  i18n: {
-    locales: ['es', 'en'],
-    defaultLocale: 'en',
+  logging: {
+    fetches: {
+      fullUrl: true,
+    }
   },
+  /* config options here */
+  // i18n: {
+  //   locales: ['es', 'en'],
+  //   defaultLocale: 'en',
+  // },
   async headers() {
     return [
       {
         source: '/:short',
+        locale: false,
         headers: [
           {
             key: 'X-Robots-Tag',
             value: 'noindex, nofollow'
           }
-        ]
+        ],
+        has: [
+          {
+            type: 'header',
+            key: 'sec-fetch-dest',
+            value: 'document'
+          }
+        ],
+      },
+      {
+        source: '/:short',
+        locale: false,
+        headers: [
+          {
+            key: 'X-Robots-Tag',
+            value: 'noindex, nofollow'
+          }
+        ],
+        missing: [
+          {
+            type: 'header',
+            key: 'sec-fetch-dest'
+          }
+        ],
       },
       {
         source: '/es/:path*',
@@ -38,7 +68,27 @@ const nextConfig: NextConfig = {
         ]
       },
     ]
-  }
+  },
+  async redirects() {
+    return [
+      {
+        source: '/bloom.bin',
+        destination: '/favicon.ico',
+        permanent: false
+      }
+    ]
+  },
+  async rewrites() {
+    return {
+      afterFiles: [
+        {
+          source: '/:short',
+          destination: '/l/:short',
+        },
+      ]
+    }
+  },
 };
 
-export default nextConfig;
+const withNextIntl = createNextIntlPlugin();
+export default withNextIntl(nextConfig);

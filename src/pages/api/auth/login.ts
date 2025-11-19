@@ -1,6 +1,8 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import isEmail from "validator/lib/isEmail";
 import { createClient } from "@/utils/supabase/api";
+import * as z from "zod/mini";
+
+const zodEmail = z.email();
 
 export default async function login(request: NextApiRequest, response: NextApiResponse) {
   // TODO: commentar
@@ -13,7 +15,8 @@ export default async function login(request: NextApiRequest, response: NextApiRe
   const { email, password, provider } = JSON.parse(request.body);
 
   if(!provider) {
-    if(! isEmail(email) || !password) {
+    const isValidEmail = zodEmail.safeParse(email).success;
+    if(!isValidEmail || !password) {
       return;
     }
   }
