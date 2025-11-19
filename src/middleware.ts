@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from 'next/server'
+import { type NextRequest } from 'next/server'
 import { updateSession } from "@/lib/middlewares/session";
 import { checkWebhook } from "@/lib/middlewares/webhooks";
 
@@ -9,13 +9,7 @@ export async function middleware(request: NextRequest) {
   }
 
   if (isShortRoute(path)) {
-    // la solicitud probablemente irá a `src/app/[short]/route.ts`
-    console.log('short route detected:', path);
-    // aquí puedes añadir lógica específica, p.ej. headers, logging, etc.
-    const res = NextResponse.next();
-    // ejemplo: añadir X-Robots-Tag antes de la posible redirección
-    res.headers.set('X-Robots-Tag', 'noindex, nofollow');
-    return res;
+    return;
   }
 
   return updateSession(request);
