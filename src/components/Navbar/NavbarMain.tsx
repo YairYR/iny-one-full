@@ -26,11 +26,10 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function NavbarMain() {
-  // const { user } = useAppContext();
+export default function NavbarMain({ isLoggedIn }: { isLoggedIn?: boolean; }) {
   const pathname = usePathname()
 
-  const user = false;
+  const user = Boolean(isLoggedIn);
 
   const tabs = navigation.map((item) => ({
     ...item,
@@ -43,11 +42,12 @@ export default function NavbarMain() {
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             {/* Mobile menu button*/}
-            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
-              <span className="absolute -inset-0.5" />
+            <DisclosureButton
+              className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
+              <span className="absolute -inset-0.5"/>
               <span className="sr-only">Open main menu</span>
-              <MenuIcon aria-hidden="true" className="block size-6 group-data-open:hidden" />
-              <XIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
+              <MenuIcon aria-hidden="true" className="block size-6 group-data-open:hidden"/>
+              <XIcon aria-hidden="true" className="hidden size-6 group-data-open:block"/>
             </DisclosureButton>
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
@@ -90,7 +90,7 @@ export default function NavbarMain() {
               </button>
 
               {/* Profile dropdown */}
-              <UserProfileMenu />
+              <UserProfileMenu/>
             </>)}
 
             {!user && (<Link

@@ -16,29 +16,30 @@ export default async function RootLayout({ children }: Props) {
     <html lang={locale}>
     <head>
       <title>{t('metaTitle')}</title>
-      <meta name="description" content={t('metaDescription')} />
+      <meta name="description" content={t('metaDescription')}/>
 
       {/* Favicon & Manifest */}
-      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-      <link rel="manifest" href="/site.webmanifest" />
-      <link rel="shortcut icon" href="/favicon.ico" />
-      <meta name="theme-color" content="#ffffff" />
-
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
+      <link rel="manifest" href="/site.webmanifest"/>
+      <link rel="shortcut icon" href="/favicon.ico"/>
+      <meta name="theme-color" content="#ffffff"/>
 
       {/* Open Graph */}
-      <meta property="og:title" content="iny.one – Shorten URLs, Track Smarter" />
-      <meta property="og:description" content="iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results." />
-      <meta property="og:image" content="https://www.iny.one/og-image.png" />
-      <meta property="og:url" content="https://www.iny.one" />
-      <meta property="og:type" content="website" />
+      <meta property="og:title" content="iny.one – Shorten URLs, Track Smarter"/>
+      <meta property="og:description"
+            content="iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results."/>
+      <meta property="og:image" content="https://www.iny.one/og-image.png"/>
+      <meta property="og:url" content="https://www.iny.one"/>
+      <meta property="og:type" content="website"/>
 
       {/* Twitter Card */}
-      <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="iny.one – Shorten URLs, Track Smarter" />
-      <meta name="twitter:description" content="iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results." />
-      <meta name="twitter:image" content="https://www.iny.one/og-image.png" />
+      <meta name="twitter:card" content="summary_large_image"/>
+      <meta name="twitter:title" content="iny.one – Shorten URLs, Track Smarter"/>
+      <meta name="twitter:description"
+            content="iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results."/>
+      <meta name="twitter:image" content="https://www.iny.one/og-image.png"/>
 
       {/* Google Analytics */}
       <Script
@@ -57,7 +58,7 @@ export default async function RootLayout({ children }: Props) {
       </Script>
     </head>
     <body>
-      <NextIntlClientProvider>{children}</NextIntlClientProvider>
+    <NextIntlClientProvider>{children}</NextIntlClientProvider>
     </body>
     </html>
   )

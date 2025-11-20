@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 
 import { Mail, SquareAsterisk, SquareUserRound } from "lucide-react";
 import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
@@ -12,8 +14,8 @@ export default function RegisterForm() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
 
-  const onClickSignIn = async () => {
-    await router.push("/auth/login");
+  const onClickSignIn = () => {
+    router.push("/auth/login");
   }
 
   const onSubmit = async () => {

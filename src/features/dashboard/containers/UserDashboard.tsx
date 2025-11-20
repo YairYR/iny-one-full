@@ -15,7 +15,13 @@ import {
 } from "chart.js";
 import { Line, Bar, Pie } from "react-chartjs-2";
 import LinkDetailModal from "@/features/dashboard/components/LinkDetailModal";
-import { IAlert, ILinkStats, UserUrl, UserUrlStats } from "@/features/dashboard/types/types";
+import {
+  IAlert,
+  ILinkDateStats,
+  ILinkStats,
+  UserUrl,
+  UserUrlStats
+} from "@/features/dashboard/types/types";
 import KPI from "@/features/dashboard/components/KPI";
 import LinksTable from "@/features/dashboard/components/LinksTable";
 import Alerts from "@/features/dashboard/components/Alerts";
@@ -61,8 +67,22 @@ export function UserDashboard(props: Props) {
   const {
     general,
     stats,
-    links
-  } = calcUserStats(urls, props.stats);
+    links,
+    week
+  } = calcUserStats(urls, props.stats, props.weekStats);
+
+  console.log('Clicks week:', week, props.weekStats);
+
+  const clicks_week = {
+    labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+    datasets: [
+      {
+        label: "Clicks",
+        data: week.clicks,
+        fill: true,
+      },
+    ],
+  };
 
   const alerts: IAlert[] = useMemo(() => [
     { id: 1, title: "Enlace /promo tuvo +200 clics en 24h", message: "Revisa la campaña vinculada a /promo — posiblemente necesita más presupuesto." },
@@ -102,7 +122,7 @@ export function UserDashboard(props: Props) {
                   <div className="text-sm text-gray-500">Última semana</div>
                 </div>
                 <div className="h-52 w-full">
-                  <Line data={MOCK_CLICKS_BY_DAY} options={{ maintainAspectRatio: false }} />
+                  <Line data={clicks_week} options={{ maintainAspectRatio: false }} />
                 </div>
               </div>
 
@@ -169,5 +189,11 @@ export function UserDashboard(props: Props) {
 
 interface Props {
   urls: UserUrl[];
-  stats: ILinkStats[]
+  stats: ILinkStats[];
+  weekStats: {
+    stats: ILinkDateStats[];
+    start: Date;
+    end: Date;
+    totalDays: number;
+  }
 }

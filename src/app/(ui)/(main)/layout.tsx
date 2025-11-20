@@ -5,7 +5,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-export default function Layout({ children }: Props) {
+export default async function Layout({ children }: Props) {
   return (
     <LayoutMain>
       {children}
