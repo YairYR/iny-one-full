@@ -29,7 +29,7 @@ export const getBlockUrl = async (domain: string) => {
 }
 
 export const addShortenUrl = async (
-  uid: string|null,
+  uid: string | null,
   slug: string,
   url: string,
   utm: Partial<UtmParams>,
@@ -60,7 +60,7 @@ export const addShortenUrl = async (
 export const getCurrentUser = async (supabase: SupabaseClient) => {
   const { data } = await supabase.auth.getUser();
 
-  if(data.user) {
+  if (data.user) {
     const user: UserClient = {
       email: data.user.email,
       name: data.user.user_metadata?.name ?? data.user.user_metadata?.display_name ?? null,
@@ -80,11 +80,11 @@ export const getCurrentUser = async (supabase: SupabaseClient) => {
  */
 export const getCurrentUserFromSession = async (supabase: SupabaseClient) => {
   const { data, error } = await supabase.auth.getSession();
-  if(error) {
+  if (error) {
     return null;
   }
 
-  if(data.session?.user) {
+  if (data.session?.user) {
     const $user = data.session.user;
     const user: UserClient = {
       email: $user.email,
@@ -116,7 +116,7 @@ export const getStatsUrls = async (slugs: string[]) => {
 export const clickShortLink = async (slug: string, client?: Partial<ClientInfo>) => {
   const agent = client?.userAgent;
   const browser = agent?.browser;
-  const device = agent?.device;
+  const device = agent?.device ?? { type: 'desktop' };
   const os = agent?.os;
   return db.schema('public').rpc('click_short_link', {
     page_slug: slug,
@@ -167,7 +167,7 @@ export const getPlanById = async (id: string) => {
     .maybeSingle();
 }
 
-export const createWebhook = async (webhook: Omit<WebhookEvent, 'id'|'created_at'>) => {
+export const createWebhook = async (webhook: Omit<WebhookEvent, 'id' | 'created_at'>) => {
   return supabase
     .from('webhook_events')
     .insert(webhook)

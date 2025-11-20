@@ -3,16 +3,16 @@ import { updateSession } from "@/lib/middlewares/session";
 import { checkWebhook } from "@/lib/middlewares/webhooks";
 
 export async function middleware(request: NextRequest) {
-  // const path = request.nextUrl.pathname;
-  // if(path === '/api/webhooks') {
-  //   return checkWebhook(request);
-  // }
-  //
-  // if (isShortRoute(path)) {
-  //   return;
-  // }
-  //
-  // return updateSession(request);
+  const path = request.nextUrl.pathname;
+  if (path === '/api/webhooks') {
+    return checkWebhook(request);
+  }
+
+  if (isShortRoute(path)) {
+    return;
+  }
+
+  return updateSession(request);
 }
 
 function isShortRoute(path: string) {

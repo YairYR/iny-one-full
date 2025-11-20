@@ -79,7 +79,7 @@ export default async function handler(request: NextApiRequest, response: NextApi
     code: 0,
     message: null,
     data: {
-      short: `https://iny.one/${slug}`
+      short: `https://iny.one/l/${slug}`
     }
   }
   response.status(200).json(data);

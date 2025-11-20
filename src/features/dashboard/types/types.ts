@@ -28,6 +28,10 @@ export interface ILinkStats {
   updated_at: string;
 }
 
+export interface ILinkDateStats extends ILinkStats {
+  date: string;
+}
+
 export type UserUrl = {
   slug: string;
   destination: string;

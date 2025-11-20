@@ -1,6 +1,8 @@
+'use client';
+
 import React, { useState } from 'react';
 import Image from 'next/image';
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { Mail, SquareAsterisk } from 'lucide-react';
 
 import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
@@ -16,8 +18,8 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const onClickSignUp = async () => {
-    await router.push("/auth/register");
+  const onClickSignUp = () => {
+    router.push("/auth/register");
   }
 
   const onSubmit = async (ev: React.FormEvent) => {
@@ -42,7 +44,7 @@ export default function LoginForm() {
       return;
     }
 
-    await router.push('/dashboard');
+    router.push('/dashboard');
     setLoading(false);
   }
 
@@ -71,7 +73,7 @@ export default function LoginForm() {
       return;
     }
 
-    await router.push(response.data.url);
+    router.push(response.data.url);
   }
 
   return (
