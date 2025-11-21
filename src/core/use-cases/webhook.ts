@@ -18,10 +18,8 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
 
   after(async () => {
     if(!webhookId) return;
-    switch (payload.event_type) {
-      case PaypalEventType.SUBSCRIPTION_EXPIRED:
-        await subscriptionExpired(payload, webhookId);
-        break;
+    if(payload.event_type === PaypalEventType.SUBSCRIPTION_EXPIRED) {
+      await subscriptionExpired(payload, webhookId);
     }
   });
 }

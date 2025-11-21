@@ -20,7 +20,7 @@ function isShortRoute(path: string) {
   if (path === '/' || path === '/es' || path === '/en') return false;
   if (/^\/(api|_next|favicon\.ico|site\.webmanifest)/.test(path)) return false;
   // una única segmentación sin punto ni subdirectorios, permite opcional trailing slash
-  return /^\/[^\/.?#]+\/?$/.test(path);
+  return /^\/[^/.?#]+\/?$/.test(path);
 }
 
 export const config = {

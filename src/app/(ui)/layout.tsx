@@ -8,7 +8,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-export default async function RootLayout({ children }: Props) {
+export default async function RootLayout({ children }: Readonly<Props>) {
   const locale = await getLocale();
   const t = await getTranslations('Head');
 

@@ -4,6 +4,6 @@ interface Props {
   className?: string;
 }
 
-export function InlineLoadingSpinner({ className = "text-white" }: Props) {
+export function InlineLoadingSpinner({ className = "text-white" }: Readonly<Props>) {
   return <LoaderIcon className={"w-4 h-4 animate-spin " + className} />;
 }

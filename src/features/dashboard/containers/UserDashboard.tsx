@@ -22,10 +22,11 @@ import {
   UserUrl,
   UserUrlStats
 } from "@/features/dashboard/types/types";
-import KPI from "@/features/dashboard/components/KPI";
+import Kpi from "@/features/dashboard/components/Kpi";
 import LinksTable from "@/features/dashboard/components/LinksTable";
 import Alerts from "@/features/dashboard/components/Alerts";
 import { calcUserStats } from "@/features/dashboard/helpers/stats";
+import { useTranslations } from "next-intl";
 
 ChartJS.register(
   CategoryScale,
@@ -39,17 +40,6 @@ ChartJS.register(
   Colors,
 );
 
-const MOCK_CLICKS_BY_DAY = {
-  labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
-  datasets: [
-    {
-      label: "Clicks",
-      data: [120, 90, 150, 80, 200, 300, 340],
-      fill: true,
-    },
-  ],
-};
-
 const MOCK_TRAFFIC_SOURCES = {
   labels: ["Directo", "Google", "Facebook", "Instagram", "Otros"],
   datasets: [
@@ -59,7 +49,8 @@ const MOCK_TRAFFIC_SOURCES = {
   ],
 };
 
-export function UserDashboard(props: Props) {
+export function UserDashboard(props: Readonly<Props>) {
+  const t = useTranslations('DashboardPage');
   const [selectedLink, setSelectedLink] = useState<UserUrlStats|undefined>();
 
   const { urls } = props;
@@ -74,7 +65,15 @@ export function UserDashboard(props: Props) {
   console.log('Clicks week:', week, props.weekStats);
 
   const clicks_week = {
-    labels: ["Lun", "Mar", "Mié", "Jue", "Vie", "Sáb", "Dom"],
+    labels: [
+      t('week.monday'),
+      t('week.tuesday'),
+      t('week.wednesday'),
+      t('week.thursday'),
+      t('week.friday'),
+      t('week.saturday'),
+      t('week.sunday')
+    ],
     datasets: [
       {
         label: "Clicks",
@@ -107,11 +106,11 @@ export function UserDashboard(props: Props) {
           <section className="lg:col-span-2 space-y-6">
             {/* KPIs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              <KPI title="Total enlaces" value={general.totalLinks} />
-              <KPI title="Total clicks" value={general.totalClicks} />
-              <KPI title="Clicks últimas 24h" value={general.clicksLast24h} />
+              <Kpi title="Total enlaces" value={general.totalLinks} />
+              <Kpi title="Total clicks" value={general.totalClicks} />
+              <Kpi title="Clicks últimas 24h" value={general.clicksLast24h} />
               {/*<KPI title="CTR promedio" value={MOCK_OVERVIEW.avgCTR} />*/}
-              <KPI title="Top País" value={general.topCountry} />
+              <Kpi title="Top País" value={general.topCountry} />
             </div>
 
             {/* Charts */}

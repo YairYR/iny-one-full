@@ -9,14 +9,15 @@ type WeekStats = {
 
 export function calcUserStats(urls: UserUrl[], stats: ILinkStats[], weekStats: WeekStats) {
   const totalClicks = stats.reduce((total, item) => total + item.total_clicks, 0);
-  const statsByClicks = stats.sort((a, b) => b.total_clicks - a.total_clicks);
+  const statsByClicks = stats.toSorted((a, b) => b.total_clicks - a.total_clicks);
   const countries = stats.reduce((all, item) => {
-    Object.keys(item.country_counts).forEach((country) => {
+    const countries = Object.keys(item.country_counts);
+    for (const country of countries) {
       if(!(country in all)) {
         all[country] = 0;
       }
       all[country] += item.country_counts[country];
-    });
+    }
     return all;
   }, {} as Record<string, number>);
   const countriesSorted = Object.entries(countries).sort((a, b) => b[1] - a[1]);
@@ -25,10 +26,6 @@ export function calcUserStats(urls: UserUrl[], stats: ILinkStats[], weekStats: W
     ...url,
     stats: stats.find(item => item.slug === url.slug)
   }));
-
-  // const week = weekStats.reduce((all, item) => {
-  //   return all;
-  // }, {} as Record<string, ILinkDateStats>);
 
   const week = fillDays(weekStats.stats, {
     startDate: weekStats.start,
@@ -57,6 +54,10 @@ function fillDays(stats: ILinkDateStats[], {
   // endDay = null    // 0=Dom, 1=Lun...
 }: { startDate?: Date|null; endDate?: Date|null } = {}) {
 
+  if(stats.length === 0) {
+    return { days: [], clicks: [] };
+  }
+
   // Ordenar datos por fecha
   const sorted = [...stats].sort((a, b) => (new Date(a.date)).getTime() - (new Date(b.date)).getTime());
 
@@ -80,7 +81,7 @@ function fillDays(stats: ILinkDateStats[], {
   // Fecha final base
   const end = endDate
     ? new Date(endDate)
-    : new Date(sorted[sorted.length - 1].date);
+    : new Date(sorted.at(-1)!.date);
 
   // Ajuste: buscar el último día de la semana requerido
   // if (endDay !== null) {

@@ -6,7 +6,7 @@ interface Props {
   hint?: string;
 }
 
-export default function KPI({ title, value, hint }: Props) {
+export default function Kpi({ title, value, hint }: Readonly<Props>) {
   return (
     <div className="bg-white p-4 rounded-xl shadow-sm">
       <div className="text-sm text-gray-500">{title}</div>

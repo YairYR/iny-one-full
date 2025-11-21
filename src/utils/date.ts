@@ -1,14 +1,13 @@
 export const localeToDateLocale = (locale: string) => {
-  switch (locale) {
-    case 'es':
-      return 'es-CL';
-    default:
-      return 'en-US';
+  if (locale === 'es') {
+    return 'es-CL';
+  } else {
+    return 'en-US';
   }
 }
 
 export const toLocaleDate = (locale: string, value?: string|number) => {
-  const date = (typeof value !== 'undefined') ? new Date(value) : new Date();
+  const date = (value === undefined) ? new Date() : new Date(value);
   if(date.toLocaleDateString) {
     const date_locale = localeToDateLocale(locale);
     const formatted = date.toLocaleDateString(date_locale, {

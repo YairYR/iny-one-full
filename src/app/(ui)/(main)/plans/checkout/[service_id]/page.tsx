@@ -2,21 +2,19 @@ import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import PayButtons from "@/features/payments/components/Paypal/PayButtons";
 import { getPlanById } from "@/lib/utils/query";
 import { redirect } from "next/navigation";
+import { isLoggedIn } from "@/data/user-dto";
 
-export default async function PlanCheckoutPage({ params }: { params: Promise<{ service_id: string }> }) {
+interface Props {
+  params: Promise<{ service_id: string }>;
+}
+
+export default async function PlanCheckoutPage({ params }: Readonly<Props>) {
   const { service_id } = await params;
 
-  // const supabase = createClient();
-  // const { user } = await getCurrentUser(supabase);
-
-  // if (!user) {
-  //   return {
-  //     redirect: {
-  //       destination: '/auth/login',
-  //       permanent: false,
-  //     },
-  //   };
-  // }
+  const logged = await isLoggedIn();
+  if(!logged) {
+    return redirect('/auth/login');
+  }
 
   const { data: plan, error } = await getPlanById(service_id);
 

@@ -7,7 +7,7 @@ interface Props {
   onClose: () => void;
 }
 
-export default function LinkDetailModal({ link, onClose }: Props) {
+export default function LinkDetailModal({ link, onClose }: Readonly<Props>) {
   if (!link) return null;
 
   const countries = Object.entries(link.stats?.country_counts ?? {})

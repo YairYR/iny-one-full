@@ -7,7 +7,7 @@ interface Props {
   planId: string;
 }
 
-export default function PayButtons({ planId }: Props) {
+export default function PayButtons({ planId }: Readonly<Props>) {
   const [state, dispatch] = usePayPalScriptReducer();
   const { isPending } = state;
 

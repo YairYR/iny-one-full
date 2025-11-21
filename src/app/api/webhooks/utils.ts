@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import fs from 'fs/promises';
+import fs from 'node:fs/promises';
 // @ts-expect-error has default export
 import crc32 from 'buffer-crc32';
 
@@ -8,7 +8,7 @@ const WEBHOOK_ID = process.env.WEBHOOK_ID;
 
 async function downloadAndCache(url: string, cacheKey?: string) {
   if (!cacheKey) {
-    cacheKey = url.replace(/\W+/g, '-');
+    cacheKey = url.replaceAll(/\W+/, '-');
   }
   const filePath = `${CACHE_DIR}/${cacheKey}`;
 
@@ -30,7 +30,7 @@ export async function verifySignature(event: string|Buffer, headers: Headers) {
   const certUrl = headers.get('paypal-cert-url') as string;
   const transmissionSig = headers.get('paypal-transmission-sig') as string;
 
-  const crc = parseInt('0x' + crc32(event, '').toString('hex'));
+  const crc = Number.parseInt('0x' + crc32(event, '').toString('hex'));
 
   const message = `${transmissionId}|${timeStamp}|${WEBHOOK_ID}|${crc}`;
   console.log('🧩 Original signed message:', message);

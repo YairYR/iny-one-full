@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { Mail, SquareAsterisk, SquareUserRound } from "lucide-react";
 import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
+import Link from "next/link";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -13,10 +14,6 @@ export default function RegisterForm() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-
-  const onClickSignIn = () => {
-    router.push("/auth/login");
-  }
 
   const onSubmit = async () => {
     const response = await fetch('/api/auth/register', {
@@ -72,7 +69,7 @@ export default function RegisterForm() {
         <div>
           <Image src="/apple-touch-icon.png" alt="Logo" width="50" height="50" />
         </div>
-        <h1 className="text-3xl font-bold text-[#4B5563] text-[#4B5563] my-auto">Iny.One</h1>
+        <h1 className="text-3xl font-bold text-[#4B5563] my-auto">Iny.One</h1>
 
       </div>
       {/*<div className="text-sm font-light text-[#6B7280] pb-8 ">Sign up for an account on Your Company.</div>*/}
@@ -115,9 +112,8 @@ export default function RegisterForm() {
                 className="w-full text-[#FFFFFF] bg-[#4F46E5] focus:ring-4 focus:outline-hidden focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-6">Sign
           Up
         </button>
-        <div className="text-sm font-light text-[#6B7280] ">Already have an account? <a href="#" onClick={onClickSignIn}
-                                                                                    className="font-medium text-[#4F46E5] hover:underline">Login</a>
-
+        <div className="text-sm font-light text-[#6B7280] ">
+          Already have an account? <Link href="/auth/login" className="font-medium text-[#4F46E5] hover:underline">Login</Link>
         </div>
       </form>
       <div className="relative flex py-8 items-center">
