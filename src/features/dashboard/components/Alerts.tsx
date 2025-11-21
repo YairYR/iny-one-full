@@ -1,7 +1,11 @@
 import React from "react";
 import { IAlert } from "@/features/dashboard/types/types";
 
-export default function Alerts({ alerts }: { alerts: IAlert[] }) {
+interface Props {
+  alerts: IAlert[];
+}
+
+export default function Alerts({ alerts }: Readonly<Props>) {
   if (!alerts?.length) return null;
   return (
     <div className="space-y-2">

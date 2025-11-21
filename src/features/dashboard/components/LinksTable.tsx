@@ -1,12 +1,24 @@
 import React from "react";
 import { UserUrl } from "@/features/dashboard/types/types";
 import dayjs from "dayjs";
+import useClipboard from "@/hooks/useClipboard";
 
-export default function LinksTable({ links, onOpen }: { links: UserUrl[]; onOpen?: (link: UserUrl) => void }) {
+interface Props {
+  links: UserUrl[];
+  onOpen?: (link: UserUrl) => void;
+}
+
+export default function LinksTable({ links, onOpen }: Readonly<Props>) {
   const substringAndSpread = (str: string, max: number) => {
     const _str = str.trim();
     const text = _str.trim().substring(0, max);
     return _str.length > max ? `${text}...` : text;
+  }
+
+  const { copyToClipboard } = useClipboard();
+
+  const onClickCopy = (link: UserUrl) => {
+    void copyToClipboard('https://iny.one/l/' + link.slug);
   }
 
   return (
@@ -41,14 +53,14 @@ export default function LinksTable({ links, onOpen }: { links: UserUrl[]; onOpen
               <td className="p-3">
                 <div className="flex gap-2">
                   <button
-                    onClick={() => navigator.clipboard?.writeText(window.location.origin + '/' + l.slug)}
-                    className="px-3 py-1 rounded bg-gray-100 text-sm"
+                    onClick={() => onClickCopy(l)}
+                    className="px-3 py-1 rounded bg-gray-100 text-sm cursor-pointer"
                   >
                     Copiar
                   </button>
                   <button
                     onClick={() => onOpen?.(l)}
-                    className="px-3 py-1 rounded bg-indigo-600 text-white text-sm"
+                    className="px-3 py-1 rounded bg-indigo-600 text-white text-sm cursor-pointer"
                   >
                     Ver stats
                   </button>

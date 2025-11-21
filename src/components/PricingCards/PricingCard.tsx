@@ -16,7 +16,7 @@ export interface IPricingCard {
   onClick: (event: React.MouseEvent<HTMLButtonElement>, planId: string) => void;
 }
 
-export default function PricingCard({ plan, onClick }: IPricingCard) {
+export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
   const isDisabled = Boolean(plan.disabled);
 
   return (

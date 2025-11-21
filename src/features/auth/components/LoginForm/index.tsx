@@ -8,6 +8,7 @@ import { Mail, SquareAsterisk } from 'lucide-react';
 import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
 import clsx from "clsx";
 import * as z from "zod/mini";
+import Link from "next/link";
 
 const zodEmail = z.email();
 
@@ -17,10 +18,6 @@ export default function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const onClickSignUp = () => {
-    router.push("/auth/register");
-  }
 
   const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
@@ -119,9 +116,8 @@ export default function LoginForm() {
           )}>Login
         </button>
         <div className="text-sm font-light text-[#6B7280] ">
-          Don&#39;t have an account yet?{" "}<a href="#"
-            onClick={onClickSignUp}
-            className="font-medium text-[#4F46E5] hover:underline">Sign Up</a>
+          Don&#39;t have an account yet?{" "}<Link href="/auth/register"
+            className="font-medium text-[#4F46E5] hover:underline">Sign Up</Link>
         </div>
       </form>
       <div className="relative flex py-8 items-center">

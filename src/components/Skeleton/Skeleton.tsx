@@ -52,7 +52,7 @@ export function SkeletonUser() {
   )
 }
 
-export function SkeletonTable({ rows = 2 }: { rows?: number }) {
+export function SkeletonTable({ rows = 2 }: Readonly<{ rows?: number }>) {
   const rowArray = (rows > 0) ? Array.from({ length: rows }) : [];
   return (
     <div className="overflow-x-auto">
@@ -75,7 +75,7 @@ export function SkeletonTable({ rows = 2 }: { rows?: number }) {
         {rowArray.map((_, i) => (
           (i % 2 === 0)
             ? (
-              <tr key={i}>
+              <tr key={`skeleton-row-${i}`}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="h-6 bg-gray-200 rounded animate-pulse w-2/3"></div>
                 </td>
@@ -88,7 +88,7 @@ export function SkeletonTable({ rows = 2 }: { rows?: number }) {
               </tr>
             )
             : (
-              <tr key={i}>
+              <tr key={`skeleton-row-${i}`}>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="h-6 bg-gray-200 rounded animate-pulse w-3/4"></div>
                 </td>

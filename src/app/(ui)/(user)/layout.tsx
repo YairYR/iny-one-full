@@ -7,7 +7,7 @@ interface Props {
   children?: React.ReactNode;
 }
 
-export default async function UserLayout({ children }: Props) {
+export default async function UserLayout({ children }: Readonly<Props>) {
   const user = await getCurrentUserDTO();
   const isLoggedIn = !!user;
 

@@ -9,7 +9,7 @@ interface Props {
   pageProps: object;
 }
 
-export default function App({ Component, pageProps }: Props) {
+export default function App({ Component, pageProps }: Readonly<Props>) {
   return (
     <AppProvider>
       <>
@@ -61,14 +61,3 @@ export default function App({ Component, pageProps }: Props) {
     </AppProvider>
   );
 };
-
-// export async function getStaticProps(context: GetStaticPropsContext) {
-//   return {
-//     props: {
-//       // You can get the messages from anywhere you like. The recommended
-//       // pattern is to put them in JSON files separated by locale and read
-//       // the desired one based on the `locale` received from Next.js.
-//       messages: (await import(`../../data/lang/${context.locale}.json`)).default
-//     }
-//   };
-// }

@@ -7,7 +7,7 @@ interface Props {
   disabled?: boolean;
 }
 
-export function GoogleButton({ onClick, children, disabled }: Props) {
+export function GoogleButton({ onClick, children, disabled }: Readonly<Props>) {
   return (
     <button
       type="button"

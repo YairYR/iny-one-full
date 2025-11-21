@@ -52,3 +52,5 @@ next-env.d.ts
 /scripts/files
 /supabase
 /data/cache
+/.scannerwork/
+/.swc/

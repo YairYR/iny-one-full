@@ -26,7 +26,11 @@ function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function NavbarMain({ isLoggedIn }: { isLoggedIn?: boolean; }) {
+interface Props {
+  isLoggedIn?: boolean;
+}
+
+export default function NavbarMain({ isLoggedIn }: Readonly<Props>) {
   const pathname = usePathname()
 
   const user = Boolean(isLoggedIn);
