@@ -24,6 +24,12 @@ export const UserRepository = {
         role: jwt?.user_role ?? null
       }
     };
+  },
+
+  async getCurrentUserId() {
+    const client = await createClient();
+    const { data: { user } } = await client.auth.getUser();
+    return user?.id ?? null;
   }
 }
 

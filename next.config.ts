@@ -7,11 +7,6 @@ const nextConfig: NextConfig = {
       fullUrl: true,
     }
   },
-  /* config options here */
-  // i18n: {
-  //   locales: ['es', 'en'],
-  //   defaultLocale: 'en',
-  // },
   async headers() {
     return [
       {
