@@ -1,34 +1,38 @@
 import { UserDashboard } from "@/features/dashboard/containers/UserDashboard";
-import { createClient } from "@/utils/supabase/app-server";
-import { getCurrentUser, getStatsUrls, getUserUrls } from "@/lib/utils/query";
+import { getUserUrls } from "@/lib/utils/query";
 import { redirect } from "next/navigation";
 import { ILinkDateStats, ILinkStats } from "@/features/dashboard/types/types";
 import { StatsRepository } from "@/infra/db/stats.repository";
 import dayjs from "dayjs";
+import { getCurrentUserDTO } from "@/data/user-dto";
 
 export default async function DashboardPage() {
-  const supabase = await createClient();
-  const { user, raw } = await getCurrentUser(supabase);
-
-  if (!user || !raw) {
+  const user = await getCurrentUserDTO();
+  if (!user) {
     return redirect("/auth/login");
   }
 
-  const { data: _urls } = await getUserUrls(raw.id);
+  const { data: _urls } = await getUserUrls(user.id);
   const urls: UserUrl[] = (_urls ?? []) as UserUrl[];
-  const { data: _stats } = await getStatsUrls(urls.map(item => item.slug));
+  const slugs = urls.map(item => item.slug);
+  const { data: _stats } = await StatsRepository.getStatsUrls(slugs);
   const stats: ILinkStats[] = _stats ?? [];
 
-  const slugs = ['xGrjEu']; //['xGrjEu', 'GfpEB7', 'MHYhqi'];
   const date = dayjs('2025-09-20T00:00:00Z');
   const dateWeekAgo = date.subtract(1, 'week');
+  const date24HoursAgo = date.subtract(24, 'hour');
   const { data: _weekStats } = await StatsRepository.getDayStatsBetweenDates(slugs, dateWeekAgo.toDate(), date.toDate());
   const weekStats: ILinkDateStats[] = (_weekStats ?? []) as ILinkDateStats[];
+
+  const { data: refererStats } = await StatsRepository.getRefererersStats(slugs);
+  const { data: clicksLast24h } = await StatsRepository.getClicksBetween(slugs, date24HoursAgo.toDate(), date.toDate());
 
   return (
     <UserDashboard
       urls={urls}
       stats={stats}
+      refererStats={refererStats ?? []}
+      clicksLast24h={clicksLast24h}
       weekStats={{
         stats: weekStats,
         start: dateWeekAgo.toDate(),

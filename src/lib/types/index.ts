@@ -37,10 +37,12 @@ export interface ApiResponse<T = never> {
 }
 
 export interface UserClient {
+  id: string;
   email?: string;
   name: string | null;
   picture: string | null;
   created_at: string;
+  role: string | null;
 }
 
 export interface IService {

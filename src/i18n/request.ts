@@ -18,7 +18,6 @@ export default getRequestConfig(async (params) => {
     } else {
       locale = defaultLocale;
     }
-    console.log('locale', { locale, acceptLanguage });
   }
 
   return {

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
 import { createClient } from "@/utils/supabase/app-server";
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { ApiError } from "@/lib/api/errors";
+import { successResponse } from "@/lib/api/responses";
 
 const schemaLogin = z.object({
   email: z.email(),
@@ -21,7 +23,7 @@ export async function handleLogin(request: NextRequest) {
   const body = schemaLogin.safeParse(bodyNoValidated);
 
   if(!body.success || body.error) {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    throw new ApiError("VALIDATION_ERROR", "Invalid request", { status: 400 });
   }
 
   const supabase = await createClient();
@@ -29,7 +31,7 @@ export async function handleLogin(request: NextRequest) {
   // OAuth2.0
   if('provider' in body.data) {
     if(body.data.provider !== 'google') {
-      return NextResponse.json({ error: "Provider not found" }, { status: 400 });
+      throw new ApiError("PROVIDER_NOT_FOUND", "Provider not found", { status: 400 });
     }
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -39,18 +41,14 @@ export async function handleLogin(request: NextRequest) {
     });
 
     if(data.url) {
-      return NextResponse.json({
-        data: {
-          provider: data.provider,
-          url: data.url,
-        }
+      return successResponse({
+        provider: data.provider,
+        url: data.url,
       });
     }
 
-    return NextResponse.json({
-      error: error,
-      data
-    }, { status: 402 });
+    console.error(error);
+    throw new ApiError("OAUTH_ERROR", "OAuth error", { status: 402 });
   }
 
   // Email and password
@@ -63,10 +61,10 @@ export async function handleLogin(request: NextRequest) {
 
   if (error) {
     console.error(error)
-    return NextResponse.json({ error: 'Incorrect email or password' }, { status: 402 });
+    throw new ApiError("AUTH_ERROR", "Incorrect email or password", { status: 402 });
   }
 
-  return NextResponse.json({ ok: true });
+  return successResponse({});
 }
 
 export async function handleRegister(request: NextRequest) {

@@ -32,6 +32,11 @@ export interface ILinkDateStats extends ILinkStats {
   date: string;
 }
 
+export interface IRefererStat {
+  referer: string;
+  count: number;
+}
+
 export type UserUrl = {
   slug: string;
   destination: string;

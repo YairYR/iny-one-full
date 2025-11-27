@@ -81,6 +81,7 @@
   },
   "DashboardPage": {
     "title": "Panel de Control",
+    "subtitle": "Resumen y estadísticas de tus short links",
     "week": {
       "monday": "Lunes",
       "tuesday": "Martes",
