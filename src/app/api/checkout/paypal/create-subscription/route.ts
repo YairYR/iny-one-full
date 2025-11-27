@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/utils/supabase/app-server";
+import { createClient } from "@/utils/supabase/server";
 import { User } from "@supabase/auth-js";
 import * as z from 'zod';
 import { createSubscription } from "@/core/use-cases/payment";

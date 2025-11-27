@@ -1,8 +1,9 @@
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import PayButtons from "@/features/payments/components/Paypal/PayButtons";
-import { getPlanById } from "@/lib/utils/query";
 import { redirect } from "next/navigation";
 import { isLoggedIn } from "@/data/user-dto";
+import { createServicesRepository } from "@/infra/db/services.repository";
+import { supabase_service } from "@/infra/db/supabase_service";
 
 interface Props {
   params: Promise<{ service_id: string }>;
@@ -16,7 +17,8 @@ export default async function PlanCheckoutPage({ params }: Readonly<Props>) {
     return redirect('/auth/login');
   }
 
-  const { data: plan, error } = await getPlanById(service_id);
+  const servicesRepo = createServicesRepository(supabase_service);
+  const { data: plan, error } = await servicesRepo.getPlanById(service_id);
 
   if(!plan || error) {
     return redirect('/plans');

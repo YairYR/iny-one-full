@@ -1,11 +1,13 @@
 import { BillingRepository } from "@/infra/payments/billing.repository";
 import { SubscriptionRepository } from "@/infra/db/subscription.repository";
-import { ServiceRepository } from "@/infra/db/service.repository";
+import { getServiceRepository } from "@/infra/db/service.repository";
 import { User } from "@supabase/auth-js";
 import { retry } from "@/core/utils/retry";
+import { supabase_service } from "@/infra/db/supabase_service";
 
 export async function createSubscription(plan_id: string, user: User) {
-  const plan = await ServiceRepository.findById(plan_id);
+  const serviceRepo = getServiceRepository(supabase_service);
+  const plan = await serviceRepo.findById(plan_id);
   if (plan.error || !plan.data || !plan.data.external_plan_id) {
     return Promise.reject("Plan not found");
   }

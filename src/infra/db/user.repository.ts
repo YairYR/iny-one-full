@@ -1,35 +1,41 @@
-import supabase from "@/infra/db/supabase";
-import { createClient } from "@/utils/supabase/app-server";
+import { DbInstance } from "@/infra/db/supabase_service";
 import { jwtDecode, JwtPayload } from "jwt-decode";
 
-export const UserRepository = {
-  async findByEmail(email: string) {
-    return supabase.from("users_profiles")
-      .select("*")
-      .eq("email", email)
-      .limit(1)
-      .single();
-  },
+export function getUserRepository(db: DbInstance) {
+  return {
+    async findByEmail(email: string) {
+      return db.from("users_profiles")
+        .select("*")
+        .eq("email", email)
+        .limit(1)
+        .single();
+    },
 
-  async getCurrentUser() {
-    const client = await createClient();
-    const { data: { user } } = await client.auth.getUser();
+    async getCurrentUser() {
+      const { data: { user } } = await db.auth.getUser();
 
-    const { data: { session } } = await client.auth.getSession();
-    const jwt = session ? jwtDecode<SessionDecoded>(session.access_token) : null;
+      const { data: { session } } = await db.auth.getSession();
+      const jwt = session ? jwtDecode<SessionDecoded>(session.access_token) : null;
 
-    return {
-      data: {
-        user,
-        role: jwt?.user_role ?? null
-      }
-    };
-  },
+      return {
+        data: {
+          user,
+          role: jwt?.user_role ?? null
+        }
+      };
+    },
 
-  async getCurrentUserId() {
-    const client = await createClient();
-    const { data: { user } } = await client.auth.getUser();
-    return user?.id ?? null;
+    async getCurrentUserId() {
+      const { data: { user } } = await db.auth.getUser();
+      return user?.id ?? null;
+    },
+
+    async getUrls(user_id: string) {
+      return db
+        .from('short_links')
+        .select('slug, destination, created_at, utm_source, utm_medium, utm_campaign, clicks')
+        .eq('user_id', user_id);
+    }
   }
 }
 

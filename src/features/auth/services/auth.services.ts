@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
-import { createClient } from "@/utils/supabase/app-server";
+import { createClient } from "@/utils/supabase/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { ApiError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";

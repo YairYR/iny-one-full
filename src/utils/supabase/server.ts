@@ -1,7 +1,11 @@
+import 'server-only';
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from "@/lib/types/db.types";
 
+/**
+ * Supabase client with session
+ */
 export async function createClient() {
   const cookieStore = await cookies()
 

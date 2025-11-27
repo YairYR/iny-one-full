@@ -1,13 +1,16 @@
 import 'server-only';
 
 import { cache } from "react";
-import { UserRepository } from "@/infra/db/user.repository";
+import { getUserRepository } from "@/infra/db/user.repository";
 import { UserClient } from "@/lib/types";
+import { createClient } from "@/utils/supabase/server";
 
 export const getCurrentUserDTO = cache(async () => {
   // select public.custom_access_token_hook('{"user_id":"4fe166ec-0b6a-46fa-b067-48c527212eb5","claims":{}}')
 
-  const { data } = await UserRepository.getCurrentUser();
+  const supabase = await createClient();
+  const userRepo = getUserRepository(supabase);
+  const { data } = await userRepo.getCurrentUser();
   if(!data.user) {
     return null;
   }
