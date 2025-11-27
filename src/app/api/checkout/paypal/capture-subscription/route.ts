@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
 import { captureSubscription } from "@/core/use-cases/payment";
 import { User } from "@supabase/auth-js";
-import { createClient } from "@/utils/supabase/app-server";
+import { createClient } from "@/utils/supabase/server";
 
 const SubscriptionBodyRequest = z.object({
   id: z.string(),

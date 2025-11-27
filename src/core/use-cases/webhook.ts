@@ -1,10 +1,10 @@
 import { WebhookEventPaypal } from "@/lib/types";
-import { createWebhook, updateWebhook } from "@/lib/utils/query";
 import { after } from "next/server";
 import { SubscriptionRepository } from "@/infra/db/subscription.repository";
+import { WebhookRepository } from "@/infra/db/webhook.repository";
 
 export async function processPaypalWebhook(payload: WebhookEventPaypal) {
-  const { data } = await createWebhook({
+  const { data } = await WebhookRepository.create({
     event_type: payload.event_type,
     gateway: 'paypal',
     external_event_id: payload.id,
@@ -28,7 +28,7 @@ async function subscriptionExpired(payload: WebhookEventPaypal, webhookId: strin
   const subscriptionId: string|undefined = payload.resource?.id;
   if(subscriptionId) {
     await SubscriptionRepository.updateByExternalId(subscriptionId, 'paypal', { status: 'EXPIRED' });
-    await updateWebhook(webhookId, true);
+    await WebhookRepository.setProcessed(webhookId, true);
   }
 }
 

@@ -3,6 +3,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import '@/styles/globals.css';
 import { getTranslations, getLocale } from "next-intl/server";
 import Script from "next/script";
+import { IS_PRODUCTION } from "@/constants";
 
 interface Props {
   children?: React.ReactNode;
@@ -44,20 +45,22 @@ export default async function RootLayout({ children }: Readonly<Props>) {
       <meta name="twitter:image" content="https://www.iny.one/og-image.png"/>
 
       {/* Google Analytics */}
-      <Script
-        src="https://www.googletagmanager.com/gtag/js?id=G-KT87SQKGT4"
-        strategy="afterInteractive"
-      />
-      <Script id="gtag-init" strategy="afterInteractive">
-        {`
-          window.dataLayer = window.dataLayer || [];
-          function gtag(){dataLayer.push(arguments);}
-          gtag('js', new Date());
-          gtag('config', 'G-KT87SQKGT4', {
-            page_path: window.location.pathname,
-          });
-        `}
-      </Script>
+      {IS_PRODUCTION && <>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-KT87SQKGT4"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-KT87SQKGT4', {
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
+      </>}
     </head>
     <body>
     <NextIntlClientProvider>{children}</NextIntlClientProvider>

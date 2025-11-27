@@ -1,14 +1,15 @@
 import { withErrorHandling } from "@/lib/api/http";
 import { NextRequest } from "next/server";
 import { nanoid } from 'nanoid';
-import { addShortenUrl, getBlockUrl } from "@/lib/utils/query";
 import { parse as parseUrl } from 'tldts';
 import { UtmParams } from "@/lib/types";
 import { loadBloom } from "@/utils/check_domain";
 import * as z from "zod/mini";
 import { ApiError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";
-import { UserRepository } from "@/infra/db/user.repository";
+import { getUserRepository } from "@/infra/db/user.repository";
+import { ShorterRepository } from "@/infra/db/shorter.repository";
+import { supabase_service } from "@/infra/db/supabase_service";
 
 const schemaShortenBody = z.object({
   url: z.url({
@@ -51,7 +52,7 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
 
   const bannedDomains = loadBloom();
   if(bannedDomains.has(urlInfo.domain)) {
-    const urlBanned = await getBlockUrl(urlInfo.domain);
+    const urlBanned = await ShorterRepository.isSafeDomain(urlInfo.domain);
 
     if(urlBanned.error) {
       console.error(urlBanned.error);
@@ -67,9 +68,10 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
   const { destination, utm: utmParams } = buildDestination(urlWithSuffix, utm);
   console.log(destination);
 
-  const user_id = await UserRepository.getCurrentUserId();
+  const userRepo = getUserRepository(supabase_service);
+  const user_id = await userRepo.getCurrentUserId();
   const slug = nanoid(7);
-  const { error } = await addShortenUrl(user_id, slug, destination, utmParams, urlInfo.domain, {
+  const { error } = await ShorterRepository.create(user_id, slug, destination, utmParams, urlInfo.domain, {
     ip,
     countryCode,
   });
