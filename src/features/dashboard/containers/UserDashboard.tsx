@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -18,7 +18,7 @@ import LinkDetailModal from "@/features/dashboard/components/LinkDetailModal";
 import {
   IAlert,
   ILinkDateStats,
-  ILinkStats,
+  ILinkStats, IRefererStat,
   UserUrl,
   UserUrlStats
 } from "@/features/dashboard/types/types";
@@ -40,29 +40,20 @@ ChartJS.register(
   Colors,
 );
 
-const MOCK_TRAFFIC_SOURCES = {
-  labels: ["Directo", "Google", "Facebook", "Instagram", "Otros"],
-  datasets: [
-    {
-      data: [45, 25, 15, 10, 5],
-    },
-  ],
-};
-
 export function UserDashboard(props: Readonly<Props>) {
   const t = useTranslations('DashboardPage');
   const [selectedLink, setSelectedLink] = useState<UserUrlStats|undefined>();
 
-  const { urls } = props;
+  const { urls, clicksLast24h } = props;
 
   const {
     general,
     stats,
     links,
-    week
-  } = calcUserStats(urls, props.stats, props.weekStats);
-
-  console.log('Clicks week:', week, props.weekStats);
+    week,
+    traffic: trafficSources,
+  } = calcUserStats(urls, props.stats, props.weekStats, props.refererStats);
+  const traffic = Object.values(trafficSources);
 
   const clicks_week = {
     labels: [
@@ -83,21 +74,21 @@ export function UserDashboard(props: Readonly<Props>) {
     ],
   };
 
-  const alerts: IAlert[] = useMemo(() => [
-    { id: 1, title: "Enlace /promo tuvo +200 clics en 24h", message: "Revisa la campaña vinculada a /promo — posiblemente necesita más presupuesto." },
-  ], []);
+  // const alerts: IAlert[] = useMemo(() => [
+  //   { id: 1, title: "Enlace /promo tuvo +200 clics en 24h", message: "Revisa la campaña vinculada a /promo — posiblemente necesita más presupuesto." },
+  // ], []);
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-bold">Panel de control</h1>
-            <p className="text-sm text-gray-500">Resumen y estadísticas de tus short links</p>
+            <h1 className="text-2xl font-bold">{t('title')}</h1>
+            <p className="text-sm text-gray-500">{t('subtitle')}</p>
           </div>
           <div className="flex gap-2">
             <button className="bg-white px-4 py-2 rounded shadow-sm">Crear link</button>
-            <button className="bg-indigo-600 text-white px-4 py-2 rounded">Exportar CSV</button>
+            {/*<button className="bg-indigo-600 text-white px-4 py-2 rounded">Exportar CSV</button>*/}
           </div>
         </header>
 
@@ -108,8 +99,7 @@ export function UserDashboard(props: Readonly<Props>) {
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
               <Kpi title="Total enlaces" value={general.totalLinks} />
               <Kpi title="Total clicks" value={general.totalClicks} />
-              <Kpi title="Clicks últimas 24h" value={general.clicksLast24h} />
-              {/*<KPI title="CTR promedio" value={MOCK_OVERVIEW.avgCTR} />*/}
+              <Kpi title="Clicks últimas 24h" value={clicksLast24h ?? '-'} />
               <Kpi title="Top País" value={general.topCountry} />
             </div>
 
@@ -150,30 +140,32 @@ export function UserDashboard(props: Readonly<Props>) {
             <div className="bg-white p-4 rounded-xl shadow-sm">
               <h3 className="text-lg font-semibold mb-3">Fuentes de tráfico</h3>
               <div className="h-44 w-full">
-                <Pie data={MOCK_TRAFFIC_SOURCES} options={{ maintainAspectRatio: false }} />
+                <Pie data={{
+                  labels: traffic.map((item) => item.name),
+                  datasets: [ { label: '%', data: traffic.map((item) => item.value) }]
+                }} options={{ maintainAspectRatio: false }} />
               </div>
             </div>
 
-            <div className="bg-white p-4 rounded-xl shadow-sm">
-              <h3 className="text-lg font-semibold mb-3">Tendencias</h3>
-              <ul className="text-sm text-gray-700 space-y-2">
-                <li>Enlace <strong>/sale</strong> subió 30% en la última semana</li>
-                <li>Peak de tráfico: 18:00 - 20:00</li>
-                <li>Día más activo: Sábado</li>
-              </ul>
-            </div>
+            {/*<div className="bg-white p-4 rounded-xl shadow-sm">*/}
+            {/*  <h3 className="text-lg font-semibold mb-3">Tendencias</h3>*/}
+            {/*  <ul className="text-sm text-gray-700 space-y-2">*/}
+            {/*    <li>Enlace <strong>/sale</strong> subió 30% en la última semana</li>*/}
+            {/*    <li>Peak de tráfico: 18:00 - 20:00</li>*/}
+            {/*    <li>Día más activo: Sábado</li>*/}
+            {/*  </ul>*/}
+            {/*</div>*/}
 
-            <div className="bg-white p-4 rounded-xl shadow-sm">
-              <h3 className="text-lg font-semibold mb-3">Alertas</h3>
-              <Alerts alerts={alerts} />
-            </div>
+            {/*<div className="bg-white p-4 rounded-xl shadow-sm">*/}
+            {/*  <h3 className="text-lg font-semibold mb-3">Alertas</h3>*/}
+            {/*  <Alerts alerts={alerts} />*/}
+            {/*</div>*/}
 
             <div className="bg-white p-4 rounded-xl shadow-sm">
               <h3 className="text-lg font-semibold mb-3">Acciones rápidas</h3>
               <div className="flex flex-col gap-2">
                 <button className="py-2 px-3 bg-gray-100 rounded text-sm">Editar alias</button>
                 <button className="py-2 px-3 bg-gray-100 rounded text-sm">Activar/desactivar link</button>
-                <button className="py-2 px-3 bg-gray-100 rounded text-sm">Ver logs</button>
               </div>
             </div>
           </aside>
@@ -189,6 +181,8 @@ export function UserDashboard(props: Readonly<Props>) {
 interface Props {
   urls: UserUrl[];
   stats: ILinkStats[];
+  refererStats?: IRefererStat[];
+  clicksLast24h?: number|null;
   weekStats: {
     stats: ILinkDateStats[];
     start: Date;

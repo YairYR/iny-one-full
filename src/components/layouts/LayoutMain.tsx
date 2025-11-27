@@ -1,19 +1,18 @@
 import Footer from '@/components/Footer';
 import React from "react";
 import NavbarMain from "@/components/Navbar/NavbarMain";
-import { getCurrentUserDTO } from "@/data/user-dto";
+import { isLoggedIn } from "@/data/user-dto";
 
 interface Props {
   children: React.ReactNode;
 }
 
 const LayoutMain: React.FC<Props> = async ({ children }) => {
-  const user = getCurrentUserDTO();
-  const isLoggedIn = !!(await user);
+  const logged = await isLoggedIn();
 
   return (
     <div className="min-h-screen flex flex-col justify-between bg-gradient-to-br from-blue-50 to-indigo-100">
-      <NavbarMain isLoggedIn={isLoggedIn}/>
+      <NavbarMain isLoggedIn={logged}/>
       <main className="container mx-auto px-4 py-8 flex-grow">
         <div className="max-w-2xl mx-auto">
           {children}

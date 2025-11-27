@@ -1,4 +1,4 @@
-import { ILinkDateStats, ILinkStats, UserUrl } from "@/features/dashboard/types/types";
+import { ILinkDateStats, ILinkStats, IRefererStat, UserUrl } from "@/features/dashboard/types/types";
 
 type WeekStats = {
   stats: ILinkDateStats[];
@@ -7,7 +7,7 @@ type WeekStats = {
   totalDays: number;
 }
 
-export function calcUserStats(urls: UserUrl[], stats: ILinkStats[], weekStats: WeekStats) {
+export function calcUserStats(urls: UserUrl[], stats: ILinkStats[], weekStats: WeekStats, refererStats?: IRefererStat[]) {
   const totalClicks = stats.reduce((total, item) => total + item.total_clicks, 0);
   const statsByClicks = stats.toSorted((a, b) => b.total_clicks - a.total_clicks);
   const countries = stats.reduce((all, item) => {
@@ -32,18 +32,21 @@ export function calcUserStats(urls: UserUrl[], stats: ILinkStats[], weekStats: W
     endDate: weekStats.end,
   });
 
+  const traffic = calcRefererStats(refererStats || []);
+
   return {
     general: {
       totalLinks: urls.length,
       totalClicks: totalClicks,
       clicksLast24h: '-',
-      topLink: statsByClicks[0].slug,
+      topLink: statsByClicks[0]?.slug,
       topCountry: countriesSorted[0]?.[0],
       // avgCTR: "12.4%",
     },
     links,
     stats,
     week,
+    traffic,
   };
 }
 
@@ -101,4 +104,63 @@ function fillDays(stats: ILinkDateStats[], {
   }
 
   return { days, clicks };
+}
+
+function calcRefererStats(stats: IRefererStat[]) {
+  const referersCount: Record<string, { name: string; count: number, value: number }> = {};
+
+  let total = 0;
+  for (const stat of stats) {
+    total += stat.count;
+    const referer = stat.referer;
+    const category = categorizeReferer(referer);
+
+    if (category in referersCount) {
+      referersCount[category].count += stat.count;
+    } else {
+      referersCount[category] = { name: category, count: stat.count, value: 0 };
+    }
+  }
+
+  for (const key in referersCount) {
+    referersCount[key].value = Number.parseFloat(
+      ((referersCount[key].count / total) * 100).toFixed(2)
+    );
+  }
+
+  return referersCount;
+}
+
+const FACEBOOK_REGEX = /https?:\/\/(l|lm|m|www)?\.?facebook\.com/;
+const INSTAGRAM_REGEX = /https?:\/\/(l|lm|m|www)?\.?instagram\.com/;
+const TWITTER_REGEX = /https?:\/\/(t|www)?\.?twitter\.com/;
+const WHATSAPP_REGEX = /https?:\/\/(api|www)?\.?whatsapp\.com/;
+const LINKEDIN_REGEX = /https?:\/\/(www)?\.?linkedin\.com/;
+const GOOGLE_REGEX = /https?:\/\/(www)?\.?google\.com/;
+
+const FACEBOOK_2_REGEX = /https?:\/\/(l|lm|m|www)?\.?fb\.com/;
+const INSTAGRAM_2_REGEX = /https?:\/\/(l|lm|m|www)?\.?instagr\.am/;
+const TWITTER_2_REGEX = /https?:\/\/(t|www)?\.?x\.com/;
+const WHATSAPP_2_REGEX = /https?:\/\/(api|www)?\.?wa\.me/;
+const LINKEDIN_2_REGEX = /https?:\/\/(www)?\.?lnkd\.in/;
+const GOOGLE_2_REGEX = /https?:\/\/(www)?\.?goo\.gl/;
+
+export function categorizeReferer(referer: string): string {
+  if (FACEBOOK_REGEX.test(referer) || FACEBOOK_2_REGEX.test(referer)) {
+    return 'Facebook';
+  } else if (INSTAGRAM_REGEX.test(referer) || INSTAGRAM_2_REGEX.test(referer)) {
+    return 'Instagram';
+  } else if (TWITTER_REGEX.test(referer) || TWITTER_2_REGEX.test(referer)) {
+    return 'Twitter';
+  } else if (WHATSAPP_REGEX.test(referer) || WHATSAPP_2_REGEX.test(referer)) {
+    return 'WhatsApp';
+  } else if (LINKEDIN_REGEX.test(referer) || LINKEDIN_2_REGEX.test(referer)) {
+    return 'LinkedIn';
+  } else if (GOOGLE_REGEX.test(referer) || GOOGLE_2_REGEX.test(referer)) {
+    return 'Google';
+  } else if (referer === '' || referer === null) {
+    return 'Direct';
+  } else {
+    return 'Others';
+  }
 }
