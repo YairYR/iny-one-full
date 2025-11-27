@@ -1,34 +1,41 @@
+import { withErrorHandling } from "@/lib/api/http";
+import { NextRequest } from "next/server";
 import { nanoid } from 'nanoid';
-import { NextApiRequest, NextApiResponse } from "next";
 import { addShortenUrl, getBlockUrl } from "@/lib/utils/query";
-import tldts from 'tldts';
-import { createClient } from "@/utils/supabase/api";
+import { parse as parseUrl } from 'tldts';
 import { UtmParams } from "@/lib/types";
 import { loadBloom } from "@/utils/check_domain";
-import { url as isURLZod, regexes } from "zod/mini";
+import * as z from "zod/mini";
+import { ApiError } from "@/lib/api/errors";
+import { successResponse } from "@/lib/api/responses";
+import { UserRepository } from "@/infra/db/user.repository";
 
-const zodUrl = isURLZod({
-  protocol: /^(https?|)$/,
-  hostname: regexes.domain,
-});
+const schemaShortenBody = z.object({
+  url: z.url({
+    protocol: /^(https?|)$/,
+    hostname: z.regexes.domain,
+  }),
+  utm: z.object({
+    source: z.string(),
+    medium: z.string(),
+    campaign: z.string(),
+  })
+})
 
-export default async function handler(request: NextApiRequest, response: NextApiResponse) {
-  if (request.method === 'OPTIONS') {
-    return response.status(200).end();
+export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteContext<'/api/shorten'>) => {
+  const bodyNoValidated = await request.json();
+  const body = schemaShortenBody.safeParse(bodyNoValidated);
+
+  if (!body.success || body.error) {
+    throw new ApiError("VALIDATION_ERROR", "Invalid request", { status: 400 });
   }
 
-  if (request.method !== 'POST') {
-    return response.status(405).end();
-  }
+  const { url, utm } = body.data;
 
-  const ip = (request.headers['x-vercel-forwarded-for'] ?? request.headers['x-forwarded-for'] ?? request.headers['x-real-ip'] ?? null) as string;
-  const countryCode = (request.headers['x-vercel-ip-country'] ?? null) as string;
-
-  const { url, utm } = request.body;
-
-  if (!url || !zodUrl.safeParse(url).success) {
-    return response.status(400).json({ error: 'URL is required' });
-  }
+  const ip = (request.headers.get('x-vercel-forwarded-for')
+            ?? request.headers.get('x-forwarded-for')
+            ?? request.headers.get('x-real-ip') ?? null) as string;
+  const countryCode = (request.headers.get('x-vercel-ip-country') ?? null) as string;
 
   // Normalizar URL
   let urlWithSuffix = url.trim();
@@ -36,10 +43,10 @@ export default async function handler(request: NextApiRequest, response: NextApi
     urlWithSuffix = 'https://' + urlWithSuffix;
   }
 
-  const urlInfo = tldts.parse(urlWithSuffix);
+  const urlInfo = parseUrl(urlWithSuffix);
   if(urlInfo.domain === null || urlInfo.isIp || ["iny.one", "localhost"].includes(urlInfo.domain)) {
-    console.log('❌ La URL ingresada no es válida:', urlWithSuffix)
-    return response.status(400).json({ code: 1000 });
+    console.log('❌ La URL ingresada no es válida:', urlWithSuffix);
+    throw new ApiError("VALIDATION_ERROR", "Invalid url provided");
   }
 
   const bannedDomains = loadBloom();
@@ -48,46 +55,38 @@ export default async function handler(request: NextApiRequest, response: NextApi
 
     if(urlBanned.error) {
       console.error(urlBanned.error);
-      return response.status(400).json({ code: 3001 });
+      throw new ApiError("VALIDATION_ERROR", "Error when validating url", { status: 500 });
     }
 
     if(urlBanned.data !== null && urlBanned.data === false) {
       console.log('❗ El dominio de la URL ingresada está baneada:', urlWithSuffix);
-      return response.status(400).json({ code: 3001 });
+      throw new ApiError("VALIDATION_ERROR", "Error when validating url", { status: 422 })
     }
   }
 
   const { destination, utm: utmParams } = buildDestination(urlWithSuffix, utm);
   console.log(destination);
 
-  const supabase = createClient(request, response);
-  const user = await supabase.auth.getUser();
-  const uid: string|null = user.data.user?.id ?? null;
-
+  const user_id = await UserRepository.getCurrentUserId();
   const slug = nanoid(7);
-  const { error } = await addShortenUrl(uid, slug, destination, utmParams, urlInfo.domain, {
+  const { error } = await addShortenUrl(user_id, slug, destination, utmParams, urlInfo.domain, {
     ip,
     countryCode,
   });
 
-  if (error) {
+  if(error) {
     console.error('Supabase insert error:', error);
-    return response.status(500).json({ error: 'Error saving URL in database' });
+    throw new ApiError("SERVER_ERROR", "internal server error", { status: 500 });
   }
 
-  const data = {
-    code: 0,
-    message: null,
-    data: {
-      short: `https://iny.one/l/${slug}`
-    }
-  }
-  response.status(200).json(data);
-}
+  return successResponse({
+    short: `https://iny.one/l/${slug}`
+  });
+})
 
 const buildDestination = (url: string, utm: Partial<UtmParams>) => {
   const sanitize = (value: string | null) =>
-    value && value.replace(/[^a-zA-Z0-9-_]/g, '')
+    value?.replaceAll(/[^a-zA-Z0-9-_]/, '')
 
   const destination = new URL(url);
   const utmDestination: UtmParams = {

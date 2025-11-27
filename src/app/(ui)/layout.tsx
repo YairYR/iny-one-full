@@ -17,6 +17,8 @@ export default async function RootLayout({ children }: Readonly<Props>) {
     <head>
       <title>{t('metaTitle')}</title>
       <meta name="description" content={t('metaDescription')}/>
+      {/* Meta tag para verificación de Google Search Console */}
+      <meta name="google-site-verification" content="WNueup03P4lmVxxos0qDu1zwMrCeEpuS4FVUuS0XHtM" />
 
       {/* Favicon & Manifest */}
       <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
