@@ -1,20 +1,20 @@
 import { PayPalScriptProvider } from "@paypal/react-paypal-js";
 import PayButtons from "@/features/payments/components/Paypal/PayButtons";
 import { redirect } from "next/navigation";
-import { isLoggedIn } from "@/data/user-dto";
+import { isLoggedIn } from "@/data/dto/user-dto";
 import { createServicesRepository } from "@/infra/db/services.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
+import { getFromLocalStorage, getFromSessionStorage } from "@/utils/localstorage";
 
-interface Props {
-  params: Promise<{ service_id: string }>;
-}
-
-export default async function PlanCheckoutPage({ params }: Readonly<Props>) {
-  const { service_id } = await params;
-
+export default async function PlanCheckoutPage() {
   const logged = await isLoggedIn();
   if(!logged) {
-    return redirect('/auth/login');
+    return redirect('/auth/login?next=/cart');
+  }
+
+  const service_id = getFromSessionStorage("cart") ?? getFromLocalStorage("cart");
+  if(!service_id) {
+    return redirect('/plans');
   }
 
   const servicesRepo = createServicesRepository(supabase_service);

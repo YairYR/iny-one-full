@@ -5,10 +5,10 @@ import { parse as parseUrl } from 'tldts';
 import { UtmParams } from "@/lib/types";
 import { loadBloom } from "@/utils/check_domain";
 import * as z from "zod/mini";
-import { ApiError } from "@/lib/api/errors";
+import { ApiError, ValidationError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";
 import { getUserRepository } from "@/infra/db/user.repository";
-import { ShorterRepository } from "@/infra/db/shorter.repository";
+import { getShorterRepository } from "@/infra/db/shorter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 
 const schemaShortenBody = z.object({
@@ -28,7 +28,7 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
   const body = schemaShortenBody.safeParse(bodyNoValidated);
 
   if (!body.success || body.error) {
-    throw new ApiError("VALIDATION_ERROR", "Invalid request", { status: 400 });
+    throw new ValidationError();
   }
 
   const { url, utm } = body.data;
@@ -47,21 +47,23 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
   const urlInfo = parseUrl(urlWithSuffix);
   if(urlInfo.domain === null || urlInfo.isIp || ["iny.one", "localhost"].includes(urlInfo.domain)) {
     console.log('❌ La URL ingresada no es válida:', urlWithSuffix);
-    throw new ApiError("VALIDATION_ERROR", "Invalid url provided");
+    throw new ValidationError("Invalid url provided");
   }
+
+  const shorterRepo = getShorterRepository(supabase_service);
 
   const bannedDomains = loadBloom();
   if(bannedDomains.has(urlInfo.domain)) {
-    const urlBanned = await ShorterRepository.isSafeDomain(urlInfo.domain);
+    const urlBanned = await shorterRepo.isSafeDomain(urlInfo.domain);
 
     if(urlBanned.error) {
       console.error(urlBanned.error);
-      throw new ApiError("VALIDATION_ERROR", "Error when validating url", { status: 500 });
+      throw new ValidationError("Error when validating url");
     }
 
     if(urlBanned.data !== null && urlBanned.data === false) {
       console.log('❗ El dominio de la URL ingresada está baneada:', urlWithSuffix);
-      throw new ApiError("VALIDATION_ERROR", "Error when validating url", { status: 422 })
+      throw new ValidationError("Error when validating url");
     }
   }
 
@@ -71,7 +73,7 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
   const userRepo = getUserRepository(supabase_service);
   const user_id = await userRepo.getCurrentUserId();
   const slug = nanoid(7);
-  const { error } = await ShorterRepository.create(user_id, slug, destination, utmParams, urlInfo.domain, {
+  const { error } = await shorterRepo.create(user_id, slug, destination, utmParams, urlInfo.domain, {
     ip,
     countryCode,
   });

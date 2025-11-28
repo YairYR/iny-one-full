@@ -1,7 +1,7 @@
 import Footer from '@/components/Footer';
 import React from "react";
 import NavbarMain from "@/components/Navbar/NavbarMain";
-import { isLoggedIn } from "@/data/user-dto";
+import { isLoggedIn } from "@/data/dto/user-dto";
 
 interface Props {
   children: React.ReactNode;

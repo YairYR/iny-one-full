@@ -4,6 +4,7 @@ import { ApiError } from "@/lib/api/errors";
 import { NextResponse } from "next/server";
 import { ZodError } from "zod";
 import { ErrorResponse, SuccessResponse } from "@/lib/types/api";
+import { ERROR, MESSAGE } from "@/lib/api/error-codes";
 
 export function successResponse<T>(data: T, requestId?: string) {
   return NextResponse.json({
@@ -34,8 +35,8 @@ export function errorResponse<T>(err: T, requestId?: string) {
       {
         success: false,
         error: {
-          code: "VALIDATION_ERROR",
-          message: "Los datos enviados no son válidos",
+          code: ERROR.VALIDATION_ERROR,
+          message: MESSAGE.INVALID_REQUEST,
           status: 422,
           type: "validation_error",
           fields: fieldErrors,
@@ -57,8 +58,8 @@ export function errorResponse<T>(err: T, requestId?: string) {
     {
       success: false,
       error: {
-        code: isApiError ? err.code : "INTERNAL_ERROR",
-        message: isApiError ? err.message : "Internal server error",
+        code: isApiError ? err.code : ERROR.INTERNAL_ERROR,
+        message: isApiError ? err.message : MESSAGE.INTERNAL_ERROR,
         status,
         type: isApiError ? err.type : "server_error",
         fields: isApiError ? err.fields : undefined,

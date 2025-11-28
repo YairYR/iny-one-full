@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
 import { createClient } from "@/utils/supabase/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
-import { ApiError } from "@/lib/api/errors";
+import { AuthenticationError, ProviderAuthenticationError, ValidationError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";
 
 const schemaLogin = z.object({
@@ -23,7 +23,7 @@ export async function handleLogin(request: NextRequest) {
   const body = schemaLogin.safeParse(bodyNoValidated);
 
   if(!body.success || body.error) {
-    throw new ApiError("VALIDATION_ERROR", "Invalid request", { status: 400 });
+    throw new ValidationError();
   }
 
   const supabase = await createClient();
@@ -31,7 +31,7 @@ export async function handleLogin(request: NextRequest) {
   // OAuth2.0
   if('provider' in body.data) {
     if(body.data.provider !== 'google') {
-      throw new ApiError("PROVIDER_NOT_FOUND", "Provider not found", { status: 400 });
+      throw new ValidationError("Provider not found");
     }
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
@@ -48,11 +48,8 @@ export async function handleLogin(request: NextRequest) {
     }
 
     console.error(error);
-    throw new ApiError("OAUTH_ERROR", "OAuth error", { status: 402 });
+    throw new ProviderAuthenticationError();
   }
-
-  // Email and password
-  // ...
 
   const { error } = await supabase.auth.signInWithPassword({
     email: body.data.email,
@@ -61,7 +58,7 @@ export async function handleLogin(request: NextRequest) {
 
   if (error) {
     console.error(error)
-    throw new ApiError("AUTH_ERROR", "Incorrect email or password", { status: 402 });
+    throw new AuthenticationError();
   }
 
   return successResponse({});
@@ -72,7 +69,7 @@ export async function handleRegister(request: NextRequest) {
   const body = schemaRegister.safeParse(bodyNoValidated);
 
   if(!body.success || body.error) {
-    return NextResponse.json({ error: 'Invalid request' }, { status: 400 });
+    throw new ValidationError();
   }
   
   const { name, email, password } = body.data;
@@ -87,12 +84,10 @@ export async function handleRegister(request: NextRequest) {
 
   if (error) {
     console.error(error)
-    return NextResponse.json({
-      error: error.message,
-    }, { status: 402 });
+    throw new ProviderAuthenticationError();
   }
 
-  return NextResponse.json({ ok: true });
+  return successResponse({});
 }
 
 export async function handleConfirm(request: NextRequest) {

@@ -3,6 +3,7 @@
 import React from "react";
 import PricingCard from "@/components/PricingCards/PricingCard";
 import { useRouter } from "next/navigation";
+import { addToLocalStorage, addToSessionStorage } from "@/utils/localstorage";
 
 export default function PricingCards() {
   const router = useRouter();
@@ -49,6 +50,9 @@ export default function PricingCards() {
     /**
      * TODO: 1. verificar si está logueado. 2. redirigir al carrito. 3. pagar.
      */
+
+    addToLocalStorage("cart", planId, 60 * 60); // 1 hour
+    addToSessionStorage("cart", planId);
 
     router.push('/plans/checkout/' + planId);
   }

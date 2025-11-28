@@ -40,7 +40,7 @@ export default function PayButtons({ planId }: Readonly<Props>) {
       }),
     })
       .then((response) => response.json())
-      .then((order) => order.id);
+      .then((order) => order.data.id);
   }
 
   const onApprove: PayPalButtonOnApprove = async (data) => {
@@ -55,7 +55,7 @@ export default function PayButtons({ planId }: Readonly<Props>) {
     })
       .then((response) => response.json())
       .then((subscriptionData) => {
-        const name = subscriptionData.suscriber.name.given_name;
+        const name = subscriptionData.data.suscriber.name.given_name;
         alert(`Transaction completed by ${name}`);
       });
   }
