@@ -21,3 +21,5 @@ export type ErrorResponse = {
     timestamp: string;
   };
 };
+
+export type ApiResponse<T = never> = SuccessResponse<T> | ErrorResponse;

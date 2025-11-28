@@ -1,4 +1,4 @@
-import { getCurrentUserDTO } from "@/data/user-dto";
+import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import { redirect } from "next/navigation";
 import RegisterForm from "@/features/auth/components/RegisterForm";
 

@@ -1,33 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import * as z from "zod";
 import { captureSubscription } from "@/core/use-cases/payment";
 import { User } from "@supabase/auth-js";
 import { createClient } from "@/utils/supabase/server";
+import { withErrorHandling } from "@/lib/api/http";
+import { SessionNotFoundError } from "@/lib/api/errors";
+import { successResponse } from "@/lib/api/responses";
 
 const SubscriptionBodyRequest = z.object({
   id: z.string(),
 });
 
-export async function PATCH(request: NextRequest) {
-  try {
-    const bodyNoValidated = await request.json();
-    const { id } = SubscriptionBodyRequest.parse(bodyNoValidated);
+export const PATCH = withErrorHandling(async function PATCH(request: NextRequest) {
+  const bodyNoValidated = await request.json();
+  const { id } = SubscriptionBodyRequest.parse(bodyNoValidated);
 
-    const supabase = await createClient();
-    const { data, error } = await supabase.auth.getUser();
-    if(!data.user || error) {
-      // TODO: check response status
-      return NextResponse.json({}, { status: 401 });
-    }
-
-    const user: User = data.user;
-
-    const ok = await captureSubscription(id, user);
-    return NextResponse.json({ ok });
-  } catch(e) {
-    if(e instanceof z.ZodError) {
-      // ZOD PARSE ERROR
-    }
-    // TODO: ERROR
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.getUser();
+  if(!data.user || error) {
+    throw new SessionNotFoundError()
   }
-}
+
+  const user: User = data.user;
+  const subscriber = await captureSubscription(id, user);
+  return successResponse(subscriber);
+})

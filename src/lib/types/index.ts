@@ -1,5 +1,7 @@
 import type { userAgent } from "next/server";
 
+export type { ApiResponse } from '@/lib/types/api';
+
 export interface UtmParams {
   source: string;
   medium: string;
@@ -28,12 +30,6 @@ export interface ShortenedUrl<Utm = UtmParams> {
   url: string;
   short: string;
   utm: Utm;
-}
-
-export interface ApiResponse<T = never> {
-  code: number;
-  message: string;
-  data: T;
 }
 
 export interface UserClient {

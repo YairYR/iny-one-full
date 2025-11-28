@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { ILinkDateStats, ILinkStats } from "@/features/dashboard/types/types";
 import { getStatsRepository } from "@/infra/db/stats.repository";
 import dayjs from "dayjs";
-import { getCurrentUserDTO } from "@/data/user-dto";
+import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import { getUserRepository } from "@/infra/db/user.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 

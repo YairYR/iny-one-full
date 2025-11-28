@@ -1,8 +1,7 @@
 import { NextRequest } from "next/server";
 import { handleConfirm, handleLogin, handleRegister } from "@/features/auth/services/auth.services";
 import { withErrorHandling } from "@/lib/api/http";
-import { ApiError } from "@/lib/api/errors";
-import { errorResponse } from "@/lib/api/responses";
+import { Api404Error } from "@/lib/api/errors";
 
 export const GET = withErrorHandling(async (request: NextRequest, ctx: RouteContext<'/api/auth/[slug]'>) => {
   const { slug } = await ctx.params;
@@ -20,8 +19,6 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
   } else if (slug === 'register') {
     return handleRegister(request);
   } else {
-    return errorResponse(new ApiError('NOT_FOUND', 'API not Found', {
-      status: 404,
-    }));
+    throw new Api404Error();
   }
 })

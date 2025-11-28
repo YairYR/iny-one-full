@@ -3,8 +3,7 @@
 import type React from 'react';
 import { useState, useRef, useEffect } from "react";
 import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
-import { useRouter } from 'next/navigation';
-import { addToSessionStorage, getFromSessionStorage, removeFromSessionStorage } from "@/utils/localstorage";
+import { getFromSessionStorage, removeFromSessionStorage } from "@/utils/localstorage";
 import { url as isURLZod, regexes } from "zod/mini";
 
 type SomeUtmParams = Pick<UtmParams, 'source'|'medium'|'campaign'>;
@@ -19,8 +18,6 @@ interface Props {
 }
 
 export function useUrlShortForm({ t }: Props) {
-  const router = useRouter();
-
   const shortenedUrls = useRef<UrlHistory<SomeUtmParams>>({});
   const [currentUrl, setCurrentUrl] = useState('');
   const [utm, setUtm] = useState<SomeUtmParams>({ source: '', medium: '', campaign: '' });
@@ -29,7 +26,7 @@ export function useUrlShortForm({ t }: Props) {
   const [error, setError] = useState('');
 
   const sanitize = (value: string) =>
-    value.replace(/[^a-zA-Z0-9-_]/g, '');
+    value.replaceAll(/[^a-zA-Z0-9-_]/, '');
 
   useEffect(() => {
     const urlRefresh = getFromSessionStorage('url');
@@ -84,7 +81,7 @@ export function useUrlShortForm({ t }: Props) {
     const response = await getShortUrl(url, utm);
     const apiResponse: ApiResponse<{ short: string }> = await response.json();
 
-    if(response.ok) {
+    if(apiResponse.success) {
       setShortUrl(apiResponse.data.short);
       shortenedUrls.current[url] = {
         url,
@@ -92,15 +89,7 @@ export function useUrlShortForm({ t }: Props) {
         utm
       };
     } else {
-      if(apiResponse.code === 1010) {
-        setError(t('errorNewShortenRefresh'));
-        addToSessionStorage('url', JSON.stringify({ url, utm }))
-        setTimeout(() => {
-          router.refresh();
-        }, 1000);
-      } else {
-        setError(t('errorNewShorten'));
-      }
+      setError(t('errorNewShorten'));
     }
 
     setIsLoading(false);

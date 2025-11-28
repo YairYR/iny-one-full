@@ -1,5 +1,5 @@
 import LoginForm from "@/features/auth/components/LoginForm";
-import { getCurrentUserDTO } from "@/data/user-dto";
+import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import { redirect } from "next/navigation";
 
 export default async function LoginPage() {
