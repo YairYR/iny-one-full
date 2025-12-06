@@ -1,5 +1,5 @@
 import {useState} from "react";
-import { addToLocalStorage, getFromLocalStorage } from "@/utils/localstorage";
+import { addToLocalStorage, getFromLocalStorage } from "@/lib/utils/localstorage";
 
 const maxTimeInSec = 15 * 60;
 

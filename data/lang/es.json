@@ -82,6 +82,20 @@
   "DashboardPage": {
     "title": "Panel de Control",
     "subtitle": "Resumen y estadísticas de tus short links",
+    "newLink": "Nuevo Link",
+    "exportFile": "Exportar CSV",
+    "weekActivity": "Actividad semanal",
+    "lastWeek": "Última semana",
+    "performancePerLink": "Rendimiento por Enlace",
+    "sourceTraffic": "Fuentes de Trafico",
+    "tableLinks": {
+      "alias": "Alias",
+      "destination": "Destino",
+      "clicks": "Clicks",
+      "ctr": "CTR",
+      "created": "Creado",
+      "actions": "Acciones"
+    },
     "week": {
       "monday": "Lunes",
       "tuesday": "Martes",

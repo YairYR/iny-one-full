@@ -1,3 +1,5 @@
+'use client';
+
 import { DISPATCH_ACTION, PayPalButtons, usePayPalScriptReducer } from "@paypal/react-paypal-js";
 import { LoadingSpinner } from "@/components/Spinner";
 import { PayPalButtonCreateSubscription, PayPalButtonOnApprove } from "@paypal/paypal-js";

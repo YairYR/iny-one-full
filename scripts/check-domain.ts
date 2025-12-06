@@ -1,4 +1,4 @@
-import { loadBloom } from "@/utils/check_domain";
+import { loadBloom } from "@/lib/utils/check_domain";
 
 const args = process.argv.slice(2);
 const domains = args[0]?.split(',') ?? [];

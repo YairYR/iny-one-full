@@ -2,12 +2,12 @@ import { BillingRepository } from "@/infra/payments/billing.repository";
 import { SubscriptionRepository } from "@/infra/db/subscription.repository";
 import { getServiceRepository } from "@/infra/db/service.repository";
 import { User } from "@supabase/auth-js";
-import { retry } from "@/core/utils/retry";
+import { retry } from "@/lib/utils/retry";
 import { supabase_service } from "@/infra/db/supabase_service";
 import {
   ProviderError,
   ResourceActionError,
-  ResourceNotFoundError,
+  ResourceNotFoundError, ServiceError,
   ValidationError
 } from "@/lib/api/errors";
 import { MESSAGE } from "@/lib/api/error-codes";
@@ -44,7 +44,7 @@ export async function createSubscription(plan_id: string, user: User) {
     }
     // Hay una suscripción pendiente, pero, NO se almacenó el ID de PayPal
     else {
-      // TODO: este caso
+      throw new ServiceError();
     }
   }
 

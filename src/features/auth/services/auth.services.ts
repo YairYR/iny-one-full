@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as z from "zod";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 import { AuthenticationError, ProviderAuthenticationError, ValidationError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";
+import { REDIRECT_TO_COOKIE_NAME } from "@/constants";
 
 const schemaLogin = z.object({
   email: z.email(),
@@ -26,6 +27,7 @@ export async function handleLogin(request: NextRequest) {
     throw new ValidationError();
   }
 
+  const cookieList = request.cookies;
   const supabase = await createClient();
 
   // OAuth2.0
@@ -33,18 +35,28 @@ export async function handleLogin(request: NextRequest) {
     if(body.data.provider !== 'google') {
       throw new ValidationError("Provider not found");
     }
+    const goTo = new URL(process.env.SITE_URL ?? "https://www.iny.one");
+    goTo.pathname = "/auth/callback";
+    if(cookieList.has(REDIRECT_TO_COOKIE_NAME)) {
+      const next = cookieList.get(REDIRECT_TO_COOKIE_NAME)!.value;
+      goTo.searchParams.set("next", next);
+      cookieList.delete(REDIRECT_TO_COOKIE_NAME);
+    }
+
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: 'http://localhost:3000/auth/callback',
+        redirectTo: goTo.toString(),
       }
     });
 
     if(data.url) {
-      return successResponse({
+      const response = successResponse({
         provider: data.provider,
         url: data.url,
       });
+      response.cookies.delete(REDIRECT_TO_COOKIE_NAME);
+      return response;
     }
 
     console.error(error);
@@ -61,7 +73,9 @@ export async function handleLogin(request: NextRequest) {
     throw new AuthenticationError();
   }
 
-  return successResponse({});
+  const response = successResponse({});
+  response.cookies.delete(REDIRECT_TO_COOKIE_NAME);
+  return response;
 }
 
 export async function handleRegister(request: NextRequest) {

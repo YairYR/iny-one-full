@@ -82,6 +82,20 @@
   "DashboardPage": {
     "title": "Control Panel",
     "subtitle": "Overview and statistics of your short links",
+    "newLink": "New Link",
+    "exportFile": "Export CSV",
+    "weekActivity": "Activity week",
+    "lastWeek": "Last week",
+    "performancePerLink": "Performance per link",
+    "sourceTraffic": "Source Traffic",
+    "tableLinks": {
+      "alias": "Alias",
+      "destination": "Destination",
+      "clicks": "Clicks",
+      "ctr": "CTR",
+      "created": "Created",
+      "actions": "Actions"
+    },
     "week": {
       "monday": "Monday",
       "tuesday": "Tuesday",

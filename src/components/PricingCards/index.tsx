@@ -3,19 +3,25 @@
 import React from "react";
 import PricingCard from "@/components/PricingCards/PricingCard";
 import { useRouter } from "next/navigation";
-import { addToLocalStorage, addToSessionStorage } from "@/utils/localstorage";
+import { setCartPlan } from "@/lib/utils/localstorage";
+import { ROUTES } from "@/lib/routes";
 
-export default function PricingCards() {
+interface Props {
+  logged: boolean;
+}
+
+export default function PricingCards({ logged }: Readonly<Props>) {
   const router = useRouter();
   const plans = [
     {
-      id: "BASIC",
+      id: null,
       name: "Básico",
       price: "$0",
       period: "/mes",
       features: ["1 usuario", "5 GB de almacenamiento", "Soporte por correo"],
-      color: "border-gray-300 text-gray-700 hover:border-gray-400",
-      disabled: true
+      color: "border-gray-300 text-gray-700 bg-blue-50 hover:border-gray-400",
+      disabled: logged,
+      button: 'Create Account'
     },
     {
       id: "575577e4-abab-4286-bfb9-9e3c809bcb67",
@@ -31,34 +37,32 @@ export default function PricingCards() {
       color: "border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-md",
       highlight: true,
     },
-    {
-      id: "62f7de06-6bfc-4438-aa3d-e323e51ea0c4",
-      name: "Empresarial",
-      price: "$20.00",
-      period: "/mes",
-      features: [
-        "Usuarios ilimitados",
-        "1 TB de almacenamiento",
-        "Soporte dedicado 24/7",
-        "API personalizada",
-      ],
-      color: "border-gray-400 text-gray-800 hover:border-gray-500",
-    },
+    // {
+    //   id: "62f7de06-6bfc-4438-aa3d-e323e51ea0c4",
+    //   name: "Empresarial",
+    //   price: "$20.00",
+    //   period: "/mes",
+    //   features: [
+    //     "Usuarios ilimitados",
+    //     "1 TB de almacenamiento",
+    //     "Soporte dedicado 24/7",
+    //     "API personalizada",
+    //   ],
+    //   color: "border-gray-400 text-gray-800 hover:border-gray-500",
+    // },
   ];
 
-  const onClick = async (event: React.MouseEvent<HTMLButtonElement>, planId: string) => {
-    /**
-     * TODO: 1. verificar si está logueado. 2. redirigir al carrito. 3. pagar.
-     */
-
-    addToLocalStorage("cart", planId, 60 * 60); // 1 hour
-    addToSessionStorage("cart", planId);
-
-    router.push('/plans/checkout/' + planId);
+  const onClick = async (event: React.MouseEvent<HTMLButtonElement>, planId: string|null) => {
+    if(planId) {
+      setCartPlan(planId);
+      router.push(ROUTES.CART + '/' + planId);
+    } else {
+      router.push(ROUTES.REGISTER);
+    }
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl w-full">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl w-full">
       {plans.map((plan) => (
         <PricingCard key={`plan-${plan.name}`} plan={plan} onClick={onClick} />
       ))}

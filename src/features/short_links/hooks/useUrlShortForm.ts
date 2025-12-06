@@ -3,7 +3,7 @@
 import type React from 'react';
 import { useState, useRef, useEffect } from "react";
 import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
-import { getFromSessionStorage, removeFromSessionStorage } from "@/utils/localstorage";
+import { getFromSessionStorage, removeFromSessionStorage } from "@/lib/utils/localstorage";
 import { url as isURLZod, regexes } from "zod/mini";
 
 type SomeUtmParams = Pick<UtmParams, 'source'|'medium'|'campaign'>;
@@ -26,7 +26,7 @@ export function useUrlShortForm({ t }: Props) {
   const [error, setError] = useState('');
 
   const sanitize = (value: string) =>
-    value.replaceAll(/[^a-zA-Z0-9-_]/, '');
+    value.replaceAll(/[^a-zA-Z0-9-_]/g, '');
 
   useEffect(() => {
     const urlRefresh = getFromSessionStorage('url');

@@ -1,5 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { CART_COOKIE_NAME, REDIRECT_TO_COOKIE_NAME } from "@/constants";
+import { ROUTES } from "@/lib/routes";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
@@ -44,8 +46,11 @@ export async function updateSession(request: NextRequest) {
     !request.nextUrl.pathname.startsWith('/login') &&
     !request.nextUrl.pathname.startsWith('/auth') &&
     !request.nextUrl.pathname.startsWith('/error') &&
-    request.nextUrl.pathname !== '/plans'
+    request.nextUrl.pathname !== '/plans' &&
+    request.nextUrl.pathname !== '/cart' &&
+    !request.nextUrl.pathname.startsWith('/cart/')
   ) {
+    console.log('redirect to auth', request.nextUrl.pathname);
     // no user, potentially respond by redirecting the user to the login page
     const url = request.nextUrl.clone()
     url.pathname = '/auth/login'
@@ -64,6 +69,18 @@ export async function updateSession(request: NextRequest) {
   //    return myNewResponse
   // If this is not done, you may be causing the browser and server to go out
   // of sync and terminate the user's session prematurely!
+
+  if(request.nextUrl.pathname.startsWith('/cart/')) {
+    const value = request.nextUrl.pathname
+                        .replace('/cart/', '')
+                        .split('/')[0];
+    request.cookies.set(CART_COOKIE_NAME, value);
+    supabaseResponse.cookies.set(CART_COOKIE_NAME, value);
+    if(!user) {
+      request.cookies.set(REDIRECT_TO_COOKIE_NAME, ROUTES.CART);
+      supabaseResponse.cookies.set(REDIRECT_TO_COOKIE_NAME, ROUTES.CART);
+    }
+  }
 
   return supabaseResponse
 }
