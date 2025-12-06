@@ -8,7 +8,7 @@ export default function PlansPage() {
   return (
     <div className="w-full min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
       <h2 className="text-3xl font-bold mb-10 text-gray-800">{t('title')}</h2>
-      <PricingCards />
+      <PricingCards logged={false} />
     </div>
   )
 }

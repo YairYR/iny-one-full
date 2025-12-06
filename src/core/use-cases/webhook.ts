@@ -1,10 +1,12 @@
 import { WebhookEventPaypal } from "@/lib/types";
 import { after } from "next/server";
 import { SubscriptionRepository } from "@/infra/db/subscription.repository";
-import { WebhookRepository } from "@/infra/db/webhook.repository";
+import { getWebhookRepository } from "@/infra/db/webhook.repository";
+import { supabase_service } from "@/infra/db/supabase_service";
 
 export async function processPaypalWebhook(payload: WebhookEventPaypal) {
-  const { data } = await WebhookRepository.create({
+  const webhookRepo = getWebhookRepository(supabase_service);
+  const { data } = await webhookRepo.create({
     event_type: payload.event_type,
     gateway: 'paypal',
     external_event_id: payload.id,
@@ -19,17 +21,13 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
   after(async () => {
     if(!webhookId) return;
     if(payload.event_type === PaypalEventType.SUBSCRIPTION_EXPIRED) {
-      await subscriptionExpired(payload, webhookId);
+      const subscriptionId: string|undefined = payload.resource?.id;
+      if(subscriptionId) {
+        await SubscriptionRepository.updateByExternalId(subscriptionId, 'paypal', { status: 'EXPIRED' });
+        await webhookRepo.setProcessed(webhookId, true);
+      }
     }
   });
-}
-
-async function subscriptionExpired(payload: WebhookEventPaypal, webhookId: string) {
-  const subscriptionId: string|undefined = payload.resource?.id;
-  if(subscriptionId) {
-    await SubscriptionRepository.updateByExternalId(subscriptionId, 'paypal', { status: 'EXPIRED' });
-    await WebhookRepository.setProcessed(webhookId, true);
-  }
 }
 
 enum PaypalEventType {
