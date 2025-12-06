@@ -1,0 +1,109 @@
+{
+  "Head": {
+    "title": "iny.one – UTM Link Shortener",
+    "subtitle": "Boost your campaigns with smarter short links.",
+    "metaName": "iny.one",
+    "metaTitle": "iny.one – Shorten URLs, Track Smarter",
+    "metaDescription": "iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results."
+  },
+  "HomePage": {
+    "title": "iny.one – UTM Link Shortener",
+    "subtitle": "Boost your campaigns with smarter short links.",
+    "metaName": "iny.one",
+    "metaTitle": "iny.one – Shorten URLs, Track Smarter",
+    "metaDescription": "iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results.",
+    "h1Main": "iny.one – Free URL Shortener with UTM Tracking",
+    "benefitsTitle": "Why use iny.one?",
+    "urlLabel": "URL to shorten",
+    "utmLabel": "UTM Parameters (optional)",
+    "urlPlaceholder": "https://example.com",
+    "shortenBtn": "Shorten URL",
+    "cleanBtn": "Clear",
+    "requiredUrl": "URL is required",
+    "invalidUrl": "Invalid URL format",
+    "shortening": "Shortening...",
+    "success": "Here’s your short link!",
+    "copy": "Copy the link",
+    "copied": "Copied!",
+    "open": "Open link",
+    "fast": "Fast",
+    "fastDesc": "Shorten your URLs in seconds with our intuitive interface",
+    "utmReady": "UTM Ready",
+    "utmDesc": "Automatically add UTM parameters for tracking",
+    "easy": "Easy to use",
+    "easyDesc": "Copy and share your short URLs with one click",
+    "aboutLink": "Want to know more? Learn about iny.one.",
+    "footerText": "Want to know more?",
+    "footerLink": "About",
+    "errorNewShorten": "There were problems generating the link.",
+    "errorNewShortenRefresh": "There were problems generating the link. Please refresh the page!"
+  },
+  "AboutPage": {
+    "title": "About iny.one",
+    "metaTitle": "About – iny.one",
+    "metaDescription": "Learn about the purpose, vision, and future of iny.one, a lightweight and free URL shortener.",
+    "intro": "iny.one is a free and lightweight URL shortener, designed for marketers, developers, and content creators who need to easily track campaigns using UTM parameters.",
+    "why": "This project was born from the need to share clean, trackable links without relying on heavy platforms. I wanted to build a fast, privacy-focused and useful tool.",
+    "futureTitle": "What’s next?",
+    "backHome": "Back to Home",
+    "roadmap": [
+      "Built-in QR code generator",
+      "Basic link stats (clicks, referer, etc.)",
+      "Dashboard for registered users"
+    ],
+    "contact": "Have ideas or found a bug? I’m open to feedback.",
+    "faqTitle": "Frequently Asked Questions",
+    "faqs": [
+      {
+        "q": "What is iny.one?",
+        "a": "It’s a free tool to shorten URLs and add UTM parameters for better campaign tracking."
+      },
+      {
+        "q": "Is iny.one free?",
+        "a": "Yes, the service is completely free and does not require registration."
+      },
+      {
+        "q": "What are UTM parameters?",
+        "a": "UTM parameters let you track the origin of web traffic in your marketing campaigns."
+      },
+      {
+        "q": "Can I see stats for my links?",
+        "a": "Not yet, but we’re working on it."
+      },
+      {
+        "q": "Does iny.one store my data?",
+        "a": "We don’t collect or store personal data. Shortened URLs are used only for redirection."
+      }
+    ]
+  },
+  "PlansPage": {
+    "title": "Subscription Plans"
+  },
+  "DashboardPage": {
+    "title": "Control Panel",
+    "subtitle": "Overview and statistics of your short links",
+    "newLink": "New Link",
+    "exportFile": "Export CSV",
+    "weekActivity": "Activity week",
+    "lastWeek": "Last week",
+    "performancePerLink": "Performance per link",
+    "sourceTraffic": "Source Traffic",
+    "tableLinks": {
+      "alias": "Alias",
+      "destination": "Destination",
+      "clicks": "Clicks",
+      "ctr": "CTR",
+      "created": "Created",
+      "actions": "Actions"
+    },
+    "week": {
+      "monday": "Monday",
+      "tuesday": "Tuesday",
+      "wednesday": "Wednesday",
+      "thursday": "Thursday",
+      "friday": "Friday",
+      "saturday": "Saturday",
+      "sunday": "Sunday"
+    }
+  }
+}

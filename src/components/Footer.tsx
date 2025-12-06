@@ -1,14 +1,14 @@
 import Link from 'next/link';
-import useLang from "@/hooks/useLang";
+import { useTranslations } from "next-intl";
 
 export default function Footer() {
-  const lang = useLang();
+  const t = useTranslations('HomePage');
 
   return (
     <footer className="bg-white py-6 text-center text-sm text-gray-500">
-      {lang.get('footerText')}{' '}
+      {t('footerText')}{' '}
       <Link href="/about" className="text-indigo-600 hover:text-indigo-800 font-medium">
-        {lang.get('footerLink')}
+        {t('footerLink')}
       </Link>
     </footer>
   );

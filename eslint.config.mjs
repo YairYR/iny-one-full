@@ -1,5 +1,5 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import { dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 import { FlatCompat } from "@eslint/eslintrc";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -11,18 +11,21 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
-  {
-    rules: {
-      "no-restricted-imports": [
-        "error",
-        {
-          name: "@supabase/ssr",
-          importNames: ["createBrowserClient"],
-          message: "Please do not use 'createBrowserClient' from '@supabase/ssr'. Use 'createServerClient' instead."
-        }
-      ]
-    }
-  }
+  ...compat.config({
+    ignorePatterns: ['src/lib/types/db.types.d.ts']
+  }),
+  // {
+  //   rules: {
+  //     "no-restricted-imports": [
+  //       "error",
+  //       {
+  //         name: "@supabase/ssr",
+  //         importNames: ["createBrowserClient"],
+  //         message: "Please do not use 'createBrowserClient' from '@supabase/ssr'. Use 'createServerClient' instead."
+  //       }
+  //     ]
+  //   }
+  // }
 ];
 
 export default eslintConfig;

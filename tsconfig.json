@@ -19,9 +19,8 @@
       }
     ],
     "paths": {
-      "@/prisma/client": ["./generated/prisma/client"],
       "@/data/*": ["./data/*"],
-      "@/*": ["./src/*"],
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
