@@ -1,5 +1,7 @@
 import type { userAgent } from "next/server";
 
+export type { ApiResponse } from '@/lib/types/api';
+
 export interface UtmParams {
   source: string;
   medium: string;
@@ -30,15 +32,74 @@ export interface ShortenedUrl<Utm = UtmParams> {
   utm: Utm;
 }
 
-export interface ApiResponse<T = never> {
-  code: number;
-  message: string;
-  data: T;
-}
-
 export interface UserClient {
+  id: string;
   email?: string;
   name: string | null;
   picture: string | null;
   created_at: string;
+  role: string | null;
+}
+
+export interface IService {
+  id: string;
+  name: string;
+  description: string|null;
+  type: 'one_time'|'subscription';
+  price: number;
+  currency: string;
+  active: boolean;
+  interval: 'day'|'week'|'month'|'quarterly'|'biannual'|'year';
+  service_gateway: string|null;
+  external_service_id: string|null;
+  created_at: string;
+  updated_at: string;
+}
+
+export type Plan = Omit<IService, 'updated_at'|'created_at'|'active'>;
+
+export interface Subscription {
+  id: string;
+  user_id: string;
+  service_id: string;
+  external_subscription_id: string|null;
+  status: string;
+  start_date: Date;
+  end_date: Date;
+  next_billing_date: Date;
+  cancel_reason: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
+export interface OrderPay {
+  id: string;
+  user_id: string;
+  service_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  payment_gateway: string;
+  external_order_id: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  discount_id: string|null;
+  discount_amount: number|null;
+  subscription_id: string|null;
+}
+
+export type WebhookEventPaypal = {
+  id: string;
+  create_time: string;
+  resource_type: string;
+  event_type: string;
+  summary: string;
+  resource_version: string;
+  resource: Record<string, never>;
+  links: Array<{
+    href: string;
+    rel: string;
+    method?: string;
+  }>;
 }

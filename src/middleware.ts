@@ -1,43 +1,37 @@
-import { NextRequest, MiddlewareConfig, NextResponse } from 'next/server';
-import { ALLOWED_ORIGINS } from "@/constants";
-
-const corsOptions = {
-  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-}
+import { type NextRequest, MiddlewareConfig } from 'next/server'
+import { updateSession } from "@/lib/middlewares/session";
+import { checkWebhook } from "@/lib/middlewares/webhooks";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
-  const origin = request.headers.get('Origin') ?? request.headers.get('origin') ?? '';
-  const isAllowedOrigin = ALLOWED_ORIGINS.includes(origin);
-
-  const isPreflight = request.method === 'OPTIONS';
-
-  if(isPreflight) {
-    const preflightHeaders = {
-      ...(isAllowedOrigin && { 'Access-Control-Allow-Origin': origin }),
-      ...corsOptions,
-    };
-    return NextResponse.json({}, { headers: preflightHeaders });
+  if (path === '/api/webhooks') {
+    return checkWebhook(request);
   }
 
-  const response = NextResponse.next();
-
-  Object.entries(corsOptions).forEach(([key, value]) => {
-    response.headers.set(key, value);
-  });
-
-  if(isAllowedOrigin) {
-    response.headers.set('Access-Control-Allow-Origin', origin);
-  } else if(path.startsWith('/api/')) {
-    if(path !== '/api/webhooks') {
-      return Response.json({}, { status: 401, statusText: 'Not Allowed' });
-    }
+  if (isShortRoute(path)) {
+    return;
   }
 
-  return response;
+  return updateSession(request);
+}
+
+function isShortRoute(path: string) {
+  // excluir root, prefijos reservados y archivos con extensión
+  if (path === '/' || path === '/es' || path === '/en') return false;
+  if (/^\/(api|_next|favicon\.ico|site\.webmanifest)/.test(path)) return false;
+  // una única segmentación sin punto ni subdirectorios, permite opcional trailing slash
+  return /^\/[^/.?#]+\/?$/.test(path);
 }
 
 export const config: MiddlewareConfig = {
-  matcher: '/api/:path*',
+  matcher: [
+    /*
+     * Match all request paths except for the ones starting with:
+     * - _next/static (static files)
+     * - _next/image (image optimization files)
+     * - favicon.ico (favicon file)
+     * Feel free to modify this pattern to include more paths.
+     */
+    '/((?!_next/static|_next/image|favicon\\.ico|site.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 }

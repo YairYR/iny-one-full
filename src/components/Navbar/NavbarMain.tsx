@@ -1,10 +1,11 @@
-import { Disclosure, DisclosureButton, DisclosurePanel, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/react';
-import { BellIcon, MenuIcon, XIcon, LogInIcon } from 'lucide-react';
-import { useRouter } from "next/router";
+'use client';
+
+import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
+import { MenuIcon, XIcon, LogInIcon } from 'lucide-react';
 import React from "react";
-import { useAppContext } from "@/contexts/app.context";
 import UserProfileMenu from "@/components/Navbar/profile/UserProfileMenu";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface Tab {
   name: string;
@@ -15,22 +16,25 @@ interface Tab {
 const navigation: Tab[] = [
   { name: 'Home', href: '/', current: true },
   { name: 'Dashboard', href: '/dashboard', current: false },
-  { name: 'Team', href: '#', current: false },
-  // { name: 'Projects', href: '#', current: false },
-  // { name: 'Calendar', href: '#', current: false },
+  // { name: 'Team', href: '#', current: false },
 ];
 
 function classNames(...classes: string[]) {
   return classes.filter(Boolean).join(' ')
 }
 
-export default function NavbarMain() {
-  const { user } = useAppContext();
-  const router = useRouter();
+interface Props {
+  isLoggedIn?: boolean;
+}
+
+export default function NavbarMain({ isLoggedIn }: Readonly<Props>) {
+  const pathname = usePathname()
+
+  const user = Boolean(isLoggedIn);
 
   const tabs = navigation.map((item) => ({
     ...item,
-    current: router.pathname === item.href,
+    current: pathname === item.href,
   }));
 
   return (
@@ -39,21 +43,15 @@ export default function NavbarMain() {
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
             {/* Mobile menu button*/}
-            <DisclosureButton className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
-              <span className="absolute -inset-0.5" />
+            <DisclosureButton
+              className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
+              <span className="absolute -inset-0.5"/>
               <span className="sr-only">Open main menu</span>
-              <MenuIcon aria-hidden="true" className="block size-6 group-data-open:hidden" />
-              <XIcon aria-hidden="true" className="hidden size-6 group-data-open:block" />
+              <MenuIcon aria-hidden="true" className="block size-6 group-data-open:hidden"/>
+              <XIcon aria-hidden="true" className="hidden size-6 group-data-open:block"/>
             </DisclosureButton>
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="flex shrink-0 items-center">
-              <img
-                alt="Your Company"
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                className="h-8 w-auto"
-              />
-            </div>
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
                 {tabs.map((item) => (
@@ -75,17 +73,17 @@ export default function NavbarMain() {
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 
             {user && (<>
-              <button
-                type="button"
-                className="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 cursor-pointer"
-              >
-                <span className="absolute -inset-1.5"/>
-                <span className="sr-only">View notifications</span>
-                <BellIcon aria-hidden="true" className="size-6"/>
-              </button>
+              {/*<button*/}
+              {/*  type="button"*/}
+              {/*  className="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 cursor-pointer"*/}
+              {/*>*/}
+              {/*  <span className="absolute -inset-1.5"/>*/}
+              {/*  <span className="sr-only">View notifications</span>*/}
+              {/*  <BellIcon aria-hidden="true" className="size-6"/>*/}
+              {/*</button>*/}
 
               {/* Profile dropdown */}
-              <UserProfileMenu />
+              <UserProfileMenu/>
             </>)}
 
             {!user && (<Link

@@ -1,0 +1,70 @@
+import type React from "react";
+import { NextIntlClientProvider } from 'next-intl';
+import '@/styles/globals.css';
+import { getTranslations, getLocale } from "next-intl/server";
+import Script from "next/script";
+import { IS_PRODUCTION } from "@/constants";
+
+interface Props {
+  children?: React.ReactNode;
+}
+
+export default async function RootLayout({ children }: Readonly<Props>) {
+  const locale = await getLocale();
+  const t = await getTranslations('Head');
+
+  return (
+    <html lang={locale}>
+    <head>
+      <title>{t('metaTitle')}</title>
+      <meta name="description" content={t('metaDescription')}/>
+      {/* Meta tag para verificación de Google Search Console */}
+      <meta name="google-site-verification" content="WNueup03P4lmVxxos0qDu1zwMrCeEpuS4FVUuS0XHtM" />
+
+      {/* Favicon & Manifest */}
+      <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png"/>
+      <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png"/>
+      <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png"/>
+      <link rel="manifest" href="/site.webmanifest"/>
+      <link rel="shortcut icon" href="/favicon.ico"/>
+      <meta name="theme-color" content="#ffffff"/>
+
+      {/* Open Graph */}
+      <meta property="og:title" content="iny.one – Shorten URLs, Track Smarter"/>
+      <meta property="og:description"
+            content="iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results."/>
+      <meta property="og:image" content="https://www.iny.one/og-image.png"/>
+      <meta property="og:url" content="https://www.iny.one"/>
+      <meta property="og:type" content="website"/>
+
+      {/* Twitter Card */}
+      <meta name="twitter:card" content="summary_large_image"/>
+      <meta name="twitter:title" content="iny.one – Shorten URLs, Track Smarter"/>
+      <meta name="twitter:description"
+            content="iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results."/>
+      <meta name="twitter:image" content="https://www.iny.one/og-image.png"/>
+
+      {/* Google Analytics */}
+      {IS_PRODUCTION && <>
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-KT87SQKGT4"
+          strategy="afterInteractive"
+        />
+        <Script id="gtag-init" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-KT87SQKGT4', {
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
+      </>}
+    </head>
+    <body>
+    <NextIntlClientProvider>{children}</NextIntlClientProvider>
+    </body>
+    </html>
+  )
+}

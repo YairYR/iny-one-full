@@ -1,0 +1,271 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Page renders a heading 1`] = `
+<div>
+  <div
+    class="text-center mb-8"
+  >
+    <div
+      class="flex items-center justify-center mb-4"
+    >
+      <svg
+        class="lucide lucide-link h-8 w-8 text-indigo-600 mr-2"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+        />
+        <path
+          d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+        />
+      </svg>
+      <h1
+        class="text-4xl font-bold text-gray-800"
+      >
+        title
+      </h1>
+    </div>
+    <p
+      class="text-lg text-gray-600"
+    >
+      subtitle
+    </p>
+  </div>
+  <fieldset
+    class="bg-white rounded-xl shadow-lg p-8 mb-6"
+    data-headlessui-state=""
+  >
+    <div
+      class="mb-6"
+    >
+      <div
+        data-headlessui-state=""
+      >
+        <label
+          class="block text-sm font-medium text-gray-700 mb-2"
+          data-headlessui-state=""
+          for="headlessui-control-«r0»"
+          id="headlessui-label-«r1»"
+        >
+          urlLabel
+        </label>
+        <input
+          aria-labelledby="headlessui-label-«r1»"
+          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+          data-headlessui-state=""
+          id="headlessui-control-«r0»"
+          name="url"
+          placeholder="urlPlaceholder"
+          type="url"
+          value=""
+        />
+        <span
+          hidden=""
+          style="position: fixed; top: 1px; left: 1px; width: 1px; height: 0px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; border-width: 0px; display: none;"
+        />
+      </div>
+    </div>
+    <div
+      class="mb-6"
+    >
+      <div
+        data-headlessui-state=""
+      >
+        <label
+          class="block text-sm font-medium text-gray-700 mb-3"
+          data-headlessui-state=""
+          for="input_utm_source"
+          id="headlessui-label-«r4»"
+        >
+          utmLabel
+        </label>
+        <div
+          class="grid grid-cols-1 md:grid-cols-3 gap-4"
+        >
+          <input
+            aria-labelledby="headlessui-label-«r4»"
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+            data-headlessui-state=""
+            id="input_utm_source"
+            name="utm_source"
+            placeholder="utm_source"
+            type="text"
+            value=""
+          />
+          <input
+            aria-labelledby="headlessui-label-«r4»"
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+            data-headlessui-state=""
+            id="input_utm_medium"
+            name="utm_medium"
+            placeholder="utm_medium"
+            type="text"
+            value=""
+          />
+          <input
+            aria-labelledby="headlessui-label-«r4»"
+            class="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
+            data-headlessui-state=""
+            id="input_utm_campaign"
+            name="utm_campaign"
+            placeholder="utm_campaign"
+            type="text"
+            value=""
+          />
+        </div>
+        <span
+          hidden=""
+          style="position: fixed; top: 1px; left: 1px; width: 1px; height: 0px; padding: 0px; margin: -1px; overflow: hidden; clip: rect(0px, 0px, 0px, 0px); white-space: nowrap; border-width: 0px; display: none;"
+        />
+      </div>
+    </div>
+    <div
+      class="flex flex-col sm:flex-row gap-3 mb-6"
+    >
+      <button
+        class="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+        data-headlessui-state=""
+        type="button"
+      >
+        <svg
+          class="lucide lucide-zap h-5 w-5 mr-2"
+          fill="none"
+          height="24"
+          stroke="currentColor"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24"
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <polygon
+            points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+          />
+        </svg>
+        shortenBtn
+      </button>
+      <button
+        class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+        data-headlessui-state=""
+        type="button"
+      >
+        cleanBtn
+      </button>
+    </div>
+  </fieldset>
+  <div
+    class="grid grid-cols-1 md:grid-cols-3 gap-6"
+  >
+    <div
+      class="bg-white rounded-lg p-6 text-center shadow-sm"
+    >
+      <svg
+        class="lucide lucide-zap h-8 w-8 text-indigo-600 mx-auto mb-3"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <polygon
+          points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"
+        />
+      </svg>
+      <h3
+        class="font-semibold text-gray-800 mb-2"
+      >
+        fast
+      </h3>
+      <p
+        class="text-sm text-gray-600"
+      >
+        fastDesc
+      </p>
+    </div>
+    <div
+      class="bg-white rounded-lg p-6 text-center shadow-sm"
+    >
+      <svg
+        class="lucide lucide-link h-8 w-8 text-indigo-600 mx-auto mb-3"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path
+          d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"
+        />
+        <path
+          d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"
+        />
+      </svg>
+      <h3
+        class="font-semibold text-gray-800 mb-2"
+      >
+        utmReady
+      </h3>
+      <p
+        class="text-sm text-gray-600"
+      >
+        utmDesc
+      </p>
+    </div>
+    <div
+      class="bg-white rounded-lg p-6 text-center shadow-sm"
+    >
+      <svg
+        class="lucide lucide-copy h-8 w-8 text-indigo-600 mx-auto mb-3"
+        fill="none"
+        height="24"
+        stroke="currentColor"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        viewBox="0 0 24 24"
+        width="24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <rect
+          height="14"
+          rx="2"
+          ry="2"
+          width="14"
+          x="8"
+          y="8"
+        />
+        <path
+          d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"
+        />
+      </svg>
+      <h3
+        class="font-semibold text-gray-800 mb-2"
+      >
+        easy
+      </h3>
+      <p
+        class="text-sm text-gray-600"
+      >
+        easyDesc
+      </p>
+    </div>
+  </div>
+</div>
+`;
