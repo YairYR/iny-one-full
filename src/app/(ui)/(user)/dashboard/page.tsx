@@ -22,7 +22,7 @@ export default async function DashboardPage() {
   const { data: _stats } = await statsRepo.getStatsUrls(slugs);
   const stats: ILinkStats[] = _stats ?? [];
 
-  const date = dayjs('2025-09-20T00:00:00Z');
+  const date = dayjs();
   const dateWeekAgo = date.subtract(1, 'week');
   const date24HoursAgo = date.subtract(24, 'hour');
   const { data: _weekStats } = await statsRepo.getDayStatsBetweenDates(slugs, dateWeekAgo.toDate(), date.toDate());
