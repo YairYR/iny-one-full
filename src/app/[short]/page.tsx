@@ -3,7 +3,6 @@ import { headers as getHeaders } from 'next/headers';
 import { userAgentFromString } from 'next/server';
 import { redirect, notFound } from 'next/navigation';
 import { getGeoLocation } from '@/lib/utils/geolocation';
-import { IS_PRODUCTION } from '@/constants';
 import { getShorterRepository } from "@/infra/db/shorter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 
@@ -38,16 +37,14 @@ export default async function ShorterPage({ params }: { params: Promise<{ short:
   }
 
   // Registro en background (fire-and-forget)
-  if (IS_PRODUCTION) {
-    const headerList = await getHeaders();
-    const geo = getGeoLocation(headerList as Readonly<Headers>);
-    const userAgent = userAgentFromString((headerList as Readonly<Headers>).get('user-agent') || '');
-    void shorterRepo.click(short, {
-      ...geo,
-      userAgent,
-      referer: (headerList as Readonly<Headers>).get('referer'),
-    });
-  }
+  const headerList = await getHeaders();
+  const geo = getGeoLocation(headerList as Readonly<Headers>);
+  const userAgent = userAgentFromString((headerList as Readonly<Headers>).get('user-agent') || '');
+  void shorterRepo.click(short, {
+    ...geo,
+    userAgent,
+    referer: (headerList as Readonly<Headers>).get('referer'),
+  });
 
   try {
     return redirect(decodeURI(data.destination));
