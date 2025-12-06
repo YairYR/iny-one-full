@@ -6,9 +6,10 @@ import useClipboard from "@/hooks/useClipboard";
 interface Props {
   links: UserUrl[];
   onOpen?: (link: UserUrl) => void;
+  t: (s: string) => string;
 }
 
-export default function LinksTable({ links, onOpen }: Readonly<Props>) {
+export default function LinksTable({ links, onOpen, t }: Readonly<Props>) {
   const substringAndSpread = (str: string, max: number) => {
     const _str = str.trim();
     const text = _str.trim().substring(0, max);
@@ -18,7 +19,7 @@ export default function LinksTable({ links, onOpen }: Readonly<Props>) {
   const { copyToClipboard } = useClipboard();
 
   const onClickCopy = (link: UserUrl) => {
-    void copyToClipboard('https://iny.one/l/' + link.slug);
+    void copyToClipboard('https://iny.one/' + link.slug);
   }
 
   return (
@@ -34,12 +35,12 @@ export default function LinksTable({ links, onOpen }: Readonly<Props>) {
         <table className="min-w-full text-left text-sm">
           <thead className="bg-gray-50">
           <tr>
-            <th className="p-3">Alias</th>
-            <th className="p-3">Destino</th>
-            <th className="p-3">Clicks</th>
+            <th className="p-3">{t("tableLinks.alias")}</th>
+            <th className="p-3">{t("tableLinks.destination")}</th>
+            <th className="p-3">{t("tableLinks.clicks")}</th>
             {/*<th className="p-3">CTR</th>*/}
-            <th className="p-3">Creado</th>
-            <th className="p-3">Acciones</th>
+            <th className="p-3">{t("tableLinks.created")}</th>
+            <th className="p-3">{t("tableLinks.actions")}</th>
           </tr>
           </thead>
           <tbody>
@@ -58,12 +59,12 @@ export default function LinksTable({ links, onOpen }: Readonly<Props>) {
                   >
                     Copiar
                   </button>
-                  <button
-                    onClick={() => onOpen?.(l)}
-                    className="px-3 py-1 rounded bg-indigo-600 text-white text-sm cursor-pointer"
-                  >
-                    Ver stats
-                  </button>
+                  {/*<button*/}
+                  {/*  onClick={() => onOpen?.(l)}*/}
+                  {/*  className="px-3 py-1 rounded bg-indigo-600 text-white text-sm cursor-pointer"*/}
+                  {/*>*/}
+                  {/*  Ver stats*/}
+                  {/*</button>*/}
                 </div>
               </td>
             </tr>

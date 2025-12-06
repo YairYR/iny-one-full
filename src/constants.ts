@@ -10,3 +10,5 @@ if(IS_DEVELOPMENT) ALLOWED_ORIGINS.push(`http://localhost:3000`);
 
 export const PAYPAL_CLIENT_ID = process.env.PAYPAL_PUBLIC_API_CLIENT_ID!;
 
+export const CART_COOKIE_NAME = 'cart_items';
+export const REDIRECT_TO_COOKIE_NAME = '_redirect_to';

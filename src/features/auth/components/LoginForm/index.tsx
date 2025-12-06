@@ -9,10 +9,15 @@ import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
 import clsx from "clsx";
 import * as z from "zod/mini";
 import Link from "next/link";
+import { ALL_ROUTES, ROUTES } from "@/lib/routes";
 
 const zodEmail = z.email();
 
-export default function LoginForm() {
+interface Props {
+  nextPage?: string;
+}
+
+export default function LoginForm({ nextPage }: Readonly<Props>) {
   const router = useRouter();
 
   const [email, setEmail] = useState('');
@@ -21,19 +26,20 @@ export default function LoginForm() {
 
   const onSubmit = async (ev: React.FormEvent) => {
     ev.preventDefault();
-    setLoading(true);
 
     if(!email || !password || !zodEmail.safeParse(email).success) {
       return;
     }
 
+    setLoading(true);
     const response = await fetch('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({
         email,
         password,
       })
-    }).then(res => res.json());
+    }).then(res => res.json())
+      .catch(() => setLoading(false));
 
     if (response.error) {
       setLoading(false);
@@ -41,7 +47,11 @@ export default function LoginForm() {
       return;
     }
 
-    router.push('/dashboard');
+    if(nextPage && ALL_ROUTES.includes(nextPage)) {
+      router.push(ROUTES.CART);
+    } else {
+      router.push(ROUTES.DASHBOARD);
+    }
     setLoading(false);
   }
 
@@ -74,7 +84,7 @@ export default function LoginForm() {
   }
 
   return (
-    <div className={clsx("bg-white rounded-xl shadow-lg p-8 mb-6", loading && 'cursor-progress')}>
+    <div className={clsx("flex flex-col w-full md:w-1/2 xl:w-2/5 2xl:w-2/5 3xl:w-1/3 mx-auto p-8 md:p-10 2xl:p-12 3xl:p-14 bg-[#ffffff] rounded-2xl shadow-xl", loading && 'cursor-progress')}>
       <div className="flex flex-row gap-3 pb-4">
         <div>
           <Image src="/apple-touch-icon.png" alt="Logo" width="50" height="50"/>
@@ -82,6 +92,18 @@ export default function LoginForm() {
         <h1 className="text-3xl font-bold text-[#4B5563] my-auto">Iny.One</h1>
       </div>
       {/*<div className="text-sm font-light text-[#6B7280] pb-8 ">Login to your account on Your Company.</div>*/}
+      <form>
+        <div className="flex flex-row gap-2 justify-center">
+          <GoogleButton onClick={onClickGoogle} disabled={loading}>
+            Sign in with Google
+          </GoogleButton>
+        </div>
+      </form>
+      <div className="relative flex py-8 items-center">
+        <div className="grow border-t border-[1px] border-gray-200"></div>
+        <span className="shrink mx-4 font-medium text-gray-500">OR</span>
+        <div className="grow border-t border-[1px] border-gray-200"></div>
+      </div>
       <form className="flex flex-col" onSubmit={onSubmit}>
         <div className="pb-2">
           <label htmlFor="email" className="block mb-2 text-sm font-medium text-[#111827]">Email</label>
@@ -118,18 +140,6 @@ export default function LoginForm() {
         <div className="text-sm font-light text-[#6B7280] ">
           Don&#39;t have an account yet?{" "}<Link href="/auth/register"
             className="font-medium text-[#4F46E5] hover:underline">Sign Up</Link>
-        </div>
-      </form>
-      <div className="relative flex py-8 items-center">
-        <div className="grow border-t border-[1px] border-gray-200"></div>
-        <span className="shrink mx-4 font-medium text-gray-500">OR</span>
-        <div className="grow border-t border-[1px] border-gray-200"></div>
-      </div>
-      <form>
-        <div className="flex flex-row gap-2 justify-center">
-          <GoogleButton onClick={onClickGoogle} disabled={loading}>
-            Sign in with Google
-          </GoogleButton>
         </div>
       </form>
 

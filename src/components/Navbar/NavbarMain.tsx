@@ -1,11 +1,10 @@
 'use client';
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
-import { BellIcon, MenuIcon, XIcon, LogInIcon } from 'lucide-react';
+import { MenuIcon, XIcon, LogInIcon } from 'lucide-react';
 import React from "react";
 import UserProfileMenu from "@/components/Navbar/profile/UserProfileMenu";
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
 
 interface Tab {
@@ -17,9 +16,7 @@ interface Tab {
 const navigation: Tab[] = [
   { name: 'Home', href: '/', current: true },
   { name: 'Dashboard', href: '/dashboard', current: false },
-  { name: 'Team', href: '#', current: false },
-  // { name: 'Projects', href: '#', current: false },
-  // { name: 'Calendar', href: '#', current: false },
+  // { name: 'Team', href: '#', current: false },
 ];
 
 function classNames(...classes: string[]) {
@@ -55,14 +52,6 @@ export default function NavbarMain({ isLoggedIn }: Readonly<Props>) {
             </DisclosureButton>
           </div>
           <div className="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-            <div className="flex shrink-0 items-center">
-              <Image
-                alt="Your Company"
-                src="https://tailwindcss.com/plus-assets/img/logos/mark.svg?color=indigo&shade=500"
-                className="h-8 w-auto"
-                width={100} height={100}
-              />
-            </div>
             <div className="hidden sm:ml-6 sm:block">
               <div className="flex space-x-4">
                 {tabs.map((item) => (
@@ -84,14 +73,14 @@ export default function NavbarMain({ isLoggedIn }: Readonly<Props>) {
           <div className="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 
             {user && (<>
-              <button
-                type="button"
-                className="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 cursor-pointer"
-              >
-                <span className="absolute -inset-1.5"/>
-                <span className="sr-only">View notifications</span>
-                <BellIcon aria-hidden="true" className="size-6"/>
-              </button>
+              {/*<button*/}
+              {/*  type="button"*/}
+              {/*  className="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 cursor-pointer"*/}
+              {/*>*/}
+              {/*  <span className="absolute -inset-1.5"/>*/}
+              {/*  <span className="sr-only">View notifications</span>*/}
+              {/*  <BellIcon aria-hidden="true" className="size-6"/>*/}
+              {/*</button>*/}
 
               {/* Profile dropdown */}
               <UserProfileMenu/>

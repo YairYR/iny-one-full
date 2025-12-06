@@ -2,7 +2,7 @@ import dayjs from 'dayjs';
 import { headers as getHeaders } from 'next/headers';
 import { userAgentFromString } from 'next/server';
 import { redirect, notFound } from 'next/navigation';
-import { getGeoLocation } from '@/utils/client-info/geolocation';
+import { getGeoLocation } from '@/lib/utils/geolocation';
 import { IS_PRODUCTION } from '@/constants';
 import { getShorterRepository } from "@/infra/db/shorter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";

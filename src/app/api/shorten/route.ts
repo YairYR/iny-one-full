@@ -3,13 +3,14 @@ import { NextRequest } from "next/server";
 import { nanoid } from 'nanoid';
 import { parse as parseUrl } from 'tldts';
 import { UtmParams } from "@/lib/types";
-import { loadBloom } from "@/utils/check_domain";
+import { loadBloom } from "@/lib/utils/check_domain";
 import * as z from "zod/mini";
 import { ApiError, ValidationError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";
 import { getUserRepository } from "@/infra/db/user.repository";
 import { getShorterRepository } from "@/infra/db/shorter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
+import { createClient } from "@/lib/supabase/server";
 
 const schemaShortenBody = z.object({
   url: z.url({
@@ -70,7 +71,8 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
   const { destination, utm: utmParams } = buildDestination(urlWithSuffix, utm);
   console.log(destination);
 
-  const userRepo = getUserRepository(supabase_service);
+  const supabase = await createClient();
+  const userRepo = getUserRepository(supabase);
   const user_id = await userRepo.getCurrentUserId();
   const slug = nanoid(7);
   const { error } = await shorterRepo.create(user_id, slug, destination, utmParams, urlInfo.domain, {
@@ -84,13 +86,13 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
   }
 
   return successResponse({
-    short: `https://iny.one/l/${slug}`
+    short: `https://iny.one/${slug}`
   });
 })
 
 const buildDestination = (url: string, utm: Partial<UtmParams>) => {
   const sanitize = (value: string | null) =>
-    value?.replaceAll(/[^a-zA-Z0-9-_]/, '')
+    value?.replaceAll(/[^a-zA-Z0-9-_]/g, '')
 
   const destination = new URL(url);
   const utmDestination: UtmParams = {

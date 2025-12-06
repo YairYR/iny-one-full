@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import * as z from "zod";
 import { captureSubscription } from "@/core/use-cases/payment";
 import { User } from "@supabase/auth-js";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { withErrorHandling } from "@/lib/api/http";
 import { SessionNotFoundError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";

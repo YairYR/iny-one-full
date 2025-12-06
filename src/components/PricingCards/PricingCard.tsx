@@ -4,7 +4,7 @@ import clsx from "clsx";
 
 export interface IPricingCard {
   plan: {
-    id: string;
+    id: string|null;
     name: string;
     price: string;
     period?: string;
@@ -12,8 +12,9 @@ export interface IPricingCard {
     color: string;
     highlight?: boolean;
     disabled?: boolean;
+    button?: string;
   };
-  onClick: (event: React.MouseEvent<HTMLButtonElement>, planId: string) => void;
+  onClick: (event: React.MouseEvent<HTMLButtonElement>, planId: string|null) => void;
 }
 
 export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
@@ -21,7 +22,7 @@ export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
 
   return (
     <div
-      key={plan.id}
+      key={plan.id ?? 'pricing-card-0'}
       className={`border rounded-2xl p-8 flex flex-col items-center transition-all duration-300 ${plan.color}`}
     >
       <h3 className="text-xl font-semibold mb-4">{plan.name}</h3>
@@ -48,7 +49,7 @@ export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
             : "bg-gray-800 text-white hover:bg-gray-900"
         )}
       >
-        Elegir plan
+        {plan.button ?? 'Choise plan'}
       </button>
     </div>
   );

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Mail, SquareAsterisk, SquareUserRound } from "lucide-react";
 import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
 import Link from "next/link";
+import clsx from "clsx";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -14,8 +15,10 @@ export default function RegisterForm() {
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [loading, setLoading] = useState(false);
 
   const onSubmit = async () => {
+    setLoading(true);
     const response = await fetch('/api/auth/register', {
       method: 'POST',
       body: JSON.stringify({
@@ -23,8 +26,10 @@ export default function RegisterForm() {
         email,
         password,
       })
-    }).then(res => res.json());
+    }).then(res => res.json())
+      .catch(() => setLoading(false));
 
+    setLoading(false);
     if (response.error) {
       console.error(response.error)
       return;
@@ -64,7 +69,7 @@ export default function RegisterForm() {
 
   return (
     <div
-      className="flex flex-col w-full md:w-1/2 xl:w-2/5 2xl:w-2/5 3xl:w-1/3 mx-auto p-8 md:p-10 2xl:p-12 3xl:p-14 bg-[#ffffff] rounded-2xl shadow-xl">
+      className={clsx("flex flex-col w-full md:w-1/2 xl:w-2/5 2xl:w-2/5 3xl:w-1/3 mx-auto p-8 md:p-10 2xl:p-12 3xl:p-14 bg-[#ffffff] rounded-2xl shadow-xl", loading && 'cursor-progress')}>
       <div className="flex flex-row gap-3 pb-4">
         <div>
           <Image src="/apple-touch-icon.png" alt="Logo" width="50" height="50" />
@@ -74,6 +79,18 @@ export default function RegisterForm() {
       </div>
       {/*<div className="text-sm font-light text-[#6B7280] pb-8 ">Sign up for an account on Your Company.</div>*/}
 
+      <form>
+        <div className="flex flex-row gap-2 justify-center">
+          <GoogleButton onClick={onClickGoogle}>
+            Sign in with Google
+          </GoogleButton>
+        </div>
+      </form>
+      <div className="relative flex py-8 items-center">
+        <div className="grow border-t border-[1px] border-gray-200"></div>
+        <span className="shrink mx-4 font-medium text-gray-500">OR</span>
+        <div className="grow border-t border-[1px] border-gray-200"></div>
+      </div>
       <form className="flex flex-col" onSubmit={onSubmit}>
         <div className="pb-2">
           <label htmlFor="email" className="block mb-2 text-sm font-medium text-[#111827]">Name</label>
@@ -114,18 +131,6 @@ export default function RegisterForm() {
         </button>
         <div className="text-sm font-light text-[#6B7280] ">
           Already have an account? <Link href="/auth/login" className="font-medium text-[#4F46E5] hover:underline">Login</Link>
-        </div>
-      </form>
-      <div className="relative flex py-8 items-center">
-        <div className="grow border-t border-[1px] border-gray-200"></div>
-        <span className="shrink mx-4 font-medium text-gray-500">OR</span>
-        <div className="grow border-t border-[1px] border-gray-200"></div>
-      </div>
-      <form>
-        <div className="flex flex-row gap-2 justify-center">
-          <GoogleButton onClick={onClickGoogle}>
-            Sign in with Google
-          </GoogleButton>
         </div>
       </form>
     </div>

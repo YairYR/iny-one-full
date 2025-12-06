@@ -73,28 +73,6 @@ const nextConfig: NextConfig = {
       }
     ]
   },
-  async rewrites() {
-    return {
-      beforeFiles: [
-        {
-          source: '/:short',
-          destination: '/l/:short',
-          has: [
-            {
-              type: 'host',
-              value: 'l.iny.one'
-            }
-          ]
-        }
-      ],
-      afterFiles: [
-        {
-          source: '/:short',
-          destination: '/l/:short',
-        },
-      ]
-    }
-  },
 };
 
 const withNextIntl = createNextIntlPlugin();
