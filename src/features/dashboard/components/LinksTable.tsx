@@ -9,7 +9,7 @@ interface Props {
   t: (s: string) => string;
 }
 
-export default function LinksTable({ links, onOpen, t }: Readonly<Props>) {
+export default function LinksTable({ links, t }: Readonly<Props>) {
   const substringAndSpread = (str: string, max: number) => {
     const _str = str.trim();
     const text = _str.trim().substring(0, max);
