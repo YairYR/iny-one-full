@@ -40,7 +40,7 @@ export default async function ShorterPage({ params }: { params: Promise<{ short:
   const headerList = await getHeaders();
   const geo = getGeoLocation(headerList as Readonly<Headers>);
   const userAgent = userAgentFromString((headerList as Readonly<Headers>).get('user-agent') || '');
-  void shorterRepo.click(short, {
+  await shorterRepo.click(short, {
     ...geo,
     userAgent,
     referer: (headerList as Readonly<Headers>).get('referer'),
