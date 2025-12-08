@@ -8,7 +8,9 @@ export async function middleware(request: NextRequest) {
     return checkWebhook(request);
   }
 
-  if (isShortRoute(path)) {
+  if (isShortRoute(path) ||
+    path.startsWith("/_next/") ||
+    path.startsWith("/.well-known/")) {
     return;
   }
 
