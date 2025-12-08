@@ -7,6 +7,9 @@ const nextConfig: NextConfig = {
       fullUrl: true,
     }
   },
+  images: {
+    remotePatterns: [new URL("https://lh3.googleusercontent.com/**")]
+  },
   async headers() {
     return [
       {
