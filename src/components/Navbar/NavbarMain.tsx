@@ -6,6 +6,7 @@ import React from "react";
 import UserProfileMenu from "@/components/Navbar/profile/UserProfileMenu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { UserClient } from "@/lib/types";
 
 interface Tab {
   name: string;
@@ -24,13 +25,14 @@ function classNames(...classes: string[]) {
 }
 
 interface Props {
-  isLoggedIn?: boolean;
+  user?: UserClient | null;
 }
 
-export default function NavbarMain({ isLoggedIn }: Readonly<Props>) {
-  const pathname = usePathname()
+export default function NavbarMain({ user }: Readonly<Props>) {
+  const pathname = usePathname();
 
-  const user = Boolean(isLoggedIn);
+  const fullname = user?.name ?? null;
+  const picture = user?.picture ?? null;
 
   const tabs = navigation.map((item) => ({
     ...item,
@@ -83,7 +85,7 @@ export default function NavbarMain({ isLoggedIn }: Readonly<Props>) {
               {/*</button>*/}
 
               {/* Profile dropdown */}
-              <UserProfileMenu/>
+              <UserProfileMenu picture={picture} fullname={fullname}/>
             </>)}
 
             {!user && (<Link

@@ -1,15 +1,20 @@
 import { Menu, MenuButton, MenuItem, MenuItems, } from "@headlessui/react";
-import { CircleUserIcon } from "lucide-react";
 import Link from 'next/link';
 import React from "react";
+import { CurrentUserAvatar } from "@/features/auth/components/OAuth/CurrentUserAvatar";
 
-export default function UserProfileMenu() {
+interface Props {
+  picture: string | null;
+  fullname?: string | null;
+}
+
+export default function UserProfileMenu({ picture, fullname }: Readonly<Props>) {
   return (
     <Menu as="div" className="relative ml-3">
       <MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 cursor-pointer text-gray-400">
         <span className="absolute -inset-1.5" />
         <span className="sr-only">Open user menu</span>
-        <CircleUserIcon aria-hidden="true" className="size-6" />
+        <CurrentUserAvatar picture={picture} fullname={fullname} />
       </MenuButton>
 
       <MenuItems
