@@ -8,7 +8,9 @@ export async function middleware(request: NextRequest) {
     return checkWebhook(request);
   }
 
-  if (isShortRoute(path)) {
+  if (isShortRoute(path) ||
+    path.startsWith("/_next/") ||
+    path.startsWith("/.well-known/")) {
     return;
   }
 
@@ -32,6 +34,6 @@ export const config: MiddlewareConfig = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon\\.ico|site.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|favicon\\.ico|site.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
   ],
 }

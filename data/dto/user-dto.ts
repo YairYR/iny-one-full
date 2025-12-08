@@ -18,8 +18,8 @@ export const getCurrentUserDTO = cache(async () => {
   const user: UserClient = {
     id: data.user.id,
     email: data.user.email,
-    name: data.user.user_metadata?.name ?? data.user.user_metadata?.display_name ?? null,
-    picture: data.user.user_metadata?.picture ?? null,
+    name: data.user.user_metadata?.name ?? data.user.user_metadata?.display_name ?? data.user.user_metadata?.full_name ?? null,
+    picture: data.user.user_metadata?.picture ?? data.user.user_metadata?.avatar_url ?? null,
     created_at: data.user.created_at,
     role: data.role
   };
