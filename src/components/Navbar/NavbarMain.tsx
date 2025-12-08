@@ -90,6 +90,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
 
             {!user && (<Link
               href='/auth/login'
+              prefetch={false}
               type="button"
               className="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 cursor-pointer"
             >
