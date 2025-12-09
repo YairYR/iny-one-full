@@ -1,6 +1,6 @@
 import { UserDashboard } from "@/features/dashboard/containers/UserDashboard";
 import { redirect } from "next/navigation";
-import { ILinkDateStats, ILinkStats } from "@/features/dashboard/types/types";
+import { ILinkDateStats, ILinkStats, UserUrl } from "@/features/dashboard/types/types";
 import { getStatsRepository } from "@/infra/db/stats.repository";
 import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import { getUserRepository } from "@/infra/db/user.repository";
@@ -26,7 +26,6 @@ export default async function DashboardPage() {
   const stats: ILinkStats[] = _stats ?? [];
 
   const date = dayjs.utc();
-  console.log('date utc', date.format("YYYY-MM-DD"));
   const dateWeekAgo = date.subtract(1, 'week');
   const date24HoursAgo = date.subtract(24, 'hour');
   const { data: _weekStats } = await statsRepo.getDayStatsBetweenDates(slugs, dateWeekAgo.toDate(), date.toDate());
@@ -49,14 +48,4 @@ export default async function DashboardPage() {
       }}
     />
   );
-}
-
-type UserUrl = {
-  slug: string;
-  destination: string;
-  created_at: string;
-  utm_source: string | null;
-  utm_medium: string | null;
-  utm_campaign: string | null;
-  clicks: number | null;
 }

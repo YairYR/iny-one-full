@@ -1,10 +1,11 @@
 import { getRequestConfig } from 'next-intl/server';
 import { headers } from "next/headers";
 import { match } from '@formatjs/intl-localematcher';
-import Negotiator from 'negotiator'
+import Negotiator from 'negotiator';
+import { type Formats } from 'next-intl';
 
 const defaultLocale = 'en';
-const availableLocales = ['en', 'es'];
+export const availableLocales = ['en', 'es'];
 
 export default getRequestConfig(async (params) => {
   // Static for now, we'll change this later
@@ -25,3 +26,5 @@ export default getRequestConfig(async (params) => {
     messages: (await import(`../../data/lang/${locale}.json`)).default
   };
 });
+
+export const formats = {} satisfies Formats;

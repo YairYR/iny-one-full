@@ -33,8 +33,17 @@ export function getUserRepository(db: DbInstance) {
     async getUrls(user_id: string) {
       return db
         .from('short_links')
-        .select('slug, destination, created_at, utm_source, utm_medium, utm_campaign, clicks')
+        .select('slug, alias, destination, created_at, utm_source, utm_medium, utm_campaign, clicks')
         .eq('user_id', user_id);
+    },
+
+    async changeAlias(slug: string, newAlias: string|null) {
+      // TODO: validar que el alias no esté en uso (?
+      // TODO: validar que el link le pertenezca al user
+      return db
+        .from('short_links')
+        .update({ alias: newAlias })
+        .eq('slug', slug);
     }
   }
 }

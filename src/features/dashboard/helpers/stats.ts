@@ -2,9 +2,11 @@
 
 import { ILinkDateStats, ILinkStats, IRefererStat, UserUrl } from "@/features/dashboard/types/types";
 import dayjs from "dayjs";
-import UTC from 'dayjs/plugin/utc';
+import utc from 'dayjs/plugin/utc';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 
-dayjs.extend(UTC);
+dayjs.extend(utc);
+dayjs.extend(customParseFormat);
 
 type WeekStats = {
   stats: ILinkDateStats[];
@@ -78,17 +80,11 @@ export function dayToName(key: number) {
 function fillDays(stats: ILinkDateStats[], {
   startDate = null,
   endDate = null,
-  // startDay = null, // 0=Dom, 1=Lun...
-  // endDay = null    // 0=Dom, 1=Lun...
 }: { startDate?: Date|null; endDate?: Date|null } = {}) {
 
   // Ordenar datos por fecha
   const sorted = [...stats].sort((a, b) => (new Date(a.date)).getTime() - (new Date(b.date)).getTime());
 
-  // Mapa fecha → clics
-  // const map = Object.fromEntries(
-  //   sorted.map(item => [item.date, item.total_clicks])
-  // );
   const map: Record<string, number> = {};
   for(const item of sorted) {
     if(!(item.date in map)) {
@@ -102,24 +98,10 @@ function fillDays(stats: ILinkDateStats[], {
     ? dayjs.utc(startDate)
     : dayjs.utc(sorted[0].date);
 
-  // Ajuste: buscar el siguiente día de la semana requerido
-  // if (startDay !== null) {
-  //   while (start.getDay() !== startDay) {
-  //     start.setDate(start.getDate() + 1);
-  //   }
-  // }
-
   // Fecha final base
   const end = endDate
     ? dayjs.utc(endDate)
     : dayjs.utc(sorted.at(-1)!.date);
-
-  // Ajuste: buscar el último día de la semana requerido
-  // if (endDay !== null) {
-  //   while (end.getDay() !== endDay) {
-  //     end.setDate(end.getDate() - 1);
-  //   }
-  // }
 
   const clicks: number[] = [];
   const days: string[] = [];
@@ -130,7 +112,7 @@ function fillDays(stats: ILinkDateStats[], {
     const day = dayjs.utc(d);
     const dateStr = day.format('YYYY-MM-DD');
     days.push(dateStr);
-    daysKey.push(dayToName(day.local().day()));
+    daysKey.push(dayToName(day.day()));
     clicks.push(map[dateStr] ?? 0);
   }
 

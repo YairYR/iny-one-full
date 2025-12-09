@@ -1,4 +1,4 @@
-import { Menu, MenuButton, MenuItem, MenuItems, } from "@headlessui/react";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import Link from 'next/link';
 import React from "react";
 import { CurrentUserAvatar } from "@/features/auth/components/OAuth/CurrentUserAvatar";
