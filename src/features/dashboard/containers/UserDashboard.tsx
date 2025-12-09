@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -51,19 +51,11 @@ export function UserDashboard(props: Readonly<Props>) {
     links,
     week,
     traffic: trafficSources,
-  } = calcUserStats(urls, props.stats, props.weekStats, props.refererStats);
+  } = useMemo(() => calcUserStats(urls, props.stats, props.weekStats, props.refererStats), []);
   const traffic = Object.values(trafficSources);
 
   const clicks_week = {
-    labels: [
-      t('week.monday'),
-      t('week.tuesday'),
-      t('week.wednesday'),
-      t('week.thursday'),
-      t('week.friday'),
-      t('week.saturday'),
-      t('week.sunday')
-    ],
+    labels: week.daysKey.map((key) => t(key)),
     datasets: [
       {
         label: "Clicks",

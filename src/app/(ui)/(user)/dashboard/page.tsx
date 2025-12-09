@@ -2,10 +2,13 @@ import { UserDashboard } from "@/features/dashboard/containers/UserDashboard";
 import { redirect } from "next/navigation";
 import { ILinkDateStats, ILinkStats } from "@/features/dashboard/types/types";
 import { getStatsRepository } from "@/infra/db/stats.repository";
-import dayjs from "dayjs";
 import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import { getUserRepository } from "@/infra/db/user.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
+import dayjs from "dayjs";
+import UTC from 'dayjs/plugin/utc';
+
+dayjs.extend(UTC);
 
 export default async function DashboardPage() {
   const user = await getCurrentUserDTO();
@@ -22,7 +25,8 @@ export default async function DashboardPage() {
   const { data: _stats } = await statsRepo.getStatsUrls(slugs);
   const stats: ILinkStats[] = _stats ?? [];
 
-  const date = dayjs();
+  const date = dayjs.utc();
+  console.log('date utc', date.format("YYYY-MM-DD"));
   const dateWeekAgo = date.subtract(1, 'week');
   const date24HoursAgo = date.subtract(24, 'hour');
   const { data: _weekStats } = await statsRepo.getDayStatsBetweenDates(slugs, dateWeekAgo.toDate(), date.toDate());
