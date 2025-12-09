@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { headers as getHeaders } from 'next/headers';
-import { after, userAgentFromString } from 'next/server';
+import { userAgentFromString } from 'next/server';
 import { redirect, notFound } from 'next/navigation';
 import { getGeoLocation } from '@/lib/utils/geolocation';
 import { getShorterRepository } from "@/infra/db/shorter.repository";
@@ -37,16 +37,14 @@ export default async function ShorterPage({ params }: { params: Promise<{ short:
   }
 
   // Registro en background (fire-and-forget)
-  after(async () => {
-    const headerList = await getHeaders();
-    const geo = getGeoLocation(headerList as Readonly<Headers>);
-    const userAgent = userAgentFromString((headerList as Readonly<Headers>).get('user-agent') || '');
-    await shorterRepo.click(short, {
-      ...geo,
-      userAgent,
-      referer: (headerList as Readonly<Headers>).get('referer'),
-    });
-  })
+  const headerList = await getHeaders();
+  const geo = getGeoLocation(headerList as Readonly<Headers>);
+  const userAgent = userAgentFromString((headerList as Readonly<Headers>).get('user-agent') || '');
+  await shorterRepo.click(short, {
+    ...geo,
+    userAgent,
+    referer: (headerList as Readonly<Headers>).get('referer'),
+  });
 
   try {
     return redirect(decodeURI(data.destination));
