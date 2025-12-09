@@ -12,20 +12,19 @@ import {
   Tooltip,
   Legend,
   Colors,
+  Filler
 } from "chart.js";
 import { Line, Bar, Pie } from "react-chartjs-2";
-import LinkDetailModal from "@/features/dashboard/components/LinkDetailModal";
 import {
   ILinkDateStats,
   ILinkStats, IRefererStat,
   UserUrl,
-  UserUrlStats
 } from "@/features/dashboard/types/types";
-import Kpi from "@/features/dashboard/components/Kpi";
-import LinksTable from "@/features/dashboard/components/LinksTable";
+import { Kpi, LinksTable, LinkDetailModal, ILinkDetails } from "@/features/dashboard/components";
 import { calcUserStats } from "@/features/dashboard/helpers/stats";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import InfoPopover from "@/components/Popover/InfoPopover";
 
 ChartJS.register(
   CategoryScale,
@@ -37,11 +36,17 @@ ChartJS.register(
   Tooltip,
   Legend,
   Colors,
+  Filler
 );
 
 export function UserDashboard(props: Readonly<Props>) {
   const t = useTranslations('DashboardPage');
-  const [selectedLink, setSelectedLink] = useState<UserUrlStats|undefined>();
+  const [modal, setModal] = useState<ILinkDetails>({
+    title: '',
+    open: false,
+    mode: null,
+    link: null,
+  });
 
   const { urls, clicksLast24h } = props;
 
@@ -55,7 +60,7 @@ export function UserDashboard(props: Readonly<Props>) {
   const traffic = Object.values(trafficSources);
 
   const clicks_week = {
-    labels: week.daysKey.map((key) => t(key)),
+    labels: week.daysKey.map((key) => t(key as never)),
     datasets: [
       {
         label: "Clicks",
@@ -64,6 +69,46 @@ export function UserDashboard(props: Readonly<Props>) {
       },
     ],
   };
+
+  const infoUTC = [
+    t("popover.info.utc.0"),
+    t("popover.info.utc.1"),
+    <Link
+      key={'utc-link-ref'}
+      target="_blank"
+      href={'https://en.wikipedia.org/wiki/Coordinated_Universal_Time'}
+      className="relative inline-block text-blue-700 cursor-pointer"
+    >Wikipedia</Link>
+  ];
+
+  const onClickEdit = (link: UserUrl) => {
+    const alias = link.alias ?? `/${link.slug}`;
+    setModal({
+      title: t('modal.edit.title', { alias }),
+      open: true,
+      mode: 'edit',
+      link: link
+    });
+  }
+
+  const onClickStats = (link: UserUrl) => {
+    const alias = link.alias ?? `/${link.slug}`;
+    setModal({
+      title: t("modal.stats.title", { alias }),
+      open: true,
+      mode: 'stats',
+      link: link,
+    });
+  }
+
+  const onCloseModal = () => {
+    setModal({
+      title: '',
+      open: false,
+      mode: null,
+      link: null,
+    });
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -74,7 +119,7 @@ export function UserDashboard(props: Readonly<Props>) {
             <p className="text-sm text-gray-500">{t('subtitle')}</p>
           </div>
           <div className="flex gap-2">
-            <Link href="/" className="bg-white px-4 py-2 rounded shadow-sm cursor-pointer">{t("newLink")}</Link>
+            <Link href="/" className="bg-white px-4 py-2 rounded shadow-sm cursor-pointer">{t("button.newLink")}</Link>
             {/*<button className="bg-indigo-600 text-white px-4 py-2 rounded">Exportar CSV</button>*/}
           </div>
         </header>
@@ -84,18 +129,21 @@ export function UserDashboard(props: Readonly<Props>) {
           <section className="lg:col-span-2 space-y-6">
             {/* KPIs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              <Kpi title="Total enlaces" value={general.totalLinks} />
-              <Kpi title="Total clicks" value={general.totalClicks} />
-              <Kpi title="Clicks últimas 24h" value={clicksLast24h ?? '-'} />
-              <Kpi title="Top País" value={general.topCountry} />
+              <Kpi title={t("panel.totalLinks.title")} value={general.totalLinks} />
+              <Kpi title={t("panel.totalClicks.title")} value={general.totalClicks} />
+              <Kpi title={t("panel.clicksLast24h.title")} value={clicksLast24h ?? '-'} />
+              <Kpi title={t("panel.topCountry.title")} value={general.topCountry} />
             </div>
 
             {/* Charts */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="bg-white p-4 rounded-xl shadow-sm">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold">{t("weekActivity")}</h3>
-                  <div className="text-sm text-gray-500">{t("lastWeek")}</div>
+                  <h3 className="text-lg font-semibold">
+                    {t("panel.weekActivity.title")}{" "}
+                    <InfoPopover keys={'panel-week-activity'} messages={infoUTC} anchor="bottom start" />
+                  </h3>
+                  <div className="text-sm text-gray-500">{t("panel.weekActivity.subtitle")}</div>
                 </div>
                 <div className="h-52 w-full">
                   <Line data={clicks_week} options={{ maintainAspectRatio: false }} />
@@ -104,8 +152,8 @@ export function UserDashboard(props: Readonly<Props>) {
 
               <div className="bg-white p-4 rounded-xl shadow-sm">
                 <div className="flex items-center justify-between mb-3">
-                  <h3 className="text-lg font-semibold">{t("performancePerLink")}</h3>
-                  <div className="text-sm text-gray-500">Top 4</div>
+                  <h3 className="text-lg font-semibold">{t("panel.performancePerLink.title")}</h3>
+                  <div className="text-sm text-gray-500">{t("panel.performancePerLink.subtitle", { top: 4 })}</div>
                 </div>
                 <div className="h-52 w-full">
                   <Bar
@@ -119,13 +167,18 @@ export function UserDashboard(props: Readonly<Props>) {
             </div>
 
             {/* Links table */}
-            <LinksTable t={t} links={links} onOpen={(l) => setSelectedLink(l)} />
+            <LinksTable
+              t={t}
+              links={links}
+              onOpen={onClickStats}
+              onEdit={onClickEdit}
+            />
           </section>
 
           {/* Right / Sidebar */}
           <aside className="space-y-6">
             <div className="bg-white p-4 rounded-xl shadow-sm">
-              <h3 className="text-lg font-semibold mb-3">{t("sourceTraffic")}</h3>
+              <h3 className="text-lg font-semibold mb-3">{t("panel.sourceTraffic.title")}</h3>
               <div className="h-44 w-full">
                 <Pie data={{
                   labels: traffic.map((item) => item.name),
@@ -160,7 +213,7 @@ export function UserDashboard(props: Readonly<Props>) {
 
       </div>
 
-      <LinkDetailModal link={selectedLink} onClose={() => setSelectedLink(undefined)} />
+      <LinkDetailModal modal={modal} onClose={onCloseModal} />
     </div>
   );
 }

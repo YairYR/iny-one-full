@@ -39,6 +39,7 @@ export interface IRefererStat {
 
 export type UserUrl = {
   slug: string;
+  alias: string | null;
   destination: string;
   created_at: string;
   utm_source: string | null;

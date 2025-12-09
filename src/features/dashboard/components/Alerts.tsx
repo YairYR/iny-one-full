@@ -5,7 +5,7 @@ interface Props {
   alerts: IAlert[];
 }
 
-export default function Alerts({ alerts }: Readonly<Props>) {
+export function Alerts({ alerts }: Readonly<Props>) {
   if (!alerts?.length) return null;
   return (
     <div className="space-y-2">
@@ -17,4 +17,4 @@ export default function Alerts({ alerts }: Readonly<Props>) {
       ))}
     </div>
   );
-};
+}

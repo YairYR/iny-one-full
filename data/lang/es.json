@@ -82,19 +82,85 @@
   "DashboardPage": {
     "title": "Panel de Control",
     "subtitle": "Resumen y estadísticas de tus short links",
-    "newLink": "Nuevo Link",
-    "exportFile": "Exportar CSV",
-    "weekActivity": "Actividad semanal",
-    "lastWeek": "Última semana",
-    "performancePerLink": "Rendimiento por Enlace",
-    "sourceTraffic": "Fuentes de Trafico",
-    "tableLinks": {
-      "alias": "Alias",
-      "destination": "Destino",
-      "clicks": "Clicks",
-      "ctr": "CTR",
-      "created": "Creado",
-      "actions": "Acciones"
+    "button": {
+      "newLink": "Nuevo Link",
+      "exportFile": "Exportar CSV"
+    },
+    "panel": {
+      "totalLinks": {
+        "title": "Total Links"
+      },
+      "totalClicks": {
+        "title": "Total Clicks"
+      },
+      "clicksLast24h": {
+        "title": "Clicks Últimas 24 Horas"
+      },
+      "topCountry": {
+        "title": "Top País"
+      },
+      "weekActivity": {
+        "title": "Actividad semanal",
+        "subtitle": "Última semana"
+      },
+      "performancePerLink": {
+        "title": "Rendimiento por Enlace",
+        "subtitle": "Top {top, number}"
+      },
+      "sourceTraffic": {
+        "title": "Fuentes de Trafico"
+      }
+    },
+    "modal": {
+      "stats": {
+        "title": "Estadísticas: {alias}",
+        "close": "Cerrar",
+        "destination": "Destino",
+        "created": "Creado el",
+        "totalClicks": "Clicks Totales",
+        "uniqueClicks": "Clicks Únicos",
+        "referrers": "Top Referrers",
+        "countries": "Top Países",
+        "browsers": "Top Navegadores",
+        "platforms": "Top Plataformas",
+        "devices": "Top Dispositivos"
+      },
+      "edit": {
+        "title": "Editar Link: {alias}",
+        "close": "Cerrar",
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "destination": "Destino URL",
+        "error_alias_invalid": "El alias solo puede contener letras, números, guiones y guiones bajos.",
+        "error_alias_taken": "Este alias ya está en uso. Por favor elige otro."
+      }
+    },
+    "table": {
+      "links": {
+        "title": "Your Short Links",
+        "subtitle": "Total: {value, number}",
+        "headers": {
+          "alias": "Alias",
+          "destination": "Destino",
+          "clicks": "Clicks",
+          "ctr": "CTR",
+          "created": "Creado",
+          "actions": "Acciones"
+        }
+      }
+    },
+    "tools": {
+      "copy": "Copiar",
+      "edit": "Editar",
+      "stats": "Estadísticas"
+    },
+    "popover": {
+      "info": {
+        "utc": {
+          "0": "Los horarios están en UTC (hora universal).",
+          "1": "Puede que no coincidan exactamente con tu hora local."
+        }
+      }
     },
     "week": {
       "monday": "Lunes",

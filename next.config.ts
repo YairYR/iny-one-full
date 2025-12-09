@@ -78,5 +78,9 @@ const nextConfig: NextConfig = {
   },
 };
 
-const withNextIntl = createNextIntlPlugin();
+const withNextIntl = createNextIntlPlugin({
+  experimental: {
+    createMessagesDeclaration: './data/lang/en.json'
+  }
+});
 export default withNextIntl(nextConfig);

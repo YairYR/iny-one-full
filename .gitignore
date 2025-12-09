@@ -53,3 +53,6 @@ next-env.d.ts
 /data/cache
 /.scannerwork/
 /.swc/
+
+# d.ts lang files
+/data/lang/*.d.json.ts

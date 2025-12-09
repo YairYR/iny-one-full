@@ -82,19 +82,85 @@
   "DashboardPage": {
     "title": "Control Panel",
     "subtitle": "Overview and statistics of your short links",
-    "newLink": "New Link",
-    "exportFile": "Export CSV",
-    "weekActivity": "Activity week",
-    "lastWeek": "Last week",
-    "performancePerLink": "Performance per link",
-    "sourceTraffic": "Source Traffic",
-    "tableLinks": {
-      "alias": "Alias",
-      "destination": "Destination",
-      "clicks": "Clicks",
-      "ctr": "CTR",
-      "created": "Created",
-      "actions": "Actions"
+    "button": {
+      "newLink": "New Link",
+      "exportFile": "Export CSV"
+    },
+    "panel": {
+      "totalLinks": {
+        "title": "Total Links"
+      },
+      "totalClicks": {
+        "title": "Total Clicks"
+      },
+      "clicksLast24h": {
+        "title": "Clicks 24H"
+      },
+      "topCountry": {
+        "title": "Top Country"
+      },
+      "weekActivity": {
+        "title": "Activity week",
+        "subtitle": "Last week"
+      },
+      "performancePerLink": {
+        "title": "Performance per link",
+        "subtitle": "Top {top, number}"
+      },
+      "sourceTraffic": {
+        "title": "Source Traffic"
+      }
+    },
+    "modal": {
+      "stats": {
+        "title": "Link Statistics: {alias}",
+        "close": "Close",
+        "destination": "Destination URL",
+        "created": "Created on",
+        "totalClicks": "Total Clicks",
+        "uniqueClicks": "Unique Clicks",
+        "referrers": "Top Referrers",
+        "countries": "Top Countries",
+        "browsers": "Top Browsers",
+        "platforms": "Top Platforms",
+        "devices": "Top Devices"
+      },
+      "edit": {
+        "title": "Edit Link: {alias}",
+        "close": "Close",
+        "save": "Save Changes",
+        "cancel": "Cancel",
+        "destination": "Destination URL",
+        "error_alias_invalid": "Alias can only contain letters, numbers, hyphens, and underscores.",
+        "error_alias_taken": "This alias is already taken. Please choose another one."
+      }
+    },
+    "table": {
+      "links": {
+        "title": "Your Short Links",
+        "subtitle": "Total: {value, number}",
+        "headers": {
+          "alias": "Alias",
+          "destination": "Destination",
+          "clicks": "Clicks",
+          "ctr": "CTR",
+          "created": "Created",
+          "actions": "Actions"
+        }
+      }
+    },
+    "tools": {
+      "copy": "Copy",
+      "edit": "Edit",
+      "stats": "Show Stats"
+    },
+    "popover": {
+      "info": {
+        "utc": {
+          "0": "Times are in UTC (Universal Time).",
+          "1": "They may not exactly match your local time."
+        }
+      }
     },
     "week": {
       "monday": "Monday",

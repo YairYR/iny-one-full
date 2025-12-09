@@ -5,6 +5,7 @@ import { useState, useRef, useEffect } from "react";
 import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
 import { getFromSessionStorage, removeFromSessionStorage } from "@/lib/utils/localstorage";
 import { url as isURLZod, regexes } from "zod/mini";
+import type { useTranslations } from "next-intl";
 
 type SomeUtmParams = Pick<UtmParams, 'source'|'medium'|'campaign'>;
 
@@ -14,7 +15,7 @@ const zodUrl = isURLZod({
 });
 
 interface Props {
-  t: (key: string) => string;
+  t: ReturnType<typeof useTranslations>;
 }
 
 export function useUrlShortForm({ t }: Props) {
