@@ -1,5 +1,5 @@
 import { supabase_service } from "@/infra/db/supabase_service";
-import { Subscription } from "@/core/entities";
+import { Subscription } from "@/lib/entities";
 
 export const SubscriptionRepository = {
   async findById(id: string) {

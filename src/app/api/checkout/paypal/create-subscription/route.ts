@@ -2,10 +2,10 @@ import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { User } from "@supabase/auth-js";
 import * as z from 'zod';
-import { createSubscription } from "@/core/use-cases/payment";
 import { withErrorHandling } from "@/lib/api/http";
 import { ValidationError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";
+import { createSubscription } from "@/features/payments/services/payment";
 
 const SubscriptionBodyRequest = z.object({
   cart: z.object({

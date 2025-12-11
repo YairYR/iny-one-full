@@ -50,6 +50,7 @@ export function calcUserStats(urls: UserUrl[], stats: ILinkStats[], weekStats: W
       topLink: statsByClicks[0]?.slug,
       topCountry: countriesSorted[0]?.[0],
     },
+    statsByClicks,
     links,
     stats,
     week,

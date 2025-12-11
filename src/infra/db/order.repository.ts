@@ -1,5 +1,5 @@
 import { type DbInstance } from "@/infra/db/supabase_service";
-import { Order } from "@/core/entities";
+import { Order } from "@/lib/entities";
 
 export function getOrderRepository(db: DbInstance) {
   return {

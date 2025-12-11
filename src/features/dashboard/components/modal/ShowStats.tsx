@@ -4,6 +4,7 @@ import { Bar } from "react-chartjs-2";
 interface Props {
   link: UserUrlStats;
   t: ReturnType<typeof import("next-intl").useTranslations>;
+  onClose: () => void;
 }
 
 export default function ShowStats({ link, t }: Readonly<Props>) {

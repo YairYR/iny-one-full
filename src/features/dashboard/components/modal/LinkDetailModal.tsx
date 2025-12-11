@@ -34,8 +34,8 @@ export function LinkDetailModal({ modal, onClose }: Readonly<Props>) {
             <button onClick={onClose} className="text-gray-500 cursor-pointer"><XIcon /></button>
           </div>
 
-          {modal.mode === 'edit' && <EditLink link={link} t={t} />}
-          {modal.mode === 'stats' && <ShowStats link={link} t={t} />}
+          {modal.mode === 'edit' && <EditLink link={link} t={t} onClose={onClose} />}
+          {modal.mode === 'stats' && <ShowStats link={link} t={t} onClose={onClose} />}
         </DialogPanel>
       </div>
     </Dialog>
