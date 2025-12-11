@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useMemo, useState } from "react";
+import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -15,16 +15,10 @@ import {
   Filler
 } from "chart.js";
 import { Line, Bar, Pie } from "react-chartjs-2";
-import {
-  ILinkDateStats,
-  ILinkStats, IRefererStat,
-  UserUrl,
-} from "@/features/dashboard/types/types";
-import { Kpi, LinksTable, LinkDetailModal, ILinkDetails } from "@/features/dashboard/components";
-import { calcUserStats } from "@/features/dashboard/helpers/stats";
-import { useTranslations } from "next-intl";
+import { Kpi, LinksTable, LinkDetailModal } from "@/features/dashboard/components";
 import Link from "next/link";
 import InfoPopover from "@/components/Popover/InfoPopover";
+import { useUserDashboard } from "@/features/dashboard/hooks/useUserDashboard";
 
 ChartJS.register(
   CategoryScale,
@@ -39,76 +33,22 @@ ChartJS.register(
   Filler
 );
 
-export function UserDashboard(props: Readonly<Props>) {
-  const t = useTranslations('DashboardPage');
-  const [modal, setModal] = useState<ILinkDetails>({
-    title: '',
-    open: false,
-    mode: null,
-    link: null,
-  });
-
-  const { urls, clicksLast24h } = props;
-
+export function UserDashboard() {
   const {
-    general,
+    t,
     stats,
-    links,
-    week,
-    traffic: trafficSources,
-  } = useMemo(() => calcUserStats(urls, props.stats, props.weekStats, props.refererStats), []);
-  const traffic = Object.values(trafficSources);
+    clicks_week,
+    top_by_clicks,
+    clicks_top,
+    graffic_traffic,
+    infoUTC,
+    modal,
+    onClickEdit,
+    onClickStats,
+    onCloseModal,
+  } = useUserDashboard();
 
-  const clicks_week = {
-    labels: week.daysKey.map((key) => t(key as never)),
-    datasets: [
-      {
-        label: "Clicks",
-        data: week.clicks,
-        fill: true,
-      },
-    ],
-  };
-
-  const infoUTC = [
-    t("popover.info.utc.0"),
-    t("popover.info.utc.1"),
-    <Link
-      key={'utc-link-ref'}
-      target="_blank"
-      href={'https://en.wikipedia.org/wiki/Coordinated_Universal_Time'}
-      className="relative inline-block text-blue-700 cursor-pointer"
-    >Wikipedia</Link>
-  ];
-
-  const onClickEdit = (link: UserUrl) => {
-    const alias = link.alias ?? `/${link.slug}`;
-    setModal({
-      title: t('modal.edit.title', { alias }),
-      open: true,
-      mode: 'edit',
-      link: link
-    });
-  }
-
-  const onClickStats = (link: UserUrl) => {
-    const alias = link.alias ?? `/${link.slug}`;
-    setModal({
-      title: t("modal.stats.title", { alias }),
-      open: true,
-      mode: 'stats',
-      link: link,
-    });
-  }
-
-  const onCloseModal = () => {
-    setModal({
-      title: '',
-      open: false,
-      mode: null,
-      link: null,
-    });
-  }
+  const { general, links } = stats || {};
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -129,10 +69,10 @@ export function UserDashboard(props: Readonly<Props>) {
           <section className="lg:col-span-2 space-y-6">
             {/* KPIs */}
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              <Kpi title={t("panel.totalLinks.title")} value={general.totalLinks} />
-              <Kpi title={t("panel.totalClicks.title")} value={general.totalClicks} />
-              <Kpi title={t("panel.clicksLast24h.title")} value={clicksLast24h ?? '-'} />
-              <Kpi title={t("panel.topCountry.title")} value={general.topCountry} />
+              <Kpi title={t("panel.totalLinks.title")} value={general?.totalLinks ?? ''} />
+              <Kpi title={t("panel.totalClicks.title")} value={general?.totalClicks ?? ''} />
+              <Kpi title={t("panel.clicksLast24h.title")} value={stats?.general.clicksLast24h ?? '-'} />
+              <Kpi title={t("panel.topCountry.title")} value={general?.topCountry ?? ''} />
             </div>
 
             {/* Charts */}
@@ -153,13 +93,11 @@ export function UserDashboard(props: Readonly<Props>) {
               <div className="bg-white p-4 rounded-xl shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-lg font-semibold">{t("panel.performancePerLink.title")}</h3>
-                  <div className="text-sm text-gray-500">{t("panel.performancePerLink.subtitle", { top: 4 })}</div>
+                  <div className="text-sm text-gray-500">{t("panel.performancePerLink.subtitle", { top: top_by_clicks })}</div>
                 </div>
                 <div className="h-52 w-full">
                   <Bar
-                    data={{
-                      labels: stats.map(l => l.slug),
-                      datasets: [{ label: 'Clicks', data: stats.map(l => l.total_clicks) }] }}
+                    data={clicks_top}
                     options={{ maintainAspectRatio: false }}
                   />
                 </div>
@@ -169,7 +107,7 @@ export function UserDashboard(props: Readonly<Props>) {
             {/* Links table */}
             <LinksTable
               t={t}
-              links={links}
+              links={links ?? []}
               onOpen={onClickStats}
               onEdit={onClickEdit}
             />
@@ -180,10 +118,7 @@ export function UserDashboard(props: Readonly<Props>) {
             <div className="bg-white p-4 rounded-xl shadow-sm">
               <h3 className="text-lg font-semibold mb-3">{t("panel.sourceTraffic.title")}</h3>
               <div className="h-44 w-full">
-                <Pie data={{
-                  labels: traffic.map((item) => item.name),
-                  datasets: [ { label: '%', data: traffic.map((item) => item.value) }]
-                }} options={{ maintainAspectRatio: false }} />
+                {graffic_traffic && <Pie data={graffic_traffic} options={{ maintainAspectRatio: false }}/>}
               </div>
             </div>
 
@@ -216,17 +151,4 @@ export function UserDashboard(props: Readonly<Props>) {
       <LinkDetailModal modal={modal} onClose={onCloseModal} />
     </div>
   );
-}
-
-interface Props {
-  urls: UserUrl[];
-  stats: ILinkStats[];
-  refererStats?: IRefererStat[];
-  clicksLast24h?: number|null;
-  weekStats: {
-    stats: ILinkDateStats[];
-    start: Date;
-    end: Date;
-    totalDays: number;
-  }
 }

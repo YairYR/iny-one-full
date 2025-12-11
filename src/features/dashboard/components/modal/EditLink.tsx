@@ -1,17 +1,36 @@
 import { UserUrlStats } from "@/features/dashboard/types/types";
 import { Button, Field, Fieldset, Input, Label } from "@headlessui/react";
-import React, { type ChangeEvent, useState } from "react";
+import React, { type ChangeEvent, useActionState, useEffect, useState } from "react";
 import Form from "next/form";
 import { editLinkAction } from "@/features/dashboard/actions/edit_link.actions";
+import { useStatsCommon } from "@/features/dashboard/hooks/useStatsCommon";
 
 interface Props {
   link: UserUrlStats;
   t: ReturnType<typeof import("next-intl").useTranslations>;
+  onClose: () => void;
 }
 
 const REGEX_ALIAS = /[^a-zA-Z0-9_\- /#]+/;
 
-export default function EditLink({ link, t }: Readonly<Props>) {
+const initialState = {
+  slug: '',
+  alias: '',
+} as { slug: string; alias: string, success?: boolean; };
+
+export default function EditLink({ link, t, onClose }: Readonly<Props>) {
+  const [state, formAction] = useActionState(editLinkAction, { ...initialState, slug: link.slug });
+
+  const { mutateAlias } = useStatsCommon();
+
+  useEffect(() => {
+    if(state?.success === true) {
+      mutateAlias(state.slug, state.alias)
+        .then(onClose)
+        .catch(console.error);
+    }
+  }, [state]);
+
   const [alias, setAlias] = useState(link.alias ?? '');
   const [error, setError] = useState<string | undefined>(undefined);
   const [disabled, setDisabled] = useState(false);
@@ -29,7 +48,7 @@ export default function EditLink({ link, t }: Readonly<Props>) {
   }
 
   return (
-    <Form action={editLinkAction}>
+    <Form action={formAction}>
       <div className="mt-4 grid grid-cols-1 gap-4">
         <div className="space-y-3">
           <Fieldset>

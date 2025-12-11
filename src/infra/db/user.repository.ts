@@ -1,5 +1,4 @@
 import { DbInstance } from "@/infra/db/supabase_service";
-import { jwtDecode, JwtPayload } from "jwt-decode";
 
 export function getUserRepository(db: DbInstance) {
   return {
@@ -13,14 +12,12 @@ export function getUserRepository(db: DbInstance) {
 
     async getCurrentUser() {
       const { data: { user } } = await db.auth.getUser();
-
-      const { data: { session } } = await db.auth.getSession();
-      const jwt = session ? jwtDecode<SessionDecoded>(session.access_token) : null;
+      const { data: claims } = await db.auth.getClaims();
 
       return {
         data: {
-          user,
-          role: jwt?.user_role ?? null
+          user: user,
+          role: claims?.claims?.user_role ?? null
         }
       };
     },
@@ -37,17 +34,21 @@ export function getUserRepository(db: DbInstance) {
         .eq('user_id', user_id);
     },
 
+    async isOwner(user_id: string, slug: string) {
+      return db
+        .from('short_links')
+        .select('slug')
+        .eq('slug', slug)
+        .eq('user_id', user_id)
+        .limit(1)
+        .single();
+    },
+
     async changeAlias(slug: string, newAlias: string|null) {
-      // TODO: validar que el alias no esté en uso (?
-      // TODO: validar que el link le pertenezca al user
       return db
         .from('short_links')
         .update({ alias: newAlias })
         .eq('slug', slug);
     }
   }
-}
-
-interface SessionDecoded extends JwtPayload {
-  user_role: string|null;
 }

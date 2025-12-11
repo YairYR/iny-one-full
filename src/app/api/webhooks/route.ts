@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { verifySignature } from "@/app/api/webhooks/utils";
 import { WebhookEventPaypal } from "@/lib/types";
 import * as z from 'zod';
-import { processPaypalWebhook } from "@/core/use-cases/webhook";
+import { processPaypalWebhook } from "@/features/payments/services/webhook";
 
 const PaypalWebhookBody = z.object({
   id: z.string(),

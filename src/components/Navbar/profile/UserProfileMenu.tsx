@@ -2,6 +2,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import Link from 'next/link';
 import React from "react";
 import { CurrentUserAvatar } from "@/features/auth/components/OAuth/CurrentUserAvatar";
+import { usePathname, useRouter } from "next/navigation";
 
 interface Props {
   picture: string | null;
@@ -9,6 +10,18 @@ interface Props {
 }
 
 export default function UserProfileMenu({ picture, fullname }: Readonly<Props>) {
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const onClickLoggOut = async () => {
+    await fetch('/auth/logout');
+    if(pathname.includes('dashboard')) {
+      router.push('/');
+    } else {
+      router.refresh();
+    }
+  }
+
   return (
     <Menu as="div" className="relative ml-3">
       <MenuButton className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 cursor-pointer text-gray-400">
@@ -39,7 +52,9 @@ export default function UserProfileMenu({ picture, fullname }: Readonly<Props>) 
         {/*</MenuItem>*/}
         <MenuItem>
           <Link
-            href="/auth/logout"
+            prefetch={false}
+            href="#"
+            onClick={onClickLoggOut}
             className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
           >
             Sign out

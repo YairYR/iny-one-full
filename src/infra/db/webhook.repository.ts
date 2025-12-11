@@ -1,5 +1,5 @@
 import { type DbInstance } from "@/infra/db/supabase_service";
-import { WebhookEvent } from "@/core/entities";
+import { WebhookEvent } from "@/lib/entities";
 
 export function getWebhookRepository(db: DbInstance) {
   return {

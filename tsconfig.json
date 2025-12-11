@@ -20,7 +20,7 @@
       }
     ],
     "types": [
-      "./src/lib/types/global.d"
+      "./src/lib/types/global.d.ts"
     ],
     "paths": {
       "@/data/*": ["./data/*"],
