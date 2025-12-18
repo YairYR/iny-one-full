@@ -20,7 +20,7 @@ export const useUserDashboard = () => {
   const stats = useMemo(() => {
     if(!data) return null;
     console.log("Calculating user stats...", data.urls);
-    return calcUserStats(data.urls, data.stats, data.weekStats, data.refererStats);
+    return calcUserStats(data.urls, data.weekStats, data.refererStats);
   }, [data]);
 
   const traffic = Object.values(stats?.traffic ?? {});

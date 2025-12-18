@@ -1,6 +1,6 @@
 'use client';
 
-import { ILinkDateStats, ILinkStats, IRefererStat, UserUrl } from "@/features/dashboard/types/types";
+import { ILinkDateStats, ILinkStats, IRefererStat, UserUrl, UserUrlStats } from "@/features/dashboard/types/types";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -15,7 +15,11 @@ type WeekStats = {
   totalDays: number;
 }
 
-export function calcUserStats(urls: UserUrl[], stats: ILinkStats[], weekStats: WeekStats, refererStats?: IRefererStat[]) {
+export function calcUserStats(urls: UserUrlStats[], weekStats: WeekStats, refererStats?: IRefererStat[]) {
+  const stats = urls.reduce((filtered: ILinkStats[], item) => {
+    if(item.stats) filtered.push(item.stats);
+    return filtered;
+  }, []);
   const totalClicks = stats.reduce((total, item) => total + item.total_clicks, 0);
   const statsByClicks = stats.toSorted((a, b) => b.total_clicks - a.total_clicks);
   const countries = stats.reduce((all, item) => {

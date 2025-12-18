@@ -9,6 +9,7 @@ import { ILinkDateStats, ILinkStats, UserUrl } from "@/features/dashboard/types/
 import { successResponse } from "@/lib/api/responses";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { createClient } from "@/lib/supabase/server";
 
 dayjs.extend(utc);
 
@@ -18,14 +19,14 @@ export const GET = withErrorHandling(async () => {
     throw new SessionNotFoundError();
   }
 
-  const userRepo = getUserRepository(supabase_service);
+  const supabase = await createClient();
+  const userRepo = getUserRepository(supabase);
   const statsRepo = getStatsRepository(supabase_service);
 
-  const { data: _urls } = await userRepo.getUrls(user.id);
-  const urls: UserUrl[] = (_urls ?? []) as UserUrl[];
+  const { data: _urls } = await userRepo.getStatsCurrentUserUrls();
+
+  const urls: UserUrl[] = (_urls ?? []) as never as UserUrl[];
   const slugs = urls.map(item => item.slug);
-  const { data: _stats } = await statsRepo.getStatsUrls(slugs);
-  const stats: ILinkStats[] = _stats ?? [];
 
   const date = dayjs.utc();
   const dateWeekAgo = date.subtract(1, 'week');
@@ -38,7 +39,7 @@ export const GET = withErrorHandling(async () => {
 
   return successResponse({
     urls,
-    stats,
+    // stats,
     refererStats: refererStats ?? [],
     clicksLast24h,
     weekStats:{

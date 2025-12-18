@@ -9,6 +9,11 @@ export function getStatsRepository(db: DbInstance)  {
         .in('slug', slugs);
     },
 
+    async getStatsUrlsCurrentUser() {
+      return db
+        .from('short_links_stats')
+    },
+
     async getDayStatsBetweenDates(slug: string[], startDate: Date, endDate: Date) {
       return db
         .from('short_links_daily_stats')
