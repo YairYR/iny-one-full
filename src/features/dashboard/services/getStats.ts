@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/types";
-import { ILinkDateStats, ILinkStats, UserUrl } from "@/features/dashboard/types/types";
+import { ILinkDateStats, ILinkStats, UserUrl, UserUrlStats } from "@/features/dashboard/types/types";
 
 export async function getStatsCommon(): Promise<UserDashboardStats|null> {
   return fetch('/api/dashboard/stats')
@@ -13,8 +13,8 @@ export async function getStatsCommon(): Promise<UserDashboardStats|null> {
 }
 
 interface UserDashboardStats {
-  urls: UserUrl[];
-  stats: ILinkStats[];
+  urls: UserUrlStats[];
+  // stats: ILinkStats[];
   refererStats: [] | [{
     referer: string;
     count: number;
