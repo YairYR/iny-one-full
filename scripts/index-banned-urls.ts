@@ -1,5 +1,5 @@
-import fs from 'fs';
-import _ from 'lodash';
+import fs from 'node:fs';
+import { split, concat, uniq, join } from 'lodash-es';
 
 /**
  * Fake
@@ -68,16 +68,16 @@ function merge_all_files() {
 
   for (const key of fileNames) {
     const text = fs.readFileSync(__dirname + '/files/' + key + '.txt', { encoding: 'utf8' });
-    const lines = _.split(text, '\n').filter((line) => !line.startsWith('#'))
-    urls = _.concat(urls, lines);
+    const lines = split(text, '\n').filter((line) => !line.startsWith('#'))
+    urls = concat(urls, lines);
   }
 
-  const domains = _.uniq(urls);
+  const domains = uniq(urls);
   console.log('before:', urls.length, 'after:', domains.length);
 
-  const text = _.join(domains, '\n');
+  const text = join(domains, '\n');
   domains.unshift('domain');
-  const textCsv = _.join(domains, '\n');
+  const textCsv = join(domains, '\n');
 
   fs.writeFile(__dirname + '/files/all.txt', text, (err) => {
     if (err) console.log('[all.txt] error', err);

@@ -1,6 +1,6 @@
-import fs from "fs";
+import fs from "node:fs";
 import { BloomFilter } from "bloom-filters";
-import readline from "readline";
+import readline from "node:readline";
 
 async function run() {
   const filePath = "scripts/files/all.txt";
