@@ -1,5 +1,6 @@
 import { DbInstance } from "@/infra/db/supabase_service";
-import { ClientInfo, UtmParams } from "@/lib/types";
+import { ClientInfo, UrlExpires, UtmParams } from "@/lib/types";
+import dayjs from "dayjs";
 
 export function getShorterRepository(db: DbInstance) {
   return {
@@ -9,7 +10,8 @@ export function getShorterRepository(db: DbInstance) {
       url: string,
       utm: Partial<UtmParams>,
       domain: string,
-      client?: Partial<ClientInfo>
+      expires?: UrlExpires,
+      client?: Partial<ClientInfo>,
     ) {
       return db
         .from('short_links')
@@ -27,6 +29,8 @@ export function getShorterRepository(db: DbInstance) {
             ip_user: client?.ip ?? null,
             country_code_user: client?.countryCode ?? null,
             domain: domain ?? null,
+            expires_in: expires?.expires_in_days ?? null,
+            expires_at: expires?.expires_at ?? null,
           },
         ])
         .select('slug');
@@ -82,6 +86,29 @@ export function getShorterRepository(db: DbInstance) {
         .rpc('is_domain_secure', {
           domain_to_check: domain
         });
+    },
+
+    async countLinksByIpInLastMonth(ip: string) {
+      const oneMonthAgo = dayjs().utc().subtract(1, 'month');
+
+      return db
+        .from('short_links')
+        .select('slug', { count: 'exact', head: true })
+        .eq('ip_user', ip)
+        .is('user_id', null) // solo usuarios no logueados
+        .gte('created_at', oneMonthAgo.toISOString());
+    },
+
+    async countLinksByUserInLastMonth(userId: string) {
+      const oneMonthAgo = dayjs().utc().subtract(1, 'month');
+
+      return db
+        .from('short_links')
+        .select('slug', { count: 'exact', head: true })
+        .eq('user_id', userId)
+        .gte('created_at', oneMonthAgo.toISOString());
     }
   }
 }
+
+export type ShorterRepository = ReturnType<typeof getShorterRepository>;

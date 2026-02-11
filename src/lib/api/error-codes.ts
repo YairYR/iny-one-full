@@ -39,6 +39,7 @@ export const ERROR = {
 
   // ===
   RESOURCE_ACTION_ERROR: "RESOURCE_ACTION_ERROR",
+  RATE_LIMIT_EXCEEDED: "RATE_LIMIT_EXCEEDED"
 } as const;
 
 export const MESSAGE = {
