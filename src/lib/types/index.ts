@@ -39,6 +39,7 @@ export interface UserClient {
   picture: string | null;
   created_at: string;
   role: string | null;
+  plan: PlanName | null;
 }
 
 export interface IService {
@@ -57,6 +58,7 @@ export interface IService {
 }
 
 export type Plan = Omit<IService, 'updated_at'|'created_at'|'active'>;
+export type PlanName = 'free' | 'basic' | 'pro';
 
 export interface Subscription {
   id: string;
@@ -103,3 +105,8 @@ export type WebhookEventPaypal = {
     method?: string;
   }>;
 }
+
+export type UrlExpires = {
+  expires_in_days: number;
+  expires_at: string;
+};

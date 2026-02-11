@@ -1,4 +1,4 @@
-import { DbInstance } from "@/infra/db/supabase_service";
+import type { DbInstance } from "@/infra/db/supabase_service";
 
 export function getStatsRepository(db: DbInstance)  {
   return {

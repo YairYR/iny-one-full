@@ -36,6 +36,7 @@
     "footerText": "Want to know more?",
     "footerLink": "About",
     "errorNewShorten": "There were problems generating the link.",
+    "errorNewShortenLimit": "You have reached the monthly shortening limit. Please wait or upgrade your plan.",
     "errorNewShortenRefresh": "There were problems generating the link. Please refresh the page!"
   },
   "AboutPage": {

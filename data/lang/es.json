@@ -36,6 +36,7 @@
     "footerText": "¿Quieres saber más?",
     "footerLink": "Acerca de",
     "errorNewShorten": "Error al acortar la URL.",
+    "errorNewShortenLimit": "Has alcanzado el límite de acortamientos mensuales. Por favor espera o mejora tu plan.",
     "errorNewShortenRefresh": "Error al acortar la URL. Por favor recarga la página."
   },
   "AboutPage": {

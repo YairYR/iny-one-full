@@ -6,11 +6,12 @@ import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
 import { getFromSessionStorage, removeFromSessionStorage } from "@/lib/utils/localstorage";
 import { url as isURLZod, regexes } from "zod/mini";
 import type { useTranslations } from "next-intl";
+import { ERROR } from "@/lib/api/error-codes";
 
 type SomeUtmParams = Pick<UtmParams, 'source'|'medium'|'campaign'>;
 
 const zodUrl = isURLZod({
-  protocol: /^(https?|)$/,
+  protocol: /^(https)$/,
   hostname: regexes.domain,
 });
 
@@ -50,7 +51,9 @@ export function useUrlShortForm({ t }: Props) {
   }
 
   const handleShorten = async () => {
-    const url = currentUrl.trim();
+    const url = currentUrl.trim()
+      .replace(/^(https?):\/\//, '')
+      .replace(/^/, 'https://');
     if (!url) {
       setError(t('requiredUrl'));
       return;
@@ -89,6 +92,8 @@ export function useUrlShortForm({ t }: Props) {
         short: apiResponse.data.short,
         utm
       };
+    } else if(apiResponse.error.code === ERROR.RATE_LIMIT_EXCEEDED) {
+      setError(t('errorNewShortenLimit'));
     } else {
       setError(t('errorNewShorten'));
     }
