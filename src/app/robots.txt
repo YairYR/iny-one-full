@@ -3,5 +3,6 @@ Allow: /
 Disallow: /studio/
 Disallow: /dashboard/
 Disallow: /u/dashboard/
+Disallow: /ui/dashboard/
 
 Sitemap: https://iny.one/sitemap.xml

@@ -25,39 +25,6 @@ const nextConfig: NextConfig = {
         headers: securityHeaders,
       },
       {
-        source: '/:short',
-        locale: false,
-        headers: [
-          {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow'
-          }
-        ],
-        has: [
-          {
-            type: 'header',
-            key: 'sec-fetch-dest',
-            value: 'document'
-          }
-        ],
-      },
-      {
-        source: '/:short',
-        locale: false,
-        headers: [
-          {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow'
-          }
-        ],
-        missing: [
-          {
-            type: 'header',
-            key: 'sec-fetch-dest'
-          }
-        ],
-      },
-      {
         source: '/es/:path*',
         locale: false,
         headers: [
@@ -85,9 +52,26 @@ const nextConfig: NextConfig = {
         source: '/bloom.bin',
         destination: '/favicon.ico',
         permanent: false
+      },
+      {
+        source: '/piscolas',
+        destination: '/ui/piscolas',
+        permanent: false
       }
     ]
   },
+  async rewrites() {
+    return [
+      {
+        source: '/',
+        destination: '/ui',
+      },
+      {
+        source: '/about',
+        destination: '/ui/about',
+      },
+    ]
+  }
 };
 
 const withNextIntl = createNextIntlPlugin();

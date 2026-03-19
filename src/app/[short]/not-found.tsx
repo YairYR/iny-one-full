@@ -1,6 +1,14 @@
 import { Home, Compass } from "lucide-react";
 import Link from "next/link";
 import '@/styles/globals.css';
+import { Metadata } from "next";
+import { PAGES } from "@/core/routes";
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+  }
+}
 
 export default function NotFound() {
   return (
@@ -18,20 +26,20 @@ export default function NotFound() {
 
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
-          href="/"
+          href={PAGES.HOME}
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-lg font-medium shadow hover:bg-blue-700 transition-colors"
         >
           <Home className="w-5 h-5" />
           Volver al inicio
         </Link>
 
-        <Link
-          href="/explorar"
-          className="inline-flex items-center gap-2 border border-gray-300 text-gray-700 px-5 py-3 rounded-lg font-medium hover:border-gray-400 hover:bg-gray-100 transition-colors"
-        >
-          <Compass className="w-5 h-5" />
-          Explorar más
-        </Link>
+        {/*<Link*/}
+        {/*  href="/explorar"*/}
+        {/*  className="inline-flex items-center gap-2 border border-gray-300 text-gray-700 px-5 py-3 rounded-lg font-medium hover:border-gray-400 hover:bg-gray-100 transition-colors"*/}
+        {/*>*/}
+        {/*  <Compass className="w-5 h-5" />*/}
+        {/*  Explorar más*/}
+        {/*</Link>*/}
       </div>
     </div>
   );

@@ -7,6 +7,7 @@ import UserProfileMenu from "@/components/Navbar/profile/UserProfileMenu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserClient } from "@/lib/types";
+import { PAGES } from "@/core/routes";
 
 interface Tab {
   name: string;
@@ -15,8 +16,8 @@ interface Tab {
 }
 
 const navigation: Tab[] = [
-  { name: 'Home', href: '/', current: true },
-  { name: 'Dashboard', href: '/dashboard', current: false },
+  { name: 'Home', href: PAGES.HOME, current: true },
+  { name: 'Dashboard', href: PAGES.DASHBOARD, current: false },
   // { name: 'Team', href: '#', current: false },
 ];
 
@@ -89,7 +90,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
             </>)}
 
             {!user && (<Link
-              href='/auth/login'
+              href={PAGES.auth.LOGIN}
               prefetch={false}
               type="button"
               className="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 cursor-pointer"
