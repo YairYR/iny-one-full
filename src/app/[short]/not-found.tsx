@@ -26,6 +26,7 @@ export default function NotFound() {
 
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
+          prefetch={false}
           href={ROUTES.HOME}
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-lg font-medium shadow hover:bg-blue-700 transition-colors"
         >

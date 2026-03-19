@@ -26,6 +26,7 @@ import LinksTable from "@/features/dashboard/components/LinksTable";
 import { calcUserStats } from "@/features/dashboard/helpers/stats";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { ROUTES } from "@/lib/routes";
 
 ChartJS.register(
   CategoryScale,
@@ -74,7 +75,7 @@ export function UserDashboard(props: Readonly<Props>) {
             <p className="text-sm text-gray-500">{t('subtitle')}</p>
           </div>
           <div className="flex gap-2">
-            <Link href="/" className="bg-white px-4 py-2 rounded shadow-sm cursor-pointer">{t("newLink")}</Link>
+            <Link prefetch={false} href={ROUTES.HOME} className="bg-white px-4 py-2 rounded shadow-sm cursor-pointer">{t("newLink")}</Link>
             {/*<button className="bg-indigo-600 text-white px-4 py-2 rounded">Exportar CSV</button>*/}
           </div>
         </header>
