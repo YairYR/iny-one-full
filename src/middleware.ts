@@ -1,7 +1,7 @@
 import { type NextRequest, MiddlewareConfig, NextResponse } from 'next/server'
 import { updateSession } from "@/lib/middlewares/session";
 import { checkWebhook } from "@/lib/middlewares/webhooks";
-import { PAGES } from "@/core/routes";
+import { ROUTES } from "@/lib/routes";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -28,17 +28,16 @@ export async function middleware(request: NextRequest) {
 const ALLOWED_ROBOT_INDEX = [
   '/sitemap.xml',
   '/robots.txt',
-  '/ui',
   '/about',
   '/about/',
   '/piscolas',
   '/piscolas/',
-  PAGES.HOME,
-  PAGES.HOME + '/',
-  PAGES.ABOUT,
-  PAGES.ABOUT + '/',
-  PAGES.PISCOLAS,
-  PAGES.PISCOLAS + '/',
+  ROUTES.HOME,
+  ROUTES.HOME + '/',
+  ROUTES.ABOUT,
+  ROUTES.ABOUT + '/',
+  ROUTES.PISCOLAS,
+  ROUTES.PISCOLAS + '/',
 ] as const;
 
 function isShortRoute(path: string) {
