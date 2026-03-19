@@ -6,6 +6,7 @@ import { createServicesRepository } from "@/infra/db/services.repository";
 import { cookies } from "next/headers";
 import { uuid as zUuid } from 'zod/mini';
 import { CART_COOKIE_NAME } from "@/constants";
+import { ROUTES } from "@/lib/routes";
 
 interface Props {
   params: Promise<{ checkout?: string[] }>;
@@ -24,7 +25,7 @@ export default async function CartCheckoutPage({ params }: Readonly<Props>) {
 
   const logged = await isLoggedIn();
   if(!logged) {
-    return redirect('/auth/login');
+    return redirect(ROUTES.LOGIN);
   }
 
   if(!service_id || !checkUuid.safeParse(service_id).success) {
@@ -35,7 +36,7 @@ export default async function CartCheckoutPage({ params }: Readonly<Props>) {
   const { data: plan, error } = await servicesRepo.getPlanById(service_id);
 
   if(!plan || error) {
-    return redirect('/plans');
+    return redirect(ROUTES.PLANS);
   }
 
   const isEmpty = false;

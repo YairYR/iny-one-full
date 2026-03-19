@@ -7,13 +7,14 @@ import { getUserRepository } from "@/infra/db/user.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import dayjs from "dayjs";
 import UTC from 'dayjs/plugin/utc';
+import { ROUTES } from "@/lib/routes";
 
 dayjs.extend(UTC);
 
 export default async function DashboardPage() {
   const user = await getCurrentUserDTO();
   if (!user) {
-    return redirect("/auth/login");
+    return redirect(ROUTES.LOGIN);
   }
 
   const userRepo = getUserRepository(supabase_service);

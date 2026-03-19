@@ -2,7 +2,7 @@ import { Home, Compass } from "lucide-react";
 import Link from "next/link";
 import '@/styles/globals.css';
 import { Metadata } from "next";
-import { PAGES } from "@/core/routes";
+import { ROUTES } from "@/lib/routes";
 
 export const metadata: Metadata = {
   robots: {
@@ -26,7 +26,7 @@ export default function NotFound() {
 
       <div className="flex flex-col sm:flex-row gap-4">
         <Link
-          href={PAGES.HOME}
+          href={ROUTES.HOME}
           className="inline-flex items-center gap-2 bg-blue-600 text-white px-5 py-3 rounded-lg font-medium shadow hover:bg-blue-700 transition-colors"
         >
           <Home className="w-5 h-5" />
