@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/types";
-import { ILinkDateStats, ILinkStats, UserUrl, UserUrlStats } from "@/features/dashboard/types/types";
+import { UserUrlStats } from "@/features/dashboard/types/types";
 
 export async function getStatsCommon(): Promise<UserDashboardStats|null> {
   return fetch('/api/dashboard/stats')
@@ -12,18 +12,23 @@ export async function getStatsCommon(): Promise<UserDashboardStats|null> {
     });
 }
 
-interface UserDashboardStats {
+export interface UserDashboardStats {
   urls: UserUrlStats[];
-  // stats: ILinkStats[];
-  refererStats: [] | [{
+  refererStats: {
     referer: string;
     count: number;
-  }];
-  clicksLast24h: number | null;
-  weekStats: {
-    stats: ILinkDateStats[];
-    start: Date;
-    end: Date;
-    totalDays: number;
+  }[];
+  summary: {
+    date_start: string;
+    date_end: string;
+    clicks: number;
+    clicks_last_24h: number;
+    date_grouping: 'day' | 'week' | 'month';
+    stats: { date: string, clicks: number }[];
   };
+  all_time: {
+    clicks: number;
+    top_browsers: { name: string, value: number }[];
+    top_countries: { name: string, value: number }[];
+  }
 }

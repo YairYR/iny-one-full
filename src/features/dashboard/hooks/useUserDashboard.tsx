@@ -2,7 +2,6 @@ import { useMemo, useState } from "react";
 import { useStatsCommon } from "@/features/dashboard/hooks/useStatsCommon";
 import { ILinkDetails } from "@/features/dashboard/components";
 import { useTranslations } from "next-intl";
-import Link from "next/link";
 import { UserUrl } from "@/features/dashboard/types/types";
 import { calcUserStats } from "@/features/dashboard/helpers/stats";
 
@@ -20,7 +19,7 @@ export const useUserDashboard = () => {
   const stats = useMemo(() => {
     if(!data) return null;
     console.log("Calculating user stats...", data.urls);
-    return calcUserStats(data.urls, data.weekStats, data.refererStats);
+    return calcUserStats(data.urls, data.summary, data.all_time, data.refererStats);
   }, [data]);
 
   const traffic = Object.values(stats?.traffic ?? {});
@@ -47,16 +46,6 @@ export const useUserDashboard = () => {
     labels: traffic.map((item) => item.name),
     datasets: [ { label: '%', data: traffic.map((item) => item.value) }]
   };
-
-  const infoUTC = [
-    t("popover.info.utc.0"),
-    t("popover.info.utc.1"),
-    <Link
-      key={'utc-link-ref'}
-      target="_blank"
-      href={'https://en.wikipedia.org/wiki/Coordinated_Universal_Time'}
-      className="relative inline-block text-blue-700 cursor-pointer">Wikipedia</Link>
-  ];
 
   const onClickEdit = (link: UserUrl) => {
     const alias = link.alias ?? `/${link.slug}`;
@@ -95,7 +84,6 @@ export const useUserDashboard = () => {
     top_by_clicks,
     clicks_top,
     graffic_traffic,
-    infoUTC,
     modal,
     onClickEdit,
     onClickStats,

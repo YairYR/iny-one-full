@@ -3,12 +3,11 @@ import { InfoIcon } from "lucide-react";
 import { type ReactNode } from "react";
 
 interface Props {
-  keys: string;
-  messages: ReactNode[];
+  children: ReactNode;
   anchor?: PopoverPanelProps['anchor'];
 }
 
-export default function InfoPopover({ keys, messages, anchor }: Readonly<Props>) {
+export default function InfoPopover({ children, anchor }: Readonly<Props>) {
   return (
     <Popover className="relative inline-block">
       <PopoverButton
@@ -22,9 +21,7 @@ export default function InfoPopover({ keys, messages, anchor }: Readonly<Props>)
         className="absolute z-50 mt-2
                      w-max max-w-xs bg-white border shadow-lg rounded-lg p-3
                      text-sm text-gray-700">
-        {messages.map((text, i) => (
-          <p key={`info-popover-${keys}-${i}`}>{text}</p>
-        ))}
+        {children}
       </PopoverPanel>
     </Popover>
   )

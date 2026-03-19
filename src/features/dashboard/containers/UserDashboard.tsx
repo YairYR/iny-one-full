@@ -9,7 +9,7 @@ import {
   LineElement,
   PointElement,
   ArcElement,
-  Tooltip,
+  Tooltip as TooltipChart,
   Legend,
   Colors,
   Filler
@@ -27,7 +27,7 @@ ChartJS.register(
   LineElement,
   PointElement,
   ArcElement,
-  Tooltip,
+  TooltipChart,
   Legend,
   Colors,
   Filler
@@ -41,7 +41,6 @@ export function UserDashboard() {
     top_by_clicks,
     clicks_top,
     graffic_traffic,
-    infoUTC,
     modal,
     onClickEdit,
     onClickStats,
@@ -49,6 +48,18 @@ export function UserDashboard() {
   } = useUserDashboard();
 
   const { general, links } = stats || {};
+
+  const utcInfo = () => (
+    <>
+      <p>{t("popover.info.utc.0")}</p>
+      <p>{t("popover.info.utc.1")}</p>
+      <Link
+        key={'utc-link-ref'}
+        target="_blank"
+        href={'https://en.wikipedia.org/wiki/Coordinated_Universal_Time'}
+        className="relative inline-block text-blue-700 cursor-pointer">Wikipedia</Link>
+    </>
+  );
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -81,7 +92,9 @@ export function UserDashboard() {
                 <div className="flex items-center justify-between mb-3">
                   <h3 className="text-lg font-semibold">
                     {t("panel.weekActivity.title")}{" "}
-                    <InfoPopover keys={'panel-week-activity'} messages={infoUTC} anchor="bottom start" />
+                    <InfoPopover anchor="bottom start">
+                      {utcInfo()}
+                    </InfoPopover>
                   </h3>
                   <div className="text-sm text-gray-500">{t("panel.weekActivity.subtitle")}</div>
                 </div>
@@ -106,7 +119,6 @@ export function UserDashboard() {
 
             {/* Links table */}
             <LinksTable
-              t={t}
               links={links ?? []}
               onOpen={onClickStats}
               onEdit={onClickEdit}

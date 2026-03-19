@@ -66,7 +66,7 @@ export function getUserRepository(db: DbInstance) {
         .from('short_links')
         .select(`
           slug, alias, destination, created_at, utm_source, utm_medium, utm_campaign, clicks,
-          stats:short_links_stats(*)
+          stats:short_links_stats(slug, total_clicks)
         `)
         .eq('user_id', user_id)
         .limit(20);

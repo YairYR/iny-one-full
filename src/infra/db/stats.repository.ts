@@ -38,6 +38,15 @@ export function getStatsRepository(db: DbInstance)  {
           _start_date: startDate.toISOString(),
           _end_date: endDate.toISOString()
         });
+    },
+
+    async getDashboardStatsSummary(slugs: string[], start_date: string, end_date: string, grouping: 'day' | 'week' | 'month' = 'day') {
+      return db.rpc('get_dashboard_stats_summary', {
+        _slugs: slugs,
+        _start_date: start_date,
+        _end_date: end_date,
+        _date_grouping: grouping,
+      })
     }
   }
 }

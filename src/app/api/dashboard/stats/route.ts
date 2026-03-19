@@ -1,14 +1,15 @@
 import { withErrorHandling } from "@/lib/api/http";
 import { getCurrentUserDTO } from "@/data/dto/user-dto";
-import { SessionNotFoundError } from "@/lib/api/errors";
+import { ApiError, SessionNotFoundError } from "@/lib/api/errors";
 import { getUserRepository } from "@/infra/db/user.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { getStatsRepository } from "@/infra/db/stats.repository";
-import { ILinkDateStats, UserUrl } from "@/features/dashboard/types/types";
+import { UserUrl } from "@/features/dashboard/types/types";
 import { successResponse } from "@/lib/api/responses";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { createClient } from "@/lib/supabase/server";
+import { ERROR } from "@/lib/api/error-codes";
 
 dayjs.extend(utc);
 
@@ -27,25 +28,28 @@ export const GET = withErrorHandling(async () => {
   const urls: UserUrl[] = (_urls ?? []) as never as UserUrl[];
   const slugs = urls.map(item => item.slug);
 
-  const date = dayjs.utc();
-  const dateWeekAgo = date.subtract(1, 'week');
-  const date24HoursAgo = date.subtract(24, 'hour');
-  const { data: _weekStats } = await statsRepo.getDayStatsBetweenDates(slugs, dateWeekAgo.toDate(), date.toDate());
-  const weekStats: ILinkDateStats[] = (_weekStats ?? []) as ILinkDateStats[];
+  const date = dayjs().utc();
+  const dateWeekAgo = date.subtract(4, 'week');
+
+  const statsResponse = await statsRepo.getDashboardStatsSummary(
+    slugs,
+    dateWeekAgo.toISOString(),
+    date.toISOString(),
+    'day'
+  );
+
+  const { data, error } = statsResponse;
+
+  if(!data || error) {
+    throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching stats summary');
+  }
 
   const { data: refererStats } = await statsRepo.getRefererersStats(slugs);
-  const { data: clicksLast24h } = await statsRepo.getClicksBetween(slugs, date24HoursAgo.toDate(), date.toDate());
 
   return successResponse({
     urls,
-    // stats,
     refererStats: refererStats ?? [],
-    clicksLast24h,
-    weekStats:{
-      stats: weekStats,
-      start: dateWeekAgo.toDate(),
-      end: date.toDate(),
-      totalDays: 7,
-    }
+    summary: data.summary,
+    all_time: data.all_time
   });
 });

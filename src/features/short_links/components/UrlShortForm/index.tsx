@@ -5,7 +5,8 @@ import { Zap } from 'lucide-react';
 import ShortUrlCard from "@/features/short_links/components/ShortUrlCard";
 import { Button, Input, Fieldset, Field, Label } from '@headlessui/react';
 import { useUrlShortForm } from "@/features/short_links/hooks/useUrlShortForm";
-import { useTranslations,  } from "next-intl";
+import { useTranslations  } from "next-intl";
+import { Tooltip } from "@/components/Tooltip/Tooltip";
 
 export default function UrlShortForm() {
   const t = useTranslations('HomePage');
@@ -43,35 +44,67 @@ export default function UrlShortForm() {
 
       <div className="mb-6">
         <Field>
-          <Label htmlFor="input_utm_source" className="block text-sm font-medium text-gray-700 mb-3">{t('utmLabel')}</Label>
+          <div className="flex items-center gap-2 mb-3">
+            <Label htmlFor="input_utm_source" className="block text-sm font-medium text-gray-700">
+              {t('utmLabel')}
+            </Label>
+            <Tooltip content={t('utmTooltip')} />
+          </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Input
-              type="text"
-              name="utm_source"
-              id="input_utm_source"
-              placeholder="utm_source"
-              value={utm.source}
-              onChange={handleChangeUtmSource}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            />
-            <Input
-              type="text"
-              name="utm_medium"
-              id="input_utm_medium"
-              placeholder="utm_medium"
-              value={utm.medium}
-              onChange={handleChangeUtmMedium}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            />
-            <Input
-              type="text"
-              name="utm_campaign"
-              id="input_utm_campaign"
-              placeholder="utm_campaign"
-              value={utm.campaign}
-              onChange={handleChangeUtmCampaign}
-              className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
-            />
+
+            <div className="relative">
+              <div className="flex items-center gap-1 mb-1">
+                <Label htmlFor="input_utm_source" className="text-xs text-gray-600">
+                  utm_source
+                </Label>
+                <Tooltip content={t('utmSource')} />
+              </div>
+              <Input
+                type="text"
+                name="utm_source"
+                id="input_utm_source"
+                placeholder="google"
+                value={utm.source}
+                onChange={handleChangeUtmSource}
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors w-full"
+              />
+            </div>
+
+            <div className="relative">
+              <div className="flex items-center gap-1 mb-1">
+                <Label htmlFor="input_utm_medium" className="text-xs text-gray-600">
+                  utm_medium
+                </Label>
+                <Tooltip content={t('utmMedium')} />
+              </div>
+              <Input
+                type="text"
+                name="utm_medium"
+                id="input_utm_medium"
+                placeholder="cpc"
+                value={utm.medium}
+                onChange={handleChangeUtmMedium}
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors w-full"
+              />
+            </div>
+
+            <div className="relative">
+              <div className="flex items-center gap-1 mb-1">
+                <Label htmlFor="input_utm_campaign" className="text-xs text-gray-600">
+                  utm_campaign
+                </Label>
+                <Tooltip content={t('utmCampaign')} />
+              </div>
+              <Input
+                type="text"
+                name="utm_campaign"
+                id="input_utm_campaign"
+                placeholder="promo_verano"
+                value={utm.campaign}
+                onChange={handleChangeUtmCampaign}
+                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors w-full"
+              />
+            </div>
           </div>
         </Field>
       </div>
