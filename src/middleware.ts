@@ -8,11 +8,15 @@ export async function middleware(request: NextRequest) {
     return checkWebhook(request);
   }
 
-  if (isShortRoute(path) ||
-    path.startsWith("/_next/") ||
-    path.startsWith("/.well-known/")) {
-    return;
-  }
+if (
+  isShortRoute(path) ||
+  path.startsWith("/_next/") ||
+  path.startsWith("/.well-known/") ||
+  path === "/sitemap.xml" ||
+  path === "/robots.txt"
+) {
+  return;
+}
 
   return updateSession(request);
 }
