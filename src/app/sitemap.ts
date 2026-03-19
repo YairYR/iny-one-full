@@ -13,6 +13,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: baseUrl + '/about',
       changeFrequency: 'monthly',
       priority: 0.8
+    },
+    {
+      url: baseUrl + '/piscolas',
+      changeFrequency: 'monthly',
+      priority: 0.9
     }
   ];
 }
