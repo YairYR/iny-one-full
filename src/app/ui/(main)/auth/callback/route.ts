@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 // The client you created from the Server-Side Auth instructions
 import { createClient } from '@/lib/supabase/server'
+import { ROUTES } from "@/lib/routes";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
@@ -9,7 +10,7 @@ export async function GET(request: NextRequest) {
   let next = searchParams.get('next') ?? '/'
   if (!next.startsWith('/')) {
     // if "next" is not a relative URL, use the default
-    next = '/dashboard'
+    next = ROUTES.DASHBOARD;
   }
 
   if (code) {

@@ -59,6 +59,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
               <div className="flex space-x-4">
                 {tabs.map((item) => (
                   <Link
+                    prefetch={false}
                     key={item.name}
                     href={item.href}
                     aria-current={item.current ? 'page' : undefined}
