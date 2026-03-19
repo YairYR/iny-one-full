@@ -1,20 +1,21 @@
-import React from "react";
+import React, { useCallback, useMemo } from "react";
 import { Button } from "@headlessui/react";
 import { UserUrl } from "@/features/dashboard/types/types";
 import dayjs from "dayjs";
 import useClipboard from "@/hooks/useClipboard";
 import { LinkIcon } from 'lucide-react';
 import { LinkTools, ITool } from "@/features/dashboard/components/LinksTable/LinkTools";
-import { type useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 
 interface Props {
   links: UserUrl[];
   onOpen?: (link: UserUrl) => void;
   onEdit: (link: UserUrl) => void;
-  t: ReturnType<typeof useTranslations>;
 }
 
-export function LinksTable({ links, onOpen, onEdit, t }: Readonly<Props>) {
+export function LinksTable({ links, onOpen, onEdit }: Readonly<Props>) {
+  const t = useTranslations('DashboardPage');
+
   const substringAndSpread = (str: string, max: number) => {
     const _str = str.trim();
     const text = _str.trim().substring(0, max);
@@ -23,11 +24,12 @@ export function LinksTable({ links, onOpen, onEdit, t }: Readonly<Props>) {
 
   const { copyToClipboard } = useClipboard();
 
-  const onClickCopy = (link: UserUrl) => {
+  const onClickCopy = useCallback((link: UserUrl) => {
     void copyToClipboard('https://iny.one/' + link.slug);
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const tools: ITool<UserUrl>[] = [
+  const tools: ITool<UserUrl>[] = useMemo(() => [
     {
       key: 'copy',
       text: t('tools.copy'),
@@ -46,7 +48,7 @@ export function LinksTable({ links, onOpen, onEdit, t }: Readonly<Props>) {
       disabled: false,
       onClick: (e, l) => onOpen?.(l),
     },
-  ];
+  ], [t, onClickCopy, onEdit, onOpen]);
 
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">

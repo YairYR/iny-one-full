@@ -1,47 +1,29 @@
 'use client';
 
-import { ILinkDateStats, ILinkStats, IRefererStat, UserUrl, UserUrlStats } from "@/features/dashboard/types/types";
+import { ILinkStats, IRefererStat, UserUrlStats } from "@/features/dashboard/types/types";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { UserDashboardStats } from "@/features/dashboard/services/getStats";
 
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
 
-type WeekStats = {
-  stats: ILinkDateStats[];
-  start: Date;
-  end: Date;
-  totalDays: number;
-}
-
-export function calcUserStats(urls: UserUrlStats[], weekStats: WeekStats, refererStats?: IRefererStat[]) {
+export function calcUserStats(urls: UserUrlStats[], summary: UserDashboardStats['summary'], all_time: UserDashboardStats['all_time'], refererStats?: IRefererStat[]) {
   const stats = urls.reduce((filtered: ILinkStats[], item) => {
     if(item.stats) filtered.push(item.stats);
     return filtered;
   }, []);
-  const totalClicks = stats.reduce((total, item) => total + item.total_clicks, 0);
   const statsByClicks = stats.toSorted((a, b) => b.total_clicks - a.total_clicks);
-  const countries = stats.reduce((all, item) => {
-    const countries = Object.keys(item.country_counts);
-    for (const country of countries) {
-      if(!(country in all)) {
-        all[country] = 0;
-      }
-      all[country] += item.country_counts[country];
-    }
-    return all;
-  }, {} as Record<string, number>);
-  const countriesSorted = Object.entries(countries).sort((a, b) => b[1] - a[1]);
 
   const links = urls.map((url) => ({
     ...url,
     stats: stats.find(item => item.slug === url.slug)
   }));
 
-  const week = fillDays(weekStats.stats, {
-    startDate: weekStats.start,
-    endDate: weekStats.end,
+  const week = fillDays(summary.stats, {
+    startDate: dayjs(summary.date_start).toDate(),
+    endDate: dayjs(summary.date_end).toDate(),
   });
 
   const traffic = calcRefererStats(refererStats || []);
@@ -49,10 +31,10 @@ export function calcUserStats(urls: UserUrlStats[], weekStats: WeekStats, refere
   return {
     general: {
       totalLinks: urls.length,
-      totalClicks: totalClicks,
-      clicksLast24h: '-',
+      totalClicks: all_time.clicks,
+      clicksLast24h: summary.clicks_last_24h || '-',
       topLink: statsByClicks[0]?.slug,
-      topCountry: countriesSorted[0]?.[0],
+      topCountry: all_time.top_countries[0].name,
     },
     statsByClicks,
     links,
@@ -82,7 +64,7 @@ export function dayToName(key: number) {
   return 'week.sunday';
 }
 
-function fillDays(stats: ILinkDateStats[], {
+function fillDays(stats: UserDashboardStats['summary']['stats'], {
   startDate = null,
   endDate = null,
 }: { startDate?: Date|null; endDate?: Date|null } = {}) {
@@ -95,7 +77,7 @@ function fillDays(stats: ILinkDateStats[], {
     if(!(item.date in map)) {
       map[item.date] = 0;
     }
-    map[item.date] += item.total_clicks;
+    map[item.date] += item.clicks;
   }
 
   // Fecha inicial base
