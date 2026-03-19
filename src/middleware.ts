@@ -1,6 +1,7 @@
-import { type NextRequest, MiddlewareConfig } from 'next/server'
+import { type NextRequest, MiddlewareConfig, NextResponse } from 'next/server'
 import { updateSession } from "@/lib/middlewares/session";
 import { checkWebhook } from "@/lib/middlewares/webhooks";
+import { PAGES } from "@/core/routes";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -8,22 +9,41 @@ export async function middleware(request: NextRequest) {
     return checkWebhook(request);
   }
 
-if (
-  isShortRoute(path) ||
-  path.startsWith("/_next/") ||
-  path.startsWith("/.well-known/") ||
-  path === "/sitemap.xml" ||
-  path === "/robots.txt"
-) {
-  return;
-}
+  if (path.startsWith("/_next/") || path.startsWith("/.well-known/")) {
+    return NextResponse.next();
+  }
+
+  if (isShortRoute(path)) {
+    // Agrega el header "X-Robots-Tag" a los path que no esten definidos
+    return NextResponse.next({
+      headers: {
+        'X-Robots-Tag': 'noindex, nofollow'
+      }
+    });
+  }
 
   return updateSession(request);
 }
 
+const ALLOWED_ROBOT_INDEX = [
+  '/sitemap.xml',
+  '/robots.txt',
+  '/ui',
+  '/about',
+  '/about/',
+  '/piscolas',
+  '/piscolas/',
+  PAGES.HOME,
+  PAGES.HOME + '/',
+  PAGES.ABOUT,
+  PAGES.ABOUT + '/',
+  PAGES.PISCOLAS,
+  PAGES.PISCOLAS + '/',
+] as const;
+
 function isShortRoute(path: string) {
   // excluir root, prefijos reservados y archivos con extensión
-  if (path === '/' || path === '/es' || path === '/en') return false;
+  if (path === '/' || path === '/es' || path === '/en' || ALLOWED_ROBOT_INDEX.includes(path)) return false;
   if (/^\/(api|_next|favicon\.ico|site\.webmanifest)/.test(path)) return false;
   // una única segmentación sin punto ni subdirectorios, permite opcional trailing slash
   return /^\/[^/.?#]+\/?$/.test(path);

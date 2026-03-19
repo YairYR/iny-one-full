@@ -46,9 +46,5 @@ export default async function ShorterPage({ params }: { params: Promise<{ short:
     referer: (headerList as Readonly<Headers>).get('referer'),
   });
 
-  try {
-    return redirect(decodeURI(data.destination));
-  } catch {
-    return redirect(data.destination);
-  }
+  return redirect('/r?target=page&to=' + short);
 }
