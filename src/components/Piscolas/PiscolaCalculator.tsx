@@ -32,6 +32,7 @@ export default function PiscolaCalculator() {
   const [piscoBottleSize, setPiscoBottleSize] = useState(0.75);
   const [colaBottlePrice, setColaBottlePrice] = useState(2490);
   const [piscoBottlePrice, setPiscoBottlePrice] = useState(6990);
+  const [selectedPreset, setSelectedPreset] = useState<'suave' | 'tipica' | 'cargada' | 'personalizada'>('tipica');
 
   const calculations = useMemo(() => {
     const totalDrinks = people * piscolasPerPerson;
@@ -72,9 +73,12 @@ export default function PiscolaCalculator() {
     setPiscoBottleSize(0.75);
     setColaBottlePrice(2490);
     setPiscoBottlePrice(6990);
+    setSelectedPreset('tipica');
   }
 
   function applyPreset(type: 'suave' | 'tipica' | 'cargada') {
+    setSelectedPreset(type);
+
     if (type === 'suave') {
       setPiscoPerDrinkMl(50);
       setColaPerDrinkMl(170);
@@ -91,17 +95,28 @@ export default function PiscolaCalculator() {
     setColaPerDrinkMl(140);
   }
 
+  function getPresetButtonClass(type: 'suave' | 'tipica' | 'cargada') {
+    const isActive = selectedPreset === type;
+
+    return [
+      'rounded-xl px-4 py-2 text-sm font-medium transition cursor-pointer border',
+      isActive
+        ? 'border-indigo-200 bg-indigo-50 text-indigo-700 shadow-sm'
+        : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+    ].join(' ');
+  }
+
   return (
     <div className="mx-auto max-w-6xl">
       <div className="mb-8 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div>
           <div className="mb-3 inline-flex items-center gap-2 rounded-full bg-indigo-100 px-3 py-1 text-sm font-medium text-indigo-700">
             <Calculator className="h-4 w-4" />
-            Herramienta gratuita en iny.one
+            
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-gray-900">Calculadora de Piscolas</h1>
           <p className="mt-3 max-w-3xl text-base text-gray-600">
-            Calcula cuántas botellas de Coca-Cola y pisco necesitas para una junta, además del presupuesto total estimado según la receta y el tamaño de botella que elijas.
+            Calcula cuántas botellas de Coca-Cola y pisco necesitas para una junta.
           </p>
         </div>
 
@@ -150,7 +165,10 @@ export default function PiscolaCalculator() {
                 min={30}
                 step={5}
                 value={piscoPerDrinkMl}
-                onChange={(e) => setPiscoPerDrinkMl(Math.max(30, Number(e.target.value) || 30))}
+                onChange={(e) => {
+                  setPiscoPerDrinkMl(Math.max(30, Number(e.target.value) || 30));
+                  setSelectedPreset('personalizada');
+                }}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-indigo-500"
               />
             </label>
@@ -162,7 +180,10 @@ export default function PiscolaCalculator() {
                 min={90}
                 step={10}
                 value={colaPerDrinkMl}
-                onChange={(e) => setColaPerDrinkMl(Math.max(90, Number(e.target.value) || 90))}
+                onChange={(e) => {
+                  setColaPerDrinkMl(Math.max(90, Number(e.target.value) || 90));
+                  setSelectedPreset('personalizada');
+                }}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-indigo-500"
               />
             </label>
@@ -241,9 +262,14 @@ export default function PiscolaCalculator() {
           </div>
 
           <div className="mt-6 flex flex-wrap gap-3">
-            <button type="button" onClick={() => applyPreset('suave')} className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 cursor-pointer">Suave</button>
-            <button type="button" onClick={() => applyPreset('tipica')} className="rounded-xl border border-indigo-200 bg-indigo-50 px-4 py-2 text-sm font-medium text-indigo-700 transition hover:bg-indigo-100 cursor-pointer">Típica</button>
-            <button type="button" onClick={() => applyPreset('cargada')} className="rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-gray-50 cursor-pointer">Cargada</button>
+            <button type="button" onClick={() => applyPreset('suave')} className={getPresetButtonClass('suave')}>Suave</button>
+            <button type="button" onClick={() => applyPreset('tipica')} className={getPresetButtonClass('tipica')}>Precisa</button>
+            <button type="button" onClick={() => applyPreset('cargada')} className={getPresetButtonClass('cargada')}>Cargada</button>
+            {selectedPreset === 'personalizada' && (
+              <span className="inline-flex items-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
+                Receta personalizada
+              </span>
+            )}
           </div>
         </section>
 
