@@ -132,6 +132,46 @@ export default function PiscolaCalculator() {
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
+  <div className="mb-6">
+    <span className="mb-2 block text-sm font-medium text-gray-700">¿Cómo la quieres?</span>
+
+    <div className="flex flex-wrap gap-3">
+      <button
+        type="button"
+        onClick={() => applyPreset('suave')}
+        className={getPresetButtonClass('suave')}
+      >
+        Suave
+      </button>
+
+      <button
+        type="button"
+        onClick={() => applyPreset('tipica')}
+        className={getPresetButtonClass('tipica')}
+      >
+        Precisa
+      </button>
+
+      <button
+        type="button"
+        onClick={() => applyPreset('cargada')}
+        className={getPresetButtonClass('cargada')}
+      >
+        Cargada
+      </button>
+
+      {selectedPreset === 'personalizada' && (
+        <span className="inline-flex items-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
+          Receta personalizada
+        </span>
+      )}
+    </div>
+
+    <p className="mt-3 text-sm text-gray-500">
+      Esto ajusta automáticamente la proporción base de pisco y Coca-Cola.
+    </p>
+  </div>
+
           <div className="grid gap-6 md:grid-cols-2">
             <label className="block">
               <span className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
@@ -245,7 +285,7 @@ export default function PiscolaCalculator() {
             </label>
           </div>
 
-          <div className="mt-6 rounded-2xl bg-gray-50 p-4">
+             <div className="mt-6 rounded-2xl bg-gray-50 p-4">
             <div className="mb-2 flex items-center justify-between gap-4">
               <span className="text-sm font-medium text-gray-700">Margen extra por hielo, derrame o consumo adicional</span>
               <span className="text-sm font-semibold text-indigo-700">{extraMargin}%</span>
@@ -259,17 +299,6 @@ export default function PiscolaCalculator() {
               onChange={(e) => setExtraMargin(Number(e.target.value))}
               className="w-full accent-indigo-600"
             />
-          </div>
-
-          <div className="mt-6 flex flex-wrap gap-3">
-            <button type="button" onClick={() => applyPreset('suave')} className={getPresetButtonClass('suave')}>Suave</button>
-            <button type="button" onClick={() => applyPreset('tipica')} className={getPresetButtonClass('tipica')}>Precisa</button>
-            <button type="button" onClick={() => applyPreset('cargada')} className={getPresetButtonClass('cargada')}>Cargada</button>
-            {selectedPreset === 'personalizada' && (
-              <span className="inline-flex items-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
-                Receta personalizada
-              </span>
-            )}
           </div>
         </section>
 
