@@ -1,5 +1,5 @@
 import { render } from '@testing-library/react'
-import Page from '@/app/(ui)/(main)/page';
+import Page from '@/app/ui/(main)/page';
 
 jest.mock('next/navigation');
 

@@ -1,6 +1,7 @@
-import { type NextRequest, MiddlewareConfig } from 'next/server'
+import { type NextRequest, MiddlewareConfig, NextResponse } from 'next/server'
 import { updateSession } from "@/lib/middlewares/session";
 import { checkWebhook } from "@/lib/middlewares/webhooks";
+import { ROUTES } from "@/lib/routes";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -8,18 +9,23 @@ export async function middleware(request: NextRequest) {
     return checkWebhook(request);
   }
 
-  if (isShortRoute(path) ||
-    path.startsWith("/_next/") ||
-    path.startsWith("/.well-known/")) {
-    return;
+  if (isShortRoute(path)) {
+    return NextResponse.next();
   }
 
   return updateSession(request);
 }
 
+const UPDATABLE_SESSION = [
+  '/',
+  ROUTES.HOME,
+  ROUTES.ABOUT,
+  ROUTES.PISCOLAS,
+] as const;
+
 function isShortRoute(path: string) {
   // excluir root, prefijos reservados y archivos con extensión
-  if (path === '/' || path === '/es' || path === '/en') return false;
+  if (path === '/' || path === '/es' || path === '/en' || UPDATABLE_SESSION.includes(path as never)) return false;
   if (/^\/(api|_next|favicon\.ico|site\.webmanifest)/.test(path)) return false;
   // una única segmentación sin punto ni subdirectorios, permite opcional trailing slash
   return /^\/[^/.?#]+\/?$/.test(path);
@@ -34,6 +40,6 @@ export const config: MiddlewareConfig = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-    '/((?!_next/static|_next/image|favicon\\.ico|site.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
+     '/((?!_next|favicon\\.ico|site\\.webmanifest||sitemap\\.xml|robots\\.txt|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
   ],
 }

@@ -2,6 +2,7 @@ import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 import Link from 'next/link';
 import React from "react";
 import { CurrentUserAvatar } from "@/features/auth/components/OAuth/CurrentUserAvatar";
+import { ROUTES } from "@/lib/routes";
 import { usePathname, useRouter } from "next/navigation";
 
 interface Props {
@@ -14,9 +15,9 @@ export default function UserProfileMenu({ picture, fullname }: Readonly<Props>) 
   const pathname = usePathname();
 
   const onClickLoggOut = async () => {
-    await fetch('/auth/logout');
+    await fetch(ROUTES.LOGOUT);
     if(pathname.includes('dashboard')) {
-      router.push('/');
+      router.push(ROUTES.HOME);
     } else {
       router.refresh();
     }

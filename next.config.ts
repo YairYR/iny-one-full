@@ -1,6 +1,14 @@
 import { NextConfig } from "next";
 import createNextIntlPlugin from 'next-intl/plugin';
 
+const securityHeaders = [
+  { key: 'Strict-Transport-Security', value: 'max-age=300; includeSubDomains' }, // 5 minutes
+  { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+  { key: 'X-Content-Type-Options', value: 'nosniff' },
+  { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+  { key: 'Permissions-Policy', value: 'accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()' },
+];
+
 const nextConfig: NextConfig = {
   logging: {
     fetches: {
@@ -13,37 +21,8 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:short',
-        locale: false,
-        headers: [
-          {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow'
-          }
-        ],
-        has: [
-          {
-            type: 'header',
-            key: 'sec-fetch-dest',
-            value: 'document'
-          }
-        ],
-      },
-      {
-        source: '/:short',
-        locale: false,
-        headers: [
-          {
-            key: 'X-Robots-Tag',
-            value: 'noindex, nofollow'
-          }
-        ],
-        missing: [
-          {
-            type: 'header',
-            key: 'sec-fetch-dest'
-          }
-        ],
+        source: '/(.*)',
+        headers: securityHeaders,
       },
       {
         source: '/es/:path*',
@@ -73,9 +52,36 @@ const nextConfig: NextConfig = {
         source: '/bloom.bin',
         destination: '/favicon.ico',
         permanent: false
+      },
+      {
+        source: '/piscolas',
+        destination: '/ui/piscolas',
+        permanent: false
+      },
+      {
+        source: '/cart',
+        destination: '/ui/cart',
+        permanent: false
+      },
+      {
+        source: '/plans',
+        destination: '/ui/plans',
+        permanent: false
       }
     ]
   },
+  async rewrites() {
+    return [
+      {
+        source: '/',
+        destination: '/ui',
+      },
+      {
+        source: '/about',
+        destination: '/ui/about',
+      },
+    ]
+  }
 };
 
 const withNextIntl = createNextIntlPlugin({
