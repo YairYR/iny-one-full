@@ -15,3 +15,10 @@ export const ROUTES = {
 } as const;
 
 export const ALL_ROUTES: string[] = Object.values(ROUTES);
+
+export const ALLOWED_PARAMS = {
+  freeAnonymous: ['utm_source', 'utm_medium', 'utm_campaign'],
+  free: ['utm_source', 'utm_medium', 'utm_campaign'],
+  basic: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'],
+  pro: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id'],
+};
