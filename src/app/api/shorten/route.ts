@@ -15,6 +15,7 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { checkRateLimit } from "@/lib/utils/rate-limits";
 import { ERROR } from "@/lib/api/error-codes";
+import { ALLOWED_PARAMS } from "@/lib/routes";
 
 dayjs.extend(utc);
 
@@ -112,13 +113,6 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
     short: `https://iny.one/${slug}`
   });
 })
-
-export const ALLOWED_PARAMS = {
-  freeAnonymous: ['utm_source', 'utm_medium', 'utm_campaign'],
-  free: ['utm_source', 'utm_medium', 'utm_campaign'],
-  basic: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term'],
-  pro: ['utm_source', 'utm_medium', 'utm_campaign', 'utm_content', 'utm_term', 'utm_id'],
-};
 
 const buildDestination = (url: string, utm: Partial<UtmParams>, plan: PlanName|'freeAnonymous') => {
   const sanitize = (value: string | null) =>
