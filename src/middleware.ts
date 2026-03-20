@@ -9,40 +9,23 @@ export async function middleware(request: NextRequest) {
     return checkWebhook(request);
   }
 
-  if (path.startsWith("/_next/") || path.startsWith("/.well-known/")) {
-    return NextResponse.next();
-  }
-
   if (isShortRoute(path)) {
-    // Agrega el header "X-Robots-Tag" a los path que no esten definidos
-    return NextResponse.next({
-      headers: {
-        'X-Robots-Tag': 'noindex, nofollow'
-      }
-    });
+    return NextResponse.next();
   }
 
   return updateSession(request);
 }
 
-const ALLOWED_ROBOT_INDEX = [
-  '/sitemap.xml',
-  '/robots.txt',
-  '/about',
-  '/about/',
-  '/piscolas',
-  '/piscolas/',
+const UPDATABLE_SESSION = [
+  '/',
   ROUTES.HOME,
-  ROUTES.HOME + '/',
   ROUTES.ABOUT,
-  ROUTES.ABOUT + '/',
   ROUTES.PISCOLAS,
-  ROUTES.PISCOLAS + '/',
 ] as const;
 
 function isShortRoute(path: string) {
   // excluir root, prefijos reservados y archivos con extensión
-  if (path === '/' || path === '/es' || path === '/en' || ALLOWED_ROBOT_INDEX.includes(path)) return false;
+  if (path === '/' || path === '/es' || path === '/en' || UPDATABLE_SESSION.includes(path as never)) return false;
   if (/^\/(api|_next|favicon\.ico|site\.webmanifest)/.test(path)) return false;
   // una única segmentación sin punto ni subdirectorios, permite opcional trailing slash
   return /^\/[^/.?#]+\/?$/.test(path);
@@ -57,6 +40,6 @@ export const config: MiddlewareConfig = {
      * - favicon.ico (favicon file)
      * Feel free to modify this pattern to include more paths.
      */
-     '/((?!_next/static|_next/image|favicon\\.ico|site.webmanifest|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
+     '/((?!_next|favicon\\.ico|site\\.webmanifest||sitemap\\.xml|robots\\.txt|\\.well-known|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)'
   ],
 }

@@ -57,6 +57,16 @@ const nextConfig: NextConfig = {
         source: '/piscolas',
         destination: '/ui/piscolas',
         permanent: false
+      },
+      {
+        source: '/cart',
+        destination: '/ui/cart',
+        permanent: false
+      },
+      {
+        source: '/plans',
+        destination: '/ui/plans',
+        permanent: false
       }
     ]
   },
