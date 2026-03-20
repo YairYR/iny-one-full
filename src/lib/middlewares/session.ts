@@ -5,25 +5,17 @@ import { ROUTES } from "@/lib/routes";
 
 const PUBLIC_EXACT_PATHS = new Set([
   '/',
-  '/ui',
-  '/plans',
-  '/ui/plans',
-  '/cart',
-  '/ui/cart',
-  '/piscolas',
-  '/ui/piscolas',
-  '/robots.txt',
-  '/sitemap.xml',
+  ROUTES.HOME,
+  ROUTES.PLANS,
+  ROUTES.CART,
+  ROUTES.PISCOLAS,
 ]);
 
 const PUBLIC_PREFIXES = [
   '/api',
-  '/login',
-  '/auth',
-  '/ui/auth',
   '/error',
-  '/cart/',
-  '/ui/cart/',
+  '/ui/auth',
+  ROUTES.CART,
 ];
 
 const isPublicPath = (pathname: string) => {
@@ -64,15 +56,16 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user && !isPublicPath(request.nextUrl.pathname)) {
-    console.log('redirect to auth', request.nextUrl.pathname);
+  const pathname = request.nextUrl.pathname;
+  if (!user && !isPublicPath(pathname)) {
+    console.log('redirect to auth', pathname);
     const url = request.nextUrl.clone();
     url.pathname = ROUTES.LOGIN;
     return NextResponse.redirect(url);
   }
 
-  if (request.nextUrl.pathname.startsWith('/cart/')) {
-    const value = request.nextUrl.pathname
+  if (pathname.startsWith('/cart/')) {
+    const value = pathname
       .replace('/cart/', '')
       .split('/')[0];
 
