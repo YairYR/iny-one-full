@@ -17,6 +17,7 @@ import {
 import { Line, Bar, Pie } from "react-chartjs-2";
 import { Kpi, LinksTable, LinkDetailModal } from "@/features/dashboard/components";
 import Link from "next/link";
+import { ROUTES } from "@/lib/routes";
 import InfoPopover from "@/components/Popover/InfoPopover";
 import { useUserDashboard } from "@/features/dashboard/hooks/useUserDashboard";
 
@@ -70,7 +71,7 @@ export function UserDashboard() {
             <p className="text-sm text-gray-500">{t('subtitle')}</p>
           </div>
           <div className="flex gap-2">
-            <Link href="/" className="bg-white px-4 py-2 rounded shadow-sm cursor-pointer">{t("button.newLink")}</Link>
+            <Link prefetch={false} href={ROUTES.HOME} className="bg-white px-4 py-2 rounded shadow-sm cursor-pointer">{t("button.newLink")}</Link>
             {/*<button className="bg-indigo-600 text-white px-4 py-2 rounded">Exportar CSV</button>*/}
           </div>
         </header>

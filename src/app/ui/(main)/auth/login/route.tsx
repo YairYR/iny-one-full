@@ -12,7 +12,7 @@ export async function GET() {
   const supabase = await createClient();
 
   const goTo = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.iny.one");
-  goTo.pathname = "/auth/callback";
+  goTo.pathname = "/ui/auth/callback";
   if(cookieStore.has(REDIRECT_TO_COOKIE_NAME)) {
     const next = cookieStore.get(REDIRECT_TO_COOKIE_NAME)!.value;
     goTo.searchParams.set("next", next);

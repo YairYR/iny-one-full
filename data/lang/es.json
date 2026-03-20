@@ -1,4 +1,14 @@
 {
+  "404": {
+    "metaTitle": "404 – Page Not Found | iny.one",
+    "metaDescription": "The page you are looking for does not exist. Check the URL or return to the homepage.",
+    "title": "404",
+    "subtitle": "La página o el enlace no existe.",
+    "goBack": "Atrás",
+    "goHome": "Volver al inicio",
+    "goDashboard": "Dashboard",
+    "footer": "Acortador de URLs con UTM"
+  },
   "Head":  {
     "title": "iny.one – Acortador de URLs con UTM",
     "subtitle": "Mejora tus campañas con enlaces inteligentes.",

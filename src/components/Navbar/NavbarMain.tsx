@@ -7,6 +7,7 @@ import UserProfileMenu from "@/components/Navbar/profile/UserProfileMenu";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserClient } from "@/lib/types";
+import { ROUTES } from "@/lib/routes";
 
 interface Tab {
   name: string;
@@ -15,8 +16,8 @@ interface Tab {
 }
 
 const navigation: Tab[] = [
-  { name: 'Home', href: '/', current: true },
-  { name: 'Dashboard', href: '/dashboard', current: false },
+  { name: 'Home', href: ROUTES.HOME, current: true },
+  { name: 'Dashboard', href: ROUTES.DASHBOARD, current: false },
   // { name: 'Team', href: '#', current: false },
 ];
 
@@ -58,6 +59,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
               <div className="flex space-x-4">
                 {tabs.map((item) => (
                   <Link
+                    prefetch={false}
                     key={item.name}
                     href={item.href}
                     aria-current={item.current ? 'page' : undefined}
@@ -89,7 +91,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
             </>)}
 
             {!user && (<Link
-              href='/auth/login'
+              href={ROUTES.LOGIN}
               prefetch={false}
               type="button"
               className="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 cursor-pointer"
