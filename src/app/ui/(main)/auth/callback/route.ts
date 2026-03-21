@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 // The client you created from the Server-Side Auth instructions
 import { createClient } from '@/lib/supabase/server'
 import { ROUTES } from "@/lib/routes";
+import { IS_DEVELOPMENT } from "@/constants";
 
 export async function GET(request: NextRequest) {
   const { searchParams, origin } = request.nextUrl;
@@ -19,8 +20,7 @@ export async function GET(request: NextRequest) {
     console.log(error);
     if (!error) {
       const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
-      const isLocalEnv = process.env.NODE_ENV === 'development'
-      if (isLocalEnv) {
+      if (IS_DEVELOPMENT) {
         // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
         return NextResponse.redirect(`${origin}${next}`)
       } else if (forwardedHost) {
