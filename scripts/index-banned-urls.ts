@@ -13,8 +13,8 @@ import { split, concat, uniq, join } from 'lodash-es';
  * NSFW
  */
 
-const base_url = 'https://raw.githubusercontent.com/hagezi/dns-blocklists/main';
-const base_url_phishing = 'https://raw.githubusercontent.com/Phishing-Database/Phishing.Database/master';
+const base_url = 'https://cdn.jsdelivr.net/gh/hagezi/dns-blocklists@main';
+const base_url_phishing = 'https://cdn.jsdelivr.net/gh/Phishing-Database/Phishing.Database@master';
 const db_domains_to_merge = {
   'fake-onlydomains': base_url + '/wildcard/fake-onlydomains.txt',
   'tif-onlydomains': base_url + '/wildcard/tif-onlydomains.txt',
@@ -45,19 +45,12 @@ function downloadFile(url: string, filename: string) {
   })
 }
 
-function getRandomTime(min: number, max: number) {
-  min = Math.ceil(min); // Ensure min is an integer
-  max = Math.floor(max); // Ensure max is an integer
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 async function get_all_files() {
   const keys = Object.keys(db_domains_to_merge);
   for (const key of keys) {
     // @ts-expect-error No causa error dado que uwu
-    const url: string = base_url + db_domains_to_merge[key];
+    const url: string = db_domains_to_merge[key];
     await downloadFile(url, key + '.txt');
-    await new Promise(resolve => setTimeout(resolve, getRandomTime(800, 2000)));
   }
 }
 
