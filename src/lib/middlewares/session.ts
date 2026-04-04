@@ -5,7 +5,14 @@ import { ROUTES } from "@/lib/routes";
 
 const PUBLIC_EXACT_PATHS = new Set([
   '/',
+  '/about',
+  '/plans',
+  '/cart',
+  '/piscolas',
+
+  // internas mientras existan rewrites/compatibilidad
   ROUTES.HOME,
+  ROUTES.ABOUT,
   ROUTES.PLANS,
   ROUTES.CART,
   ROUTES.PISCOLAS,
@@ -15,11 +22,29 @@ const PUBLIC_PREFIXES = [
   '/api',
   '/error',
   '/ui/auth',
-  ROUTES.CART,
+  '/cart/',
+  '/es',
+  '/en',
 ];
 
+function normalizePathname(pathname: string) {
+  if (pathname === '/es' || pathname === '/en') return '/';
+
+  if (pathname.startsWith('/es/')) {
+    return pathname.replace(/^\/es/, '');
+  }
+
+  if (pathname.startsWith('/en/')) {
+    return pathname.replace(/^\/en/, '');
+  }
+
+  return pathname;
+}
+
 const isPublicPath = (pathname: string) => {
-  if (PUBLIC_EXACT_PATHS.has(pathname)) {
+  const normalized = normalizePathname(pathname);
+
+  if (PUBLIC_EXACT_PATHS.has(normalized)) {
     return true;
   }
 
@@ -57,8 +82,8 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   const pathname = request.nextUrl.pathname;
+
   if (!user && !isPublicPath(pathname)) {
-    console.log('redirect to auth', pathname);
     const url = request.nextUrl.clone();
     url.pathname = ROUTES.LOGIN;
     return NextResponse.redirect(url);
@@ -73,8 +98,8 @@ export async function updateSession(request: NextRequest) {
     supabaseResponse.cookies.set(CART_COOKIE_NAME, value);
 
     if (!user) {
-      request.cookies.set(REDIRECT_TO_COOKIE_NAME, ROUTES.CART);
-      supabaseResponse.cookies.set(REDIRECT_TO_COOKIE_NAME, ROUTES.CART);
+      request.cookies.set(REDIRECT_TO_COOKIE_NAME, '/cart');
+      supabaseResponse.cookies.set(REDIRECT_TO_COOKIE_NAME, '/cart');
     }
   }
 
