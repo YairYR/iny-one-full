@@ -2,107 +2,74 @@
 
 ## UI -> API → Feature → Core → Infra
 
-Folder Structure
+## Project structure
 
-```
+```txt
 src/
+├─ app/                              # App Router, pages, route handlers and layouts
+│  ├─ layout.tsx                     # Root layout (html, body, global metadata defaults)
+│  ├─ page.tsx                       # Public home page
+│  ├─ [short]/route.ts               # Short-link resolver
+│  ├─ api/                           # API routes
+│  │  ├─ auth/
+│  │  ├─ shorten/
+│  │  ├─ users/
+│  │  └─ payments/
+│  ├─ ui/                            # Internal implementation layer behind public rewrites
+│  │  ├─ layout.tsx                  # Section layout (without html/body)
+│  │  ├─ (main)/                     # Public-facing pages implemented internally
+│  │  │  ├─ page.tsx
+│  │  │  ├─ about/
+│  │  │  ├─ plans/
+│  │  │  ├─ piscolas/
+│  │  │  ├─ cart/
+│  │  │  └─ auth/
+│  │  │     ├─ login/
+│  │  │     ├─ register/
+│  │  │     └─ callback/
+│  │  └─ dashboard/
+│  │     ├─ page.tsx
+│  │     ├─ users/
+│  │     └─ settings/
+│  ├─ robots.txt                     # Crawl rules
+│  └─ sitemap.ts                     # Canonical sitemap
 │
-├─ app/                                # App Router (rutas y layouts)
-│  ├─ layout.tsx                       # Layout global
-│  ├─ page.tsx                         # Página principal (landing o login)
-│  ├─ (admin)/                         # Segmento para panel administrativo
-│  │   ├─ layout.tsx
-│  │   ├─ dashboard/
-│  │   │   ├─ page.tsx
-│  │   │   ├─ users/
-│  │   │   │   ├─ page.tsx
-│  │   │   │   └─ components/
-│  │   │   └─ settings/
-│  │   │       └─ page.tsx
-│  │   └─ ...
-│  │
-│  ├─ api/                             # Endpoints serverless (Next.js API)
-│  │   ├─ auth/
-│  │   │   └─ route.ts
-│  │   ├─ users/
-│  │   │   └─ route.ts
-│  │   └─ payments/
-│  │       └─ route.ts
-│  │
-│  └─ (auth)/                          # Segmento para login/register
-│      ├─ login/
-│      │   └─ page.tsx
-│      └─ register/
-│          └─ page.tsx
+├─ components/                       # Shared UI components
+│  ├─ ui/
+│  ├─ layout/
+│  └─ feedback/
 │
-├─ features/                           # Arquitectura por dominio
+├─ features/                         # Feature/domain modules
 │  ├─ auth/
-│  │   ├─ components/                  # UI relacionada (formularios, modales)
-│  │   ├─ hooks/                       # Hooks de sesión, validaciones
-│  │   ├─ services/                    # Integración Supabase / API
-│  │   ├─ types/
-│  │   └─ index.ts
-│  │
 │  ├─ payments/
-│  │   ├─ components/
-│  │   ├─ services/                    # Lógica de subscripciones, billing
-│  │   ├─ utils/
-│  │   └─ index.ts
-│  │
 │  ├─ users/
-│  │   ├─ components/
-│  │   ├─ services/
-│  │   └─ index.ts
-│  │
 │  └─ ...
 │
-├─ components/                         # Componentes globales o compartidos
-│  ├─ ui/                              # Botones, inputs, loaders, etc.
-│  ├─ layout/                          # Navbar, Sidebar, etc.
-│  └─ feedback/                        # Toasts, modales, alertas
-│
-├─ core/                               # Capa de dominio y lógica empresarial
-│  ├─ entities/                        # Entidades puras (User, Subscription, etc.)
-│  ├─ repositories/                    # Interfaces (p. ej. IUserRepository)
-│  ├─ use-cases/                       # Casos de uso (registerUser, renewSubscription)
+├─ core/                             # Domain layer
+│  ├─ entities/
+│  ├─ repositories/
+│  ├─ use-cases/
 │  └─ errors/
 │
-├─ infra/                              # Implementaciones concretas (infraestructura)
-│  ├─ db/                              # Prisma o Supabase client
-│  │   ├─ client.ts
-│  │   └─ schema.prisma (si aplica)
-│  ├─ auth/                            # Supabase Auth o JWT handlers
-│  ├─ payments/                        # Integración Stripe, Flow, etc.
-│  └─ storage/                         # Uploads, buckets
+├─ infra/                            # Infrastructure adapters
+│  ├─ db/
+│  ├─ auth/
+│  ├─ payments/
+│  └─ storage/
 │
-├─ lib/                                # Herramientas compartidas
-│  ├─ supabase.ts                      # Cliente Supabase inicializado
-│  ├─ env.ts                           # Variables de entorno validadas (zod)
-│  ├─ logger.ts                        # Logger centralizado
-│  ├─ fetcher.ts                       # SWR o react-query fetchers
-│  └─ utils.ts                         # Helpers simples
+├─ lib/                              # Shared utilities and runtime helpers
+│  ├─ api/
+│  ├─ middlewares/
+│  ├─ supabase/
+│  ├─ routes.ts
+│  ├─ reserved-slugs.ts
+│  └─ utils/
 │
-├─ hooks/                              # Hooks globales (useTheme, useMediaQuery)
-│  └─ useClientOnly.ts
-│
-├─ config/                             # Config global
-│  ├─ auth.config.ts
-│  ├─ payments.config.ts
-│  └─ constants.ts
-│
-├─ styles/                             # CSS global (Tailwind)
-│  ├─ globals.css
-│  └─ tailwind.css
-│
-├─ types/                              # Tipos compartidos (no específicos de feature)
-│  ├─ next.d.ts
-│  └─ global.d.ts
-│
-└─ tests/
-   ├─ unit/
-   ├─ integration/
-   └─ e2e/
-```
+├─ hooks/                            # Global hooks
+├─ config/                           # App-wide configuration
+├─ styles/                           # Global styles
+├─ types/                            # Shared TypeScript types
+└─ tests/                            # Unit, integration and e2e tests
 
 ## Enfoque
 
