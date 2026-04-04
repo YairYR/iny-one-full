@@ -6,6 +6,7 @@ import { getShorterRepository } from "@/infra/db/shorter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { ROUTES } from "@/lib/routes";
 import { getTranslations, getLocale } from "next-intl/server";
+import { isReservedSlug, normalizeSlug } from '@/lib/reserved-slugs';
 
 type IData = {
   destination: string | null;
@@ -16,14 +17,21 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
   const { short } = await ctx.params;
   if (!short || short.length <= 0) return render404();
 
+  const reservedCheck = normalizeSlug(short);
+  if (isReservedSlug(reservedCheck)) {
+    return render404();
+  }
+
   const shorterRepo = getShorterRepository(supabase_service);
 
   let data: IData | null = null;
   const { data: result, error } = await shorterRepo.getBySlug(short);
+
   if (error) {
     console.error('getShortenUrl error:', error);
     return render404();
   }
+
   data = result;
 
   if (!data?.destination) return render404();
@@ -31,21 +39,21 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
   if (data.expires_at) {
     const now = dayjs();
     const expiresAt = dayjs(data.expires_at);
+
     if (expiresAt.isValid() && expiresAt.isBefore(now, 'hour')) {
       await shorterRepo.setStatus(short, false);
       return render404();
     }
   }
 
-  if (!data?.destination) {
-    return render404();
-  }
-
-  // Registro en background (fire-and-forget)
   const headerList = await getHeaders();
+
   after(async () => {
     const geo = getGeoLocation(headerList as Readonly<Headers>);
-    const userAgent = userAgentFromString((headerList as Readonly<Headers>).get('user-agent') || '');
+    const userAgent = userAgentFromString(
+      (headerList as Readonly<Headers>).get('user-agent') || ''
+    );
+
     await shorterRepo.click(short, {
       ...geo,
       userAgent,
@@ -74,6 +82,7 @@ async function render404() {
 async function get404() {
   const locale = await getLocale();
   const t = await getTranslations('404');
+
   const texts = {
     head: {
       lang: locale,
@@ -87,11 +96,12 @@ async function get404() {
     goDashboard: t('goDashboard'),
     footer: t('footer'),
   };
+
   const links = {
     goBack: 'javascript:history.back()',
     goHome: ROUTES.HOME,
     goDashboard: ROUTES.DASHBOARD,
-  }
+  };
 
   return `<!doctype html>
 <html lang="${texts.head.lang}">
@@ -104,23 +114,16 @@ async function get404() {
     <meta name="robots" content="noindex" />
     <style>
       :root {
-        /* Alineado a tu estética: fondo frío + acento índigo/violeta */
         --bg1: #eef4ff;
         --bg2: #dde8ff;
-
         --card: #ffffff;
         --border: rgba(15, 23, 42, 0.14);
         --shadow: 0 10px 26px rgba(15, 23, 42, 0.10);
-
         --text: #0f172a;
         --muted: rgba(15, 23, 42, 0.62);
-
         --primary: #4f46e5;
         --primaryHover: #4338ca;
-
-        /* Complementario “amable” para detalles */
         --accent: #2563eb;
-
         --radius: 16px;
       }
 
@@ -128,14 +131,11 @@ async function get404() {
         :root {
           --bg1: #0b1222;
           --bg2: #0a1020;
-
           --card: rgba(255, 255, 255, 0.06);
           --border: rgba(255, 255, 255, 0.14);
           --shadow: 0 18px 60px rgba(0, 0, 0, 0.50);
-
           --text: rgba(255, 255, 255, 0.92);
           --muted: rgba(255, 255, 255, 0.68);
-
           --primary: #6366f1;
           --primaryHover: #4f46e5;
           --accent: #60a5fa;
@@ -221,6 +221,7 @@ async function get404() {
         background: transparent;
         transition: transform 120ms ease, background 120ms ease, border-color 120ms ease;
       }
+
       .btn:hover { transform: translateY(-1px); }
 
       .btn.primary {
@@ -228,12 +229,14 @@ async function get404() {
         border-color: transparent;
         color: #fff;
       }
+
       .btn.primary:hover { background: var(--primaryHover); }
 
       .btn.soft {
         background: rgba(79, 70, 229, 0.08);
         border-color: rgba(79, 70, 229, 0.18);
       }
+
       @media (prefers-color-scheme: dark) {
         .btn.soft {
           background: rgba(99, 102, 241, 0.14);
@@ -246,6 +249,7 @@ async function get404() {
         font-size: 13px;
         color: var(--muted);
       }
+
       .foot a { color: var(--primary); font-weight: 800; text-decoration: none; }
       .foot a:hover { text-decoration: underline; }
     </style>
