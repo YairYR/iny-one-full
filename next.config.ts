@@ -55,7 +55,6 @@ const nextConfig: NextConfig = {
 
   async redirects() {
     return [
-      // Dominio canónico: www -> apex
       {
         source: "/:path*",
         has: [
@@ -68,7 +67,6 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
 
-      // Elimina acceso público duplicado a rutas internas /ui/*
       {
         source: "/ui",
         destination: "/",
@@ -94,6 +92,7 @@ const nextConfig: NextConfig = {
         destination: "/plans",
         permanent: true,
       },
+
       {
         source: "/ui/auth/login",
         destination: "/auth/login",
@@ -105,12 +104,22 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
+        source: "/ui/auth/callback",
+        destination: "/auth/callback",
+        permanent: true,
+      },
+
+      {
+        source: "/ui/dashboard/:path*",
+        destination: "/dashboard/:path*",
+        permanent: true,
+      },
+      {
         source: "/ui/dashboard",
         destination: "/dashboard",
         permanent: true,
       },
 
-      // Alias técnico
       {
         source: "/bloom.bin",
         destination: "/favicon.ico",
@@ -121,7 +130,6 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     return [
-      // URLs públicas limpias -> implementación interna
       {
         source: "/",
         destination: "/ui",
@@ -142,6 +150,7 @@ const nextConfig: NextConfig = {
         source: "/plans",
         destination: "/ui/plans",
       },
+
       {
         source: "/auth/login",
         destination: "/ui/auth/login",
@@ -149,6 +158,15 @@ const nextConfig: NextConfig = {
       {
         source: "/auth/register",
         destination: "/ui/auth/register",
+      },
+      {
+        source: "/auth/callback",
+        destination: "/ui/auth/callback",
+      },
+
+      {
+        source: "/dashboard/:path*",
+        destination: "/ui/dashboard/:path*",
       },
       {
         source: "/dashboard",
