@@ -6,7 +6,7 @@ import { NextResponse } from "next/server";
 
 export async function GET() {
   const user = await getCurrentUserDTO();
-  if(user) return NextResponse.redirect("/dashboard");
+  if(user) return NextResponse.redirect(new URL("/dashboard", process.env.NEXT_PUBLIC_SITE_URL ?? "https://iny.one"));
 
   const cookieStore = await cookies();
   const supabase = await createClient();
