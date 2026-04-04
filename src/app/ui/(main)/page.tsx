@@ -45,10 +45,6 @@ export default function HomePage() {
         description:
           "Free URL shortener with UTM tracking to create short links and measure marketing performance.",
         inLanguage: ["en", "es"],
-        potentialAction: {
-          target: "https://iny.one/?q={search_term_string}",
-          "query-input": "required name=search_term_string",
-        },
       },
       {
         "@type": "Organization",
@@ -64,11 +60,19 @@ export default function HomePage() {
         "@type": "SoftwareApplication",
         "@id": "https://iny.one/#software",
         name: "iny.one",
-        applicationCategory: "BusinessApplication",
+        applicationCategory: "UtilitiesApplication",
         operatingSystem: "Web",
         url: "https://iny.one",
         description:
           "Web-based URL shortener with UTM parameter support for cleaner links and campaign tracking.",
+        featureList: [
+          "URL shortening",
+          "UTM parameter builder",
+          "Link tracking",
+          "Campaign analytics",
+          "One-click copy",
+        ],
+        screenshot: "https://iny.one/og-image.png",
         offers: {
           "@type": "Offer",
           price: "0",
@@ -89,13 +93,11 @@ export default function HomePage() {
           __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
         }}
       />
-
       <div className="max-w-2xl mx-auto">
         <HomeTitle />
         <UrlShortForm />
         <UtmInfoSmall />
       </div>
-
       <SubscriptionUpgrade hidden={hasPlan} />
     </>
   );
