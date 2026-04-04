@@ -36,7 +36,7 @@ export async function handleLogin(request: NextRequest) {
       throw new ValidationError("Provider not found");
     }
     const goTo = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://iny.one");
-    goTo.pathname = "/ui/auth/callback";
+    goTo.pathname = "/auth/callback";
     if(cookieList.has(REDIRECT_TO_COOKIE_NAME)) {
       const next = cookieList.get(REDIRECT_TO_COOKIE_NAME)!.value;
       goTo.searchParams.set("next", next);
