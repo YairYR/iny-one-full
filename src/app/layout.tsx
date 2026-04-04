@@ -1,9 +1,60 @@
 import type React from "react";
-import { NextIntlClientProvider } from 'next-intl';
-import '@/styles/globals.css';
-import { getTranslations, getLocale } from "next-intl/server";
+import type { Metadata } from "next";
+import { NextIntlClientProvider } from "next-intl";
+import "@/styles/globals.css";
+import { getLocale } from "next-intl/server";
 import Script from "next/script";
 import { IS_PRODUCTION } from "@/constants";
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://iny.one"),
+  applicationName: "iny.one",
+  title: "iny.one – Shorten URLs, Track Smarter",
+  description:
+    "iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results.",
+  alternates: {
+    canonical: "/",
+  },
+  verification: {
+    google: "WNueup03P4lmVxxos0qDu1zwMrCeEpuS4FVUuS0XHtM",
+  },
+  manifest: "/site.webmanifest",
+  icons: {
+    icon: [
+      { url: "/favicon.ico" },
+      { url: "/favicon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/favicon-16x16.png", sizes: "16x16", type: "image/png" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
+  openGraph: {
+    type: "website",
+    url: "/",
+    siteName: "iny.one",
+    title: "iny.one – Shorten URLs, Track Smarter",
+    description:
+      "iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "iny.one – Shorten URLs, Track Smarter",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "iny.one – Shorten URLs, Track Smarter",
+    description:
+      "iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results.",
+    images: ["/og-image.png"],
+  },
+};
 
 export default async function RootLayout({
   children,
@@ -11,32 +62,11 @@ export default async function RootLayout({
   children: React.ReactNode;
 }) {
   const locale = await getLocale();
-  const t = await getTranslations('Head');
 
   return (
     <html lang={locale}>
-      <head>
-        <title>{t('metaTitle')}</title>
-        <meta name="description" content={t('metaDescription')} />
-        <meta name="google-site-verification" content="WNueup03P4lmVxxos0qDu1zwMrCeEpuS4FVUuS0XHtM" />
-
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-        <link rel="manifest" href="/site.webmanifest" />
-        <link rel="shortcut icon" href="/favicon.ico" />
-        <meta name="theme-color" content="#ffffff" />
-
-        <meta property="og:title" content="iny.one – Shorten URLs, Track Smarter" />
-        <meta property="og:description" content="iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results." />
-        <meta property="og:image" content="https://iny.one/og-image.png" />
-        <meta property="og:url" content="https://iny.one" />
-        <meta property="og:type" content="website" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="iny.one – Shorten URLs, Track Smarter" />
-        <meta name="twitter:description" content="iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results." />
-        <meta name="twitter:image" content="https://iny.one/og-image.png" />
+      <body>
+        <NextIntlClientProvider>{children}</NextIntlClientProvider>
 
         {IS_PRODUCTION && (
           <>
@@ -56,9 +86,6 @@ export default async function RootLayout({
             </Script>
           </>
         )}
-      </head>
-      <body>
-        <NextIntlClientProvider>{children}</NextIntlClientProvider>
       </body>
     </html>
   );
