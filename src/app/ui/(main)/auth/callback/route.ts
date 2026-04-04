@@ -1,36 +1,43 @@
-import { NextRequest, NextResponse } from 'next/server'
-// The client you created from the Server-Side Auth instructions
-import { createClient } from '@/lib/supabase/server'
-import { ROUTES } from "@/lib/routes";
-import { IS_DEVELOPMENT } from "@/constants";
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@/lib/supabase/server';
+import { ROUTES } from '@/lib/routes';
+
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://iny.one';
+
+function sanitizeNext(next: string | null) {
+  if (!next || !next.startsWith('/')) {
+    return ROUTES.DASHBOARD;
+  }
+
+  // no exponer rutas internas
+  if (next.startsWith('/ui/')) {
+    return ROUTES.DASHBOARD;
+  }
+
+  // evita callback recursivo
+  if (next.startsWith('/auth/callback')) {
+    return ROUTES.DASHBOARD;
+  }
+
+  return next;
+}
 
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = request.nextUrl;
-  const code = searchParams.get('code')
-  // if "next" is in param, use it as the redirect URL
-  let next = searchParams.get('next') ?? '/'
-  if (!next.startsWith('/')) {
-    // if "next" is not a relative URL, use the default
-    next = ROUTES.DASHBOARD;
+  const { searchParams } = request.nextUrl;
+  const code = searchParams.get('code');
+  const next = sanitizeNext(searchParams.get('next'));
+
+  if (!code) {
+    return NextResponse.redirect(`${SITE_URL}/auth/login?error=missing_code`);
   }
 
-  if (code) {
-    const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code)
-    console.log(error);
-    if (!error) {
-      const forwardedHost = request.headers.get('x-forwarded-host') // original origin before load balancer
-      if (IS_DEVELOPMENT) {
-        // we can be sure that there is no load balancer in between, so no need to watch for X-Forwarded-Host
-        return NextResponse.redirect(`${origin}${next}`)
-      } else if (forwardedHost) {
-        return NextResponse.redirect(`https://${forwardedHost}${next}`)
-      } else {
-        return NextResponse.redirect(`${origin}${next}`)
-      }
-    }
+  const supabase = await createClient();
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+  if (error) {
+    console.error('OAuth callback exchange failed:', error.message);
+    return NextResponse.redirect(`${SITE_URL}/auth/login?error=oauth_callback`);
   }
 
-  // return the user to an error page with instructions
-  return NextResponse.redirect(`${origin}/#auth_error`)
+  return NextResponse.redirect(`${SITE_URL}${next}`);
 }
