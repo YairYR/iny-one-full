@@ -23,28 +23,29 @@ const UPDATABLE_SESSION = [
   '/piscolas',
   '/plans',
   '/cart',
+  '/auth/login',
+  '/auth/register',
+  '/auth/callback',
   ROUTES.HOME,
   ROUTES.ABOUT,
   ROUTES.PISCOLAS,
+  ROUTES.LOGIN,
+  ROUTES.REGISTER,
 ] as const;
 
 function isShortRoute(path: string) {
-  // excluir rutas públicas conocidas
   if (path === '/' || path === '/es' || path === '/en' || UPDATABLE_SESSION.includes(path as never)) {
     return false;
   }
 
-  // excluir prefijos reservados y archivos especiales
   if (/^\/(api|_next|favicon\.ico|site\.webmanifest|sitemap\.xml|robots\.txt|\.well-known)/.test(path)) {
     return false;
   }
 
-  // excluir cualquier archivo con extensión
   if (/\.[a-z0-9]+$/i.test(path)) {
     return false;
   }
 
-  // una única segmentación sin punto ni subdirectorios, permite slash final opcional
   return /^\/[^/.?#]+\/?$/.test(path);
 }
 
