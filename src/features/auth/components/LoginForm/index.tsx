@@ -47,8 +47,8 @@ export default function LoginForm({ nextPage }: Readonly<Props>) {
       return;
     }
 
-    if(nextPage && ALL_ROUTES.includes(nextPage)) {
-      router.push(ROUTES.CART);
+    if(nextPage && ALL_ROUTES.includes(nextPage as never)) {
+      router.push(nextPage);
     } else {
       router.push(ROUTES.DASHBOARD);
     }
