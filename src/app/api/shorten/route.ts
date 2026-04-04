@@ -96,7 +96,7 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
   const plan = currUser.plan;
 
   const { destination, utm: utmParams } = buildDestination(urlWithSuffix, utm, plan ?? 'freeAnonymous');
-  console.log(destination);
+  
 
   const rateLimitResult = await checkRateLimit(user_id, plan, ip, shorterRepo);
   if (!rateLimitResult.allowed) {
