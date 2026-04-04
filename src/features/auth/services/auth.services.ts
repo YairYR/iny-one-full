@@ -35,7 +35,7 @@ export async function handleLogin(request: NextRequest) {
     if(body.data.provider !== 'google') {
       throw new ValidationError("Provider not found");
     }
-    const goTo = new URL(process.env.SITE_URL ?? "https://www.iny.one");
+    const goTo = new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://iny.one");
     goTo.pathname = "/ui/auth/callback";
     if(cookieList.has(REDIRECT_TO_COOKIE_NAME)) {
       const next = cookieList.get(REDIRECT_TO_COOKIE_NAME)!.value;
