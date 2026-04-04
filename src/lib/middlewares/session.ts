@@ -9,19 +9,24 @@ const PUBLIC_EXACT_PATHS = new Set([
   '/plans',
   '/cart',
   '/piscolas',
+  '/auth/login',
+  '/auth/register',
+  '/auth/callback',
 
-  // internas mientras existan rewrites/compatibilidad
   ROUTES.HOME,
   ROUTES.ABOUT,
   ROUTES.PLANS,
   ROUTES.CART,
   ROUTES.PISCOLAS,
+  ROUTES.LOGIN,
+  ROUTES.REGISTER,
 ]);
 
 const PUBLIC_PREFIXES = [
   '/api',
   '/error',
   '/ui/auth',
+  '/auth/',
   '/cart/',
   '/es',
   '/en',
@@ -85,7 +90,7 @@ export async function updateSession(request: NextRequest) {
 
   if (!user && !isPublicPath(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = ROUTES.LOGIN;
+    url.pathname = '/auth/login';
     return NextResponse.redirect(url);
   }
 
