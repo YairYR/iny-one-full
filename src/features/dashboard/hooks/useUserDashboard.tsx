@@ -67,6 +67,16 @@ export const useUserDashboard = () => {
     });
   }
 
+  const onClickQr = (link: UserUrl) => {
+    const alias = link.alias ?? `/${link.slug}`;
+    setModal({
+      title: t('modal.qr.title', { alias }),
+      open: true,
+      mode: 'qr',
+      link: link,
+    });
+  }
+
   const onCloseModal = () => {
     setModal({
       title: '',
@@ -87,6 +97,7 @@ export const useUserDashboard = () => {
     modal,
     onClickEdit,
     onClickStats,
+    onClickQr,
     onCloseModal,
   }
 }

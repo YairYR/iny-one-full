@@ -1,37 +1,28 @@
 'use client';
 
 import React from "react";
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  ArcElement,
-  Tooltip as TooltipChart,
-  Legend,
-  Colors,
-  Filler
-} from "chart.js";
-import { Line, Bar, Pie } from "react-chartjs-2";
+import dynamic from "next/dynamic";
 import { Kpi, LinksTable, LinkDetailModal } from "@/features/dashboard/components";
 import Link from "next/link";
 import { ROUTES } from "@/lib/routes";
 import InfoPopover from "@/components/Popover/InfoPopover";
 import { useUserDashboard } from "@/features/dashboard/hooks/useUserDashboard";
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  ArcElement,
-  TooltipChart,
-  Legend,
-  Colors,
-  Filler
+const ChartSkeleton = () => (
+  <div className="h-full w-full animate-pulse rounded-lg bg-gray-100" aria-hidden="true" />
+);
+
+const Line = dynamic(
+  () => import("@/features/dashboard/components/charts").then((m) => m.Line),
+  { ssr: false, loading: ChartSkeleton }
+);
+const Bar = dynamic(
+  () => import("@/features/dashboard/components/charts").then((m) => m.Bar),
+  { ssr: false, loading: ChartSkeleton }
+);
+const Pie = dynamic(
+  () => import("@/features/dashboard/components/charts").then((m) => m.Pie),
+  { ssr: false, loading: ChartSkeleton }
 );
 
 export function UserDashboard() {
@@ -45,6 +36,7 @@ export function UserDashboard() {
     modal,
     onClickEdit,
     onClickStats,
+    onClickQr,
     onCloseModal,
   } = useUserDashboard();
 
@@ -123,6 +115,7 @@ export function UserDashboard() {
               links={links ?? []}
               onOpen={onClickStats}
               onEdit={onClickEdit}
+              onQr={onClickQr}
             />
           </section>
 

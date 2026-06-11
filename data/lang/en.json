@@ -51,7 +51,11 @@
     "footerLink": "About",
     "errorNewShorten": "There were problems generating the link.",
     "errorNewShortenLimit": "You have reached the monthly shortening limit. Please wait or upgrade your plan.",
-    "errorNewShortenRefresh": "There were problems generating the link. Please refresh the page!"
+    "errorNewShortenRefresh": "There were problems generating the link. Please refresh the page!",
+    "qrShow": "Show QR code",
+    "qrHide": "Hide QR code",
+    "qrDownload": "Download PNG",
+    "qrAlt": "QR code for your short link"
   },
   "AboutPage": {
     "title": "About iny.one",
@@ -62,7 +66,6 @@
     "futureTitle": "What’s next?",
     "backHome": "Back to Home",
     "roadmap": [
-      "Built-in QR code generator",
       "Basic link stats (clicks, referer, etc.)",
       "Dashboard for registered users"
     ],
@@ -148,6 +151,12 @@
         "destination": "Destination URL",
         "error_alias_invalid": "Alias can only contain letters, numbers, hyphens, and underscores.",
         "error_alias_taken": "This alias is already taken. Please choose another one."
+      },
+      "qr": {
+        "title": "QR Code: {alias}",
+        "download": "Download PNG",
+        "alt": "QR code for this short link",
+        "hint": "Scan to open the short link"
       }
     },
     "table": {
@@ -167,7 +176,8 @@
     "tools": {
       "copy": "Copy",
       "edit": "Edit",
-      "stats": "Show Stats"
+      "stats": "Show Stats",
+      "qr": "QR Code"
     },
     "popover": {
       "info": {

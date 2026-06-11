@@ -11,9 +11,10 @@ interface Props {
   links: UserUrl[];
   onOpen?: (link: UserUrl) => void;
   onEdit: (link: UserUrl) => void;
+  onQr?: (link: UserUrl) => void;
 }
 
-export function LinksTable({ links, onOpen, onEdit }: Readonly<Props>) {
+export function LinksTable({ links, onOpen, onEdit, onQr }: Readonly<Props>) {
   const t = useTranslations('DashboardPage');
 
   const substringAndSpread = (str: string, max: number) => {
@@ -48,7 +49,13 @@ export function LinksTable({ links, onOpen, onEdit }: Readonly<Props>) {
       disabled: false,
       onClick: (e, l) => onOpen?.(l),
     },
-  ], [t, onClickCopy, onEdit, onOpen]);
+    {
+      key: 'qr',
+      text: t('tools.qr'),
+      disabled: false,
+      onClick: (e, l) => onQr?.(l),
+    },
+  ], [t, onClickCopy, onEdit, onOpen, onQr]);
 
   return (
     <div className="bg-white rounded-xl shadow-sm overflow-hidden">
