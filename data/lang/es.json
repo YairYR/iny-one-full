@@ -9,7 +9,7 @@
     "goDashboard": "Dashboard",
     "footer": "Acortador de URLs con UTM"
   },
-  "Head":  {
+  "Head": {
     "title": "iny.one – Acortador de URLs con UTM",
     "subtitle": "Mejora tus campañas con enlaces inteligentes.",
     "metaName": "iny.one",
@@ -51,7 +51,11 @@
     "footerLink": "Acerca de",
     "errorNewShorten": "Error al acortar la URL.",
     "errorNewShortenLimit": "Has alcanzado el límite de acortamientos mensuales. Por favor espera o mejora tu plan.",
-    "errorNewShortenRefresh": "Error al acortar la URL. Por favor recarga la página."
+    "errorNewShortenRefresh": "Error al acortar la URL. Por favor recarga la página.",
+    "qrShow": "Mostrar código QR",
+    "qrHide": "Ocultar código QR",
+    "qrDownload": "Descargar PNG",
+    "qrAlt": "Código QR de tu enlace corto"
   },
   "AboutPage": {
     "title": "Acerca de iny.one",
@@ -62,7 +66,6 @@
     "futureTitle": "¿Qué sigue?",
     "backHome": "Volver al inicio",
     "roadmap": [
-      "Generador de códigos QR integrado",
       "Estadísticas básicas por enlace (clics, referer, etc.)",
       "Panel de gestión para usuarios registrados"
     ],
@@ -148,6 +151,12 @@
         "destination": "Destino URL",
         "error_alias_invalid": "El alias solo puede contener letras, números, guiones y guiones bajos.",
         "error_alias_taken": "Este alias ya está en uso. Por favor elige otro."
+      },
+      "qr": {
+        "title": "Código QR: {alias}",
+        "download": "Descargar PNG",
+        "alt": "Código QR de este enlace corto",
+        "hint": "Escanea para abrir el enlace corto"
       }
     },
     "table": {
@@ -167,7 +176,8 @@
     "tools": {
       "copy": "Copiar",
       "edit": "Editar",
-      "stats": "Estadísticas"
+      "stats": "Estadísticas",
+      "qr": "Código QR"
     },
     "popover": {
       "info": {
