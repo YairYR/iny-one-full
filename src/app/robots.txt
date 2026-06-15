@@ -4,5 +4,8 @@ Disallow: /studio/
 Disallow: /dashboard/
 Disallow: /u/dashboard/
 Disallow: /ui/dashboard/
+Disallow: /api/
+Disallow: /cart/
+Disallow: /auth/
 
 Sitemap: https://iny.one/sitemap.xml

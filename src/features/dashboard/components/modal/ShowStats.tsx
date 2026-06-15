@@ -1,5 +1,15 @@
 import { UserUrlStats } from "@/features/dashboard/types/types";
-import { Bar } from "react-chartjs-2";
+import dynamic from "next/dynamic";
+
+const Bar = dynamic(
+  () => import("@/features/dashboard/components/charts").then((m) => m.Bar),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-full w-full animate-pulse rounded-lg bg-gray-100" aria-hidden="true" />
+    ),
+  }
+);
 
 interface Props {
   link: UserUrlStats;
