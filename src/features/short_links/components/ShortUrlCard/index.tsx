@@ -1,9 +1,19 @@
 'use client';
 
-import { Copy, ExternalLink, Link } from "lucide-react";
-import React from "react";
+import { Copy, ExternalLink, Link, QrCode } from "lucide-react";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
+import dynamic from "next/dynamic";
 import useClipboard from "@/hooks/useClipboard";
+
+const QrPanel = dynamic(() => import("@/features/qr/components/QrPanel"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex justify-center py-4">
+      <div className="h-48 w-48 animate-pulse rounded bg-gray-100" aria-hidden="true" />
+    </div>
+  ),
+});
 
 interface Props {
   shortUrl: string;
@@ -12,12 +22,15 @@ interface Props {
 const ShortUrlCard: React.FC<Props> = ({ shortUrl }) => {
   const t = useTranslations('HomePage');
   const { copied, copyToClipboard } = useClipboard();
+  const [showQr, setShowQr] = useState(false);
 
   const onClickBtnCopy = async () => {
     if(shortUrl) {
       await copyToClipboard(shortUrl);
     }
   }
+
+  const slug = shortUrl.split('/').pop() ?? 'link';
 
   return (
     <div className="bg-green-50 border border-green-200 rounded-lg p-6">
@@ -49,6 +62,14 @@ const ShortUrlCard: React.FC<Props> = ({ shortUrl }) => {
             >
               <Copy className="h-4 w-4" />
             </button>
+            <button
+              onClick={() => setShowQr((prev) => !prev)}
+              className={`p-2 transition-colors ${showQr ? 'text-indigo-600' : 'text-gray-500 hover:text-gray-700'}`}
+              title={showQr ? t('qrHide') : t('qrShow')}
+              aria-expanded={showQr}
+            >
+              <QrCode className="h-4 w-4" />
+            </button>
             <a
               href={shortUrl}
               target="_blank"
@@ -60,6 +81,17 @@ const ShortUrlCard: React.FC<Props> = ({ shortUrl }) => {
             </a>
           </div>
         </div>
+
+        {showQr && (
+          <div className="mt-4 border-t border-green-100 pt-4">
+            <QrPanel
+              url={shortUrl}
+              filename={`iny-one-${slug}`}
+              downloadLabel={t('qrDownload')}
+              alt={t('qrAlt')}
+            />
+          </div>
+        )}
       </div>
 
       {copied && (

@@ -79,12 +79,10 @@ const faqs = {
 
 const roadmap = {
   en: [
-    "Built-in QR code generator",
     "Basic link stats (clicks, referer, etc.)",
     "Dashboard for registered users",
   ],
   es: [
-    "Generador de códigos QR integrado",
     "Estadísticas básicas por enlace (clics, referer, etc.)",
     "Panel de gestión para usuarios registrados",
   ],

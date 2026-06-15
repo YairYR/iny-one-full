@@ -68,6 +68,7 @@ export default function HomePage() {
         featureList: [
           "URL shortening",
           "UTM parameter builder",
+          "QR code generator",
           "Link tracking",
           "Campaign analytics",
           "One-click copy",

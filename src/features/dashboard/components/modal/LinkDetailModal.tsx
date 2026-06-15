@@ -5,12 +5,13 @@ import { XIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
 import ShowStats from "@/features/dashboard/components/modal/ShowStats";
 import EditLink from "@/features/dashboard/components/modal/EditLink";
+import ShowQr from "@/features/dashboard/components/modal/ShowQr";
 
 export type ILinkDetails = {
   open: boolean;
   title: string;
   link?: UserUrlStats|null;
-  mode: 'stats'|'edit'|null;
+  mode: 'stats'|'edit'|'qr'|null;
 }
 
 interface Props {
@@ -36,6 +37,7 @@ export function LinkDetailModal({ modal, onClose }: Readonly<Props>) {
 
           {modal.mode === 'edit' && <EditLink link={link} t={t} onClose={onClose} />}
           {modal.mode === 'stats' && <ShowStats link={link} t={t} onClose={onClose} />}
+          {modal.mode === 'qr' && <ShowQr link={link} t={t} />}
         </DialogPanel>
       </div>
     </Dialog>
