@@ -9,3 +9,16 @@ Disallow: /cart/
 Disallow: /auth/
 
 Sitemap: https://iny.one/sitemap.xml
+
+# AI / answer engine crawlers — explicitly allowed for GEO visibility
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /

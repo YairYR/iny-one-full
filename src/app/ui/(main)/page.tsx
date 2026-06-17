@@ -4,6 +4,7 @@ import HomeTitle from "@/components/HomeTitle";
 import UrlShortForm from "@/features/short_links/components/UrlShortForm";
 import UtmInfoSmall from "@/components/UtmInfoSmall";
 import SubscriptionUpgrade from "@/components/SubscriptionUpgrade";
+import HomeContent from "@/components/HomeContent";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Head");
@@ -14,7 +15,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: "/",
+      canonical: "https://iny.one",
+      languages: {
+        en: "https://iny.one",
+        es: "https://iny.one",
+        "x-default": "https://iny.one",
+      },
     },
     openGraph: {
       title,
@@ -83,6 +89,61 @@ export default function HomePage() {
           "@id": "https://iny.one/#organization",
         },
       },
+      {
+        "@type": "HowTo",
+        name: "How to shorten a URL with UTM tracking",
+        description:
+          "Create a free short link with UTM parameters and a QR code in three steps.",
+        step: [
+          {
+            "@type": "HowToStep",
+            position: 1,
+            name: "Paste your long URL",
+            text: "Paste the long URL you want to share into the shortener field.",
+          },
+          {
+            "@type": "HowToStep",
+            position: 2,
+            name: "Add UTM parameters",
+            text: "Optionally add UTM parameters (source, medium, campaign) to tag the link for analytics.",
+          },
+          {
+            "@type": "HowToStep",
+            position: 3,
+            name: "Copy or download",
+            text: "Copy your short link, or download its QR code, and share it anywhere.",
+          },
+        ],
+      },
+      {
+        "@type": "FAQPage",
+        mainEntity: [
+          {
+            "@type": "Question",
+            name: "Is iny.one free?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. The core service — URL shortening, UTM parameters, and QR codes — is free and requires no signup for basic use.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Does iny.one add an ad page before redirecting?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "No. iny.one redirects visitors straight to the destination with no advertising interstitial.",
+            },
+          },
+          {
+            "@type": "Question",
+            name: "Does iny.one generate QR codes?",
+            acceptedAnswer: {
+              "@type": "Answer",
+              text: "Yes. Every short link can be turned into a downloadable QR code (PNG) at no cost.",
+            },
+          },
+        ],
+      },
     ],
   };
 
@@ -99,6 +160,7 @@ export default function HomePage() {
         <UrlShortForm />
         <UtmInfoSmall />
       </div>
+      <HomeContent />
       <SubscriptionUpgrade hidden={hasPlan} />
     </>
   );

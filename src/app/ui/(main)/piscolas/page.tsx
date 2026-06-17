@@ -19,7 +19,11 @@ export const metadata: Metadata = {
     follow: true,
   },
   alternates: {
-    canonical: "/piscolas",
+    canonical: "https://iny.one/piscolas",
+    languages: {
+      es: "https://iny.one/piscolas",
+      "x-default": "https://iny.one/piscolas",
+    },
   },
   openGraph: {
     title: "Calculadora de Piscolas – iny.one",

@@ -14,7 +14,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: "/about",
+      canonical: "https://iny.one/about",
+      languages: {
+        en: "https://iny.one/about",
+        es: "https://iny.one/about",
+        "x-default": "https://iny.one/about",
+      },
     },
     openGraph: {
       title,
@@ -46,7 +51,11 @@ const faqs = {
     },
     {
       q: "Can I see stats for my links?",
-      a: "Not yet, but we're working on it.",
+      a: "Yes. Registered users get a dashboard with total clicks, unique clicks, top countries, devices, browsers, and referrers for every link.",
+    },
+    {
+      q: "Does iny.one generate QR codes?",
+      a: "Yes. Every short link can be turned into a downloadable QR code (PNG) at no cost, both on the homepage and from the dashboard.",
     },
     {
       q: "Does iny.one store my data?",
@@ -68,7 +77,11 @@ const faqs = {
     },
     {
       q: "¿Puedo ver estadísticas de los enlaces?",
-      a: "Por ahora no, pero estamos trabajando en ello.",
+      a: "Sí. Los usuarios registrados acceden a un panel con clics totales, clics únicos, países, dispositivos, navegadores y referentes de cada enlace.",
+    },
+    {
+      q: "¿iny.one genera códigos QR?",
+      a: "Sí. Cada enlace corto puede convertirse en un código QR descargable (PNG) sin costo, tanto en la página principal como desde el panel.",
     },
     {
       q: "¿iny.one guarda mis datos?",
