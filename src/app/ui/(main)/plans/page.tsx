@@ -17,7 +17,12 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: "/plans",
+      canonical: "https://iny.one/plans",
+      languages: {
+        en: "https://iny.one/plans",
+        es: "https://iny.one/plans",
+        "x-default": "https://iny.one/plans",
+      },
     },
     openGraph: {
       title,
