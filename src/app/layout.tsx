@@ -13,7 +13,12 @@ export const metadata: Metadata = {
   description:
     "iny.one is a free URL shortener with UTM tracking. Create short links and measure your marketing results.",
   alternates: {
-    canonical: "/",
+    canonical: "https://iny.one",
+    languages: {
+      en: "https://iny.one",
+      es: "https://iny.one",
+      "x-default": "https://iny.one",
+    },
   },
   verification: {
     google: "WNueup03P4lmVxxos0qDu1zwMrCeEpuS4FVUuS0XHtM",
