@@ -1,0 +1,29 @@
+# iny.one
+
+> iny.one is a free URL shortener with built-in UTM tracking. It creates short links, generates QR codes, and measures campaign performance through click analytics — without requiring registration for basic use.
+
+iny.one is built for marketers, developers, and content creators who need clean, trackable links for marketing campaigns. The core differentiator is that UTM parameter tracking and QR code generation are free, with no ad page inserted before redirects.
+
+## Key features
+
+- URL shortening with random short slugs (e.g. iny.one/abc1234)
+- UTM parameter builder (utm_source, utm_medium, utm_campaign, and more on paid plans)
+- QR code generation with PNG download for every short link
+- Click analytics: total clicks, unique clicks, top countries, devices, browsers, and referrers
+- Link expiration for anonymous links (180 days)
+- No ad page before redirect, no registration required for basic shortening
+- Bilingual interface (English and Spanish)
+
+## Pages
+
+- [Home](https://iny.one/): Create short links with UTM parameters and QR codes
+- [Plans](https://iny.one/plans): Compare free and paid plan features
+- [About](https://iny.one/about): Project purpose, roadmap, and frequently asked questions
+
+## Frequently asked questions
+
+- What is iny.one? iny.one is a free tool to shorten URLs and add UTM parameters for campaign tracking.
+- Is iny.one free? Yes, the core service is free and does not require registration for basic shortening.
+- What are UTM parameters? Tags added to a URL that let you track the origin of web traffic in marketing campaigns.
+- Does iny.one generate QR codes? Yes, every short link can be turned into a downloadable QR code at no cost.
+- Does iny.one store personal data? No personal data is collected for basic redirection; shortened URLs are used only to redirect visitors.
