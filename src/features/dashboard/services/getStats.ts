@@ -1,5 +1,5 @@
 import { ApiResponse } from "@/lib/types";
-import { UserUrlStats } from "@/features/dashboard/types/types";
+import {ILinkDateStats, UserUrlStats} from "@/features/dashboard/types/types";
 
 export async function getStatsCommon(): Promise<UserDashboardStats|null> {
   return fetch('/api/dashboard/stats')
@@ -10,6 +10,20 @@ export async function getStatsCommon(): Promise<UserDashboardStats|null> {
       }
       return null;
     });
+}
+
+export async function getLinkStatsCommon([slug]: [slug: string]): Promise<ILinkDateStats[]|null> {
+  if (!slug) {
+    return null;
+  }
+  return fetch(`/api/dashboard/stats/${slug}`)
+      .then(res => res.json())
+      .then((data: ApiResponse<ILinkDateStats[]>) => {
+        if(data.success) {
+          return data.data;
+        }
+        return null;
+      });
 }
 
 export interface UserDashboardStats {

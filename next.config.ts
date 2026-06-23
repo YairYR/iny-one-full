@@ -20,6 +20,8 @@ const nextConfig: NextConfig = {
     },
   },
 
+  allowedDevOrigins: [ "iny-tests.one", "iny.local" ],
+
   images: {
     remotePatterns: [new URL("https://lh3.googleusercontent.com/**")],
   },

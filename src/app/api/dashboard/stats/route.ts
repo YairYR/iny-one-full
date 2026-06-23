@@ -29,7 +29,7 @@ export const GET = withErrorHandling(async () => {
   const slugs = urls.map(item => item.slug);
 
   const date = dayjs().utc();
-  const dateWeekAgo = date.subtract(4, 'week');
+  const dateWeekAgo = date.subtract(1, 'week');
 
   const statsResponse = await statsRepo.getDashboardStatsSummary(
     slugs,
