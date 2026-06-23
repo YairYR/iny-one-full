@@ -56,3 +56,6 @@ next-env.d.ts
 
 # d.ts lang files
 /data/lang/*.d.json.ts
+
+# next-openapi-gen
+/.openapi-gen
