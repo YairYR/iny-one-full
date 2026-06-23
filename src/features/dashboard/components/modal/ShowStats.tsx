@@ -1,5 +1,10 @@
 import { UserUrlStats } from "@/features/dashboard/types/types";
 import dynamic from "next/dynamic";
+import {useLinkStatsCommon} from "@/features/dashboard/hooks/useLinkStatsCommon";
+import {useMemo} from "react";
+import dayjs from "dayjs";
+import {dayToName} from "@/features/dashboard/helpers/stats";
+import {SkeletonRectangle} from "@/components/Skeleton/Skeleton";
 
 const Bar = dynamic(
   () => import("@/features/dashboard/components/charts").then((m) => m.Bar),
@@ -18,12 +23,56 @@ interface Props {
 }
 
 export default function ShowStats({ link, t }: Readonly<Props>) {
-  const countries = Object.entries(link.stats?.country_counts ?? {})
+  const { data, isLoading } = useLinkStatsCommon(link.slug);
+
+  const summary = data?.reduce((obj, curr) => {
+    Object.keys(curr.country_counts).forEach(key => {
+      if (!(key in obj)) {
+        obj.countries[key] = 0;
+      }
+      obj.countries[key] += curr.country_counts[key];
+    });
+    Object.keys(curr.device_type_counts).forEach(key => {
+      if (!(key in obj)) {
+        obj.devices[key] = 0;
+      }
+      obj.devices[key] += curr.device_type_counts[key];
+    });
+    return obj;
+  }, {
+    countries: {} as Record<string, number>,
+    devices: {} as Record<string, number>
+  });
+
+  const countries = Object.entries(summary?.countries ?? {})
     .sort((a, b) => b[1] - a[1]);
-  const devices = Object.entries(link.stats?.device_type_counts ?? {})
+  const devices = Object.entries(summary?.devices ?? {})
     .sort((a, b) => b[1] - a[1]);
   const countryTop = countries[0]?.[0];
-  const deviceTop = devices[0]?.[0];
+  const deviceTop = (devices[0]?.[0] === 'unknown') ? 'desktop' : devices[0]?.[0];
+
+  const clicks = useMemo(() => {
+    const values = {
+      labels: [] as string[],
+      datasets:[{ label: 'Clicks', data: [] as number[] }],
+    };
+
+    if (!data) {
+      return values;
+    }
+
+    let current_day = dayjs();
+    for (let i = 0; i < 7; i++) {
+      const label = t(dayToName(current_day.day()));
+      const value = data.find(d => dayjs(d.date).isSame(current_day, 'day'))?.total_clicks ?? 0;
+
+      values.labels.unshift(label);
+      values.datasets[0].data.unshift(value);
+      current_day = current_day.subtract(1, 'day');
+    }
+
+    return values;
+  }, [data]);
 
   return (
     <>
@@ -41,10 +90,12 @@ export default function ShowStats({ link, t }: Readonly<Props>) {
 
         <div>
           <div className="h-44 w-full">
-            <Bar
-              data={{ labels: ["Lun","Mar","Mié","Jue","Vie"], datasets:[{ label: 'Clicks', data: [10,20,15,30,25] }] }}
-              options={{ maintainAspectRatio: false }}
-            />
+            {isLoading
+                ? <SkeletonRectangle />
+                : <Bar
+                        data={clicks}
+                        options={{ maintainAspectRatio: false }}
+                    />}
           </div>
         </div>
       </div>
@@ -52,15 +103,17 @@ export default function ShowStats({ link, t }: Readonly<Props>) {
       <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="bg-gray-50 p-3 rounded">
           <div className="text-sm text-gray-500">UTM</div>
-          <div className="text-sm text-gray-700">utm_source=instagram<br/>utm_campaign=blackfriday</div>
+          <div className="text-sm text-gray-700">
+            {link.utm_source && <p>utm_source={link.utm_source}</p>}
+            {link.utm_campaign && <p>utm_campaign={link.utm_campaign}</p>}
+            {link.utm_medium && <p>utm_medium={link.utm_medium}</p>}
+          </div>
         </div>
 
         <div className="bg-gray-50 p-3 rounded">
           <div className="text-sm text-gray-500">Referrers top</div>
           <ul className="text-sm text-gray-700 list-disc list-inside">
-            <li>Directo</li>
-            <li>Google</li>
-            <li>WhatsApp</li>
+            <li>Direct</li>
           </ul>
         </div>
       </div>

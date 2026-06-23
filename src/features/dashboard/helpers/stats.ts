@@ -68,42 +68,31 @@ function fillDays(stats: UserDashboardStats['summary']['stats'], {
   startDate = null,
   endDate = null,
 }: { startDate?: Date|null; endDate?: Date|null } = {}) {
+  const sorted = stats.toSorted((a, b) => dayjs(a.date).diff(dayjs(b.date)));
 
-  // Ordenar datos por fecha
-  const sorted = [...stats].sort((a, b) => (new Date(a.date)).getTime() - (new Date(b.date)).getTime());
-
-  const map: Record<string, number> = {};
-  for(const item of sorted) {
-    if(!(item.date in map)) {
-      map[item.date] = 0;
+  const data = {
+    clicks: [] as number[],
+    days: [] as string[],
+    daysKey: [] as string[],
+  };
+  const end = dayjs(endDate).add(1, 'day');
+  let current_date = dayjs(startDate);
+  while(current_date != null && current_date.isBefore(end)) {
+    const value = sorted[0];
+    data.daysKey.push(dayToName(current_date.day()));
+    if (value && current_date.isSame(value.date, 'day')) {
+      data.days.push(value.date);
+      data.clicks.push(value.clicks);
+      sorted.shift();
+    } else {
+      data.days.push(current_date.format('YYYY-MM-DD'));
+      data.clicks.push(0);
     }
-    map[item.date] += item.clicks;
+
+    current_date = current_date.add(1, 'day');
   }
 
-  // Fecha inicial base
-  const start = startDate
-    ? dayjs.utc(startDate)
-    : dayjs.utc(sorted[0].date);
-
-  // Fecha final base
-  const end = endDate
-    ? dayjs.utc(endDate)
-    : dayjs.utc(sorted.at(-1)!.date);
-
-  const clicks: number[] = [];
-  const days: string[] = [];
-  const daysKey: string[] = [];
-
-  // Rellenar rango
-  for (let d = start.toDate(); d <= end.toDate(); d.setDate(d.getDate() + 1)) {
-    const day = dayjs.utc(d);
-    const dateStr = day.format('YYYY-MM-DD');
-    days.push(dateStr);
-    daysKey.push(dayToName(day.day()));
-    clicks.push(map[dateStr] ?? 0);
-  }
-
-  return { days, daysKey, clicks };
+  return data;
 }
 
 function calcRefererStats(stats: IRefererStat[]) {
