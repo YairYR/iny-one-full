@@ -26,6 +26,17 @@ export async function getLinkStatsCommon([slug]: [slug: string]): Promise<ILinkD
       });
 }
 
+export async function getUserLinksSummary() {
+    return fetch('/api/v1/dashboard/links')
+        .then(res => res.json())
+        .then((data: ApiResponse<ILinkDateStats[]>) => {
+            if(data.success) {
+                return data.data;
+            }
+            return null;
+        });
+}
+
 export interface UserDashboardStats {
   urls: UserUrlStats[];
   refererStats: {
