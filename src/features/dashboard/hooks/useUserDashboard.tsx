@@ -4,6 +4,7 @@ import { ILinkDetails } from "@/features/dashboard/components";
 import { useTranslations } from "next-intl";
 import { UserUrl } from "@/features/dashboard/types/types";
 import { calcUserStats } from "@/features/dashboard/helpers/stats";
+import {useUserLinksSummary} from "@/features/dashboard/hooks/useUserLinksSummary";
 
 export const useUserDashboard = () => {
   const t = useTranslations('DashboardPage');
@@ -14,7 +15,10 @@ export const useUserDashboard = () => {
     link: null,
   });
 
+  const { data: links } = useUserLinksSummary();
   const { data } = useStatsCommon();
+
+  console.log('links', links);
 
   const stats = useMemo(() => {
     if(!data) return null;

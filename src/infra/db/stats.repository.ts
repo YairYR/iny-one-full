@@ -9,11 +9,6 @@ export function getStatsRepository(db: DbInstance)  {
         .in('slug', slugs);
     },
 
-    async getStatsUrlsCurrentUser() {
-      return db
-        .from('short_links_stats')
-    },
-
     async getDayStatsBetweenDates(slug: string[], startDate: Date, endDate: Date) {
       return db
         .from('short_links_daily_stats')
@@ -47,6 +42,20 @@ export function getStatsRepository(db: DbInstance)  {
         _end_date: end_date,
         _date_grouping: grouping,
       })
-    }
+    },
+
+    async getClicksAllTime(slugs: string[]) {
+      return db.from('short_links_stats')
+          .select('total_clicks.sum()')
+          .in('slug', slugs);
+    },
+
+    async getClicksBetweenTime(slugs: string[], startDate: Date, endDate: Date) {
+      return db.from('history_clicks')
+          .select('*', { count: 'exact', head: true })
+          .in('slug', slugs)
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString());
+    },
   }
 }

@@ -10,8 +10,6 @@ export const useStatsCommon = () => {
     await mutate({ ...data, urls: mutatedUrls }, false);
   }
 
-  //const mutateLinkStats = async ()
-
   return {
     data,
     isLoading,
