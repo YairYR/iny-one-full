@@ -17,6 +17,8 @@ iny.one is built for marketers, developers, and content creators who need clean,
 ## Pages
 
 - [Home](https://iny.one/): Create short links with UTM parameters and QR codes
+- [UTM Builder](https://iny.one/utm-builder): Build, tag and shorten campaign links with utm_source, utm_medium and utm_campaign
+- [QR Code Generator](https://iny.one/qr-code-generator): Generate free high-resolution QR codes for any URL, no sign-up
 - [Plans](https://iny.one/plans): Compare free and paid plan features
 - [About](https://iny.one/about): Project purpose, roadmap, and frequently asked questions
 

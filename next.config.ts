@@ -152,6 +152,14 @@ const nextConfig: NextConfig = {
         source: "/plans",
         destination: "/ui/plans",
       },
+      {
+        source: "/utm-builder",
+        destination: "/ui/utm-builder",
+      },
+      {
+        source: "/qr-code-generator",
+        destination: "/ui/qr-code-generator",
+      },
 
       {
         source: "/auth/login",
