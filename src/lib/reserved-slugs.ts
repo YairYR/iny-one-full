@@ -13,6 +13,10 @@ export const RESERVED_EXACT_SLUGS = new Set([
   'terms',
   'cookies',
   'piscolas',
+  'utm-builder',
+  'qr-code-generator',
+  'qr',
+  'utm',
 
   // auth y app
   'auth',

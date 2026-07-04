@@ -9,6 +9,8 @@ export const ROUTES = {
   LOGOUT: '/auth/logout',
   PLANS: '/plans',
   PISCOLAS: '/piscolas',
+  UTM_BUILDER: '/utm-builder',
+  QR_GENERATOR: '/qr-code-generator',
 } as const;
 
 export const ALL_ROUTES: string[] = Object.values(ROUTES);
