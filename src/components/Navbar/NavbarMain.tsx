@@ -35,10 +35,18 @@ export default function NavbarMain({ user }: Readonly<Props>) {
   const fullname = user?.name ?? null;
   const picture = user?.picture ?? null;
 
-  const tabs = navigation.map((item) => ({
-    ...item,
-    current: pathname === item.href,
-  }));
+  // En la versión en español (/es/*), Home apunta a /es para no sacar
+  // al visitante (ni al crawler) del árbol de URLs en español.
+  const isEs = pathname === '/es' || pathname.startsWith('/es/');
+
+  const tabs = navigation.map((item) => {
+    const href = item.href === ROUTES.HOME && isEs ? '/es' : item.href;
+    return {
+      ...item,
+      href,
+      current: pathname === href,
+    };
+  });
 
   return (
     <Disclosure as="nav" className="relative bg-gray-800">
