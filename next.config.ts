@@ -160,6 +160,46 @@ const nextConfig: NextConfig = {
         source: "/qr-code-generator",
         destination: "/ui/qr-code-generator",
       },
+      {
+        source: "/bitly-alternative",
+        destination: "/ui/bitly-alternative",
+      },
+      {
+        source: "/url-shortener-api",
+        destination: "/ui/url-shortener-api",
+      },
+
+      // Versión en español con URLs propias (/es/*).
+      // El middleware inyecta x-iny-locale=es y las mismas páginas de /ui
+      // renderizan contenido y metadata en español con canonical /es/...
+      {
+        source: "/es",
+        destination: "/ui",
+      },
+      {
+        source: "/es/about",
+        destination: "/ui/about",
+      },
+      {
+        source: "/es/plans",
+        destination: "/ui/plans",
+      },
+      {
+        source: "/es/utm-builder",
+        destination: "/ui/utm-builder",
+      },
+      {
+        source: "/es/qr-code-generator",
+        destination: "/ui/qr-code-generator",
+      },
+      {
+        source: "/es/bitly-alternative",
+        destination: "/ui/bitly-alternative",
+      },
+      {
+        source: "/es/url-shortener-api",
+        destination: "/ui/url-shortener-api",
+      },
 
       {
         source: "/auth/login",
