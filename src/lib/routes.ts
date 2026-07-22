@@ -11,6 +11,8 @@ export const ROUTES = {
   PISCOLAS: '/piscolas',
   UTM_BUILDER: '/utm-builder',
   QR_GENERATOR: '/qr-code-generator',
+  BITLY_ALTERNATIVE: '/bitly-alternative',
+  API_DOCS: '/url-shortener-api',
 } as const;
 
 export const ALL_ROUTES: string[] = Object.values(ROUTES);

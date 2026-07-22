@@ -15,6 +15,8 @@ export const RESERVED_EXACT_SLUGS = new Set([
   'piscolas',
   'utm-builder',
   'qr-code-generator',
+  'bitly-alternative',
+  'url-shortener-api',
   'qr',
   'utm',
 
