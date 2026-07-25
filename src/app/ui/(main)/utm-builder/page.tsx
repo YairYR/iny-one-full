@@ -1,49 +1,47 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+import { getLocale } from "next-intl/server";
 import { useLocale } from "next-intl";
 import Link from "next/link";
 import UrlShortForm from "@/features/short_links/components/UrlShortForm";
 import { ROUTES } from "@/lib/routes";
+import { buildPageMetadata, normalizeLocale } from "@/lib/seo/metadata";
 
-const TITLE = "Free UTM Builder — Create, Tag & Shorten Campaign Links | iny.one";
-const DESCRIPTION =
-  "Build UTM links for Google Analytics in seconds: add utm_source, utm_medium and utm_campaign, then get a clean short link and QR code. Free, no sign-up.";
+const META = {
+  en: {
+    title: "Free UTM Builder — Create, Tag & Shorten Campaign Links | iny.one",
+    description:
+      "Build UTM links for Google Analytics in seconds: add utm_source, utm_medium and utm_campaign, then get a clean short link and QR code. Free, no sign-up.",
+  },
+  es: {
+    title: "Generador UTM gratis — crea, etiqueta y acorta enlaces | iny.one",
+    description:
+      "Crea enlaces UTM para Google Analytics en segundos: añade utm_source, utm_medium y utm_campaign y obtén un enlace corto con su código QR. Gratis y sin registro.",
+  },
+} as const;
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  keywords: [
-    "utm builder",
-    "free utm builder",
-    "utm generator",
-    "utm link builder",
-    "campaign url builder",
-    "generador utm",
-    "crear enlaces utm",
-  ],
-  robots: { index: true, follow: true },
-  alternates: {
-    canonical: "https://iny.one/utm-builder",
-    languages: {
-      en: "https://iny.one/utm-builder",
-      es: "https://iny.one/utm-builder",
-      "x-default": "https://iny.one/utm-builder",
-    },
-  },
-  openGraph: {
-    title: TITLE,
-    description: DESCRIPTION,
-    url: "/utm-builder",
-    type: "website",
-    images: ["/og-image.png"],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: TITLE,
-    description: DESCRIPTION,
-    images: ["/og-image.png"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = normalizeLocale(await getLocale());
+  const m = META[locale];
+
+  return {
+    ...buildPageMetadata({
+      title: m.title,
+      description: m.description,
+      path: ROUTES.UTM_BUILDER,
+      locale,
+    }),
+    keywords: [
+      "utm builder",
+      "free utm builder",
+      "utm generator",
+      "utm link builder",
+      "campaign url builder",
+      "generador utm",
+      "crear enlaces utm",
+    ],
+    robots: { index: true, follow: true },
+  };
+}
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -156,8 +154,9 @@ export default function UtmBuilderPage() {
 
   return (
     <>
-      <Script
-        id="utm-builder-jsonld"
+      {/* JSON-LD server-rendered: con next/script se inyectaba tras la
+          hidratación y no estaba en el HTML inicial que leen los crawlers. */}
+      <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),

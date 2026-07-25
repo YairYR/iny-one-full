@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import PiscolaCalculator from "@/features/piscolas/components/PiscolaCalculator";
 
 export const metadata: Metadata = {
@@ -92,15 +91,15 @@ const faqData = {
 export default function PiscolasPage() {
   return (
     <>
-      <Script
-        id="piscolas-jsonld"
+      {/* JSON-LD server-rendered: con next/script se inyectaba tras la
+          hidratación y no estaba en el HTML inicial que leen los crawlers. */}
+      <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData).replace(/</g, "\\u003c") }}
       />
-      <Script
-        id="piscolas-faq-jsonld"
+      <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqData).replace(/</g, "\\u003c") }}
       />
 
       <PiscolaCalculator />
