@@ -1,39 +1,22 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import HomeTitle from "@/components/HomeTitle";
 import UrlShortForm from "@/features/short_links/components/UrlShortForm";
 import UtmInfoSmall from "@/components/UtmInfoSmall";
 import SubscriptionUpgrade from "@/components/SubscriptionUpgrade";
 import HomeContent from "@/components/HomeContent";
+import { buildPageMetadata, normalizeLocale } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = normalizeLocale(await getLocale());
   const t = await getTranslations("Head");
-  const title = t("metaTitle");
-  const description = t("metaDescription");
 
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: "https://iny.one",
-      languages: {
-        en: "https://iny.one",
-        es: "https://iny.one",
-        "x-default": "https://iny.one",
-      },
-    },
-    openGraph: {
-      title,
-      description,
-      url: "/",
-      images: ["/og-image.png"],
-    },
-    twitter: {
-      title,
-      description,
-      images: ["/og-image.png"],
-    },
-  };
+  return buildPageMetadata({
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    path: "/",
+    locale,
+  });
 }
 
 export default function HomePage() {

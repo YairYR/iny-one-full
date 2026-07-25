@@ -1,49 +1,47 @@
 import type { Metadata } from "next";
-import Script from "next/script";
+import { getLocale } from "next-intl/server";
 import { useLocale } from "next-intl";
 import Link from "next/link";
 import QrGenerator from "@/features/qr/components/QrGenerator";
 import { ROUTES } from "@/lib/routes";
+import { buildPageMetadata, normalizeLocale } from "@/lib/seo/metadata";
 
-const TITLE = "Free QR Code Generator — No Sign-Up, PNG Download | iny.one";
-const DESCRIPTION =
-  "Generate a QR code for any URL in seconds. Free, no sign-up, no watermark, high-resolution PNG download. Pair it with a short link to track scans.";
+const META = {
+  en: {
+    title: "Free QR Code Generator — No Sign-Up, PNG Download | iny.one",
+    description:
+      "Generate a QR code for any URL in seconds. Free, no sign-up, no watermark, high-resolution PNG download. Pair it with a short link to track scans.",
+  },
+  es: {
+    title: "Generador de códigos QR gratis — PNG sin registro | iny.one",
+    description:
+      "Genera un código QR para cualquier URL en segundos. Gratis, sin registro, sin marca de agua y con descarga PNG en alta resolución. Acorta el enlace primero para medir escaneos.",
+  },
+} as const;
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  keywords: [
-    "qr code generator",
-    "free qr code generator",
-    "qr code generator no sign up",
-    "create qr code free",
-    "qr code png download",
-    "generador de codigo qr gratis",
-    "crear codigo qr",
-  ],
-  robots: { index: true, follow: true },
-  alternates: {
-    canonical: "https://iny.one/qr-code-generator",
-    languages: {
-      en: "https://iny.one/qr-code-generator",
-      es: "https://iny.one/qr-code-generator",
-      "x-default": "https://iny.one/qr-code-generator",
-    },
-  },
-  openGraph: {
-    title: TITLE,
-    description: DESCRIPTION,
-    url: "/qr-code-generator",
-    type: "website",
-    images: ["/og-image.png"],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: TITLE,
-    description: DESCRIPTION,
-    images: ["/og-image.png"],
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = normalizeLocale(await getLocale());
+  const m = META[locale];
+
+  return {
+    ...buildPageMetadata({
+      title: m.title,
+      description: m.description,
+      path: ROUTES.QR_GENERATOR,
+      locale,
+    }),
+    keywords: [
+      "qr code generator",
+      "free qr code generator",
+      "qr code generator no sign up",
+      "create qr code free",
+      "qr code png download",
+      "generador de codigo qr gratis",
+      "crear codigo qr",
+    ],
+    robots: { index: true, follow: true },
+  };
+}
 
 const structuredData = {
   "@context": "https://schema.org",
@@ -166,8 +164,9 @@ export default function QrCodeGeneratorPage() {
 
   return (
     <>
-      <Script
-        id="qr-generator-jsonld"
+      {/* JSON-LD server-rendered: con next/script se inyectaba tras la
+          hidratación y no estaba en el HTML inicial que leen los crawlers. */}
+      <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
           __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
