@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { logger } from '@/lib/logger';
 import { createClient } from '@/lib/supabase/server';
 import { ROUTES } from '@/lib/routes';
 
@@ -35,7 +36,7 @@ export async function GET(request: NextRequest) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
-    console.error('OAuth callback exchange failed:', error.message);
+    logger.error('oauth callback exchange failed', { module: 'auth/callback', error });
     return NextResponse.redirect(`${SITE_URL}/auth/login?error=oauth_callback`);
   }
 

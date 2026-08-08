@@ -7,6 +7,10 @@ import { supabase_service } from "@/infra/db/supabase_service";
 import { ROUTES } from "@/lib/routes";
 import { getTranslations, getLocale } from "next-intl/server";
 import { isReservedSlug, normalizeSlug } from '@/lib/reserved-slugs';
+import { safeDecodeURI } from '@/lib/utils/url';
+import { logger } from '@/lib/logger';
+
+const log = logger.child({ route: '[short]' });
 
 type IData = {
   destination: string | null;
@@ -28,7 +32,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
   const { data: result, error } = await shorterRepo.getBySlug(short);
 
   if (error) {
-    console.error('getShortenUrl error:', error);
+    log.error('failed to resolve short link', { slug: short, error });
     return render404();
   }
 
@@ -61,7 +65,9 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
     });
   });
 
-  const destination = decodeURI(data.destination);
+  // safeDecodeURI: un destino con un `%` suelto haría que `decodeURI` lance
+  // URIError y convertiría cada visita al link en un 500.
+  const destination = safeDecodeURI(data.destination);
   const response = NextResponse.redirect(destination, 307);
   response.headers.set('X-Robots-Tag', 'noindex');
   return response;

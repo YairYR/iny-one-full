@@ -1,5 +1,5 @@
 import { getPayPalClient } from "@/lib/paypal";
-import { ApiResponse } from "@apimatic/core/src/coreInterfaces";
+import type { ApiResponse } from "@paypal/paypal-server-sdk";
 import { CreateSubscriptionRequestBody, SubscriptionResponseBody } from "@paypal/paypal-js";
 
 /**
