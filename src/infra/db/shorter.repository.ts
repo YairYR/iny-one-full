@@ -1,31 +1,38 @@
 import { DbInstance } from "@/infra/db/supabase_service";
-import { ClientInfo, UrlExpires, UtmParams } from "@/lib/types";
+import { ClientInfo, UrlExpires, UtmValues } from "@/lib/types";
 import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+// dayjs es un singleton: extender aquí garantiza que `.utc()` esté disponible
+// aunque este repositorio se importe sin pasar antes por una ruta que lo extienda.
+dayjs.extend(utc);
+
+export type CreateShortLinkInput = {
+  userId: string | null;
+  slug: string;
+  destination: string;
+  utm: Partial<UtmValues>;
+  domain: string;
+  expires?: UrlExpires;
+  client?: Partial<ClientInfo>;
+};
 
 export function getShorterRepository(db: DbInstance) {
   return {
-    async create(
-      uid: string | null,
-      slug: string,
-      url: string,
-      utm: Partial<UtmParams>,
-      domain: string,
-      expires?: UrlExpires,
-      client?: Partial<ClientInfo>,
-    ) {
+    async create({ userId, slug, destination, utm, domain, expires, client }: CreateShortLinkInput) {
       return db
         .from('short_links')
         .insert([
           {
             slug,
-            destination: url,
+            destination,
             utm_source: utm?.source ?? null,
             utm_medium: utm?.medium ?? null,
             utm_campaign: utm?.campaign ?? null,
             utm_term: utm?.term ?? null,
             utm_content: utm?.content ?? null,
             utm_id: utm?.id ?? null,
-            user_id: uid ?? null,
+            user_id: userId ?? null,
             ip_user: client?.ip ?? null,
             country_code_user: client?.countryCode ?? null,
             domain: domain ?? null,
