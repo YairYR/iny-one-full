@@ -14,11 +14,22 @@ const config: Config = {
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
   moduleNameMapper: {
     "^next-intl$": "<rootDir>/__mocks__/next-intl.js",
+    "^next-intl/server$": "<rootDir>/__mocks__/next-intl-server.js",
+    // `@/data/*` apunta a la carpeta `data/` de la raíz, no a `src/`.
+    // Debe declararse antes que el alias genérico para tener prioridad.
+    '^@/data/(.*)$': '<rootDir>/data/$1',
     '^@/(.*)$': '<rootDir>/src/$1',
+    // nanoid 5 sólo publica ESM, que Jest no puede cargar sin transformar
+    // node_modules. El sustituto replica su contrato (id aleatorio del alfabeto
+    // url-safe) para no alterar lo que se está probando.
+    '^nanoid$': '<rootDir>/__mocks__/nanoid.js',
   },
-  // transformIgnorePatterns: [
-  //   '/node_modules/(?!next-intl|use-intl)/',
-  // ],
+  collectCoverageFrom: [
+    'src/**/*.{ts,tsx}',
+    '!src/**/*.d.ts',
+    '!src/lib/types/**',
+  ],
+  coverageReporters: ['text-summary', 'lcov'],
 }
 
 // createJestConfig is exported this way to ensure that next/jest can load the Next.js config which is async

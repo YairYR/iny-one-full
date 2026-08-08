@@ -5,6 +5,9 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { AuthenticationError, ProviderAuthenticationError, ValidationError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";
 import { REDIRECT_TO_COOKIE_NAME } from "@/constants";
+import { logger } from "@/lib/logger";
+
+const log = logger.child({ module: 'auth' });
 
 const schemaLogin = z.object({
   email: z.email(),
@@ -59,7 +62,7 @@ export async function handleLogin(request: NextRequest) {
       return response;
     }
 
-    console.error(error);
+    log.error('oauth sign-in failed', { error });
     throw new ProviderAuthenticationError();
   }
 
@@ -69,7 +72,7 @@ export async function handleLogin(request: NextRequest) {
   });
 
   if (error) {
-    console.error(error)
+    log.info('sign-in rejected', { error });
     throw new AuthenticationError();
   }
 
@@ -97,7 +100,7 @@ export async function handleRegister(request: NextRequest) {
     } });
 
   if (error) {
-    console.error(error)
+    log.error('sign-up failed', { error });
     throw new ProviderAuthenticationError();
   }
 
@@ -117,7 +120,7 @@ export async function handleConfirm(request: NextRequest) {
       token_hash,
     })
     if (error) {
-      console.error(error)
+      log.info('otp verification failed', { error });
     } else {
       const paramNext = request.nextUrl.searchParams.get("next");
       if(paramNext?.startsWith("/")) {

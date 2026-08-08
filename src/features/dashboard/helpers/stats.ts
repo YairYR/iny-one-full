@@ -9,6 +9,9 @@ import { UserDashboardStats } from "@/features/dashboard/services/getStats";
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
 
+/** Marcador mostrado en los KPI cuando todavía no hay datos suficientes. */
+export const NO_DATA = '-';
+
 export function calcUserStats(urls: UserUrlStats[], summary: UserDashboardStats['summary'], all_time: UserDashboardStats['all_time'], refererStats?: IRefererStat[]) {
   const stats = urls.reduce((filtered: ILinkStats[], item) => {
     if(item.stats) filtered.push(item.stats);
@@ -21,20 +24,22 @@ export function calcUserStats(urls: UserUrlStats[], summary: UserDashboardStats[
     stats: stats.find(item => item.slug === url.slug)
   }));
 
-  const week = fillDays(summary.stats, {
+  const week = fillDays(summary.stats ?? [], {
     startDate: dayjs(summary.date_start).toDate(),
     endDate: dayjs(summary.date_end).toDate(),
   });
 
   const traffic = calcRefererStats(refererStats || []);
 
+  // Una cuenta recién creada llega aquí sin clics: todos los rankings vienen
+  // vacíos y ningún acceso por índice puede asumir que existe el primer elemento.
   return {
     general: {
       totalLinks: urls.length,
       totalClicks: all_time.clicks,
-      clicksLast24h: summary.clicks_last_24h || '-',
-      topLink: statsByClicks[0]?.slug,
-      topCountry: all_time.top_countries[0].name,
+      clicksLast24h: summary.clicks_last_24h || NO_DATA,
+      topLink: statsByClicks[0]?.slug ?? NO_DATA,
+      topCountry: all_time.top_countries?.[0]?.name ?? NO_DATA,
     },
     statsByClicks,
     links,
@@ -111,10 +116,12 @@ function calcRefererStats(stats: IRefererStat[]) {
     }
   }
 
+  // Sin clics registrados el porcentaje no está definido: se deja en 0 en lugar
+  // de propagar un NaN hasta los gráficos.
   for (const key in referersCount) {
-    referersCount[key].value = Number.parseFloat(
-      ((referersCount[key].count / total) * 100).toFixed(2)
-    );
+    referersCount[key].value = total > 0
+      ? Number.parseFloat(((referersCount[key].count / total) * 100).toFixed(2))
+      : 0;
   }
 
   return referersCount;

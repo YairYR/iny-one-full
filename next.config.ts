@@ -1,6 +1,50 @@
 import { NextConfig } from "next";
 import createNextIntlPlugin from "next-intl/plugin";
 
+const isDev = process.env.NODE_ENV !== "production";
+
+/**
+ * Content-Security-Policy
+ *
+ * `script-src` incluye `'unsafe-inline'` porque hoy el sitio emite scripts en
+ * línea: el bootstrap de gtag en el layout raíz y un bloque JSON-LD por landing.
+ * Endurecerlo exige un nonce por petición generado en el middleware y propagado
+ * a cada uno de esos `<script>`; queda como siguiente paso, no como parte de
+ * este cambio.
+ *
+ * Aun con esa concesión, la directiva aporta lo que hoy falta: restringe de qué
+ * orígenes se puede cargar código, bloquea `object-src`, fija `base-uri` y
+ * `form-action`, y declara `frame-ancestors` (la versión moderna de
+ * X-Frame-Options, que se mantiene por compatibilidad con navegadores antiguos).
+ *
+ * Poner `CSP_REPORT_ONLY=true` publica la política como `Report-Only`, lo que
+ * permite validarla en producción sin romper nada antes de aplicarla.
+ */
+const supabaseOrigin = safeOrigin(process.env.NEXT_PUBLIC_SUPABASE_URL);
+
+const PAYPAL_ORIGINS = ["https://www.paypal.com", "https://www.sandbox.paypal.com"];
+const ANALYTICS_ORIGINS = ["https://www.googletagmanager.com", "https://www.google-analytics.com"];
+
+const contentSecurityPolicy = [
+  ["default-src", "'self'"],
+  // 'unsafe-eval' sólo en desarrollo: lo necesita react-refresh.
+  ["script-src", "'self'", "'unsafe-inline'", ...(isDev ? ["'unsafe-eval'"] : []), ...ANALYTICS_ORIGINS, ...PAYPAL_ORIGINS],
+  ["style-src", "'self'", "'unsafe-inline'"],
+  ["img-src", "'self'", "data:", "blob:", "https://lh3.googleusercontent.com", ...ANALYTICS_ORIGINS, ...PAYPAL_ORIGINS],
+  ["font-src", "'self'", "data:"],
+  ["connect-src", "'self'", ...supabaseConnectSources(supabaseOrigin), ...ANALYTICS_ORIGINS, ...PAYPAL_ORIGINS],
+  ["frame-src", "'self'", ...PAYPAL_ORIGINS],
+  ["worker-src", "'self'", "blob:"],
+  ["manifest-src", "'self'"],
+  ["frame-ancestors", "'self'"],
+  ["base-uri", "'self'"],
+  ["form-action", "'self'"],
+  ["object-src", "'none'"],
+  ...(isDev ? [] : [["upgrade-insecure-requests"]]),
+]
+  .map((directive) => directive.join(" "))
+  .join("; ");
+
 const securityHeaders = [
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains; preload" },
   { key: "X-Frame-Options", value: "SAMEORIGIN" },
@@ -11,7 +55,29 @@ const securityHeaders = [
     value:
       "accelerometer=(), camera=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), payment=(), usb=(), interest-cohort=()",
   },
+  {
+    key: process.env.CSP_REPORT_ONLY === "true"
+      ? "Content-Security-Policy-Report-Only"
+      : "Content-Security-Policy",
+    value: contentSecurityPolicy,
+  },
 ];
+
+/** Origen de una URL, o `null` si la variable falta o no es una URL válida. */
+function safeOrigin(url: string | undefined): string | null {
+  if (!url) return null;
+  try {
+    return new URL(url).origin;
+  } catch {
+    return null;
+  }
+}
+
+/** Supabase usa HTTPS para REST/Auth y WSS para Realtime. */
+function supabaseConnectSources(origin: string | null): string[] {
+  if (!origin) return [];
+  return [origin, origin.replace(/^https:/, "wss:")];
+}
 
 const nextConfig: NextConfig = {
   logging: {
