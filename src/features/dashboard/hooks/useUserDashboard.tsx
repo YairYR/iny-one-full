@@ -18,7 +18,6 @@ export const useUserDashboard = () => {
 
   const stats = useMemo(() => {
     if(!data) return null;
-    console.log("Calculating user stats...", data.urls);
     return calcUserStats(data.urls, data.summary, data.all_time, data.refererStats);
   }, [data]);
 
