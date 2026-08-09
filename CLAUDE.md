@@ -63,6 +63,7 @@ Cada una de estas costó un ciclo de trabajo. Leerlas antes de explorar el repo.
 - Los cambios llegan con sus tests; los de rutas viven en `__tests__/api/`.
 - Comentarios en español, identificadores y mensajes de log en inglés (práctica actual del repo).
 - Los comentarios explican **por qué**, no qué hace la línea siguiente.
+-Se debe priorizar el escribir la menor cantidad de  lineas de codigo posible, si se identifica un modo más simple de implementar una logica, se puede sugerir refactorizar una seccion. 
 
 ## Código inactivo
 
