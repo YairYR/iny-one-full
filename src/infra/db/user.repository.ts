@@ -48,13 +48,20 @@ export function getUserRepository(db: DbInstance) {
       };
     },
 
-    /** Una página de links del usuario, con el total para paginar. */
+    /**
+     * Una página de links del usuario, con el total para paginar.
+     *
+     * No embebe `short_links_stats`: esa tabla tiene RLS sin políticas, así que
+     * para el rol autenticado el embebido siempre volvía vacío, y nada lo
+     * consume desde que `calcUserStats` usa `urls` directamente. Además, al
+     * retirar los GRANT por defecto a `authenticated` el embebido pasaría de
+     * devolver null a fallar con «permission denied», tumbando el dashboard.
+     */
     async getStatsUserUrls(user_id: string, offset = 0, limit = 20) {
       return db
         .from('short_links')
         .select(`
-          slug, alias, destination, created_at, utm_source, utm_medium, utm_campaign, clicks,
-          stats:short_links_stats(slug, total_clicks)
+          slug, alias, destination, created_at, utm_source, utm_medium, utm_campaign, clicks
         `, { count: 'exact' })
         .eq('user_id', user_id)
         .order('created_at', { ascending: false })
