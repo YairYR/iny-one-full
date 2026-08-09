@@ -29,6 +29,9 @@ export function UserDashboard() {
   const {
     t,
     stats,
+    page,
+    totalPages,
+    setPage,
     clicks_week,
     top_by_clicks,
     clicks_top,
@@ -113,6 +116,10 @@ export function UserDashboard() {
             {/* Links table */}
             <LinksTable
               links={links ?? []}
+              total={general?.totalLinks ?? 0}
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
               onOpen={onClickStats}
               onEdit={onClickEdit}
               onQr={onClickQr}

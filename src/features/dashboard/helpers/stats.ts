@@ -1,6 +1,6 @@
 'use client';
 
-import { ILinkStats, IRefererStat, UserUrlStats } from "@/features/dashboard/types/types";
+import { IRefererStat } from "@/features/dashboard/types/types";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -12,40 +12,32 @@ dayjs.extend(customParseFormat);
 /** Marcador mostrado en los KPI cuando todavía no hay datos suficientes. */
 export const NO_DATA = '-';
 
-export function calcUserStats(urls: UserUrlStats[], summary: UserDashboardStats['summary'], all_time: UserDashboardStats['all_time'], refererStats?: IRefererStat[]) {
-  const stats = urls.reduce((filtered: ILinkStats[], item) => {
-    if(item.stats) filtered.push(item.stats);
-    return filtered;
-  }, []);
-  const statsByClicks = stats.toSorted((a, b) => b.total_clicks - a.total_clicks);
-
-  const links = urls.map((url) => ({
-    ...url,
-    stats: stats.find(item => item.slug === url.slug)
-  }));
-
-  const week = fillDays(summary.stats ?? [], {
-    startDate: dayjs(summary.date_start).toDate(),
-    endDate: dayjs(summary.date_end).toDate(),
-  });
-
-  const traffic = calcRefererStats(refererStats || []);
-
-  // Una cuenta recién creada llega aquí sin clics: todos los rankings vienen
-  // vacíos y ningún acceso por índice puede asumir que existe el primer elemento.
+/**
+ * Deriva del payload de la API todo lo que pinta el dashboard.
+ *
+ * `urls` es sólo la página visible; los totales y rankings vienen calculados
+ * sobre la cuenta completa, así que aquí no se agrega nada global a partir de
+ * la página.
+ */
+export function calcUserStats({ urls, topLinks, summary, all_time, refererStats, pagination }: UserDashboardStats) {
   return {
+    // Una cuenta recién creada llega sin clics: los rankings vienen vacíos y
+    // ningún acceso por índice puede dar por hecho que hay un primer elemento.
     general: {
-      totalLinks: urls.length,
+      totalLinks: pagination.total,
       totalClicks: all_time.clicks,
       clicksLast24h: summary.clicks_last_24h || NO_DATA,
-      topLink: statsByClicks[0]?.slug ?? NO_DATA,
+      topLink: topLinks[0]?.slug ?? NO_DATA,
       topCountry: all_time.top_countries?.[0]?.name ?? NO_DATA,
     },
-    statsByClicks,
-    links,
-    stats,
-    week,
-    traffic,
+    links: urls,
+    topLinks,
+    pagination,
+    week: fillDays(summary.stats ?? [], {
+      startDate: dayjs(summary.date_start).toDate(),
+      endDate: dayjs(summary.date_end).toDate(),
+    }),
+    traffic: calcRefererStats(refererStats ?? []),
   };
 }
 
