@@ -12,11 +12,6 @@ import { logger } from '@/lib/logger';
 
 const log = logger.child({ route: '[short]' });
 
-type IData = {
-  destination: string | null;
-  expires_at: string | null;
-};
-
 export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
   const { short } = await ctx.params;
   if (!short || short.length <= 0) return render404();
@@ -28,15 +23,12 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
 
   const shorterRepo = getShorterRepository(supabase_service);
 
-  let data: IData | null = null;
-  const { data: result, error } = await shorterRepo.getBySlug(short);
+  const { data, error } = await shorterRepo.getBySlug(short);
 
   if (error) {
     log.error('failed to resolve short link', { slug: short, error });
     return render404();
   }
-
-  data = result;
 
   if (!data?.destination) return render404();
 

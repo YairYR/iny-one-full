@@ -47,37 +47,40 @@ function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function retryWithCancel<T>(
-  fn: () => Promise<T>,
-  retries = 3,
-  delayMs = 100,
-  signal?: AbortSignal
-): Promise<T> {
-  let attempt = 0;
-  let lastError: unknown;
-
-  while (attempt < retries) {
-    if (signal?.aborted) throw new Error('Operación cancelada');
-
-    try {
-      return await fn();
-    } catch (err) {
-      lastError = err;
-      attempt++;
-      if (attempt >= retries) break;
-
-      await new Promise<void>((resolve, reject) => {
-        const timer = setTimeout(resolve, delayMs);
-        if (signal) {
-          signal.addEventListener('abort', () => {
-            clearTimeout(timer);
-            reject(new Error('Cancelado'));
-          });
-        }
-      });
-    }
-  }
-
-  throw lastError;
-}
-
+/* INACTIVO — sin importaciones ni referencias en el repositorio (rev. 2026-08-09).
+ * No se elimina por si retoma uso en una build futura; hoy no tiene efecto en
+ * producción. Al reactivarlo: descomentar y cubrirlo con tests.
+ */
+// export async function retryWithCancel<T>(
+//   fn: () => Promise<T>,
+//   retries = 3,
+//   delayMs = 100,
+//   signal?: AbortSignal
+// ): Promise<T> {
+//   let attempt = 0;
+//   let lastError: unknown;
+//
+//   while (attempt < retries) {
+//     if (signal?.aborted) throw new Error('Operación cancelada');
+//
+//     try {
+//       return await fn();
+//     } catch (err) {
+//       lastError = err;
+//       attempt++;
+//       if (attempt >= retries) break;
+//
+//       await new Promise<void>((resolve, reject) => {
+//         const timer = setTimeout(resolve, delayMs);
+//         if (signal) {
+//           signal.addEventListener('abort', () => {
+//             clearTimeout(timer);
+//             reject(new Error('Cancelado'));
+//           });
+//         }
+//       });
+//     }
+//   }
+//
+//   throw lastError;
+// }

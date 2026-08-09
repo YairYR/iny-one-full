@@ -39,6 +39,7 @@ export const getFromLocalStorage = (name: string) => {
   return value.value;
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export const addToSessionStorage = (name: string, value: string) => {
   if(!globalThis.sessionStorage) return;
   globalThis.sessionStorage.setItem(`data-${name}`, value);
@@ -64,11 +65,13 @@ export const setCartPlan = (planId: string) => {
   addToLocalStorage("cart", JSON.stringify({ planId }), 86400 * 30);
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export const getCart = (): ICart|null => {
   const cart = getFromLocalStorage("cart");
   return cart ? JSON.parse(cart) : null;
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export const clearCart = () => {
   const data = getAll();
   if(data['cart']) {

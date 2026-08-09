@@ -9,12 +9,16 @@ import { useTranslations } from "next-intl";
 
 interface Props {
   links: UserUrl[];
+  total: number;
+  page: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
   onOpen?: (link: UserUrl) => void;
   onEdit: (link: UserUrl) => void;
   onQr?: (link: UserUrl) => void;
 }
 
-export function LinksTable({ links, onOpen, onEdit, onQr }: Readonly<Props>) {
+export function LinksTable({ links, total, page, totalPages, onPageChange, onOpen, onEdit, onQr }: Readonly<Props>) {
   const t = useTranslations('DashboardPage');
 
   const substringAndSpread = (str: string, max: number) => {
@@ -62,7 +66,7 @@ export function LinksTable({ links, onOpen, onEdit, onQr }: Readonly<Props>) {
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold">{t("table.links.title")}</h3>
-          <div className="text-sm text-gray-500">{t("table.links.subtitle", { value: links.length })}</div>
+          <div className="text-sm text-gray-500">{t("table.links.subtitle", { value: total })}</div>
         </div>
       </div>
 
@@ -109,6 +113,30 @@ export function LinksTable({ links, onOpen, onEdit, onQr }: Readonly<Props>) {
           </tbody>
         </table>
       </div>
+
+      {totalPages > 1 && (
+        <nav className="flex items-center justify-between gap-4 border-t p-3 text-sm" aria-label={t("table.links.pagination.label")}>
+          <span className="text-gray-500">{t("table.links.pagination.status", { page, pages: totalPages })}</span>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              disabled={page <= 1}
+              onClick={() => onPageChange(page - 1)}
+              className="rounded border px-3 py-1 enabled:cursor-pointer enabled:hover:bg-gray-50 disabled:opacity-40"
+            >
+              {t("table.links.pagination.previous")}
+            </Button>
+            <Button
+              type="button"
+              disabled={page >= totalPages}
+              onClick={() => onPageChange(page + 1)}
+              className="rounded border px-3 py-1 enabled:cursor-pointer enabled:hover:bg-gray-50 disabled:opacity-40"
+            >
+              {t("table.links.pagination.next")}
+            </Button>
+          </div>
+        </nav>
+      )}
     </div>
   );
 }

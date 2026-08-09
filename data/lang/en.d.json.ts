@@ -189,6 +189,12 @@ declare const messages: {
           "ctr": "CTR",
           "created": "Created",
           "actions": "Actions"
+        },
+        "pagination": {
+          "label": "Link pages",
+          "status": "Page {page, number} of {pages, number}",
+          "previous": "Previous",
+          "next": "Next"
         }
       }
     },
