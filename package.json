@@ -9,6 +9,7 @@
     "lint": "eslint src",
     "typecheck": "tsc --noEmit",
     "typegen": "next typegen",
+    "verify": "eslint src && next typegen && tsc --noEmit && jest",
     "test": "jest",
     "coverage": "jest --collect-coverage",
     "sonar": "sonar-scanner",
