@@ -18,13 +18,16 @@ yarn dev
 | --- | --- |
 | `yarn dev` | Servidor de desarrollo con Turbopack |
 | `yarn build` / `yarn start` | Build de producción y arranque |
+| `yarn verify` | lint + typegen + typecheck + tests en un solo comando |
 | `yarn lint` | ESLint sobre `src` |
 | `yarn typecheck` | `tsc --noEmit` |
 | `yarn typegen` | Regenera los tipos de ruta de Next |
 | `yarn test` / `yarn coverage` | Jest, con o sin cobertura |
 | `yarn sonar` | Análisis de SonarQube |
 
-`yarn typecheck` requiere haber ejecutado antes `yarn typegen` o un `build`: el tipo global `RouteContext` lo genera Next a partir del árbol de rutas y no existe en un checkout limpio.
+`yarn typecheck` requiere haber ejecutado antes `yarn typegen` o un `build`: el tipo global `RouteContext` lo genera Next a partir del árbol de rutas y no existe en un checkout limpio. `yarn verify` ya encadena ambos y es el comando a usar antes de dar un cambio por terminado.
+
+`CLAUDE.md` recoge el contexto operativo para agentes de IA: fronteras del código, trampas del repositorio y convenciones.
 
 ### Variables de entorno
 
@@ -65,8 +68,8 @@ src/
 │  │  └─ webhooks/               # Recepción de eventos de PayPal
 │  └─ ui/                        # Implementación interna tras los rewrites públicos
 │     ├─ (main)/                 # Home, about, plans, cart, auth y landings SEO
-│     ├─ (user)/dashboard/       # Panel del usuario
-│     └─ dashboard/layout.tsx    # noindex del área privada
+│     ├─ (user)/                 # Panel del usuario (+ noindex del área privada)
+│     └─ dashboard/layout.tsx    # INACTIVO: fuera de la cadena de layouts
 │
 ├─ components/                   # UI compartida (Navbar, Footer, Tooltip, Skeleton…)
 │
@@ -126,7 +129,7 @@ La versión en español vive bajo `/es/*` con URLs propias. El middleware inyect
 - Dominio canónico `https://iny.one`; `www` redirige al apex.
 - `canonical` y `hreflang` por página vía `buildPageMetadata()` en `lib/seo/metadata.ts`.
 - El sitemap sólo incluye rutas públicas indexables.
-- `auth`, `dashboard` y `cart` quedan fuera del índice con `robots: { index: false }` en sus layouts.
+- `auth`, `dashboard` y `cart` quedan fuera del índice con `robots: { index: false }` en el layout que realmente los envuelve.
 - Los short links responden con `X-Robots-Tag: noindex`.
 - Las landings incorporan JSON-LD.
 
@@ -167,6 +170,22 @@ Los tests que tocan Server Components cortan en la frontera de datos (`@/data/dt
 ## CI
 
 `.github/workflows/ci.yml` ejecuta lint, generación de tipos, typecheck, tests con cobertura y build en cada push y pull request contra `main` y `develop`.
+
+---
+
+## Código inactivo
+
+Nada se borra: lo que no está referenciado se conserva marcado, por si retoma uso en una build futura. Dos convenciones, según el caso.
+
+**Comentado con cabecera `INACTIVO`** cuando es una unidad completa que ya no se compila: `infra/db/order.repository.ts`, `infra/db/payment.repository.ts`, `infra/payments/catalogs.repository.ts` (catálogo de productos de PayPal), `ALLOWED_ORIGINS` y `PAYPAL_CLIENT_ID` en `constants.ts`, `retryWithCancel` en `lib/utils/retry.ts`, `findByEmail` / `getCurrentUserId` / `getUrls` en `user.repository.ts`, y `getStatsUrls` / `getStatsUrlsCurrentUser` / `getClicksBetween` en `stats.repository.ts`.
+
+**Anotado con `/** INACTIVO */` pero activo** cuando es un export suelto dentro de un módulo en uso, donde comentarlo sólo añadiría ruido: las variantes `SkeletonCircle`, `SkeletonTable`, `SkeletonTriangle` y `SkeletonUser`; `addToSessionStorage`, `getCart` y `clearCart` en `lib/utils/localstorage.ts`; `getPlans` en `services.repository.ts`; los tipos `ILink`, `OrderPay` y `UserRepository`; y `formats` en `i18n/request.ts`.
+
+También quedan marcados los barrels vacíos `features/users/index.ts` y `features/payments/index.ts`, y `app/ui/dashboard/layout.tsx`, que está fuera de la cadena de renderizado (el `noindex` del área privada vive en `app/ui/(user)/layout.tsx`).
+
+`package.json` no admite comentarios, así que se deja constancia aquí: **`node-fetch` y `simple-statistics` no se usan en ninguna parte del código**. Node 22 ya trae `fetch` global. Se conservan instaladas; si se decide prescindir de ellas, `yarn remove node-fetch simple-statistics`.
+
+Para recalcular el inventario, buscar `INACTIVO` en `src/`. Un detalle al hacerlo con herramientas propias: las rutas con segmentos entre corchetes como `app/ui/(main)/cart/[[...checkout]]/` se escapan de los patrones glob, que interpretan los corchetes como clase de caracteres, y pueden dar un falso «sin referencias».
 
 ---
 

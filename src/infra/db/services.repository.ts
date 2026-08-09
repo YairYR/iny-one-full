@@ -1,8 +1,13 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import { Database } from "@/lib/types/db.types";
 
+/**
+ * Ojo: convive con `service.repository.ts` (singular), que expone `findById`
+ * sobre la misma tabla. Los nombres casi idénticos se prestan a confusión.
+ */
 export function createServicesRepository(db: SupabaseClient<Database>) {
   return {
+    /** INACTIVO: sin referencias en el repositorio (rev. 2026-08-09). */
     async getPlans() {
       return db
         .from('services')

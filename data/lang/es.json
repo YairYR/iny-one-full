@@ -186,6 +186,12 @@
           "ctr": "CTR",
           "created": "Creado",
           "actions": "Acciones"
+        },
+        "pagination": {
+          "label": "Páginas de enlaces",
+          "status": "Página {page, number} de {pages, number}",
+          "previous": "Anterior",
+          "next": "Siguiente"
         }
       }
     },

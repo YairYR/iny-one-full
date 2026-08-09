@@ -81,6 +81,7 @@ export interface Subscription {
   updated_at: Date;
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export interface OrderPay {
   id: string;
   user_id: string;
