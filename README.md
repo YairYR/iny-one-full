@@ -18,13 +18,16 @@ yarn dev
 | --- | --- |
 | `yarn dev` | Servidor de desarrollo con Turbopack |
 | `yarn build` / `yarn start` | Build de producción y arranque |
+| `yarn verify` | lint + typegen + typecheck + tests en un solo comando |
 | `yarn lint` | ESLint sobre `src` |
 | `yarn typecheck` | `tsc --noEmit` |
 | `yarn typegen` | Regenera los tipos de ruta de Next |
 | `yarn test` / `yarn coverage` | Jest, con o sin cobertura |
 | `yarn sonar` | Análisis de SonarQube |
 
-`yarn typecheck` requiere haber ejecutado antes `yarn typegen` o un `build`: el tipo global `RouteContext` lo genera Next a partir del árbol de rutas y no existe en un checkout limpio.
+`yarn typecheck` requiere haber ejecutado antes `yarn typegen` o un `build`: el tipo global `RouteContext` lo genera Next a partir del árbol de rutas y no existe en un checkout limpio. `yarn verify` ya encadena ambos y es el comando a usar antes de dar un cambio por terminado.
+
+`CLAUDE.md` recoge el contexto operativo para agentes de IA: fronteras del código, trampas del repositorio y convenciones.
 
 ### Variables de entorno
 
