@@ -34,4 +34,5 @@ export default getRequestConfig(async () => {
   };
 });
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export const formats = {} satisfies Formats;

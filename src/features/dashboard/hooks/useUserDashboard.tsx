@@ -14,12 +14,10 @@ export const useUserDashboard = () => {
     link: null,
   });
 
-  const { data } = useStatsCommon();
+  const [page, setPage] = useState(1);
+  const { data } = useStatsCommon(page);
 
-  const stats = useMemo(() => {
-    if(!data) return null;
-    return calcUserStats(data.urls, data.summary, data.all_time, data.refererStats);
-  }, [data]);
+  const stats = useMemo(() => (data ? calcUserStats(data) : null), [data]);
 
   const traffic = Object.values(stats?.traffic ?? {});
 
@@ -35,11 +33,14 @@ export const useUserDashboard = () => {
   };
 
   const top_by_clicks = 4;
-  const sortedByClicks = stats?.statsByClicks.slice(0, top_by_clicks);
+  const sortedByClicks = stats?.topLinks.slice(0, top_by_clicks) ?? [];
   const clicks_top = {
-    labels: sortedByClicks?.map(l => l.slug) ?? [],
-    datasets: [{ label: 'Clicks', data: sortedByClicks?.map(l => l.total_clicks) }]
+    labels: sortedByClicks.map(l => l.slug),
+    datasets: [{ label: 'Clicks', data: sortedByClicks.map(l => l.clicks) }]
   };
+
+  const pagination = stats?.pagination;
+  const totalPages = pagination ? Math.max(1, Math.ceil(pagination.total / pagination.pageSize)) : 1;
 
   const graffic_traffic = traffic.length > 0 && {
     labels: traffic.map((item) => item.name),
@@ -88,6 +89,9 @@ export const useUserDashboard = () => {
   return {
     t,
     stats,
+    page,
+    totalPages,
+    setPage,
     traffic,
     clicks_week,
     top_by_clicks,

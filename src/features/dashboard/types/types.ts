@@ -4,6 +4,7 @@ export interface IAlert {
   message: string;
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export interface ILink {
   id: number|string;
   alias: string;
