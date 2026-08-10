@@ -21,14 +21,12 @@ import { checkRateLimit, recordRateLimitUsage } from "@/lib/utils/rate-limits";
 import { ERROR } from "@/lib/api/error-codes";
 import { generateSlug, MAX_SLUG_INSERT_ATTEMPTS } from "@/lib/short-links/slug";
 import { buildDestination, type DestinationPlan } from "@/lib/short-links/destination";
+import { ANONYMOUS_LINK_TTL_DAYS } from "@/lib/short-links/expiry";
 import { logger } from "@/lib/logger";
 
 dayjs.extend(utc);
 
 const log = logger.child({ route: 'api/shorten' });
-
-/** Días de vigencia de un link creado sin cuenta. */
-const ANONYMOUS_LINK_TTL_DAYS = 180;
 
 /** Dominios que nunca pueden ser destino de un link. */
 const BLOCKED_DOMAINS = new Set(['iny.one', 'localhost']);
