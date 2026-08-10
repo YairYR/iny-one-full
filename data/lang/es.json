@@ -1,7 +1,7 @@
 {
   "404": {
-    "metaTitle": "404 – Page Not Found | iny.one",
-    "metaDescription": "The page you are looking for does not exist. Check the URL or return to the homepage.",
+    "metaTitle": "404 – Página no encontrada | iny.one",
+    "metaDescription": "La página que buscas no existe. Revisa la URL o vuelve al inicio.",
     "title": "404",
     "subtitle": "La página o el enlace no existe.",
     "goBack": "Atrás",
@@ -55,7 +55,9 @@
     "qrShow": "Mostrar código QR",
     "qrHide": "Ocultar código QR",
     "qrDownload": "Descargar PNG",
-    "qrAlt": "Código QR de tu enlace corto"
+    "qrAlt": "Código QR de tu enlace corto",
+    "anonymousNotice": "Los enlaces creados sin cuenta caducan a los {days, number} días.",
+    "anonymousNoticeCta": "Crea una cuenta gratis"
   },
   "HomeContent": {
     "howTitle": "Cómo acortar una URL con seguimiento UTM",
@@ -218,5 +220,13 @@
       "saturday": "Sabado",
       "sunday": "Domingo"
     }
+  },
+  "linkExpired": {
+    "metaTitle": "Enlace caducado | iny.one",
+    "title": "Este enlace ha caducado",
+    "subtitle": "Los enlaces creados sin cuenta caducan a los 180 días. Crea una cuenta gratis y los tuyos no caducarán, además de tener estadísticas de clics de cada enlace.",
+    "cta": "Crear cuenta gratis",
+    "goHome": "Acortar otro enlace",
+    "footer": "Acortador de URLs con UTM"
   }
 }

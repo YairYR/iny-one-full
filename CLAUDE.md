@@ -43,6 +43,9 @@ Cada una de estas costó un ciclo de trabajo. Leerlas antes de explorar el repo.
   «sin referencias».
 - `service.repository.ts` (singular) y `services.repository.ts` (plural, lo usa el carrito) son
   ficheros distintos con nombres casi idénticos.
+- En PostgreSQL toda función nace con `EXECUTE` concedido a **PUBLIC**, y `anon` lo hereda por ahí:
+  `revoke execute ... from anon` no le quita nada. Hay que revocar a `public`, y eso también se lo
+  quita a `service_role`, así que después toca devolvérselo explícitamente. Verificado en PG 16.
 - En Jest, `@supabase/*` se publica como ESM sin transformar. Los tests **mockean en la frontera de
   datos** (`@/data/dto/user-dto`, los repositorios) en lugar de importar el cliente real. `nanoid`
   está mapeado a `__mocks__/nanoid.js` por el mismo motivo.
@@ -96,9 +99,10 @@ Auditoría del 2026-08-09 (`scripts/sql/auditoria.sql`, resultados reales, no su
   Recordatorio de por qué importaba: la resolución de enlaces y las estadísticas usan service role,
   así que ninguna lectura pública era necesaria, y mientras existieron esas políticas el arreglo de
   autorización de `/api/dashboard/stats/[slug]` no protegía nada.
-- **ABIERTO — `anon` y `authenticated` tienen DELETE, INSERT, REFERENCES, SELECT, TRIGGER, TRUNCATE
-  y UPDATE sobre todas las tablas de `public`** (grant por defecto de Supabase). RLS lo contiene
-  hoy, pero TRUNCATE no está sujeto a RLS y basta desactivarla en una tabla para exponerla.
+- **CERRADO el 2026-08-09 — GRANT ALL por defecto.** Se revocó todo sobre `public` para `anon` y
+  `authenticated`, dejando sólo `grant select, update on public.short_links to authenticated`. Al
+  hacerlo, cualquier consulta desde el navegador o con la sesión del usuario sobre otra tabla falla
+  con «permission denied», que a diferencia de RLS es un error duro y no un filtro de filas.
 - **ABIERTO — `public.get_page_traffic` es SECURITY DEFINER y anon puede ejecutarla.** Permite pedir
   el tráfico de cualquier slug por RPC. `security.insert_blocked_url` también está abierta a anon.
 - **RESUELTO por diseño previo**: `short_links_pkey` es `PRIMARY KEY (slug)`, así que el índice
@@ -110,11 +114,19 @@ Auditoría del 2026-08-09 (`scripts/sql/auditoria.sql`, resultados reales, no su
 - Volumen: `short_links` 2 636 filas, `history_clicks` 35 194 (11 MB). Las consultas de cuota hacen
   Seq Scan en 0,45 ms; los índices `(user_id, created_at)` e `(ip_user, created_at)` son previsión,
   no urgencia.
+- Resolución de `/[short]`: la decisión vive en `lib/short-links/resolve-link-state.ts` (función
+  pura, con tests) y las páginas en `lib/short-links/status-page.ts`. Un enlace caducado responde
+  **410 Gone** con pantalla propia que invita a registrarse; uno inexistente, 404. Por eso
+  `getBySlug` ya no filtra por `status`: filtrarlo hacía indistinguibles ambos casos tras la
+  primera visita.
 - 1 904 enlaces caducados siguen con `status = true` (sólo se desactivan al visitarlos). 315 links
   tienen desfase entre `short_links.clicks` y `short_links_stats.total_clicks`.
-- `short_links_stats` tiene RLS sin políticas, así que el embebido `stats:short_links_stats(...)`
-  de `getStatsUserUrls` siempre vuelve vacío para el rol `authenticated`. Nada lo consume desde que
-  `calcUserStats` pasa `urls` directamente: ese trozo del select se puede quitar.
+- Esquema `security` (auditado el 2026-08-09): cuatro tablas — `blocked_url`,
+  `blocklist_url_phishing_active`, `cached_blocked_url`, `whitelist_url` — todas con RLS y una
+  política, y **sin ningún grant a `anon` ni `authenticated`**. Está limpio.
+- `getStatsUserUrls` ya **no** embebe `stats:short_links_stats(...)`. Tras revocar los grants, ese
+  embebido pasaba de devolver null a fallar con «permission denied». No reintroducirlo sin conceder
+  antes el SELECT sobre esa tabla.
 - Hipótesis a confirmar: la edición de alias no funcionaba antes del 2026-08-09, porque
   `changeAlias` hace UPDATE con la sesión del usuario y no existía política de UPDATE; PostgREST
   devuelve 0 filas sin error. `short_links_update_own` debería haberlo desbloqueado.

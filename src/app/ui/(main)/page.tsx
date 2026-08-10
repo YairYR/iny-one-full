@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import HomeTitle from "@/components/HomeTitle";
 import UrlShortForm from "@/features/short_links/components/UrlShortForm";
+import AnonymousLinkNotice from "@/features/short_links/components/AnonymousLinkNotice";
 import UtmInfoSmall from "@/components/UtmInfoSmall";
 import SubscriptionUpgrade from "@/components/SubscriptionUpgrade";
 import HomeContent from "@/components/HomeContent";
@@ -141,6 +142,7 @@ export default function HomePage() {
       <div className="max-w-2xl mx-auto">
         <HomeTitle />
         <UrlShortForm />
+        <AnonymousLinkNotice />
         <UtmInfoSmall />
       </div>
       <HomeContent />

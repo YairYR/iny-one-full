@@ -5,6 +5,26 @@ import { useTranslations } from "next-intl";
 import { UserUrl } from "@/features/dashboard/types/types";
 import { calcUserStats } from "@/features/dashboard/helpers/stats";
 
+/**
+ * Opciones comunes de los gráficos de clics. Los clics son enteros no negativos:
+ * sin `beginAtZero` Chart.js dibuja el eje de -1 a 1 cuando todos los valores
+ * son cero, y sin `precision: 0` marca decimales como "0,5 clics".
+ *
+ * Se define aquí y no en components/charts para no importar ese módulo de forma
+ * estática: se carga con next/dynamic justo para mantener chart.js fuera del
+ * bundle inicial.
+ */
+const countChartOptions = {
+  maintainAspectRatio: false,
+  scales: {
+    y: {
+      beginAtZero: true,
+      suggestedMax: 4,
+      ticks: { precision: 0 },
+    },
+  },
+};
+
 export const useUserDashboard = () => {
   const t = useTranslations('DashboardPage');
   const [modal, setModal] = useState<ILinkDetails>({
@@ -89,6 +109,7 @@ export const useUserDashboard = () => {
   return {
     t,
     stats,
+    countChartOptions,
     page,
     totalPages,
     setPage,
