@@ -11,8 +11,11 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { createClient } from "@/lib/supabase/server";
 import { ERROR } from "@/lib/api/error-codes";
+import { logger } from "@/lib/logger";
 
 dayjs.extend(utc);
+
+const log = logger.child({ route: 'api/dashboard/stats' });
 
 /** Links por página en la tabla del dashboard. */
 const PAGE_SIZE = 20;
@@ -44,6 +47,11 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     userRepo.getTopLinks(user.id, TOP_LINKS),
   ]);
 
+  // Un fallo aquí no puede degradarse en silencio: `data` vendría vacío y el
+  // dashboard mostraría cero enlaces como si la cuenta no tuviera ninguno, que
+  // es indistinguible de un problema real de permisos o de conexión.
+  assertNoError({ allSlugs, pageUrls, topLinks });
+
   const slugs = (allSlugs.data ?? []).map((item) => item.slug).filter((slug): slug is string => slug !== null);
 
   const [summaryResponse, refererResponse] = await Promise.all([
@@ -52,6 +60,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   ]);
 
   if (!summaryResponse.data || summaryResponse.error) {
+    log.error('failed to fetch stats summary', { error: summaryResponse.error });
     throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching stats summary');
   }
 
@@ -68,3 +77,13 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
     },
   });
 });
+
+/** Aborta con 500 si alguna de las consultas del panel devolvió error. */
+function assertNoError(responses: Record<string, { error: unknown }>): void {
+  for (const [nombre, response] of Object.entries(responses)) {
+    if (response.error) {
+      log.error('dashboard query failed', { query: nombre, error: response.error });
+      throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching dashboard data');
+    }
+  }
+}
