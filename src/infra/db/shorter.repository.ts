@@ -43,12 +43,17 @@ export function getShorterRepository(db: DbInstance) {
         .select('slug');
     },
 
+    /**
+     * No filtra por `status`: lo devuelve para que el resolver pueda distinguir
+     * un enlace caducado de uno inexistente y mostrar cada pantalla. Filtrarlo
+     * hacía que, tras la primera visita a un caducado, la fila desapareciera de
+     * la consulta y ambos casos quedaran indistinguibles.
+     */
     async getBySlug(slug: string) {
       return db
         .from('short_links')
-        .select('destination, expires_at')
+        .select('destination, expires_at, status')
         .eq('slug', slug)
-        .eq('status', true)
         .maybeSingle();
     },
 

@@ -96,23 +96,76 @@ grant select, update on public.short_links to authenticated;
 -- =============================================================================
 -- PASO 3 — Funciones invocables por anon
 -- =============================================================================
+-- OJO CON EL PRIVILEGIO HEREDADO DE `PUBLIC`.
+-- En PostgreSQL toda función nace con EXECUTE concedido a `PUBLIC`, y `anon` lo
+-- hereda por ahí. Comprobado en PostgreSQL 16:
+--
+--   revoke execute ... from anon, authenticated;   -> anon SIGUE pudiendo (true)
+--   revoke execute ... from public;                -> anon deja de poder, pero
+--                                                     service_role TAMBIÉN lo pierde
+--
+-- Por eso cada bloque revoca a `public` y devuelve el permiso a `service_role`
+-- de forma explícita. Sin ese grant final se rompe lo que sí usa la aplicación:
+-- get_page_traffic alimenta el gráfico «Source Traffic» del dashboard e
+-- insert_blocked_url la usan los scripts de mantenimiento de la denylist.
 
--- get_page_traffic es SECURITY DEFINER y anon puede ejecutarla: permite pedir
--- el tráfico por referer de cualquier lista de slugs llamando al RPC
--- directamente, sin pasar por la aplicación. La llama el dashboard con service
--- role, así que no necesita estar abierta.
-revoke execute on function public.get_page_traffic(text[]) from anon, authenticated;
 
--- insert_blocked_url escribe en la denylist de dominios. Abierta a anon permite
--- inyectar dominios y bloquear destinos legítimos. Sólo la usan los scripts de
--- mantenimiento, que se autentican con service role.
-revoke execute on function security.insert_blocked_url(text[]) from anon, authenticated;
+-- 3.1 Foto previa. Anotar los valores para poder comparar.
+select n.nspname || '.' || p.proname as funcion,
+       case when p.prosecdef then 'DEFINER' else 'INVOKER' end as seguridad,
+       has_function_privilege('anon', p.oid, 'EXECUTE') as anon,
+       has_function_privilege('authenticated', p.oid, 'EXECUTE') as auth,
+       has_function_privilege('service_role', p.oid, 'EXECUTE') as service_role
+from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+where n.nspname in ('public','security')
+  and p.proname in ('get_page_traffic','insert_blocked_url','is_domain_secure',
+                    'get_dashboard_stats_summary','get_page_clicks_between_dates','authorize')
+order by funcion;
 
--- REVISAR ANTES DE EJECUTAR: `authorize` es el patrón RBAC de Supabase y suele
--- invocarse desde dentro de políticas. Si alguna política la usa, revocarle el
--- EXECUTE al rol que evalúa la política rompe esa consulta. Comprobar primero:
---   select policyname, qual from pg_policies where qual ilike '%authorize%';
--- revoke execute on function public.authorize(app_permission) from anon;
+
+-- 3.2 get_page_traffic: es SECURITY DEFINER, así que ejecutarla salta la RLS y
+--     devuelve el tráfico de cualquier slug que se le pase.
+revoke execute on function public.get_page_traffic(text[]) from public, anon, authenticated;
+grant  execute on function public.get_page_traffic(text[]) to service_role;
+
+
+-- 3.3 insert_blocked_url: escribe en la denylist de dominios. Abierta permitiría
+--     inyectar dominios y bloquear destinos legítimos.
+revoke execute on function security.insert_blocked_url(text[]) from public, anon, authenticated;
+grant  execute on function security.insert_blocked_url(text[]) to service_role;
+
+
+-- 3.4 Repetir la consulta de 3.1.
+--     ESPERADO: anon = false, auth = false, service_role = true en ambas.
+--     Si service_role saliera false, ejecutar el grant correspondiente otra vez.
+
+
+-- 3.5 Comprobar el dashboard: el gráfico «Source Traffic» debe seguir pintándose.
+--     Es lo único que consume get_page_traffic.
+
+
+-- -----------------------------------------------------------------------------
+-- Opcional: mismo patrón para las otras dos, de menor riesgo
+-- -----------------------------------------------------------------------------
+-- Ambas son SECURITY INVOKER, así que hoy anon ya no obtiene nada al llamarlas
+-- (las tablas que leen le están denegadas). Cerrarlas es higiene, no urgencia.
+--
+-- revoke execute on function public.get_dashboard_stats_summary(text[], timestamp, timestamp, text) from public, anon, authenticated;
+-- grant  execute on function public.get_dashboard_stats_summary(text[], timestamp, timestamp, text) to service_role;
+--
+-- revoke execute on function security.is_domain_secure(text) from public, anon, authenticated;
+-- grant  execute on function security.is_domain_secure(text) to service_role;
+
+
+-- -----------------------------------------------------------------------------
+-- NO tocar `authorize` sin comprobar antes
+-- -----------------------------------------------------------------------------
+-- Es el patrón RBAC de Supabase y suele invocarse desde dentro de políticas. Si
+-- alguna la usa, quitarle el EXECUTE al rol que evalúa la política rompe esa
+-- consulta. Comprobar primero:
+--   select policyname, qual, with_check from pg_policies
+--   where qual ilike '%authorize%' or with_check ilike '%authorize%';
+-- Sólo si no devuelve nada tiene sentido revocarla.
 
 
 -- =============================================================================

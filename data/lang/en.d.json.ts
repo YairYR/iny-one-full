@@ -58,7 +58,9 @@ declare const messages: {
     "qrShow": "Show QR code",
     "qrHide": "Hide QR code",
     "qrDownload": "Download PNG",
-    "qrAlt": "QR code for your short link"
+    "qrAlt": "QR code for your short link",
+    "anonymousNotice": "Links created without an account expire after {days, number} days.",
+    "anonymousNoticeCta": "Create a free account"
   },
   "HomeContent": {
     "howTitle": "How to shorten a URL with UTM tracking",
@@ -221,6 +223,14 @@ declare const messages: {
       "saturday": "Saturday",
       "sunday": "Sunday"
     }
+  },
+  "linkExpired": {
+    "metaTitle": "Link expired | iny.one",
+    "title": "This link has expired",
+    "subtitle": "Links created without an account expire after 180 days. Create a free account and yours will never expire — plus you get click analytics for every link.",
+    "cta": "Create a free account",
+    "goHome": "Shorten another link",
+    "footer": "URL shortener with UTM"
   }
 };
 export default messages;
