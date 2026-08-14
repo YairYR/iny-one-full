@@ -23,12 +23,42 @@ const isDev = process.env.NODE_ENV !== "production";
 const supabaseOrigin = safeOrigin(process.env.NEXT_PUBLIC_SUPABASE_URL);
 
 const PAYPAL_ORIGINS = ["https://www.paypal.com", "https://www.sandbox.paypal.com"];
-const ANALYTICS_ORIGINS = ["https://www.googletagmanager.com", "https://www.google-analytics.com"];
+/**
+ * GA4 no manda la medición a www.google-analytics.com. Verificado en la consola
+ * de producción el 2026-08-14: el `page_view` sale a
+ * `https://analytics.google.com/g/collect`, y al no estar en `connect-src` el
+ * navegador lo bloqueaba. Ese era el motivo de que GA4 no registrara visitas.
+ *
+ * El síntoma es engañoso y conviene recordarlo: gtag.js carga sin problemas
+ * —está en `script-src`— así que «el tag está puesto» y aun así no llega nada.
+ * El único sitio donde se ve es la consola; un HAR no exporta las peticiones
+ * que la CSP corta antes de la capa de red.
+ *
+ * `*.google-analytics.com` cubre los endpoints regionales documentados
+ * (region1…region9), que no aparecieron en esta prueba pero sí se usan en otras
+ * regiones. Es precaución, no un host observado. Ojo: en CSP el comodín NO
+ * cubre el dominio desnudo, por eso están las dos formas.
+ *
+ * Deliberadamente FUERA: stats.g.doubleclick.net, www.google.com/g/collect y
+ * www.google.<tld>/ads/ga-audiences. Son de Google Signals (demografía y
+ * remarketing), no de los informes estándar, y sólo se disparan con Signals
+ * activo. Se desactiva en GA4 en lugar de meter dominios de ad-tech en la
+ * allowlist. El último además va al dominio de Google del país de cada
+ * visitante, así que no hay lista finita que lo cubra.
+ */
+const ANALYTICS_SCRIPT_ORIGINS = ["https://www.googletagmanager.com"];
+
+const ANALYTICS_ORIGINS = [
+  ...ANALYTICS_SCRIPT_ORIGINS,
+  "https://analytics.google.com",
+  "https://www.google-analytics.com",
+  "https://*.google-analytics.com",
+];
 
 const contentSecurityPolicy = [
   ["default-src", "'self'"],
   // 'unsafe-eval' sólo en desarrollo: lo necesita react-refresh.
-  ["script-src", "'self'", "'unsafe-inline'", ...(isDev ? ["'unsafe-eval'"] : []), ...ANALYTICS_ORIGINS, ...PAYPAL_ORIGINS],
+  ["script-src", "'self'", "'unsafe-inline'", ...(isDev ? ["'unsafe-eval'"] : []), ...ANALYTICS_SCRIPT_ORIGINS, ...PAYPAL_ORIGINS],
   ["style-src", "'self'", "'unsafe-inline'"],
   ["img-src", "'self'", "data:", "blob:", "https://lh3.googleusercontent.com", ...ANALYTICS_ORIGINS, ...PAYPAL_ORIGINS],
   ["font-src", "'self'", "data:"],
