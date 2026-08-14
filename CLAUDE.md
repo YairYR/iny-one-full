@@ -43,6 +43,20 @@ Cada una de estas costó un ciclo de trabajo. Leerlas antes de explorar el repo.
   «sin referencias».
 - `service.repository.ts` (singular) y `services.repository.ts` (plural, lo usa el carrito) son
   ficheros distintos con nombres casi idénticos.
+- GA4 **no** envía la medición a `www.google-analytics.com`. Verificado en la consola de producción
+  el 2026-08-14: el `page_view` sale a `https://analytics.google.com/g/collect`. Ese host tiene que
+  estar en `connect-src`; los endpoints regionales (`region1.google-analytics.com`…) se cubren con
+  el comodín, y en CSP `*.dominio` **no** cubre `dominio`, por eso hacen falta las dos formas.
+  Si falta, gtag.js carga igual —está en `script-src`— y sólo se bloquea `/g/collect`: parece que
+  el tag está puesto y no mide.
+- Con Google Signals activo, GA4 dispara además `stats.g.doubleclick.net/g/collect`,
+  `www.google.com/g/collect` y `www.google.<tld>/ads/ga-audiences`. **No están en la allowlist a
+  propósito** (decisión del 2026-08-14): son demografía y remarketing, no informes estándar, y el
+  último va al dominio de Google del país de cada visitante, que no admite lista finita. Si
+  aparecen en la consola es que Signals sigue activo en GA4; se desactiva allí, no ampliando la CSP.
+- Un HAR **no** sirve para diagnosticar bloqueos de CSP: las peticiones que la política corta no
+  llegan a la capa de red y no se exportan. Sólo se ven en la consola. Diagnosticar con HAR una
+  sospecha de CSP es una comprobación que no distingue «funciona» de «está roto».
 - En PostgreSQL toda función nace con `EXECUTE` concedido a **PUBLIC**, y `anon` lo hereda por ahí:
   `revoke execute ... from anon` no le quita nada. Hay que revocar a `public`, y eso también se lo
   quita a `service_role`, así que después toca devolvérselo explícitamente. Verificado en PG 16.
