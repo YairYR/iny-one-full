@@ -1,11 +1,15 @@
 {
   "name": "iny-one-full",
   "version": "1.0.0",
+  "packageManager": "yarn@1.22.22",
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "typegen": "next typegen",
+    "verify": "eslint src && next typegen && tsc --noEmit && jest",
     "test": "jest",
     "coverage": "jest --collect-coverage",
     "sonar": "sonar-scanner",

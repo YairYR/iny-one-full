@@ -4,7 +4,26 @@ import { ILinkDetails } from "@/features/dashboard/components";
 import { useTranslations } from "next-intl";
 import { UserUrl } from "@/features/dashboard/types/types";
 import { calcUserStats } from "@/features/dashboard/helpers/stats";
-import {useUserLinksSummary} from "@/features/dashboard/hooks/useUserLinksSummary";
+
+/**
+ * Opciones comunes de los gráficos de clics. Los clics son enteros no negativos:
+ * sin `beginAtZero` Chart.js dibuja el eje de -1 a 1 cuando todos los valores
+ * son cero, y sin `precision: 0` marca decimales como "0,5 clics".
+ *
+ * Se define aquí y no en components/charts para no importar ese módulo de forma
+ * estática: se carga con next/dynamic justo para mantener chart.js fuera del
+ * bundle inicial.
+ */
+const countChartOptions = {
+  maintainAspectRatio: false,
+  scales: {
+    y: {
+      beginAtZero: true,
+      suggestedMax: 4,
+      ticks: { precision: 0 },
+    },
+  },
+};
 
 export const useUserDashboard = () => {
   const t = useTranslations('DashboardPage');
@@ -15,16 +34,10 @@ export const useUserDashboard = () => {
     link: null,
   });
 
-  const { data: links } = useUserLinksSummary();
-  const { data } = useStatsCommon();
+  const [page, setPage] = useState(1);
+  const { data } = useStatsCommon(page);
 
-  console.log('links', links);
-
-  const stats = useMemo(() => {
-    if(!data) return null;
-    console.log("Calculating user stats...", data.urls);
-    return calcUserStats(data.urls, data.summary, data.all_time, data.refererStats);
-  }, [data]);
+  const stats = useMemo(() => (data ? calcUserStats(data) : null), [data]);
 
   const traffic = Object.values(stats?.traffic ?? {});
 
@@ -40,11 +53,14 @@ export const useUserDashboard = () => {
   };
 
   const top_by_clicks = 4;
-  const sortedByClicks = stats?.statsByClicks.slice(0, top_by_clicks);
+  const sortedByClicks = stats?.topLinks.slice(0, top_by_clicks) ?? [];
   const clicks_top = {
-    labels: sortedByClicks?.map(l => l.slug) ?? [],
-    datasets: [{ label: 'Clicks', data: sortedByClicks?.map(l => l.total_clicks) }]
+    labels: sortedByClicks.map(l => l.slug),
+    datasets: [{ label: 'Clicks', data: sortedByClicks.map(l => l.clicks) }]
   };
+
+  const pagination = stats?.pagination;
+  const totalPages = pagination ? Math.max(1, Math.ceil(pagination.total / pagination.pageSize)) : 1;
 
   const graffic_traffic = traffic.length > 0 && {
     labels: traffic.map((item) => item.name),
@@ -93,6 +109,10 @@ export const useUserDashboard = () => {
   return {
     t,
     stats,
+    countChartOptions,
+    page,
+    totalPages,
+    setPage,
     traffic,
     clicks_week,
     top_by_clicks,
