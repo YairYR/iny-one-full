@@ -5,7 +5,7 @@ export async function getStatsCommon(): Promise<UserDashboardStats|null> {
   return fetch('/api/dashboard/stats')
     .then(res => res.json())
     .then((data: ApiResponse<UserDashboardStats>) => {
-      if(data.success) {
+      if(data.ok) {
         return data.data;
       }
       return null;
@@ -19,7 +19,7 @@ export async function getLinkStatsCommon([slug]: [slug: string]): Promise<ILinkD
   return fetch(`/api/dashboard/stats/${slug}`)
       .then(res => res.json())
       .then((data: ApiResponse<ILinkDateStats[]>) => {
-        if(data.success) {
+        if(data.ok) {
           return data.data;
         }
         return null;
@@ -30,7 +30,7 @@ export async function getUserLinksSummary() {
     return fetch('/api/v1/dashboard/links')
         .then(res => res.json())
         .then((data: ApiResponse<ILinkDateStats[]>) => {
-            if(data.success) {
+            if(data.ok) {
                 return data.data;
             }
             return null;

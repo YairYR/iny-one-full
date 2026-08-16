@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import PricingCards from "@/components/PricingCards";
 import { useTranslations } from "next-intl";
+import {PAYPAL_CONFIG} from "@/lib/paypal-client";
+import {PayPalProvider} from "@paypal/react-paypal-js/sdk-v6";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getLocale();
@@ -42,9 +44,11 @@ export default function PlansPage() {
   const t = useTranslations("PlansPage");
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
-      <h2 className="text-3xl font-bold mb-10 text-gray-800">{t("title")}</h2>
-      <PricingCards logged={false} />
-    </div>
+    <PayPalProvider {...PAYPAL_CONFIG}>
+      <div className="w-full min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+        <h2 className="text-3xl font-bold mb-10 text-gray-800">{t("title")}</h2>
+        <PricingCards logged={false} />
+      </div>
+    </PayPalProvider>
   );
 }

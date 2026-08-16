@@ -4,6 +4,10 @@ import { SubscriptionRepository } from "@/infra/db/subscription.repository";
 import { getWebhookRepository } from "@/infra/db/webhook.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 
+/**
+ * TODO: validar si ya existe el "external_event_id" + "gateway"
+ * @param payload
+ */
 export async function processPaypalWebhook(payload: WebhookEventPaypal) {
   const webhookRepo = getWebhookRepository(supabase_service);
   const { data } = await webhookRepo.create({

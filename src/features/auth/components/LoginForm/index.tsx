@@ -99,6 +99,7 @@ export default function LoginForm({ nextPage }: Readonly<Props>) {
           </GoogleButton>
         </div>
       </form>
+      {/*
       <div className="relative flex py-8 items-center">
         <div className="grow border-t border-[1px] border-gray-200"></div>
         <span className="shrink mx-4 font-medium text-gray-500">OR</span>
@@ -142,6 +143,7 @@ export default function LoginForm({ nextPage }: Readonly<Props>) {
             className="font-medium text-[#4F46E5] hover:underline">Sign Up</Link>
         </div>
       </form>
+      */}
 
     </div>
   )

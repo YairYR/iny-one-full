@@ -31,10 +31,10 @@ export function calcUserStats(urls: UserUrlStats[], summary: UserDashboardStats[
   return {
     general: {
       totalLinks: urls.length,
-      totalClicks: all_time.clicks,
+      totalClicks: all_time.clicks ?? 0,
       clicksLast24h: summary.clicks_last_24h || '-',
       topLink: statsByClicks[0]?.slug,
-      topCountry: all_time.top_countries[0].name,
+      topCountry: all_time.top_countries[0]?.name || '-',
     },
     statsByClicks,
     links,

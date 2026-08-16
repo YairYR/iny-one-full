@@ -97,7 +97,7 @@ export type WebhookEventPaypal = {
   resource_type: string;
   event_type: string;
   summary: string;
-  resource_version: string;
+  event_version: string;
   resource: Record<string, never>;
   links: Array<{
     href: string;

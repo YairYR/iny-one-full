@@ -13,12 +13,18 @@ export function getUserRepository(db: DbInstance) {
     },
 
     async getCurrentUser() {
-      const { data: { user } } = await db.auth.getUser();
+      const { data } = await db.auth.getUser();
       const metadata = {
         role: null as string | null,
         plan: null as PlanName | null,
         timezone: null as string | null,
       };
+      const { data: claims } = await db.auth.getClaims();
+      const user_metadata = claims?.claims?.user_metadata;
+      metadata.role = user_metadata?.user_role ?? null;
+      metadata.plan = user_metadata?.user_plan ?? null;
+      metadata.timezone = user_metadata?.user_timezone ?? null;
+      /*
       if(IS_PRODUCTION) {
         const { data: claims } = await db.auth.getClaims();
         const user_metadata = claims?.claims?.user_metadata;
@@ -46,10 +52,11 @@ export function getUserRepository(db: DbInstance) {
           metadata.role = roleResponse.data[0].role;
         }
       }
+       */
 
       return {
         data: {
-          user: user,
+          user: data.user,
           role: metadata.role,
           plan: metadata.plan,
         }

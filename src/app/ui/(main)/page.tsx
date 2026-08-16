@@ -5,6 +5,8 @@ import UrlShortForm from "@/features/short_links/components/UrlShortForm";
 import UtmInfoSmall from "@/components/UtmInfoSmall";
 import SubscriptionUpgrade from "@/components/SubscriptionUpgrade";
 import HomeContent from "@/components/HomeContent";
+import {PayPalProvider} from "@paypal/react-paypal-js/sdk-v6";
+import {PAYPAL_CONFIG} from "@/lib/paypal-client";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Head");
@@ -148,7 +150,7 @@ export default function HomePage() {
   };
 
   return (
-    <>
+    <PayPalProvider {...PAYPAL_CONFIG}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -162,6 +164,6 @@ export default function HomePage() {
       </div>
       <HomeContent />
       <SubscriptionUpgrade hidden={hasPlan} />
-    </>
+    </PayPalProvider>
   );
 }

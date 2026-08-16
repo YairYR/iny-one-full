@@ -47,7 +47,7 @@ export const SubscriptionRepository = {
     return supabase_service
       .from("subscriptions")
       .insert(subscription)
-      .select();
+      .select().maybeSingle();
   },
 
   async updateById(id: string, subscription: Partial<Subscription>) {
@@ -66,4 +66,4 @@ export const SubscriptionRepository = {
   },
 }
 
-export type SubscriptionStatus = 'APPROVAL_PENDING' | 'APPROVED' | 'ACTIVE' | 'SUSPENDED' | 'CANCELLED' | 'EXPIRED';
+export type SubscriptionStatus = 'INSERTED' | 'APPROVAL_PENDING' | 'APPROVED' | 'ACTIVE' | 'SUSPENDED' | 'CANCELLED' | 'EXPIRED';

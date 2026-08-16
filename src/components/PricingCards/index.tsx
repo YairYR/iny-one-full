@@ -24,8 +24,8 @@ export default function PricingCards({ logged }: Readonly<Props>) {
       button: 'Create Account'
     },
     {
-      id: "575577e4-abab-4286-bfb9-9e3c809bcb67",
-      name: "Pro",
+      id: "fa88cc5f-4da5-464d-b571-eb690c7c2a31",
+      name: "Starter",
       price: "$10.00",
       period: "/mes",
       features: [
@@ -55,9 +55,9 @@ export default function PricingCards({ logged }: Readonly<Props>) {
   const onClick = async (event: React.MouseEvent<HTMLButtonElement>, planId: string|null) => {
     if(planId) {
       setCartPlan(planId);
-      router.push(ROUTES.CART + '/' + planId);
+      //router.push(ROUTES.CART + '/' + planId);
     } else {
-      router.push(ROUTES.REGISTER);
+      router.push(ROUTES.LOGIN);
     }
   }
 
