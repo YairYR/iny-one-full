@@ -6,7 +6,7 @@ import {ErrorResponse, SuccessResponse} from "@/lib/types/api";
 import {ERROR} from "@/lib/api/error-codes";
 import {useRouter} from "next/navigation";
 import {ROUTES} from "@/lib/routes";
-import {addCookie, addToLocalStorage, getFromLocalStorage} from "@/lib/utils/localstorage";
+import { addCookie } from "@/lib/utils/localstorage";
 
 export interface IPricingCard {
   plan: {
@@ -51,6 +51,21 @@ export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
 
   const onApprove = async (data: OnApproveDataSubscriptions) => {
     console.log("onApprove", data);
+
+    const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription/capture', {
+      method: "PATCH",
+      body: JSON.stringify({
+        id: data.subscriptionId,
+      })
+    }).then((res) => res.json());
+
+    // TODO: validar respuesta y sesión
+    if (resp.ok) {
+      alert("Subscription was successfully approved!");
+      return;
+    }
+
+    alert("Subscription was not approved! Try again!");
   }
 
   const onCancel = async (data: OnCancelDataOneTimePayments) => {
@@ -102,7 +117,8 @@ export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
 
       {plan.id && typeof plan.id === 'string' && (
           <PayPalSubscriptionButton
-              createSubscription={() => createSubscription(plan.id!) as any}
+              // @ts-expect-error Create subscription or redirect to log in
+              createSubscription={() => createSubscription(plan.id!)}
               onApprove={onApprove}
               onCancel={onCancel}
               onError={onError}
