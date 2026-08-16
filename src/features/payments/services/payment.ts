@@ -1,7 +1,6 @@
 import { BillingRepository } from "@/infra/payments/billing.repository";
 import {SubscriptionRepository, SubscriptionStatus} from "@/infra/db/subscription.repository";
 import { User } from "@supabase/auth-js";
-import { retry } from "@/lib/utils/retry";
 import { supabase_service } from "@/infra/db/supabase_service";
 import {
   ProviderError,

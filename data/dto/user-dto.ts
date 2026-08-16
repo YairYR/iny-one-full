@@ -31,3 +31,6 @@ export const isLoggedIn = cache(async () => {
   return !!user;
 });
 
+export const getSpanId = cache(() => {
+
+});

@@ -3,10 +3,7 @@ import {NextRequest} from "next/server";
 import {SessionNotFoundError, ValidationError} from "@/lib/api/errors";
 import { z } from 'zod';
 import {createClient} from "@/lib/supabase/server";
-import {createServicesRepository} from "@/infra/db/services.repository";
 import {successResponse} from "@/lib/api/responses";
-import {supabase_service} from "@/infra/db/supabase_service";
-import {User} from "@supabase/auth-js";
 import {createSubscription} from "@/features/payments/services/payment";
 import {getUserRepository} from "@/infra/db/user.repository";
 
@@ -24,20 +21,17 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
 
     const supabase = await createClient();
     const userRepo = getUserRepository(supabase);
-    const user = await userRepo.getCurrentUser();
+    const session = await userRepo.getCurrentUser();
 
-    /*
-    const { data, error } = await supabase.auth.getUser();
-    if(!data.user || error) {
+    if (!session.data.user) {
         throw new SessionNotFoundError();
     }
 
-    const user: User = data.user;
+    if (session.data.plan !== null) {
+        throw new ValidationError("User already has a plan");
+    }
+
     const { planId } = body.data;
-     */
-
-    throw new ValidationError("Debug");
-
-    //const paypalPlanId = await createSubscription(planId, user);
-    //return successResponse({ subscriptionId: paypalPlanId });
+    const paypalPlanId = await createSubscription(planId, session.data.user);
+    return successResponse({ subscriptionId: paypalPlanId });
 });

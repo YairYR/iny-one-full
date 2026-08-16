@@ -12,7 +12,7 @@ export async function getLinkStatsCommon([slug]: [slug: string]): Promise<ILinkD
 
 async function fetchData<T>(url: string): Promise<T | null> {
   const response: ApiResponse<T> = await fetch(url).then((res) => res.json());
-  return response.success ? response.data : null;
+  return response.ok ? response.data : null;
 }
 
 export interface UserDashboardStats {

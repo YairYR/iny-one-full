@@ -175,7 +175,7 @@ export default function PlansPage() {
   const t = content[locale] ?? content.en;
 
   return (
-    <>
+    <PayPalProvider {...PAYPAL_CONFIG}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -232,14 +232,6 @@ export default function PlansPage() {
           </p>
         </section>
       </div>
-    </>
-    /*
-    <PayPalProvider {...PAYPAL_CONFIG}>
-      <div className="w-full min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
-        <h2 className="text-3xl font-bold mb-10 text-gray-800">{t("title")}</h2>
-        <PricingCards logged={false} />
-      </div>
     </PayPalProvider>
-    */
   );
 }
