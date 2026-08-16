@@ -46,7 +46,13 @@ export interface UserClient {
   picture: string | null;
   created_at: string;
   role: string | null;
-  plan: PlanName | null;
+  plan: UserPlanSummary | null;
+}
+
+export interface UserPlanSummary {
+  id: string | null;
+  name: string;
+  isFree: boolean;
 }
 
 export interface IService {
@@ -64,8 +70,14 @@ export interface IService {
   updated_at: string;
 }
 
+export const PlanFree = 'free';
+export const PlanBasic = 'basic';
+export const PlanPro = 'pro';
+
 export type Plan = Omit<IService, 'updated_at'|'created_at'|'active'>;
-export type PlanName = 'free' | 'basic' | 'pro';
+export type PlanName = typeof PlanFree |
+    typeof PlanBasic |
+    typeof PlanPro;
 
 export interface Subscription {
   id: string;

@@ -1,5 +1,5 @@
 import { DbInstance } from "@/infra/db/supabase_service";
-import { PlanName } from "@/lib/types";
+import { UserPlanSummary } from "@/lib/types";
 
 export function getUserRepository(db: DbInstance) {
   return {
@@ -7,11 +7,10 @@ export function getUserRepository(db: DbInstance) {
       const { data } = await db.auth.getUser();
       const metadata = {
         role: null as string | null,
-        plan: null as PlanName | null,
+        plan: null as UserPlanSummary | null,
         timezone: null as string | null,
       };
-      const { data: claims } = await db.auth.getClaims();
-      const user_metadata = claims?.claims?.user_metadata;
+      const user_metadata = data.user?.user_metadata;
       metadata.role = user_metadata?.user_role ?? null;
       metadata.plan = user_metadata?.user_plan ?? null;
       metadata.timezone = user_metadata?.user_timezone ?? null;

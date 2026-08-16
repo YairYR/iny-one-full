@@ -27,7 +27,10 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
         throw new SessionNotFoundError();
     }
 
-    if (session.data.plan !== null) {
+    const currentPlan = session.data.plan;
+    if (currentPlan !== null && !currentPlan.isFree) {
+        // TODO: validar en Paypal
+        // TODO: validar si quiere cambiar de suscripción
         throw new ValidationError("User already has a plan");
     }
 
