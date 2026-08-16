@@ -1,38 +1,21 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import { useLocale, useTranslations } from "next-intl";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { ROUTES } from "@/lib/routes";
+import { buildPageMetadata, normalizeLocale } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = normalizeLocale(await getLocale());
   const t = await getTranslations("AboutPage");
-  const title = t("metaTitle");
-  const description = t("metaDescription");
 
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: "https://iny.one/about",
-      languages: {
-        en: "https://iny.one/about",
-        es: "https://iny.one/about",
-        "x-default": "https://iny.one/about",
-      },
-    },
-    openGraph: {
-      title,
-      description,
-      url: "/about",
-      images: ["/og-image.png"],
-    },
-    twitter: {
-      title,
-      description,
-      images: ["/og-image.png"],
-    },
-  };
+  return buildPageMetadata({
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    path: ROUTES.ABOUT,
+    locale,
+  });
 }
 
 const faqs = {

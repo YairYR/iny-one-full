@@ -1,6 +1,6 @@
 'use client';
 
-import { ILinkStats, IRefererStat, UserUrlStats } from "@/features/dashboard/types/types";
+import { IRefererStat } from "@/features/dashboard/types/types";
 import dayjs from "dayjs";
 import utc from 'dayjs/plugin/utc';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
@@ -9,38 +9,35 @@ import { UserDashboardStats } from "@/features/dashboard/services/getStats";
 dayjs.extend(utc);
 dayjs.extend(customParseFormat);
 
-export function calcUserStats(urls: UserUrlStats[], summary: UserDashboardStats['summary'], all_time: UserDashboardStats['all_time'], refererStats?: IRefererStat[]) {
-  const stats = urls.reduce((filtered: ILinkStats[], item) => {
-    if(item.stats) filtered.push(item.stats);
-    return filtered;
-  }, []);
-  const statsByClicks = stats.toSorted((a, b) => b.total_clicks - a.total_clicks);
+/** Marcador mostrado en los KPI cuando todavía no hay datos suficientes. */
+export const NO_DATA = '-';
 
-  const links = urls.map((url) => ({
-    ...url,
-    stats: stats.find(item => item.slug === url.slug)
-  }));
-
-  const week = fillDays(summary.stats, {
-    startDate: dayjs(summary.date_start).toDate(),
-    endDate: dayjs(summary.date_end).toDate(),
-  });
-
-  const traffic = calcRefererStats(refererStats || []);
-
+/**
+ * Deriva del payload de la API todo lo que pinta el dashboard.
+ *
+ * `urls` es sólo la página visible; los totales y rankings vienen calculados
+ * sobre la cuenta completa, así que aquí no se agrega nada global a partir de
+ * la página.
+ */
+export function calcUserStats({ urls, topLinks, summary, all_time, refererStats, pagination }: UserDashboardStats) {
   return {
+    // Una cuenta recién creada llega sin clics: los rankings vienen vacíos y
+    // ningún acceso por índice puede dar por hecho que hay un primer elemento.
     general: {
-      totalLinks: urls.length,
-      totalClicks: all_time.clicks ?? 0,
-      clicksLast24h: summary.clicks_last_24h || '-',
-      topLink: statsByClicks[0]?.slug,
-      topCountry: all_time.top_countries[0]?.name || '-',
+      totalLinks: pagination.total,
+      totalClicks: all_time.clicks,
+      clicksLast24h: summary.clicks_last_24h || NO_DATA,
+      topLink: topLinks[0]?.slug ?? NO_DATA,
+      topCountry: all_time.top_countries?.[0]?.name ?? NO_DATA,
     },
-    statsByClicks,
-    links,
-    stats,
-    week,
-    traffic,
+    links: urls,
+    topLinks,
+    pagination,
+    week: fillDays(summary.stats ?? [], {
+      startDate: dayjs(summary.date_start).toDate(),
+      endDate: dayjs(summary.date_end).toDate(),
+    }),
+    traffic: calcRefererStats(refererStats ?? []),
   };
 }
 
@@ -111,10 +108,12 @@ function calcRefererStats(stats: IRefererStat[]) {
     }
   }
 
+  // Sin clics registrados el porcentaje no está definido: se deja en 0 en lugar
+  // de propagar un NaN hasta los gráficos.
   for (const key in referersCount) {
-    referersCount[key].value = Number.parseFloat(
-      ((referersCount[key].count / total) * 100).toFixed(2)
-    );
+    referersCount[key].value = total > 0
+      ? Number.parseFloat(((referersCount[key].count / total) * 100).toFixed(2))
+      : 0;
   }
 
   return referersCount;

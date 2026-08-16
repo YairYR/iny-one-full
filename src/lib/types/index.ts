@@ -11,6 +11,13 @@ export interface UtmParams {
   id: string;
 }
 
+/**
+ * UTM ya resueltos para un link: todas las claves están presentes y valen `null`
+ * cuando no se informaron. Modela lo que realmente se persiste, a diferencia de
+ * `UtmParams`, que describe la forma de los valores cuando existen.
+ */
+export type UtmValues = { [Key in keyof UtmParams]: string | null };
+
 export interface ClientInfo {
   ip: string | null;
   countryCode: string | null;
@@ -74,6 +81,7 @@ export interface Subscription {
   updated_at: Date;
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export interface OrderPay {
   id: string;
   user_id: string;

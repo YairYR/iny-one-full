@@ -2,6 +2,9 @@
 
 import { getUserRepository } from "@/infra/db/user.repository";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/logger";
+
+const log = logger.child({ action: 'editLink' });
 
 const REGEX_ALIAS = /[^a-zA-Z0-9_\- /#]+/;
 
@@ -16,7 +19,7 @@ export async function editLinkAction(initialState: LinkState, formData: FormData
   const slug = initialState.slug;
 
   if(REGEX_ALIAS.test(alias) || !slug) {
-    console.log("Invalid alias format");
+    log.info('rejected alias', { slug });
     return { ...initialState, success: false };
   }
 
@@ -25,22 +28,22 @@ export async function editLinkAction(initialState: LinkState, formData: FormData
 
   const { data: { user } } = await supabase.auth.getUser();
   if(!user) {
-    console.log("No session found");
+    log.info('rejected alias change without session', { slug });
     return { ...initialState, success: false };
   }
 
   const { data: isOwner } = await userRepo.isOwner(user.id, slug);
   if(!isOwner) {
-    console.log("No owner found for slug");
+    log.warn('rejected alias change from non-owner', { slug, userId: user.id });
     return { ...initialState, success: false };
   }
   const { error } = await userRepo.changeAlias(slug, alias);
 
   if(error) {
-    console.log(error);
+    log.error('failed to change alias', { slug, error });
     return { ...initialState, success: false };
   }
 
-  console.log(`Link with slug: ${slug} has been updated with new alias: ${alias}`);
+  log.info('alias updated', { slug });
   return { ...initialState, alias, success: true };
 }
