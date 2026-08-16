@@ -1,3 +1,5 @@
+import 'client-only';
+
 interface LocalData {
   [key: string]: {
     value: string,
@@ -75,4 +77,13 @@ export const clearCart = () => {
     delete data['cart'];
     setAll(data);
   }
+}
+
+export const addCookie = (name: string, value: string) => {
+  const maxAge = 60 * 60 * 24 * 7; // 1 week in seconds
+  document.cookie = name + "=" + value + ";path=/;max-age=" + maxAge;
+}
+
+export const removeCookie = (name: string) => {
+  document.cookie = name + "=; path=/;";
 }

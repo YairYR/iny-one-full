@@ -8,7 +8,7 @@ import { ERROR, MESSAGE } from "@/lib/api/error-codes";
 
 export function successResponse<T>(data: T, requestId?: string) {
   return NextResponse.json({
-    success: true,
+    ok: true,
     data,
     meta: {
       requestId: requestId ?? crypto.randomUUID(),
@@ -33,7 +33,7 @@ export function errorResponse<T>(err: T, requestId?: string) {
 
     return NextResponse.json(
       {
-        success: false,
+        ok: false,
         error: {
           code: ERROR.VALIDATION_ERROR,
           message: MESSAGE.INVALID_REQUEST,
@@ -56,7 +56,7 @@ export function errorResponse<T>(err: T, requestId?: string) {
 
   return NextResponse.json(
     {
-      success: false,
+      ok: false,
       error: {
         code: isApiError ? err.code : ERROR.INTERNAL_ERROR,
         message: isApiError ? err.message : MESSAGE.INTERNAL_ERROR,

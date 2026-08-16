@@ -162,6 +162,10 @@ const nextConfig: NextConfig = {
         destination: "/ui/auth/register",
       },
       {
+        source: "/auth/logout",
+        destination: "/ui/auth/logout",
+      },
+      {
         source: "/auth/callback",
         destination: "/ui/auth/callback",
       },

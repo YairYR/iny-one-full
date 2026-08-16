@@ -9,8 +9,8 @@ const PaypalWebhookBody = z.object({
   create_time: z.string(),
   resource_type: z.string(),
   event_type: z.string(),
+  event_version: z.string(),
   summary: z.string(),
-  resource_version: z.string(),
   resource: z.any(),
   links: z.object({
     href: z.string(),
