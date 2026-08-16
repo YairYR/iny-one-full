@@ -4,7 +4,7 @@ import {SessionNotFoundError, ValidationError} from "@/lib/api/errors";
 import { z } from 'zod';
 import {createClient} from "@/lib/supabase/server";
 import {successResponse} from "@/lib/api/responses";
-import {createSubscription} from "@/features/payments/services/payment";
+import {createSubscription, checkSubscriptionStatus} from "@/features/payments/services/payment";
 import {getUserRepository} from "@/infra/db/user.repository";
 
 const createSubscriptionSchema = z.object({
@@ -27,12 +27,12 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
         throw new SessionNotFoundError();
     }
 
-    const currentPlan = session.data.plan;
-    if (currentPlan !== null && !currentPlan.isFree) {
-        // TODO: validar en Paypal
-        // TODO: validar si quiere cambiar de suscripción
-        throw new ValidationError("User already has a plan");
+    // Verificar estado real en PayPal
+    const subscriptionStatus = await checkSubscriptionStatus(session.data.user);
+    if (subscriptionStatus && subscriptionStatus.status === "ACTIVE") {
+        throw new ValidationError("User already has an active subscription");
     }
+    // Si está CANCELLED, EXPIRED, etc., permitir crear nueva
 
     const { planId } = body.data;
     const paypalPlanId = await createSubscription(planId, session.data.user);
