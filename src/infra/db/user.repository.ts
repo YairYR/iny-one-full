@@ -1,6 +1,5 @@
 import { DbInstance } from "@/infra/db/supabase_service";
 import { PlanName } from "@/lib/types";
-import { IS_DEVELOPMENT, IS_PRODUCTION } from "@/constants";
 
 export function getUserRepository(db: DbInstance) {
   return {
@@ -16,35 +15,6 @@ export function getUserRepository(db: DbInstance) {
       metadata.role = user_metadata?.user_role ?? null;
       metadata.plan = user_metadata?.user_plan ?? null;
       metadata.timezone = user_metadata?.user_timezone ?? null;
-      /*
-      if(IS_PRODUCTION) {
-        const { data: claims } = await db.auth.getClaims();
-        const user_metadata = claims?.claims?.user_metadata;
-        metadata.role = user_metadata?.user_role ?? null;
-        metadata.plan = user_metadata?.user_plan ?? null;
-        metadata.timezone = user_metadata?.user_timezone ?? null;
-      }
-      else if(IS_DEVELOPMENT && user) {
-        const profileResponse = await db.from('users_profiles')
-          .select('plan, timezone')
-          .eq('id', user.id)
-          .limit(1);
-
-        if(profileResponse.data && profileResponse.data.length > 0) {
-          metadata.plan = profileResponse.data[0].plan as PlanName;
-          metadata.timezone = profileResponse.data[0].timezone;
-        }
-
-        const roleResponse = await db.from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .limit(1);
-
-        if(roleResponse.data && roleResponse.data.length > 0) {
-          metadata.role = roleResponse.data[0].role;
-        }
-      }
-       */
 
       return {
         data: {
