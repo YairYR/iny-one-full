@@ -1,5 +1,5 @@
 import { ShorterRepository } from "@/infra/db/shorter.repository";
-import { PlanName } from "@/lib/types";
+import {PlanName, UserPlanSummary} from "@/lib/types";
 import { TtlCache } from "@/lib/cache/ttl-cache";
 import { logger } from "@/lib/logger";
 
