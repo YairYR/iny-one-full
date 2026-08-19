@@ -1,7 +1,7 @@
 import { withErrorHandling } from "@/lib/api/http";
 import { NextRequest } from "next/server";
 import { parse as parseUrl } from "tldts";
-import { PlanName } from "@/lib/types";
+import {PlanName, UserPlanSummary} from "@/lib/types";
 import { loadBloom } from "@/lib/utils/check_domain";
 import * as z from "zod/mini";
 import { ApiError, ValidationError } from "@/lib/api/errors";
@@ -75,7 +75,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const userId = currUser.user?.id ?? null;
   const plan = currUser.plan;
 
-  const rateLimit = await checkRateLimit({ userId, plan, ip, repo: shorterRepo });
+  const rateLimit = await checkRateLimit({ userId, plan: plan?.name ?? null, ip, repo: shorterRepo });
   if (!rateLimit.allowed) {
     throw new ApiError(
       ERROR.RATE_LIMIT_EXCEEDED,
@@ -106,9 +106,9 @@ function withProtocol(url: string): string {
   return /^https?:\/\//i.test(url) ? url : `https://${url}`;
 }
 
-function toDestinationPlan(plan: PlanName | null, userId: string | null): DestinationPlan {
+function toDestinationPlan(plan: UserPlanSummary | null, userId: string | null): DestinationPlan {
   if (!userId) return 'freeAnonymous';
-  return plan ?? 'free';
+  return plan?.name ?? 'free';
 }
 
 function buildAnonymousExpiry() {

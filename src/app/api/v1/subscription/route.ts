@@ -27,12 +27,14 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
         throw new SessionNotFoundError();
     }
 
+    /*
     // Verificar estado real en PayPal
     const subscriptionStatus = await checkSubscriptionStatus(session.data.user);
     if (subscriptionStatus && subscriptionStatus.status === "ACTIVE") {
         throw new ValidationError("User already has an active subscription");
     }
     // Si está CANCELLED, EXPIRED, etc., permitir crear nueva
+    */
 
     const { planId } = body.data;
     const paypalPlanId = await createSubscription(planId, session.data.user);

@@ -52,17 +52,15 @@ export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
   const onApprove = async (data: OnApproveDataSubscriptions) => {
     console.log("onApprove", data);
 
-    const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription/capture', {
+    const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription/approve', {
       method: "PATCH",
       body: JSON.stringify({
         id: data.subscriptionId,
       })
     }).then((res) => res.json());
 
-    // TODO: validar respuesta y sesión
     if (resp.ok) {
-      alert("Subscription was successfully approved!");
-      return;
+      return router.push(ROUTES.DASHBOARD);
     }
 
     alert("Subscription was not approved! Try again!");

@@ -51,7 +51,7 @@ export interface UserClient {
 
 export interface UserPlanSummary {
   id: string | null;
-  name: string;
+  name: PlanName;
   isFree: boolean;
 }
 

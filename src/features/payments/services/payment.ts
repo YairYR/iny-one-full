@@ -18,6 +18,7 @@ import { createServicesRepository } from "@/infra/db/services.repository";
 import { SubscriptionsController } from "@paypal/paypal-server-sdk";
 import { getPayPalClient } from "@/lib/paypal";
 import { logger } from "@/lib/logger";
+import {after} from "next/server";
 
 const log = logger.child({ service: "payment" });
 
@@ -122,6 +123,7 @@ export async function createSubscription(plan_id: string, user: User) {
 
   const externalPlanId = plan.data.external_service_id;
 
+  /*
   // Verificar y sincronizar suscripción vigente con PayPal
   // checkSubscriptionStatus busca en subscriptions Y en subscription_requests
   const currentStatus = await checkSubscriptionStatus(user);
@@ -132,24 +134,19 @@ export async function createSubscription(plan_id: string, user: User) {
     });
     throw new ValidationError("User already has an active subscription");
   }
+   */
 
-  // Buscar solicitud pendiente reciente (< 1 hora) para reutilizar
-  const pendingRequests = await SubscriptionRequestsRepository.findPendingByUser(user.id, 1);
-  
+  // Buscar y cancela las solicitudes pendientes para evitar problemas. (No filtra por servicio)
+  const pendingRequests = await SubscriptionRequestsRepository.findPendingByUser(user.id);
   if (!pendingRequests.error && pendingRequests.data && pendingRequests.data.length > 0) {
-    // Filtrar por el mismo plan
-    const matchingRequest = pendingRequests.data.find((req) => req.service_id === plan_id);
-    
-    if (matchingRequest?.external_subscription_id) {
-      reqLog.info("reusing pending subscription request", {
-        request_id: matchingRequest.id,
-        external_id: matchingRequest.external_subscription_id,
+    for (let i = 0; i < pendingRequests.data.length; i++) {
+      const pendingRequest = pendingRequests.data[i];
+      await SubscriptionRequestsRepository.updateStatus(pendingRequest.id, "REJECTED", undefined, {
+        reason: "Cancelled due to new subscription request",
       });
-      return matchingRequest.external_subscription_id;
     }
   }
 
-  // No hay solicitud válida: crear nueva
   const requestResult = await SubscriptionRequestsRepository.create({
     service_id: plan.data.id,
     subscription_gateway: "paypal",
@@ -191,6 +188,9 @@ export async function createSubscription(plan_id: string, user: User) {
       request_id: request.id,
       status: subscriptionPaypal.statusCode,
     });
+    after(() => SubscriptionRequestsRepository.updateStatus(request.id, "REJECTED", undefined, {
+      reason: "PayPal subscription creation failed",
+    }));
     throw new ValidationError(MESSAGE.PAYPAL_PLAN_NOT_FOUND);
   }
 
@@ -440,7 +440,7 @@ export async function checkSubscriptionStatus(user: User) {
   // 2. No hay suscripción vigente, verificar solicitudes pendientes
   reqLog.info("no active subscription found, checking pending requests");
   
-  const pendingRequests = await SubscriptionRequestsRepository.findPendingByUser(user.id, 24); // Últimas 24h
+  const pendingRequests = await SubscriptionRequestsRepository.findPendingByUser(user.id);
   
   if (!pendingRequests.data || pendingRequests.data.length === 0) {
     reqLog.info("no pending requests found");
@@ -449,7 +449,14 @@ export async function checkSubscriptionStatus(user: User) {
 
   // 3. Verificar cada solicitud pendiente en PayPal
   for (const request of pendingRequests.data) {
-    if (!request.external_subscription_id) continue;
+    /*
+    if (!request.external_subscription_id) {
+      await SubscriptionRequestsRepository.updateStatus(request.id, "REJECTED", undefined, {
+        reason: "Missing external_subscription_id",
+      });
+      continue;
+    }
+     */
 
     const syncedStatus = await syncRequestWithPayPal(request, reqLog);
     

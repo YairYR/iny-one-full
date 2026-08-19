@@ -1,5 +1,5 @@
 import { supabase_service } from "@/infra/db/supabase_service";
-import {TablesInsert, TablesUpdate} from "@/lib/types/db.types";
+import {Json, TablesInsert, TablesUpdate} from "@/lib/types/db.types";
 
 export const SubscriptionRequestsRepository = {
   /**
@@ -29,17 +29,13 @@ export const SubscriptionRequestsRepository = {
    * @param user_id ID del usuario
    * @param max_age_hours Antigüedad máxima en horas (por defecto 1)
    */
-  async findPendingByUser(user_id: string, max_age_hours: number = 1) {
-    const cutoffDate = new Date();
-    cutoffDate.setHours(cutoffDate.getHours() - max_age_hours);
-    
+  async findPendingByUser(user_id: string) {
     return supabase_service
       .from("subscription_requests")
       .select("*")
       .eq("user_id", user_id)
       .in("status", ["APPROVAL_PENDING"])
-      .gte("created_at", cutoffDate.toISOString())
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: true });
   },
 
   /**
@@ -64,11 +60,13 @@ export const SubscriptionRequestsRepository = {
   async updateStatus(
     id: string,
     status: RequestStatus,
-    external_subscription_id?: string
+    external_subscription_id?: string,
+    metadata?: Json
   ) {
     const update: TablesUpdate<'subscription_requests'> = {
       status,
       updated_at: new Date().toISOString(),
+      metadata,
     };
 
     if (external_subscription_id) {
