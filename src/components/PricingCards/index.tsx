@@ -5,12 +5,18 @@ import PricingCard from "@/components/PricingCards/PricingCard";
 import { useRouter } from "next/navigation";
 import { setCartPlan } from "@/lib/utils/localstorage";
 import { ROUTES } from "@/lib/routes";
+import {UserPlanSummary} from "@/lib/types";
 
 interface Props {
   logged: boolean;
+  plan: UserPlanSummary | null;
 }
 
-export default function PricingCards({ logged }: Readonly<Props>) {
+/**
+ * TODO: Permitir cambiar de plan
+ */
+
+export default function PricingCards({ logged, plan }: Readonly<Props>) {
   const router = useRouter();
   const plans = [
     {
@@ -36,6 +42,7 @@ export default function PricingCards({ logged }: Readonly<Props>) {
       ],
       color: "border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-md",
       highlight: true,
+      disabled: Boolean(plan && !plan.isFree),
     },
     // {
     //   id: "62f7de06-6bfc-4438-aa3d-e323e51ea0c4",
@@ -63,8 +70,8 @@ export default function PricingCards({ logged }: Readonly<Props>) {
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl w-full">
-      {plans.map((plan) => (
-        <PricingCard key={`plan-${plan.name}`} plan={plan} onClick={onClick} />
+      {plans.map((item) => (
+        <PricingCard key={`plan-${item.name}`} plan={item} onClick={onClick} />
       ))}
     </div>
   );

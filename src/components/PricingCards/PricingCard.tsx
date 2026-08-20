@@ -46,6 +46,10 @@ export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
       return router.push(ROUTES.LOGIN);
     }
 
+    if (resp.error.code === ERROR.PLAN_ALREADY) {
+      return router.refresh();
+    }
+
     //alert('Error creating new subscription');
   }
 
@@ -121,6 +125,7 @@ export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
               onCancel={onCancel}
               onError={onError}
               onComplete={onComplete}
+              disabled={isDisabled}
           />
       )}
     </div>
