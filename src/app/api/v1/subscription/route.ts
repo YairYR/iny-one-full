@@ -1,11 +1,12 @@
 import {withErrorHandling} from "@/lib/api/http";
 import {NextRequest} from "next/server";
-import {SessionNotFoundError, ValidationError} from "@/lib/api/errors";
+import {UserAlReadyHasPlanError, SessionNotFoundError, ValidationError} from "@/lib/api/errors";
 import { z } from 'zod';
 import {createClient} from "@/lib/supabase/server";
 import {successResponse} from "@/lib/api/responses";
-import {createSubscription, checkSubscriptionStatus} from "@/features/payments/services/payment";
 import {getUserRepository} from "@/infra/db/user.repository";
+import {createSubscription} from "@/features/payments/services/create-subscription";
+import {checkSubscriptionStatus} from "@/features/payments/services/sync-subscription";
 
 const createSubscriptionSchema = z.object({
     planId: z.uuid(),
@@ -27,14 +28,12 @@ export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteCon
         throw new SessionNotFoundError();
     }
 
-    /*
-    // Verificar estado real en PayPal
+    // TODO: falta permitir cambiar de suscripción
     const subscriptionStatus = await checkSubscriptionStatus(session.data.user);
     if (subscriptionStatus && subscriptionStatus.status === "ACTIVE") {
-        throw new ValidationError("User already has an active subscription");
+        throw new UserAlReadyHasPlanError();
     }
     // Si está CANCELLED, EXPIRED, etc., permitir crear nueva
-    */
 
     const { planId } = body.data;
     const paypalPlanId = await createSubscription(planId, session.data.user);

@@ -39,7 +39,9 @@ export const ERROR = {
 
   // ===
   RESOURCE_ACTION_ERROR: "RESOURCE_ACTION_ERROR",
-  RATE_LIMIT_EXCEEDED: "RATE_LIMIT_EXCEEDED"
+  RATE_LIMIT_EXCEEDED: "RATE_LIMIT_EXCEEDED",
+  PLAN_NOT_FOUND: "PLAN_NOT_FOUND",
+  PLAN_ALREADY: "PLAN_ALREADY",
 } as const;
 
 export const MESSAGE = {
@@ -57,5 +59,6 @@ export const MESSAGE = {
   PROVIDER_AUTHENTICATION_FAILED: "Provider authentication failed",
   PLAN_NOT_FOUND: "Plan not found",
   PAYPAL_PLAN_NOT_FOUND: "Paypal plan not found",
+  PLAN_ALREADY: "Plan already found",
 } as const;
 

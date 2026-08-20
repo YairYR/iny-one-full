@@ -31,6 +31,7 @@ export const isLoggedIn = cache(async () => {
   return !!user;
 });
 
-export const getSpanId = cache(() => {
-
+export const getUserPlan = cache(async () => {
+  const user = await getCurrentUserDTO();
+  return user?.plan ?? null;
 });
