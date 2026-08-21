@@ -358,6 +358,24 @@ export type Database = {
           },
         ]
       }
+      permissions: {
+        Row: {
+          description: string | null
+          id: string
+          key: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          key: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          key?: string
+        }
+        Relationships: []
+      }
       plan_permission: {
         Row: {
           id: number
@@ -378,21 +396,80 @@ export type Database = {
       }
       role_permissions: {
         Row: {
-          id: number
-          permission: Database["public"]["Enums"]["app_permission"]
-          role: Database["public"]["Enums"]["app_role"]
+          permission_id: string
+          role_id: string
         }
         Insert: {
-          id?: number
-          permission: Database["public"]["Enums"]["app_permission"]
-          role: Database["public"]["Enums"]["app_role"]
+          permission_id: string
+          role_id: string
         }
         Update: {
-          id?: number
-          permission?: Database["public"]["Enums"]["app_permission"]
-          role?: Database["public"]["Enums"]["app_role"]
+          permission_id?: string
+          role_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_permissions_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      roles: {
+        Row: {
+          description: string | null
+          id: string
+          key: string
+          name: string
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          key: string
+          name: string
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          key?: string
+          name?: string
         }
         Relationships: []
+      }
+      service_entitlements: {
+        Row: {
+          key: string
+          service_id: string
+          value: Json
+        }
+        Insert: {
+          key: string
+          service_id: string
+          value: Json
+        }
+        Update: {
+          key?: string
+          service_id?: string
+          value?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_entitlements_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       services: {
         Row: {
@@ -702,12 +779,12 @@ export type Database = {
           external_subscription_id: string | null
           id: string
           next_billing_date: string | null
-          service_id: string | null
+          service_id: string
           start_date: string | null
           status: Database["public"]["Enums"]["subscription_status"] | null
           subscription_gateway: string | null
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           cancel_reason?: string | null
@@ -716,12 +793,12 @@ export type Database = {
           external_subscription_id?: string | null
           id?: string
           next_billing_date?: string | null
-          service_id?: string | null
+          service_id: string
           start_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"] | null
           subscription_gateway?: string | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           cancel_reason?: string | null
@@ -730,12 +807,12 @@ export type Database = {
           external_subscription_id?: string | null
           id?: string
           next_billing_date?: string | null
-          service_id?: string | null
+          service_id?: string
           start_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"] | null
           subscription_gateway?: string | null
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
@@ -749,21 +826,26 @@ export type Database = {
       }
       user_roles: {
         Row: {
-          id: number
-          role: Database["public"]["Enums"]["app_role"]
+          role_id: string
           user_id: string
         }
         Insert: {
-          id?: number
-          role: Database["public"]["Enums"]["app_role"]
+          role_id: string
           user_id: string
         }
         Update: {
-          id?: number
-          role?: Database["public"]["Enums"]["app_role"]
+          role_id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_role_id_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       users_profiles: {
         Row: {
@@ -848,22 +930,22 @@ export type Database = {
       click_short_link: {
         Args: {
           page_slug: string
-          user_browser: string | null
-          user_browser_version: string | null
-          user_city: string | null
-          user_country_code: string | null
-          user_device_model: string | null
-          user_device_type: string | null
-          user_device_vendor: string | null
-          user_ip: string | null
+          user_browser: string
+          user_browser_version: string
+          user_city: string
+          user_country_code: string
+          user_device_model: string
+          user_device_type: string
+          user_device_vendor: string
+          user_ip: string
           user_is_bot: boolean
-          user_latitude: string | null
-          user_longitude: string | null
-          user_os: string | null
-          user_os_version: string | null
-          user_referer: string | null
-          user_region: string | null
-          user_ua: string | null
+          user_latitude: string
+          user_longitude: string
+          user_os: string
+          user_os_version: string
+          user_referer: string
+          user_region: string
+          user_ua: string
         }
         Returns: undefined
       }
@@ -876,21 +958,7 @@ export type Database = {
           _slugs: string[]
           _start_date: string
         }
-        Returns: {
-          summary: {
-            clicks: number;
-            clicks_last_24h: number;
-            date_start: string;
-            date_end: string;
-            date_grouping: string;
-            stats: { date: string, clicks: number }[];
-          };
-          all_time: {
-            clicks: number;
-            top_browsers: { name: string, value: number }[];
-            top_countries: { name: string, value: number }[];
-          }
-        }
+        Returns: Json
       }
       get_page_clicks_between_dates: {
         Args: { _end_date: string; _slug: string[]; _start_date: string }

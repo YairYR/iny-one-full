@@ -60,5 +60,8 @@ export const MESSAGE = {
   PLAN_NOT_FOUND: "Plan not found",
   PAYPAL_PLAN_NOT_FOUND: "Paypal plan not found",
   PLAN_ALREADY: "Plan already found",
+  INSUFFICIENT_PERMISSIONS: "Insufficient permissions",
+  ROLE_NOT_ALLOWED: "Role not allowed",
+  RATE_LIMIT_EXCEEDED: "Rate limit exceeded",
 } as const;
 
