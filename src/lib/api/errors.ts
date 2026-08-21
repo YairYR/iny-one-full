@@ -143,3 +143,13 @@ export class UserAlReadyHasPlanError extends ApiError {
     );
   }
 }
+
+export class InsufficientPermissionsError extends ApiError {
+  constructor(message?: string|null, options?: ApiErrOptions) {
+    super(
+      ERROR.INSUFFICIENT_PERMISSIONS,
+      message ?? MESSAGE.INSUFFICIENT_PERMISSIONS,
+      options ?? { type: 'auth_error', status: 403 }
+    );
+  }
+}
