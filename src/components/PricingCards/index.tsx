@@ -168,12 +168,10 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
       return router.refresh();
     }
 
-    //alert('Error creating new subscription');
+    alert('Error creating new subscription');
   }
 
   const onApprove = async (data: OnApproveDataSubscriptions) => {
-    console.log("onApprove", data);
-
     const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription/approve', {
       method: "PATCH",
       body: JSON.stringify({
@@ -189,7 +187,6 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
   }
 
   const onCancel = async (data: OnCancelDataOneTimePayments) => {
-    console.log("onCancel", data);
   }
 
   const onError = async (data: OnErrorData) => {
