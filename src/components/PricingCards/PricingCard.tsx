@@ -2,11 +2,6 @@ import React from "react";
 import { CheckIcon } from "lucide-react";
 import clsx from "clsx";
 import { PayPalSubscriptionButton, OnApproveDataSubscriptions, OnCancelDataOneTimePayments, OnErrorData, OnCompleteData } from "@paypal/react-paypal-js/sdk-v6";
-import {ErrorResponse, SuccessResponse} from "@/lib/types/api";
-import {ERROR} from "@/lib/api/error-codes";
-import {useRouter} from "next/navigation";
-import {ROUTES} from "@/lib/routes";
-import { addCookie } from "@/lib/utils/localstorage";
 
 export interface IPricingCard {
   plan: {
@@ -19,68 +14,17 @@ export interface IPricingCard {
     highlight?: boolean;
     disabled?: boolean;
     button?: string;
+    onClick?: () => void;
   };
-  onClick: (event: React.MouseEvent<HTMLButtonElement>, planId: string|null) => void;
+  createSubscription: (planId: string) => Promise<{ subscriptionId: string; }>;
+  onApprove: (data: OnApproveDataSubscriptions) => Promise<void>;
+  onCancel: (data: OnCancelDataOneTimePayments) => void;
+  onError: (data: OnErrorData) => void;
+  onComplete: (data: OnCompleteData) => void;
 }
 
-export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
-  const router = useRouter();
+export default function PricingCard({ plan, createSubscription, onApprove, onCancel, onError, onComplete }: Readonly<IPricingCard>) {
   const isDisabled = Boolean(plan.disabled);
-
-  const createSubscription = async (planId: string) => {
-    const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription', {
-      method: "POST",
-      body: JSON.stringify({
-        planId: planId,
-      })
-    }).then((res) => res.json());
-
-    if (resp.ok) {
-      return {
-        subscriptionId: resp.data.subscriptionId,
-      }
-    }
-
-    if (resp.error.code === ERROR.SESSION_NOT_FOUND) {
-      addCookie('_redirect_to', `${ROUTES.PLANS}#plan=${planId}`);
-      return router.push(ROUTES.LOGIN);
-    }
-
-    if (resp.error.code === ERROR.PLAN_ALREADY) {
-      return router.refresh();
-    }
-
-    //alert('Error creating new subscription');
-  }
-
-  const onApprove = async (data: OnApproveDataSubscriptions) => {
-    console.log("onApprove", data);
-
-    const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription/approve', {
-      method: "PATCH",
-      body: JSON.stringify({
-        id: data.subscriptionId,
-      })
-    }).then((res) => res.json());
-
-    if (resp.ok) {
-      return router.push(ROUTES.DASHBOARD);
-    }
-
-    alert("Subscription was not approved! Try again!");
-  }
-
-  const onCancel = async (data: OnCancelDataOneTimePayments) => {
-    console.log("onCancel", data);
-  }
-
-  const onError = async (data: OnErrorData) => {
-    console.error("onError", data);
-  }
-
-  const onComplete = async (data: OnCompleteData) => {
-    console.log("Subscription flow completed", data)
-  }
 
   return (
     <div
@@ -103,11 +47,12 @@ export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
 
       {plan.id == null && (
           <button
-            onClick={(e) => onClick(e, plan.id)}
+            onClick={plan.onClick}
             disabled={isDisabled}
             className={clsx(
                 'w-full py-2 rounded-lg font-medium transition-colors mt-auto cursor-not-allowed',
                 (!isDisabled) && 'cursor-pointer',
+                isDisabled && 'disabled:opacity-50 disabled:pointer-events-none',
                 plan.highlight
                     ? "bg-blue-600 text-white hover:bg-blue-700"
                     : "bg-gray-800 text-white hover:bg-gray-900"
@@ -119,7 +64,6 @@ export default function PricingCard({ plan, onClick }: Readonly<IPricingCard>) {
 
       {plan.id && typeof plan.id === 'string' && (
           <PayPalSubscriptionButton
-              // @ts-expect-error Create subscription or redirect to log in
               createSubscription={() => createSubscription(plan.id!)}
               onApprove={onApprove}
               onCancel={onCancel}

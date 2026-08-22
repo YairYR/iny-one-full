@@ -41,7 +41,7 @@ export interface ShortenedUrl<Utm = UtmParams> {
 
 export interface UserClient {
   id: string;
-  email?: string;
+  email?: string | null;
   name: string | null;
   picture: string | null;
   created_at: string;

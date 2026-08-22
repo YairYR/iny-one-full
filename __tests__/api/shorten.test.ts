@@ -30,7 +30,7 @@ jest.mock('@/infra/db/user.repository', () => ({
 
 // Se importa después de registrar los mocks para que la ruta reciba los dobles.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { POST } = require('@/app/api/shorten/route') as typeof import('@/app/api/shorten/route');
+const { POST } = require('@/app/api/v1/shorten/route') as typeof import('@/app/api/v1/shorten/route');
 
 type ShortenBody = {
   url: string;
@@ -38,7 +38,7 @@ type ShortenBody = {
 };
 
 function request(body: ShortenBody, headers: Record<string, string> = {}) {
-  return new NextRequest('https://iny.one/api/shorten', {
+  return new NextRequest('https://iny.one/api/v1/shorten', {
     method: 'POST',
     headers: { 'content-type': 'application/json', ...headers },
     body: JSON.stringify({ utm: { source: '', medium: '', campaign: '' }, ...body }),
@@ -47,7 +47,7 @@ function request(body: ShortenBody, headers: Record<string, string> = {}) {
 
 const anonymous = { 'x-forwarded-for': '203.0.113.10' };
 
-describe('POST /api/shorten', () => {
+describe('POST /api/v1/shorten', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     defaultUsageStore.clear();
