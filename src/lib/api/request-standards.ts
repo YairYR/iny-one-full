@@ -281,7 +281,7 @@ export type BatchResponse<T> = {
  * const { page, limit, sort, order } = validateBaseQuery(query);
  */
 export function validateBaseQuery(
-  query: Record<string, any>
+  query: Record<string, unknown>
 ): ValidatedBaseQueryParams {
   return baseQuerySchema.parse(query);
 }
@@ -347,8 +347,8 @@ export function buildSelectFields(
 export function buildDateRangeFilter(
   params: Record<string, string | undefined>,
   fieldName: string
-): Record<string, any> {
-  const filter: Record<string, any> = {};
+): Record<string, unknown> {
+  const filter: Record<string, unknown> = {};
 
   if (params.createdFrom) {
     filter[`${fieldName}_gte`] = new Date(params.createdFrom);

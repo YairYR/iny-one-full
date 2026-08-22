@@ -6,6 +6,14 @@ import { ROUTES } from "@/lib/routes";
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
+  // i18n por URL: /es/* fuerza la versión en español (indexable por Google).
+  // El header lo consume src/i18n/request.ts. Se borra el valor entrante para
+  // que un cliente no pueda inyectarlo directamente.
+  request.headers.delete('x-iny-locale');
+  if (path === '/es' || path.startsWith('/es/')) {
+    request.headers.set('x-iny-locale', 'es');
+  }
+
   if (path === '/api/webhooks') {
     return checkWebhook(request);
   }

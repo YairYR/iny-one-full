@@ -2,15 +2,16 @@ import crypto from "node:crypto";
 import fs from 'node:fs/promises';
 // @ts-expect-error has default export
 import crc32 from 'buffer-crc32';
+import path from 'node:path';
 
 const CACHE_DIR = process.env.CACHE_DIR || '/tmp';
 const WEBHOOK_ID = process.env.WEBHOOK_ID;
 
 async function downloadAndCache(url: string, cacheKey?: string) {
   if (!cacheKey) {
-    cacheKey = url.replaceAll(/\W+/, '-');
+    cacheKey = url.replaceAll(/\W+/g, '-');
   }
-  const filePath = `${CACHE_DIR}/${cacheKey}`;
+  const filePath = path.join(process.cwd(), CACHE_DIR, cacheKey);
 
   const cachedData = await fs.readFile(filePath, 'utf-8').catch(() => null);
   if (cachedData) {

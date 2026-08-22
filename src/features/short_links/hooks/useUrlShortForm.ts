@@ -41,7 +41,7 @@ export function useUrlShortForm({ t }: Props) {
   }, []);
 
   const getShortUrl = async (url: string, utm: SomeUtmParams) => {
-    return fetch('/api/shorten', {
+    return fetch('/api/v1/shorten', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -85,7 +85,7 @@ export function useUrlShortForm({ t }: Props) {
     const response = await getShortUrl(url, utm);
     const apiResponse: ApiResponse<{ short: string }> = await response.json();
 
-    if (apiResponse.success) {
+    if (apiResponse.ok) {
       setShortUrl(apiResponse.data.short);
       shortenedUrls.current[url] = {
         url,

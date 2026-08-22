@@ -1,3 +1,4 @@
+import 'server-only';
 import {
   Client,
   Environment,
@@ -23,6 +24,14 @@ export function getPayPalClient(): Client {
       },
       logResponse: {
         logHeaders: true,
+      }
+    },
+    httpClientOptions: {
+      retryConfig: {
+        httpMethodsToRetry: ['POST'],
+        retryInterval: 30,
+        retryOnTimeout: true,
+        maxNumberOfRetries: 2,
       }
     }
   });

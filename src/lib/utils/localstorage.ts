@@ -1,3 +1,5 @@
+import 'client-only';
+
 interface LocalData {
   [key: string]: {
     value: string,
@@ -39,6 +41,7 @@ export const getFromLocalStorage = (name: string) => {
   return value.value;
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export const addToSessionStorage = (name: string, value: string) => {
   if(!globalThis.sessionStorage) return;
   globalThis.sessionStorage.setItem(`data-${name}`, value);
@@ -60,19 +63,26 @@ interface ICart {
   planId: string;
 }
 
-export const setCartPlan = (planId: string) => {
-  addToLocalStorage("cart", JSON.stringify({ planId }), 86400 * 30);
-}
-
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export const getCart = (): ICart|null => {
   const cart = getFromLocalStorage("cart");
   return cart ? JSON.parse(cart) : null;
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export const clearCart = () => {
   const data = getAll();
   if(data['cart']) {
     delete data['cart'];
     setAll(data);
   }
+}
+
+export const addCookie = (name: string, value: string) => {
+  const maxAge = 60 * 60 * 24 * 7; // 1 week in seconds
+  document.cookie = name + "=" + value + ";path=/;max-age=" + maxAge;
+}
+
+export const removeCookie = (name: string) => {
+  document.cookie = name + "=; path=/;";
 }
