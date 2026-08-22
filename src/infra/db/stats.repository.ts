@@ -28,6 +28,20 @@ export function getStatsRepository(db: DbInstance)  {
       })
     },
 
+    async getClicksAllTime(slugs: string[]) {
+      return db.from('short_links_stats')
+          .select('total_clicks.sum()')
+          .in('slug', slugs);
+    },
+
+    async getClicksBetweenTime(slugs: string[], startDate: Date, endDate: Date) {
+      return db.from('history_clicks')
+          .select('*', { count: 'exact', head: true })
+          .in('slug', slugs)
+          .gte('created_at', startDate.toISOString())
+          .lte('created_at', endDate.toISOString());
+    },
+
     /* INACTIVO — sin importaciones ni referencias en el repositorio (rev. 2026-08-09).
      * No se elimina por si retoma uso en una build futura; hoy no tiene efecto en
      * producción. Al reactivarlo: descomentar y cubrirlo con tests. */

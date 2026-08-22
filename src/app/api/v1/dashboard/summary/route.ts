@@ -34,9 +34,8 @@ export const GET = withErrorHandling(async () => {
         clicksAllTime,
         clicksLastDay,
     ] = await Promise.all([
-        // TODO: check
         statsRepo.getClicksAllTime(slugs),
-        statsRepo.getClicksBetweenTime(slugs, today.toDate(), yesterday.toDate()),
+        statsRepo.getClicksBetweenTime(slugs, yesterday.toDate(), today.toDate()),
     ]);
 
     return successResponse({
