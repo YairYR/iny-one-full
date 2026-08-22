@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
-import { useLocale } from "next-intl";
 import Link from "next/link";
 import PricingCards from "@/components/PricingCards";
-import { useTranslations } from "next-intl";
 import {PAYPAL_CONFIG} from "@/lib/paypal-client";
 import {PayPalProvider} from "@paypal/react-paypal-js/sdk-v6";
 import { ROUTES } from "@/lib/routes";

@@ -7,7 +7,6 @@ import {SubscriptionRepository, SubscriptionStatus} from "@/infra/db/subscriptio
 import {BillingRepository} from "@/infra/payments/billing.repository";
 import {createClient} from "@/lib/supabase/server";
 import {UserPlanSummary} from "@/lib/types";
-import {supabase_service} from "@/infra/db/supabase_service";
 
 const log = logger.child({ service: "sync-subscription" });
 

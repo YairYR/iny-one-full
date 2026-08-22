@@ -12,7 +12,7 @@ const createSubscriptionSchema = z.object({
     planId: z.uuid(),
 }).strict();
 
-export const POST = withErrorHandling(async (request: NextRequest, ctx: RouteContext<'/api/v1/subscription'>) => {
+export const POST = withErrorHandling(async (request: NextRequest) => {
     const bodyNoValidated = await request.json();
     const body = createSubscriptionSchema.safeParse(bodyNoValidated);
 

@@ -3,12 +3,10 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
-import { Mail, SquareAsterisk } from 'lucide-react';
 
 import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
 import clsx from "clsx";
 import * as z from "zod/mini";
-import Link from "next/link";
 import { ALL_ROUTES, ROUTES } from "@/lib/routes";
 
 const zodEmail = z.email();
