@@ -72,6 +72,7 @@ export default function ShowStats({ link, t }: Readonly<Props>) {
     }
 
     return values;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data]);
 
   return (

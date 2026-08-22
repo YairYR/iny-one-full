@@ -123,3 +123,33 @@ export class ResourceActionError extends ApiError {
     );
   }
 }
+
+export class PlanNotFoundError extends ApiError {
+  constructor(message?: string|null, options?: ApiErrOptions) {
+    super(
+        ERROR.PLAN_NOT_FOUND,
+        message ?? MESSAGE.PLAN_NOT_FOUND,
+        options ?? { type: 'resource', status: 400 }
+    );
+  }
+}
+
+export class UserAlReadyHasPlanError extends ApiError {
+  constructor(message?: string|null, options?: ApiErrOptions) {
+    super(
+        ERROR.PLAN_ALREADY,
+        message ?? MESSAGE.PLAN_ALREADY,
+        options ?? { type: 'resource', status: 400 }
+    );
+  }
+}
+
+export class InsufficientPermissionsError extends ApiError {
+  constructor(message?: string|null, options?: ApiErrOptions) {
+    super(
+      ERROR.INSUFFICIENT_PERMISSIONS,
+      message ?? MESSAGE.INSUFFICIENT_PERMISSIONS,
+      options ?? { type: 'auth_error', status: 403 }
+    );
+  }
+}

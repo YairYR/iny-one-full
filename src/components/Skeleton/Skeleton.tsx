@@ -10,6 +10,7 @@ export function SkeletonRectangle() {
   );
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export function SkeletonCircle() {
   return (
     <div className="p-4 bg-white rounded-md shadow-md flex items-center space-x-4">
@@ -22,6 +23,7 @@ export function SkeletonCircle() {
   );
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export function SkeletonTriangle() {
   return (
     <div className="p-4 bg-white rounded-md shadow-md flex items-center space-x-4">
@@ -34,6 +36,7 @@ export function SkeletonTriangle() {
   );
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export function SkeletonUser() {
   return (
     <div className="animate-pulse flex space-x-4">
@@ -52,6 +55,7 @@ export function SkeletonUser() {
   )
 }
 
+/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export function SkeletonTable({ rows = 2 }: Readonly<{ rows?: number }>) {
   const rowArray = (rows > 0) ? Array.from({ length: rows }) : [];
   return (

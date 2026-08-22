@@ -13,6 +13,12 @@ export const RESERVED_EXACT_SLUGS = new Set([
   'terms',
   'cookies',
   'piscolas',
+  'utm-builder',
+  'qr-code-generator',
+  'bitly-alternative',
+  'url-shortener-api',
+  'qr',
+  'utm',
 
   // auth y app
   'auth',

@@ -1,39 +1,25 @@
 import type { Metadata } from "next";
-import { getTranslations } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import HomeTitle from "@/components/HomeTitle";
 import UrlShortForm from "@/features/short_links/components/UrlShortForm";
+import AnonymousLinkNotice from "@/features/short_links/components/AnonymousLinkNotice";
 import UtmInfoSmall from "@/components/UtmInfoSmall";
 import SubscriptionUpgrade from "@/components/SubscriptionUpgrade";
 import HomeContent from "@/components/HomeContent";
+import { buildPageMetadata, normalizeLocale } from "@/lib/seo/metadata";
+import {PayPalProvider} from "@paypal/react-paypal-js/sdk-v6";
+import {PAYPAL_CONFIG} from "@/lib/paypal-client";
 
 export async function generateMetadata(): Promise<Metadata> {
+  const locale = normalizeLocale(await getLocale());
   const t = await getTranslations("Head");
-  const title = t("metaTitle");
-  const description = t("metaDescription");
 
-  return {
-    title,
-    description,
-    alternates: {
-      canonical: "https://iny.one",
-      languages: {
-        en: "https://iny.one",
-        es: "https://iny.one",
-        "x-default": "https://iny.one",
-      },
-    },
-    openGraph: {
-      title,
-      description,
-      url: "/",
-      images: ["/og-image.png"],
-    },
-    twitter: {
-      title,
-      description,
-      images: ["/og-image.png"],
-    },
-  };
+  return buildPageMetadata({
+    title: t("metaTitle"),
+    description: t("metaDescription"),
+    path: "/",
+    locale,
+  });
 }
 
 export default function HomePage() {
@@ -148,7 +134,7 @@ export default function HomePage() {
   };
 
   return (
-    <>
+    <PayPalProvider {...PAYPAL_CONFIG}>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -158,10 +144,11 @@ export default function HomePage() {
       <div className="max-w-2xl mx-auto">
         <HomeTitle />
         <UrlShortForm />
+        <AnonymousLinkNotice />
         <UtmInfoSmall />
       </div>
       <HomeContent />
       <SubscriptionUpgrade hidden={hasPlan} />
-    </>
+    </PayPalProvider>
   );
 }

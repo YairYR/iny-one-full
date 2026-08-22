@@ -29,6 +29,10 @@ export function UserDashboard() {
   const {
     t,
     stats,
+    countChartOptions,
+    page,
+    totalPages,
+    setPage,
     clicks_week,
     top_by_clicks,
     clicks_top,
@@ -92,7 +96,7 @@ export function UserDashboard() {
                   <div className="text-sm text-gray-500">{t("panel.weekActivity.subtitle")}</div>
                 </div>
                 <div className="h-52 w-full">
-                  <Line data={clicks_week} options={{ maintainAspectRatio: false }} />
+                  <Line data={clicks_week} options={countChartOptions} />
                 </div>
               </div>
 
@@ -102,10 +106,7 @@ export function UserDashboard() {
                   <div className="text-sm text-gray-500">{t("panel.performancePerLink.subtitle", { top: top_by_clicks })}</div>
                 </div>
                 <div className="h-52 w-full">
-                  <Bar
-                    data={clicks_top}
-                    options={{ maintainAspectRatio: false }}
-                  />
+                  <Bar data={clicks_top} options={countChartOptions} />
                 </div>
               </div>
             </div>
@@ -113,6 +114,10 @@ export function UserDashboard() {
             {/* Links table */}
             <LinksTable
               links={links ?? []}
+              total={general?.totalLinks ?? 0}
+              page={page}
+              totalPages={totalPages}
+              onPageChange={setPage}
               onOpen={onClickStats}
               onEdit={onClickEdit}
               onQr={onClickQr}

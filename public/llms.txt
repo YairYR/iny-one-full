@@ -10,20 +10,29 @@ iny.one is built for marketers, developers, and content creators who need clean,
 - UTM parameter builder (utm_source, utm_medium, utm_campaign, and more on paid plans)
 - QR code generation with PNG download for every short link
 - Click analytics: total clicks, unique clicks, top countries, devices, browsers, and referrers
-- Link expiration for anonymous links (180 days)
+- Free limits: 5 links per month without an account (expire after 180 days), 50 per month with a free account (never expire)
+- REST API: POST https://iny.one/api/v1/shorten with a JSON body returns the short link
 - No ad page before redirect, no registration required for basic shortening
-- Bilingual interface (English and Spanish)
+- Bilingual interface (English and Spanish; the Spanish version lives at https://iny.one/es)
 
 ## Pages
 
 - [Home](https://iny.one/): Create short links with UTM parameters and QR codes
-- [Plans](https://iny.one/plans): Compare free and paid plan features
+- [UTM Builder](https://iny.one/utm-builder): Build, tag and shorten campaign links with utm_source, utm_medium and utm_campaign
+- [QR Code Generator](https://iny.one/qr-code-generator): Generate free high-resolution QR codes for any URL, no sign-up
+- [Bitly Alternative](https://iny.one/bitly-alternative): Honest 2026 comparison of free URL shortener plans (Bitly, TinyURL, Short.io, Dub, Cuttly, iny.one)
+- [URL Shortener API](https://iny.one/url-shortener-api): Documentation for the free JSON API (POST /api/v1/shorten)
+- [Plans](https://iny.one/plans): Compare free and paid plan features and limits
 - [About](https://iny.one/about): Project purpose, roadmap, and frequently asked questions
+
+Spanish versions of these pages are available under the /es prefix, e.g. https://iny.one/es/utm-builder
 
 ## Frequently asked questions
 
 - What is iny.one? iny.one is a free tool to shorten URLs and add UTM parameters for campaign tracking.
-- Is iny.one free? Yes, the core service is free and does not require registration for basic shortening.
+- Is iny.one free? Yes: 5 links per month without an account, or 50 per month with a free account. Paid plans raise limits to 1,000 (Basic) and 10,000 (Pro) links per month.
+- Does iny.one show ads on short links? No. There is no advertising interstitial before the redirect on any plan.
 - What are UTM parameters? Tags added to a URL that let you track the origin of web traffic in marketing campaigns.
 - Does iny.one generate QR codes? Yes, every short link can be turned into a downloadable QR code at no cost.
+- Does iny.one have an API? Yes — a single JSON endpoint (POST https://iny.one/api/v1/shorten) that returns the short link; see https://iny.one/url-shortener-api
 - Does iny.one store personal data? No personal data is collected for basic redirection; shortened URLs are used only to redirect visitors.

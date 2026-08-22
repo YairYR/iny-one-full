@@ -1,44 +1,23 @@
 import { ApiResponse } from "@/lib/types";
-import {ILinkDateStats, UserUrlStats} from "@/features/dashboard/types/types";
+import { ILinkDateStats, UserUrlStats } from "@/features/dashboard/types/types";
 
-export async function getStatsCommon(): Promise<UserDashboardStats|null> {
-  return fetch('/api/dashboard/stats')
-    .then(res => res.json())
-    .then((data: ApiResponse<UserDashboardStats>) => {
-      if(data.success) {
-        return data.data;
-      }
-      return null;
-    });
+export async function getStatsCommon(page = 1): Promise<UserDashboardStats | null> {
+  return fetchData<UserDashboardStats>(`/api/dashboard/stats?page=${page}`);
 }
 
-export async function getLinkStatsCommon([slug]: [slug: string]): Promise<ILinkDateStats[]|null> {
-  if (!slug) {
-    return null;
-  }
-  return fetch(`/api/dashboard/stats/${slug}`)
-      .then(res => res.json())
-      .then((data: ApiResponse<ILinkDateStats[]>) => {
-        if(data.success) {
-          return data.data;
-        }
-        return null;
-      });
+export async function getLinkStatsCommon([slug]: [slug: string]): Promise<ILinkDateStats[] | null> {
+  if (!slug) return null;
+  return fetchData<ILinkDateStats[]>(`/api/dashboard/stats/${slug}`);
 }
 
-export async function getUserLinksSummary() {
-    return fetch('/api/v1/dashboard/links')
-        .then(res => res.json())
-        .then((data: ApiResponse<ILinkDateStats[]>) => {
-            if(data.success) {
-                return data.data;
-            }
-            return null;
-        });
+async function fetchData<T>(url: string): Promise<T | null> {
+  const response: ApiResponse<T> = await fetch(url).then((res) => res.json());
+  return response.ok ? response.data : null;
 }
 
 export interface UserDashboardStats {
   urls: UserUrlStats[];
+  topLinks: { slug: string; clicks: number }[];
   refererStats: {
     referer: string;
     count: number;
@@ -55,5 +34,10 @@ export interface UserDashboardStats {
     clicks: number;
     top_browsers: { name: string, value: number }[];
     top_countries: { name: string, value: number }[];
-  }
+  };
+  pagination: {
+    page: number;
+    pageSize: number;
+    total: number;
+  };
 }
