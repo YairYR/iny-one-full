@@ -8,9 +8,6 @@ import {UserPlanSummary} from "@/lib/types";
 import {useLocale} from "next-intl";
 import {
   OnApproveDataSubscriptions,
-  OnCancelDataOneTimePayments,
-  OnCompleteData,
-  OnErrorData
 } from "@paypal/react-paypal-js/sdk-v6";
 import {ErrorResponse, SuccessResponse} from "@/lib/types/api";
 import {ERROR} from "@/lib/api/error-codes";
@@ -186,17 +183,6 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
     alert("Subscription was not approved! Try again!");
   }
 
-  const onCancel = async (data: OnCancelDataOneTimePayments) => {
-  }
-
-  const onError = async (data: OnErrorData) => {
-    console.error("onError", data);
-  }
-
-  const onComplete = async (data: OnCompleteData) => {
-    console.log("Subscription flow completed", data)
-  }
-
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl w-full">
@@ -207,9 +193,6 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
             // @ts-expect-error Create subscription or redirect to log in
             createSubscription={createSubscription}
             onApprove={onApprove}
-            onCancel={onCancel}
-            onError={onError}
-            onComplete={onComplete}
         />
       ))}
     </div>

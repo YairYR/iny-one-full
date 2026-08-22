@@ -18,12 +18,9 @@ export interface IPricingCard {
   };
   createSubscription: (planId: string) => Promise<{ subscriptionId: string; }>;
   onApprove: (data: OnApproveDataSubscriptions) => Promise<void>;
-  onCancel: (data: OnCancelDataOneTimePayments) => void;
-  onError: (data: OnErrorData) => void;
-  onComplete: (data: OnCompleteData) => void;
 }
 
-export default function PricingCard({ plan, createSubscription, onApprove, onCancel, onError, onComplete }: Readonly<IPricingCard>) {
+export default function PricingCard({ plan, createSubscription, onApprove }: Readonly<IPricingCard>) {
   const isDisabled = Boolean(plan.disabled);
 
   return (
@@ -66,9 +63,6 @@ export default function PricingCard({ plan, createSubscription, onApprove, onCan
           <PayPalSubscriptionButton
               createSubscription={() => createSubscription(plan.id!)}
               onApprove={onApprove}
-              onCancel={onCancel}
-              onError={onError}
-              onComplete={onComplete}
               disabled={isDisabled}
           />
       )}

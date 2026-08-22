@@ -16,7 +16,7 @@ const SubscriptionBodyRequest = z.object({
 
 const log = logger.child({ service: "approve-subscription" });
 
-export const PATCH = withErrorHandling(async (request: NextRequest, ctx: RouteContext<'/api/v1/subscription/approve'>) => {
+export const PATCH = withErrorHandling(async (request: NextRequest) => {
     const bodyNoValidated = await request.json();
     const { id } = SubscriptionBodyRequest.parse(bodyNoValidated);
 
