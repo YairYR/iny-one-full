@@ -1,7 +1,7 @@
 import { withErrorHandling } from "@/lib/api/http";
 import { NextRequest } from "next/server";
 import { parse as parseUrl } from "tldts";
-import {PlanName, UserPlanSummary} from "@/lib/types";
+import {UserPlanSummary} from "@/lib/types";
 import { loadBloom } from "@/lib/utils/check_domain";
 import * as z from "zod/mini";
 import { ApiError, ValidationError } from "@/lib/api/errors";

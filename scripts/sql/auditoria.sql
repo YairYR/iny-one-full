@@ -17,7 +17,7 @@
 -- Qué responde cada clave y qué sería una mala respuesta:
 --
 --  1  Índices de short_links. MALA: ninguno UNIQUE sobre (slug) — sin él, el
---     reintento por colisión de /api/shorten no detecta nada y se insertan
+--     reintento por colisión de /api/v1/shorten no detecta nada y se insertan
 --     slugs duplicados en silencio.
 --  2  Slugs ya duplicados. MALA: cualquier fila. Hay que limpiarlos antes de
 --     crear el índice único, o su creación fallará.

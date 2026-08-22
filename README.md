@@ -163,7 +163,7 @@ yarn coverage          # con reporte de cobertura
 yarn test destination  # filtrando por nombre de fichero
 ```
 
-Cubren la lógica con más riesgo: denylist de slugs, generación de slugs, construcción del destino con UTM, rate limiting, caché con TTL, retry, logger, estadísticas del dashboard y la ruta `/api/shorten` completa con Supabase mockeado.
+Cubren la lógica con más riesgo: denylist de slugs, generación de slugs, construcción del destino con UTM, rate limiting, caché con TTL, retry, logger, estadísticas del dashboard y la ruta `/api/v1/shorten` completa con Supabase mockeado.
 
 Los tests que tocan Server Components cortan en la frontera de datos (`@/data/dto/user-dto`, repositorios) en vez de cargar el cliente real de Supabase, que se distribuye como ESM y no pasa por el transform de Jest.
 

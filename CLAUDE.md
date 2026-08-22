@@ -120,7 +120,7 @@ Auditoría del 2026-08-09 (`scripts/sql/auditoria.sql`, resultados reales, no su
 - **ABIERTO — `public.get_page_traffic` es SECURITY DEFINER y anon puede ejecutarla.** Permite pedir
   el tráfico de cualquier slug por RPC. `security.insert_blocked_url` también está abierta a anon.
 - **RESUELTO por diseño previo**: `short_links_pkey` es `PRIMARY KEY (slug)`, así que el índice
-  único existe y el reintento por colisión de `/api/shorten` funciona. `slug` es NOT NULL. No hay
+  único existe y el reintento por colisión de `/api/v1/shorten` funciona. `slug` es NOT NULL. No hay
   slugs duplicados. Los tipos generados (`db.types.d.ts`) están desactualizados: declaran
   `slug: string | null` y un `id` que ya no es la clave.
 - `short_links_stats`, `short_links_daily_stats` y `short_links_monthly_stats` son **tablas**, no

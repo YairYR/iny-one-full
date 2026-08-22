@@ -9,12 +9,12 @@ const META = {
   en: {
     title: "Free URL Shortener API — Create Short Links with One POST | iny.one",
     description:
-      "Shorten URLs programmatically with a single JSON POST to https://iny.one/api/shorten. Free tier, UTM parameters built in, JSON responses, no API key required to start.",
+      "Shorten URLs programmatically with a single JSON POST to https://iny.one/api/v1/shorten. Free tier, UTM parameters built in, JSON responses, no API key required to start.",
   },
   es: {
     title: "API de acortador de URLs gratis — crea enlaces con un POST | iny.one",
     description:
-      "Acorta URLs por código con un solo POST JSON a https://iny.one/api/shorten. Nivel gratuito, parámetros UTM integrados, respuestas JSON y sin API key para empezar.",
+      "Acorta URLs por código con un solo POST JSON a https://iny.one/api/v1/shorten. Nivel gratuito, parámetros UTM integrados, respuestas JSON y sin API key para empezar.",
   },
 } as const;
 
@@ -94,7 +94,7 @@ const structuredData = {
   ],
 };
 
-const CURL_EXAMPLE = `curl -X POST https://iny.one/api/shorten \\
+const CURL_EXAMPLE = `curl -X POST https://iny.one/api/v1/shorten \\
   -H "Content-Type: application/json" \\
   -d '{
     "url": "https://example.com/landing",
@@ -105,7 +105,7 @@ const CURL_EXAMPLE = `curl -X POST https://iny.one/api/shorten \\
     }
   }'`;
 
-const FETCH_EXAMPLE = `const res = await fetch("https://iny.one/api/shorten", {
+const FETCH_EXAMPLE = `const res = await fetch("https://iny.one/api/v1/shorten", {
   method: "POST",
   headers: { "Content-Type": "application/json" },
   body: JSON.stringify({
@@ -262,7 +262,7 @@ export default function UrlShortenerApiPage() {
             <p className="leading-relaxed mb-3">{t.endpointDesc}</p>
             <p className="bg-white rounded-lg p-4 shadow-sm font-mono text-sm">
               <span className="font-semibold text-indigo-600">POST</span>{" "}
-              https://iny.one/api/shorten
+              https://iny.one/api/v1/shorten
             </p>
           </div>
 

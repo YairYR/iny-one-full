@@ -11,7 +11,7 @@ iny.one is built for marketers, developers, and content creators who need clean,
 - QR code generation with PNG download for every short link
 - Click analytics: total clicks, unique clicks, top countries, devices, browsers, and referrers
 - Free limits: 5 links per month without an account (expire after 180 days), 50 per month with a free account (never expire)
-- REST API: POST https://iny.one/api/shorten with a JSON body returns the short link
+- REST API: POST https://iny.one/api/v1/shorten with a JSON body returns the short link
 - No ad page before redirect, no registration required for basic shortening
 - Bilingual interface (English and Spanish; the Spanish version lives at https://iny.one/es)
 
@@ -21,7 +21,7 @@ iny.one is built for marketers, developers, and content creators who need clean,
 - [UTM Builder](https://iny.one/utm-builder): Build, tag and shorten campaign links with utm_source, utm_medium and utm_campaign
 - [QR Code Generator](https://iny.one/qr-code-generator): Generate free high-resolution QR codes for any URL, no sign-up
 - [Bitly Alternative](https://iny.one/bitly-alternative): Honest 2026 comparison of free URL shortener plans (Bitly, TinyURL, Short.io, Dub, Cuttly, iny.one)
-- [URL Shortener API](https://iny.one/url-shortener-api): Documentation for the free JSON API (POST /api/shorten)
+- [URL Shortener API](https://iny.one/url-shortener-api): Documentation for the free JSON API (POST /api/v1/shorten)
 - [Plans](https://iny.one/plans): Compare free and paid plan features and limits
 - [About](https://iny.one/about): Project purpose, roadmap, and frequently asked questions
 
@@ -34,5 +34,5 @@ Spanish versions of these pages are available under the /es prefix, e.g. https:/
 - Does iny.one show ads on short links? No. There is no advertising interstitial before the redirect on any plan.
 - What are UTM parameters? Tags added to a URL that let you track the origin of web traffic in marketing campaigns.
 - Does iny.one generate QR codes? Yes, every short link can be turned into a downloadable QR code at no cost.
-- Does iny.one have an API? Yes — a single JSON endpoint (POST https://iny.one/api/shorten) that returns the short link; see https://iny.one/url-shortener-api
+- Does iny.one have an API? Yes — a single JSON endpoint (POST https://iny.one/api/v1/shorten) that returns the short link; see https://iny.one/url-shortener-api
 - Does iny.one store personal data? No personal data is collected for basic redirection; shortened URLs are used only to redirect visitors.
