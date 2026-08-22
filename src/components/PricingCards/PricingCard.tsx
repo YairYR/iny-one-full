@@ -1,7 +1,7 @@
 import React from "react";
 import { CheckIcon } from "lucide-react";
 import clsx from "clsx";
-import { PayPalSubscriptionButton, OnApproveDataSubscriptions, OnCancelDataOneTimePayments, OnErrorData, OnCompleteData } from "@paypal/react-paypal-js/sdk-v6";
+import { PayPalSubscriptionButton, OnApproveDataSubscriptions } from "@paypal/react-paypal-js/sdk-v6";
 
 export interface IPricingCard {
   plan: {
