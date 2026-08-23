@@ -18,6 +18,22 @@ export const SubscriptionRepository = {
   /**
    * Retorna la suscripción actual del usuario (solo puede tener una)
    */
+  /**
+   * Clave de cuota del servicio ('free' | 'basic' | 'pro').
+   *
+   * `services.name` es el nombre comercial («Plan Starter», «Plan Pro») y no
+   * sirve para limitar cuotas: el código las indexa por `plan_key`. Antes esto
+   * no existía y el plan se escribía fijo a "basic", así que quien pagaba el
+   * plan caro recibía los límites del barato.
+   */
+  async getPlanKeyByServiceId(service_id: string) {
+    return supabase_service
+      .from("services")
+      .select("plan_key")
+      .eq("id", service_id)
+      .maybeSingle();
+  },
+
   async findByUserId(user_id: string) {
     return supabase_service
       .from("subscriptions")

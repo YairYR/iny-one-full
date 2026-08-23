@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import HomeTitle from "@/components/HomeTitle";
 import UrlShortForm from "@/features/short_links/components/UrlShortForm";
+import { isLoggedIn } from "@/data/dto/user-dto";
 import AnonymousLinkNotice from "@/features/short_links/components/AnonymousLinkNotice";
 import UtmInfoSmall from "@/components/UtmInfoSmall";
 import SubscriptionUpgrade from "@/components/SubscriptionUpgrade";
@@ -22,7 +23,10 @@ export async function generateMetadata(): Promise<Metadata> {
   });
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  // El formulario lo necesita para mostrar el campo de nombre propio activo o
+  // bloqueado con su motivo, y para saber qué mensaje dar al topar con el límite.
+  const isAuthenticated = await isLoggedIn();
   const hasPlan = true;
 
   const jsonLd = {
@@ -143,7 +147,7 @@ export default function HomePage() {
       />
       <div className="max-w-2xl mx-auto">
         <HomeTitle />
-        <UrlShortForm />
+        <UrlShortForm isAuthenticated={isAuthenticated} />
         <AnonymousLinkNotice />
         <UtmInfoSmall />
       </div>

@@ -23,6 +23,10 @@ const config: Config = {
     // node_modules. El sustituto replica su contrato (id aleatorio del alfabeto
     // url-safe) para no alterar lo que se está probando.
     '^nanoid$': '<rootDir>/__mocks__/nanoid.js',
+    // `@paypal/react-paypal-js/sdk-v6` sólo declara la condición `import` en sus
+    // exports, así que Jest —que resuelve por `require`— no lo encuentra y tumba
+    // la suite entera de la home. Mismo caso que nanoid.
+    '^@paypal/react-paypal-js/sdk-v6$': '<rootDir>/__mocks__/paypal-react-sdk-v6.js',
   },
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',

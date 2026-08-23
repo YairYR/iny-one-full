@@ -68,6 +68,27 @@ Cada una de estas costó un ciclo de trabajo. Leerlas antes de explorar el repo.
 - `VERCEL_ENV` sólo vale `production` en producción: en preview y en local, `IS_PRODUCTION` e
   `IS_DEVELOPMENT` son ambos `false` y el plan del usuario queda en `null` (hay fallback a `free`).
 
+- El resolver compara el slug **exacto y sensible a mayúsculas** (`.eq('slug', short)`), y los slugs
+  antiguos de nanoid son de caso mixto. Los slugs que elige el usuario se normalizan a minúsculas
+  **en la entrada, nunca en la resolución**: normalizar al resolver rompería los enlaces existentes.
+- `short_links.destination` guarda la URL **ya compuesta con las UTM**; las columnas `utm_*` están
+  aparte sólo para informes. Cualquier escritura de `destination` tiene que volver a pasar por
+  `buildDestination` con las UTM de la fila, o el enlace las pierde en silencio.
+- **Toda escritura de `destination` pasa por `validateDestination`** (`src/lib/short-links/`). Si una
+  ruta nueva se la salta, el blocklist de dominios queda evitable en dos pasos: crear un enlace
+  limpio y repuntarlo después.
+- `services.name` es el nombre comercial («Plan Starter»); la cuota se indexa por `services.plan_key`
+  (`free`/`basic`/`pro`). Son columnas distintas y confundirlas fue lo que hizo que un cliente de
+  plan pro recibiera los límites de basic.
+- El `matcher` del middleware excluye todo lo que empieza por `api`, así que **ninguna comprobación
+  puesta en `middleware.ts` protege una ruta de `/api`**. El guard de webhooks vivió ahí como código
+  muerto; la verificación real está en `src/app/api/webhooks/utils.ts`.
+- `@paypal/react-paypal-js/sdk-v6` sólo declara la condición `import` (ESM puro). Jest resuelve por
+  `require` y no lo encuentra: está mapeado en `jest.config.ts` igual que `nanoid`.
+- Los tipos generados por el MCP de Supabase **sólo cubren el esquema `public`**. `db.types.d.ts`
+  incluye también `security`, que `shorter.repository.ts` usa: sobrescribir el fichero entero con la
+  salida del MCP rompe `isSafeDomain`. Hay que parchear a mano lo que cambie.
+
 ## Convenciones
 
 - El acceso a datos pasa **siempre** por un repositorio de `src/infra/`; nunca Supabase directo
@@ -101,6 +122,27 @@ La base es de **producción, con datos de usuarios**: no ejecutar consultas que 
 personales cuando basta con consultar el esquema o los agregados.
 
 ## Estado conocido
+
+- **APLICADO el 2026-08-23 en producción** (vía MCP, registrado en
+  `supabase_migrations.schema_migrations`; índice legible en
+  `scripts/sql/2026-08-23-aplicado-desde-mcp.md`): cerrado el esquema `security`, revocados los
+  grants a `PUBLIC` y los grants por defecto de las tablas de autorización, corregida
+  `security.is_domain_secure`, creados los índices de cuota de `short_links`, creada
+  `short_link_destination_changes` y añadida `services.plan_key`.
+- **VERIFICADO el 2026-08-23**: `slug` es `text` sin longitud máxima y ya tiene `CHECK` de formato
+  `^[A-Za-z0-9_-]{3,32}$`. `get_page_traffic` y `security.insert_blocked_url` sólo las ejecuta
+  `service_role`.
+- **ABIERTO — no se puede borrar un enlace.** Cuatro FKs apuntan a `short_links(slug)` sin
+  `ON DELETE`. Afecta al producto y al derecho de supresión: `history_clicks` guarda IP y
+  coordenadas. Requiere decidir si los clics se borran en cascada o se anonimizan.
+- **ABIERTO — los dos contadores de clics miden cosas distintas.** `click_short_link` incrementa
+  `short_links.clicks` siempre; el trigger `update_short_links_stats` hace `RETURN new` si `is_bot`.
+  Uno cuenta bots y el otro no: 347 enlaces divergen. El ranking del dashboard usa el inflado.
+- **ABIERTO — el `alias` NO resuelve.** El resolver busca sólo por `slug`. Es una etiqueta interna
+  del panel y desde el 2026-08-15 se muestra en su propia columna, con el enlace corto real
+  (`iny.one/<slug>`) en la suya.
+- **ABIERTO — 290 MB de blocklist frío.** `security.blocked_url` 251 MB con 6 escaneos de índice en
+  toda su vida; `blocklist_url_phishing_active` 39 MB con cero. Es el 88% de la base.
 
 Auditoría del 2026-08-09 (`scripts/sql/auditoria.sql`, resultados reales, no supuestos):
 

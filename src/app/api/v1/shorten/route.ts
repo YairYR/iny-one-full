@@ -1,10 +1,8 @@
 import { withErrorHandling } from "@/lib/api/http";
 import { NextRequest } from "next/server";
-import { parse as parseUrl } from "tldts";
-import {UserPlanSummary} from "@/lib/types";
-import { loadBloom } from "@/lib/utils/check_domain";
+import { UserPlanSummary } from "@/lib/types";
 import * as z from "zod/mini";
-import { ApiError, ValidationError } from "@/lib/api/errors";
+import { ApiError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";
 import { getUserRepository } from "@/infra/db/user.repository";
 import {
@@ -19,17 +17,21 @@ import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { checkRateLimit, recordRateLimitUsage } from "@/lib/utils/rate-limits";
 import { ERROR } from "@/lib/api/error-codes";
-import { generateSlug, MAX_SLUG_INSERT_ATTEMPTS } from "@/lib/short-links/slug";
+import {
+  generateSlug,
+  isValidCustomSlug,
+  normalizeCustomSlug,
+  MAX_SLUG_INSERT_ATTEMPTS,
+} from "@/lib/short-links/slug";
+import { isReservedSlug, normalizeSlug } from "@/lib/reserved-slugs";
 import { buildDestination, type DestinationPlan } from "@/lib/short-links/destination";
+import { validateDestination } from "@/lib/short-links/validate-destination";
 import { ANONYMOUS_LINK_TTL_DAYS } from "@/lib/short-links/expiry";
 import { logger } from "@/lib/logger";
 
 dayjs.extend(utc);
 
-const log = logger.child({ route: 'api/shorten' });
-
-/** Dominios que nunca pueden ser destino de un link. */
-const BLOCKED_DOMAINS = new Set(['iny.one', 'localhost']);
+const log = logger.child({ route: 'api/v1/shorten' });
 
 const schemaShortenBody = z.object({
   url: z.url({
@@ -40,7 +42,9 @@ const schemaShortenBody = z.object({
     source: z.string(),
     medium: z.string(),
     campaign: z.string(),
-  })
+  }),
+  // Nombre elegido por el usuario. Opcional: sin él se genera uno aleatorio.
+  slug: z.optional(z.string()),
 });
 
 export const POST = withErrorHandling(async (request: NextRequest) => {
@@ -50,23 +54,15 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     throw new ValidationError();
   }
 
-  const { url, utm } = body.data;
+  const { url, utm, slug: requestedSlug } = body.data;
 
   const ip = request.headers.get('x-vercel-forwarded-for')
     ?? request.headers.get('x-forwarded-for')
     ?? request.headers.get('x-real-ip');
   const countryCode = request.headers.get('x-vercel-ip-country');
 
-  const target = withProtocol(url.trim());
-  const urlInfo = parseUrl(target);
-
-  if (urlInfo.domain === null || urlInfo.isIp || BLOCKED_DOMAINS.has(urlInfo.domain)) {
-    log.info('rejected destination url', { domain: urlInfo.domain, isIp: urlInfo.isIp });
-    throw new ValidationError("Invalid url provided");
-  }
-
   const shorterRepo = getShorterRepository(supabase_service);
-  await assertDomainIsAllowed(urlInfo.domain, shorterRepo);
+  const { target, domain } = await validateDestination(url, shorterRepo);
 
   const supabase = await createClient();
   const userRepo = getUserRepository(supabase);
@@ -74,6 +70,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const userId = currUser.user?.id ?? null;
   const plan = currUser.plan;
+
+  // Elegir el nombre del enlace es la contrapartida de registrarse. Se comprueba
+  // antes de tocar la cuota para que un anónimo no gaste un enlace en una
+  // petición que se va a rechazar de todos modos.
+  const customSlug = resolveCustomSlug(requestedSlug, userId);
 
   const rateLimit = await checkRateLimit({ userId, plan: plan?.name ?? null, ip, repo: shorterRepo });
   if (!rateLimit.allowed) {
@@ -86,14 +87,18 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const { destination, utm: utmParams } = buildDestination(target, utm, toDestinationPlan(plan, userId));
 
-  const slug = await createWithUniqueSlug(shorterRepo, {
+  const input: Omit<CreateShortLinkInput, 'slug'> = {
     userId,
     destination,
     utm: utmParams,
-    domain: urlInfo.domain,
+    domain,
     expires: userId ? undefined : buildAnonymousExpiry(),
     client: { ip, countryCode },
-  });
+  };
+
+  const slug = customSlug
+    ? await createWithChosenSlug(shorterRepo, input, customSlug)
+    : await createWithUniqueSlug(shorterRepo, input);
 
   recordRateLimitUsage(rateLimit);
 
@@ -102,8 +107,27 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   });
 });
 
-function withProtocol(url: string): string {
-  return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+/**
+ * Valida el slug propuesto y comprueba que quien lo pide puede pedirlo.
+ * Devuelve `null` cuando no se propuso ninguno.
+ */
+function resolveCustomSlug(requested: string | undefined, userId: string | null): string | null {
+  const raw = requested?.trim();
+  if (!raw) return null;
+
+  if (!userId) {
+    log.info('rejected custom slug without session');
+    throw new SessionNotFoundError("A free account is required to choose the link name");
+  }
+
+  const slug = normalizeCustomSlug(raw);
+
+  if (!isValidCustomSlug(slug) || isReservedSlug(normalizeSlug(slug))) {
+    log.info('rejected custom slug', { slug });
+    throw new ValidationError("Invalid custom slug");
+  }
+
+  return slug;
 }
 
 function toDestinationPlan(plan: UserPlanSummary | null, userId: string | null): DestinationPlan {
@@ -119,23 +143,31 @@ function buildAnonymousExpiry() {
 }
 
 /**
- * El filtro de Bloom descarta la mayoría de dominios sin tocar la base de datos;
- * sólo los positivos (incluidos los falsos positivos) se confirman contra ella.
+ * Inserta con el nombre que pidió el usuario. Un solo intento a propósito:
+ * reintentar con otro slug le daría un enlace que no pidió, así que la colisión
+ * se devuelve como conflicto para que elija otro nombre.
+ *
+ * No hay endpoint previo de «¿está libre?» por el mismo motivo que no lo hay en
+ * la ruta aleatoria: no elimina la condición de carrera —entre la consulta y el
+ * insert alguien puede tomarlo— y además permitiría enumerar qué nombres están
+ * ocupados. La violación del índice único es la única fuente de verdad.
  */
-async function assertDomainIsAllowed(domain: string, repo: ShorterRepository): Promise<void> {
-  if (!loadBloom().has(domain)) return;
+async function createWithChosenSlug(
+  repo: ShorterRepository,
+  input: Omit<CreateShortLinkInput, 'slug'>,
+  slug: string,
+): Promise<string> {
+  const { error } = await repo.create({ ...input, slug });
 
-  const { data, error } = await repo.isSafeDomain(domain);
+  if (!error) return slug;
 
-  if (error) {
-    log.error('domain safety check failed', { domain, error });
-    throw new ValidationError("Error when validating url");
+  if (isUniqueViolation(error)) {
+    log.info('custom slug already taken', { slug });
+    throw new ApiError(ERROR.DUPLICATE_ENTRY, "That link name is already taken", { status: 409 });
   }
 
-  if (data === false) {
-    log.warn('blocked banned domain', { domain });
-    throw new ValidationError("Error when validating url");
-  }
+  log.error('failed to create short link', { error });
+  throw new ApiError("SERVER_ERROR", "internal server error", { status: 500 });
 }
 
 /**

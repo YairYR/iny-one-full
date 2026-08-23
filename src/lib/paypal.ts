@@ -27,9 +27,18 @@ export function getPayPalClient(): Client {
       }
     },
     httpClientOptions: {
+      /**
+       * Reintentar POST contra una API de pagos sólo es seguro con clave de
+       * idempotencia. `createSubscription` sí la manda (`paypalRequestId`), pero
+       * esta configuración aplicaba a TODOS los POST del cliente —incluido
+       * `cancelSubscription`, que no la lleva— y podía duplicar operaciones.
+       *
+       * Además `retryInterval` va en segundos: 30 × 2 reintentos son hasta 60 s
+       * dentro de una función serverless, que agota el tiempo antes de reintentar.
+       */
       retryConfig: {
-        httpMethodsToRetry: ['POST'],
-        retryInterval: 30,
+        httpMethodsToRetry: ['GET'],
+        retryInterval: 1,
         retryOnTimeout: true,
         maxNumberOfRetries: 2,
       }

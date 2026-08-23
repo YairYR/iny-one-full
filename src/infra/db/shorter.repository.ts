@@ -119,6 +119,30 @@ export function getShorterRepository(db: DbInstance) {
         .select('slug', { count: 'exact', head: true })
         .eq('user_id', userId)
         .gte('created_at', oneMonthAgo.toISOString());
+    },
+
+    /**
+     * Registra que un enlace cambió de destino.
+     *
+     * Repuntar un enlace muy compartido es el vector para convertir uno legítimo
+     * en malicioso, así que deja rastro. Se escribe con el service role a
+     * propósito: la tabla tiene RLS sin políticas, de modo que el propio usuario
+     * no puede leer ni falsear su historial.
+     */
+    async logDestinationChange(entry: {
+      slug: string;
+      oldDestination: string;
+      newDestination: string;
+      changedBy: string;
+    }) {
+      return db
+        .from('short_link_destination_changes')
+        .insert([{
+          slug: entry.slug,
+          old_destination: entry.oldDestination,
+          new_destination: entry.newDestination,
+          changed_by: entry.changedBy,
+        }]);
     }
   }
 }

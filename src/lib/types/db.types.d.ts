@@ -483,6 +483,7 @@ export type Database = {
           id: string
           interval: string | null
           name: string
+          plan_key: string | null
           price: number
           service_gateway: string | null
           type: string
@@ -496,6 +497,7 @@ export type Database = {
           id?: string
           interval?: string | null
           name: string
+          plan_key?: string | null
           price: number
           service_gateway?: string | null
           type: string
@@ -509,11 +511,47 @@ export type Database = {
           id?: string
           interval?: string | null
           name?: string
+          plan_key?: string | null
           price?: number
           service_gateway?: string | null
           type?: string
         }
         Relationships: []
+      }
+      short_link_destination_changes: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          id: number
+          new_destination: string
+          old_destination: string
+          slug: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by: string
+          id?: number
+          new_destination: string
+          old_destination: string
+          slug: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          id?: number
+          new_destination?: string
+          old_destination?: string
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "short_link_destination_changes_slug_fkey"
+            columns: ["slug"]
+            isOneToOne: false
+            referencedRelation: "short_links"
+            referencedColumns: ["slug"]
+          },
+        ]
       }
       short_links: {
         Row: {
