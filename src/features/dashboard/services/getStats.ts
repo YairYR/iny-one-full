@@ -1,4 +1,4 @@
-import { ApiResponse } from "@/lib/types";
+import {ApiResponse, DashboardStatsSummary} from "@/lib/types";
 import { ILinkDateStats, UserUrlStats } from "@/features/dashboard/types/types";
 
 export async function getStatsCommon(page = 1): Promise<UserDashboardStats | null> {
@@ -8,6 +8,10 @@ export async function getStatsCommon(page = 1): Promise<UserDashboardStats | nul
 export async function getLinkStatsCommon([slug]: [slug: string]): Promise<ILinkDateStats[] | null> {
   if (!slug) return null;
   return fetchData<ILinkDateStats[]>(`/api/dashboard/stats/${slug}`);
+}
+
+export async function getUserLinksSummary() {
+  return fetchData('/api/v1/dashboard/summary');
 }
 
 async function fetchData<T>(url: string): Promise<T | null> {
@@ -22,19 +26,8 @@ export interface UserDashboardStats {
     referer: string;
     count: number;
   }[];
-  summary: {
-    date_start: string;
-    date_end: string;
-    clicks: number;
-    clicks_last_24h: number;
-    date_grouping: 'day' | 'week' | 'month';
-    stats: { date: string, clicks: number }[];
-  };
-  all_time: {
-    clicks: number;
-    top_browsers: { name: string, value: number }[];
-    top_countries: { name: string, value: number }[];
-  };
+  summary: DashboardStatsSummary['summary'];
+  all_time: DashboardStatsSummary['all_time'];
   pagination: {
     page: number;
     pageSize: number;

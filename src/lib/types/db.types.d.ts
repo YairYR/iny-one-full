@@ -1,3 +1,5 @@
+import {DashboardStatsSummary} from "@/lib/types/index";
+
 export type Json =
   | string
   | number
@@ -930,22 +932,22 @@ export type Database = {
       click_short_link: {
         Args: {
           page_slug: string
-          user_browser: string
-          user_browser_version: string
-          user_city: string
-          user_country_code: string
-          user_device_model: string
-          user_device_type: string
-          user_device_vendor: string
-          user_ip: string
+          user_browser: string | null
+          user_browser_version: string | null
+          user_city: string | null
+          user_country_code: string | null
+          user_device_model: string | null
+          user_device_type: string | null
+          user_device_vendor: string | null
+          user_ip: string | null
           user_is_bot: boolean
-          user_latitude: string
-          user_longitude: string
-          user_os: string
-          user_os_version: string
-          user_referer: string
-          user_region: string
-          user_ua: string
+          user_latitude: string | null
+          user_longitude: string | null
+          user_os: string | null
+          user_os_version: string | null
+          user_referer: string | null
+          user_region: string | null
+          user_ua: string | null
         }
         Returns: undefined
       }
@@ -958,7 +960,7 @@ export type Database = {
           _slugs: string[]
           _start_date: string
         }
-        Returns: Json
+        Returns: DashboardStatsSummary
       }
       get_page_clicks_between_dates: {
         Args: { _end_date: string; _slug: string[]; _start_date: string }

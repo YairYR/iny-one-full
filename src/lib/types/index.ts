@@ -130,3 +130,19 @@ export type UrlExpires = {
   expires_in_days: number;
   expires_at: string;
 };
+
+export type DashboardStatsSummary = {
+  summary: {
+    date_start: string;
+    date_end: string;
+    clicks: number;
+    clicks_last_24h: number;
+    date_grouping: 'day' | 'week' | 'month';
+    stats: { date: string, clicks: number }[];
+  },
+  all_time: {
+    clicks: number;
+    top_browsers: { name: string, value: number }[];
+    top_countries: { name: string, value: number }[];
+  }
+}
