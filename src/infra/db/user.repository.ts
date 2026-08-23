@@ -82,6 +82,36 @@ export function getUserRepository(db: DbInstance) {
         .eq('slug', slug);
     },
 
+    /**
+     * Estado del enlace necesario para editarlo. Las UTM se leen porque
+     * `destination` guarda la URL **ya compuesta** con ellas: cambiar el destino
+     * sin recomponerlas las perdería en silencio.
+     */
+    async getLinkForEdit(slug: string) {
+      return db
+        .from('short_links')
+        .select('destination, utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_id')
+        .eq('slug', slug)
+        .maybeSingle();
+    },
+
+    /**
+     * Repunta un enlace ya publicado.
+     *
+     * Escribe con la sesión del usuario, así que depende de la política
+     * `short_links_update_own`. Si esa política faltara, PostgREST devolvería
+     * cero filas **sin error** y el cambio se perdería en silencio —que es
+     * exactamente lo que le pasó a `changeAlias` durante meses—. Por eso pide
+     * las filas afectadas de vuelta: quien llama comprueba que no vengan vacías.
+     */
+    async changeDestination(slug: string, destination: string) {
+      return db
+        .from('short_links')
+        .update({ destination })
+        .eq('slug', slug)
+        .select('slug');
+    },
+
     /* INACTIVO — sin importaciones ni referencias en el repositorio (rev. 2026-08-09).
      * No se elimina por si retoma uso en una build futura; hoy no tiene efecto en
      * producción. Al reactivarlo: descomentar y cubrirlo con tests. */

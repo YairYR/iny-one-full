@@ -6,7 +6,7 @@ import {Logger, logger} from "@/lib/logger";
 import {SubscriptionRepository, SubscriptionStatus} from "@/infra/db/subscription.repository";
 import {BillingRepository} from "@/infra/payments/billing.repository";
 import {createClient} from "@/lib/supabase/server";
-import {UserPlanSummary} from "@/lib/types";
+import {PlanName, UserPlanSummary} from "@/lib/types";
 
 const log = logger.child({ service: "sync-subscription" });
 
@@ -21,19 +21,59 @@ export async function rejectPendingRequests(userId: string) {
     const reason = "Cancelled due to new subscription request";
 
     const pendingRequests = await SubscriptionRequestsRepository.findPendingByUser(userId);
-    if (!pendingRequests.error && pendingRequests.data && pendingRequests.data.length > 0) {
-        for (let i = 0; i < pendingRequests.data.length; i++) {
-            const pendingRequest = pendingRequests.data[i];
-            await SubscriptionRequestsRepository.updateStatus(
-                pendingRequest.id, "REJECTED", undefined,
-                { reason });
-            if (typeof pendingRequest.external_subscription_id === "string") {
+
+    if (pendingRequests.error) {
+        log.error("could not list pending requests", { user_id: userId, error: pendingRequests.error });
+        return;
+    }
+
+    for (const pendingRequest of pendingRequests.data ?? []) {
+        // Orden: primero PayPal, después la base. Al revés, si la cancelación
+        // fallaba la fila quedaba en REJECTED mientras la suscripción seguía
+        // viva en PayPal —y cobrando—.
+        if (typeof pendingRequest.external_subscription_id === "string") {
+            const paypalStatus = await safeGetPaypalStatus(pendingRequest.external_subscription_id);
+
+            // Ventana real: entre que el usuario aprueba en PayPal y llega el
+            // webhook, la solicitud sigue en APPROVAL_PENDING. Cancelarla aquí
+            // le anula una suscripción que acaba de pagar.
+            if (paypalStatus === "ACTIVE") {
+                log.warn("skipping cancellation of an already active subscription", {
+                    request_id: pendingRequest.id,
+                    external_id: pendingRequest.external_subscription_id,
+                });
+                continue;
+            }
+
+            try {
                 await subscriptionsController.cancelSubscription({
                     id: pendingRequest.external_subscription_id,
-                    body: { reason }
+                    body: { reason },
                 });
+            } catch (error) {
+                // Un fallo no puede cortar el bucle y dejar el resto sin procesar.
+                log.warn("could not cancel pending subscription in paypal", {
+                    request_id: pendingRequest.id,
+                    external_id: pendingRequest.external_subscription_id,
+                    error,
+                });
+                continue;
             }
         }
+
+        await SubscriptionRequestsRepository.updateStatus(
+            pendingRequest.id, "REJECTED", undefined, { reason });
+    }
+}
+
+/** Estado en PayPal, o `null` si no se puede consultar. Nunca lanza. */
+async function safeGetPaypalStatus(externalId: string): Promise<string | null> {
+    try {
+        const sub = await BillingRepository.getSubscription(externalId);
+        return (sub.result?.status as string) ?? null;
+    } catch (error) {
+        log.warn("could not read subscription status from paypal", { external_id: externalId, error });
+        return null;
     }
 }
 
@@ -130,13 +170,19 @@ export async function checkSubscriptionStatus(user: User) {
         }
 
         if (paypalStatus === 'ACTIVE') {
-            await setSubscriptionUserAuth({
-                id: subscription.id,
-                name: "basic",
-                isFree: false,
-            });
-        } else {
+            await setSubscriptionUserAuth(
+                await resolvePlanSummary(subscription.id, subscription.service_id, reqLog),
+            );
+        } else if (paypalStatus === 'CANCELLED' || paypalStatus === 'EXPIRED') {
+            // Sólo los estados terminales quitan el plan. Un SUSPENDED por un
+            // cobro que falló una vez dejaba al cliente sin servicio en el acto,
+            // sin ningún periodo de gracia.
             await setSubscriptionUserAuth(null);
+        } else {
+            reqLog.warn("subscription in a non-terminal state, keeping current plan", {
+                subscription_id: subscription.id,
+                paypal_status: paypalStatus,
+            });
         }
 
         return {
@@ -167,8 +213,9 @@ export async function checkSubscriptionStatus(user: User) {
             // Buscar la suscripción recién creada
             const newSub = await SubscriptionRepository.findByUserId(user.id);
             if (newSub.data) {
-                // TODO: set name
-                await setSubscriptionUserAuth({ id: newSub.data.service_id, name: 'basic', isFree: false });
+                await setSubscriptionUserAuth(
+                    await resolvePlanSummary(newSub.data.id, newSub.data.service_id, reqLog),
+                );
                 reqLog.info("found active subscription from pending request", {
                     request_id: request.id,
                     subscription_id: newSub.data.id,
@@ -271,4 +318,39 @@ async function setSubscriptionUserAuth(summary: UserPlanSummary|null) {
             user_plan: summary,
         }
     })
+}
+
+/**
+ * Traduce un servicio a la clave de cuota que entiende el resto del código.
+ *
+ * Devuelve `null` cuando el servicio no tiene `plan_key`: eso deja al usuario en
+ * el plan gratuito, que es el fallo seguro. Antes se escribía "basic" fijo, así
+ * que un cliente de plan pro recibía los límites del plan intermedio.
+ */
+async function resolvePlanSummary(
+    subscriptionId: string,
+    serviceId: string | null,
+    reqLog: Logger,
+): Promise<UserPlanSummary | null> {
+    if (!serviceId) {
+        reqLog.warn("subscription without service_id, falling back to free plan", { subscription_id: subscriptionId });
+        return null;
+    }
+
+    const { data, error } = await SubscriptionRepository.getPlanKeyByServiceId(serviceId);
+
+    if (error || !data?.plan_key) {
+        reqLog.error("service has no plan_key, falling back to free plan", {
+            subscription_id: subscriptionId,
+            service_id: serviceId,
+            error,
+        });
+        return null;
+    }
+
+    return {
+        id: subscriptionId,
+        name: data.plan_key as PlanName,
+        isFree: data.plan_key === 'free',
+    };
 }

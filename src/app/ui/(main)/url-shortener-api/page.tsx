@@ -118,7 +118,7 @@ const json = await res.json();
 // json.data.short -> "https://iny.one/abc1234"`;
 
 const RESPONSE_EXAMPLE = `{
-  "success": true,
+  "ok": true,
   "data": {
     "short": "https://iny.one/abc1234"
   },
@@ -129,7 +129,7 @@ const RESPONSE_EXAMPLE = `{
 }`;
 
 const ERROR_EXAMPLE = `{
-  "success": false,
+  "ok": false,
   "error": {
     "code": "RATE_LIMIT_EXCEEDED",
     "message": "…",

@@ -13,16 +13,19 @@ import {rejectPendingRequests} from "@/features/payments/services/sync-subscript
 const log = logger.child({ service: "payment" });
 
 /**
- * Crea una nueva solicitud de suscripción o reutiliza una pendiente reciente.
+ * Crea una solicitud de suscripción y la abre en PayPal.
  *
- * Flujo:
- * 1. Valida que el plan existe
- * 2. Usa checkSubscriptionStatus() para verificar y sincronizar estado con PayPal
- *    (busca en subscriptions Y subscription_requests, auto-completa si está ACTIVE)
- * 3. Busca solicitudes pendientes recientes (< 1 hora) para reutilizar external_id
- * 4. Si no existe: crea nueva solicitud en BD → crea en PayPal → actualiza BD
+ * Flujo real:
+ * 1. Valida que el plan existe y tiene `external_service_id`.
+ * 2. Cancela las solicitudes pendientes del usuario, saltando las que ya están
+ *    ACTIVE en PayPal para no anular algo recién pagado.
+ * 3. Inserta la solicitud en BD, la crea en PayPal y guarda su `external_id`.
  *
- * @returns external_subscription_id de PayPal para redirect al checkout
+ * La comprobación de «ya tiene una suscripción activa» NO vive aquí: la hace
+ * la ruta `/api/v1/subscription` antes de llamar. El bloque comentado de abajo
+ * es esa comprobación en su sitio anterior.
+ *
+ * @returns external_subscription_id de PayPal para redirigir al checkout
  */
 export async function createSubscription(plan_id: string, user: User) {
     const reqLog = log.child({ fn: "createSubscription", user_id: user.id, plan_id });
@@ -70,11 +73,15 @@ export async function createSubscription(plan_id: string, user: User) {
     );
 
     if (updateResult.error) {
-        reqLog.warn("failed to update subscription request", {
+        // Aquí la suscripción YA existe en PayPal. Si no se guarda su id, la
+        // fila queda inservible y el usuario puede acabar cobrado sin que el
+        // sistema sepa a qué solicitud corresponde: es un error, no un aviso.
+        reqLog.error("subscription created in paypal but not linked in the database", {
             request_id: request.id,
             external_id: subscriptionPaypal.result.id,
             error: updateResult.error,
         });
+        throw new ProviderError("Subscription created but could not be linked");
     } else {
         reqLog.info("subscription created in paypal", {
             request_id: request.id,

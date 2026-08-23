@@ -1,30 +1,41 @@
 'use client';
 
 import React from 'react';
-import { Zap } from 'lucide-react';
+import { Zap, LockIcon } from 'lucide-react';
+import Link from 'next/link';
 import ShortUrlCard from "@/features/short_links/components/ShortUrlCard";
 import { Button, Input, Fieldset, Field, Label } from '@headlessui/react';
 import { useUrlShortForm } from "@/features/short_links/hooks/useUrlShortForm";
 import { useTranslations  } from "next-intl";
 import { Tooltip } from "@/components/Tooltip/Tooltip";
+import { ROUTES } from "@/lib/routes";
+import { CUSTOM_SLUG } from "@/lib/short-links/slug";
 
-export default function UrlShortForm() {
+interface Props {
+  /** Determina si el campo de nombre propio está activo o sólo se muestra. */
+  isAuthenticated?: boolean;
+}
+
+export default function UrlShortForm({ isAuthenticated = false }: Readonly<Props>) {
   const t = useTranslations('HomePage');
   const {
     currentUrl,
     utm,
+    slug,
     shortUrl,
     isLoading,
     error,
+    showRegisterCta,
 
     // callbacks
     handleShorten,
     clearForm,
     handleChangeUrl,
+    handleChangeSlug,
     handleChangeUtmSource,
     handleChangeUtmMedium,
     handleChangeUtmCampaign
-  } = useUrlShortForm({ t });
+  } = useUrlShortForm({ t, isAuthenticated });
 
   return (
     <Fieldset className="bg-white rounded-xl shadow-lg p-8 mb-6">
@@ -39,6 +50,60 @@ export default function UrlShortForm() {
             onChange={handleChangeUrl}
             className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors"
           />
+        </Field>
+      </div>
+
+      {/*
+        Para el usuario anónimo el campo se muestra deshabilitado con el motivo
+        y el enlace a registro, no oculto: una funcionalidad escondida no
+        convierte a nadie. Es la palanca de registro del producto, así que tiene
+        que verse el hueco donde iría su nombre.
+      */}
+      <div className="mb-6">
+        <Field>
+          <div className="flex items-center gap-2 mb-2">
+            <Label htmlFor="input_slug" className="block text-sm font-medium text-gray-700">
+              {t('slugLabel')}
+            </Label>
+            <Tooltip content={t('slugTooltip')} />
+          </div>
+          <div className="flex items-stretch">
+            <span className="inline-flex items-center rounded-l-lg border border-r-0 border-gray-300 bg-gray-50 px-3 text-sm text-gray-500">
+              iny.one/
+            </span>
+            <Input
+              type="text"
+              name="slug"
+              id="input_slug"
+              placeholder={t('slugPlaceholder')}
+              value={slug}
+              onChange={handleChangeSlug}
+              disabled={!isAuthenticated}
+              maxLength={CUSTOM_SLUG.max}
+              aria-describedby="slug-help"
+              className="w-full rounded-r-lg border border-gray-300 px-4 py-3 transition-colors
+                         focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500
+                         disabled:cursor-not-allowed disabled:bg-gray-50 disabled:text-gray-400"
+            />
+          </div>
+          <p id="slug-help" className="mt-2 flex items-center gap-1.5 text-sm text-gray-500">
+            {isAuthenticated ? (
+              t('slugHelp', { min: CUSTOM_SLUG.min, max: CUSTOM_SLUG.max })
+            ) : (
+              <>
+                <LockIcon className="h-3.5 w-3.5 shrink-0 text-gray-400" aria-hidden="true" />
+                <span>
+                  {t('slugLocked')}{' '}
+                  <Link
+                    href={ROUTES.REGISTER}
+                    className="font-semibold text-indigo-600 underline-offset-2 hover:underline"
+                  >
+                    {t('slugLockedCta')}
+                  </Link>
+                </span>
+              </>
+            )}
+          </p>
         </Field>
       </div>
 
@@ -111,7 +176,25 @@ export default function UrlShortForm() {
 
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-700 text-sm">{error}</p>
+          <p className="text-red-700 text-sm">
+            {error}
+            {/*
+              Topar con el límite es el momento de mayor intención del embudo.
+              Sin este enlace el mensaje es un callejón sin salida —y antes le
+              decía «mejora tu plan» a quien ni siquiera tiene cuenta.
+            */}
+            {showRegisterCta && (
+              <>
+                {' '}
+                <Link
+                  href={ROUTES.REGISTER}
+                  className="font-semibold text-red-800 underline underline-offset-2"
+                >
+                  {t('errorLimitCta')}
+                </Link>
+              </>
+            )}
+          </p>
         </div>
       )}
 

@@ -4,7 +4,6 @@ import { SessionNotFoundError } from "@/lib/api/errors";
 import { getUserRepository } from "@/infra/db/user.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { getStatsRepository } from "@/infra/db/stats.repository";
-import { UserUrl } from "@/features/dashboard/types/types";
 import { successResponse } from "@/lib/api/responses";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
@@ -22,10 +21,16 @@ export const GET = withErrorHandling(async () => {
     const userRepo = getUserRepository(supabase);
     const statsRepo = getStatsRepository(supabase_service);
 
-    const { data: _urls } = await userRepo.getStatsUserUrls(user.id);
+    // La tabla se pagina (20 por página) pero los agregados NO pueden calcularse
+    // sobre esa página: `getStatsUserUrls` sin argumentos devuelve 20 enlaces, y
+    // con ellos el total de clics y el número de enlaces salían mal sin ninguna
+    // señal. Es el mismo fallo que se corrigió en /api/dashboard/stats.
+    const [{ data: _urls }, { data: allSlugs }] = await Promise.all([
+        userRepo.getStatsUserUrls(user.id),
+        userRepo.getSlugs(user.id),
+    ]);
 
-    const urls: UserUrl[] = (_urls ?? []) as never as UserUrl[];
-    const slugs = urls.map(item => item.slug);
+    const slugs = (allSlugs ?? []).map(item => item.slug);
 
     const today = dayjs().utc();
     const yesterday = today.subtract(1, 'day');

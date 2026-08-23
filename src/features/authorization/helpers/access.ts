@@ -7,6 +7,7 @@ import {EntitlementService} from "@/features/authorization/services/entitlement.
 import {Permission} from "@/features/authorization/types/permission";
 import {getCurrentUserDTO} from "@/data/dto/user-dto";
 import {cache} from "react";
+import {SessionNotFoundError} from "@/lib/api/errors";
 
 export const getAccessContext = cache(async function getAccessContext() {
     const user = await getCurrentUserDTO();
@@ -30,7 +31,9 @@ export async function requirePermission(
     const context = await getAccessContext();
 
     if (!context) {
-        throw new Error("Unauthenticated");
+        // `withErrorHandling` sólo traduce ApiError: con un Error pelado esto
+        // salía como 500 en vez de 401.
+        throw new SessionNotFoundError();
     }
 
     const authorization =
@@ -50,7 +53,9 @@ export async function requireFeature(
     const context = await getAccessContext();
 
     if (!context) {
-        throw new Error("Unauthenticated");
+        // `withErrorHandling` sólo traduce ApiError: con un Error pelado esto
+        // salía como 500 en vez de 401.
+        throw new SessionNotFoundError();
     }
 
     const entitlements =

@@ -3,6 +3,9 @@ import { verifySignature } from "@/app/api/webhooks/utils";
 import { WebhookEventPaypal } from "@/lib/types";
 import * as z from 'zod';
 import { processPaypalWebhook } from "@/features/payments/services/webhook";
+import { logger } from "@/lib/logger";
+
+const log = logger.child({ route: 'api/webhooks' });
 
 const PaypalWebhookBody = z.object({
   id: z.string(),
@@ -19,30 +22,31 @@ const PaypalWebhookBody = z.object({
   }).array(),
 });
 
+/**
+ * No se vuelca ni el cuerpo ni las cabeceras del webhook.
+ *
+ * El cuerpo de PayPal lleva nombre, correo y país del pagador, y el mensaje
+ * firmado incluye `WEBHOOK_ID`, que es un secreto. Se registra sólo lo que
+ * sirve para diagnosticar: identificador del evento y tipo.
+ */
 export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
-    const body: WebhookEventPaypal = JSON.parse(rawBody);
-    const data = PaypalWebhookBody.parse(body);
-    const headers = req.headers;
+    const data = PaypalWebhookBody.parse(JSON.parse(rawBody) as WebhookEventPaypal);
 
-    console.log('📬 Webhook recibido');
-    console.log('Headers:', Object.fromEntries(headers.entries()));
-    console.log('Body:', JSON.stringify(data, null, 2));
+    const isSignatureValid = await verifySignature(rawBody, req.headers);
 
-    const isSignatureValid = await verifySignature(rawBody, headers);
-
-    if (isSignatureValid) {
-      console.log('✅ Firma válida. Procesando evento...');
-      await processPaypalWebhook(data);
-
-      return NextResponse.json({ ok: true });
-    } else {
-      console.warn(`❌ Firma NO válida para evento ${data?.id}`);
+    if (!isSignatureValid) {
+      log.warn('webhook rejected: invalid signature', { event_id: data.id, event_type: data.event_type });
       return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
     }
+
+    log.info('webhook accepted', { event_id: data.id, event_type: data.event_type });
+    await processPaypalWebhook(data);
+
+    return NextResponse.json({ ok: true });
   } catch (err) {
-    console.error('⚠️ Error en webhook PayPal:', err);
+    log.error('webhook processing failed', { error: err });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }
