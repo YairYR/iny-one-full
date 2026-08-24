@@ -41,12 +41,18 @@ export interface ShortenedUrl<Utm = UtmParams> {
 
 export interface UserClient {
   id: string;
-  email?: string;
+  email?: string | null;
   name: string | null;
   picture: string | null;
   created_at: string;
   role: string | null;
-  plan: PlanName | null;
+  plan: UserPlanSummary | null;
+}
+
+export interface UserPlanSummary {
+  id: string | null;
+  name: PlanName;
+  isFree: boolean;
 }
 
 export interface IService {
@@ -64,8 +70,14 @@ export interface IService {
   updated_at: string;
 }
 
+export const PlanFree = 'free';
+export const PlanBasic = 'basic';
+export const PlanPro = 'pro';
+
 export type Plan = Omit<IService, 'updated_at'|'created_at'|'active'>;
-export type PlanName = 'free' | 'basic' | 'pro';
+export type PlanName = typeof PlanFree |
+    typeof PlanBasic |
+    typeof PlanPro;
 
 export interface Subscription {
   id: string;
@@ -105,7 +117,7 @@ export type WebhookEventPaypal = {
   resource_type: string;
   event_type: string;
   summary: string;
-  resource_version: string;
+  event_version: string;
   resource: Record<string, never>;
   links: Array<{
     href: string;
@@ -118,3 +130,19 @@ export type UrlExpires = {
   expires_in_days: number;
   expires_at: string;
 };
+
+export type DashboardStatsSummary = {
+  summary: {
+    date_start: string;
+    date_end: string;
+    clicks: number;
+    clicks_last_24h: number;
+    date_grouping: 'day' | 'week' | 'month';
+    stats: { date: string, clicks: number }[];
+  },
+  all_time: {
+    clicks: number;
+    top_browsers: { name: string, value: number }[];
+    top_countries: { name: string, value: number }[];
+  }
+}

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
-import { useLocale } from "next-intl";
 import Link from "next/link";
 import UrlShortForm from "@/features/short_links/components/UrlShortForm";
+import { isLoggedIn } from "@/data/dto/user-dto";
 import { ROUTES } from "@/lib/routes";
 import { buildPageMetadata, normalizeLocale } from "@/lib/seo/metadata";
 
@@ -148,9 +148,11 @@ const content = {
   },
 };
 
-export default function UtmBuilderPage() {
-  const locale = useLocale() as "es" | "en";
-  const t = content[locale] ?? content.en;
+export default async function UtmBuilderPage() {
+  // La página pasó a async para preguntar por la sesión, y `useLocale` es un
+  // hook: en un componente de servidor asíncrono se usa `getLocale`.
+  const [isAuthenticated, locale] = await Promise.all([isLoggedIn(), getLocale()]);
+  const t = content[locale as "es" | "en"] ?? content.en;
 
   return (
     <>
@@ -169,7 +171,7 @@ export default function UtmBuilderPage() {
           <p className="text-lg text-gray-600">{t.intro}</p>
         </div>
 
-        <UrlShortForm />
+        <UrlShortForm isAuthenticated={isAuthenticated} />
 
         <section className="mt-12 space-y-10 text-gray-700">
           <div>

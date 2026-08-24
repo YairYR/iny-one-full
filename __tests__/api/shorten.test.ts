@@ -30,15 +30,16 @@ jest.mock('@/infra/db/user.repository', () => ({
 
 // Se importa después de registrar los mocks para que la ruta reciba los dobles.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { POST } = require('@/app/api/shorten/route') as typeof import('@/app/api/shorten/route');
+const { POST } = require('@/app/api/v1/shorten/route') as typeof import('@/app/api/v1/shorten/route');
 
 type ShortenBody = {
   url: string;
   utm?: { source: string; medium: string; campaign: string };
+  slug?: string;
 };
 
 function request(body: ShortenBody, headers: Record<string, string> = {}) {
-  return new NextRequest('https://iny.one/api/shorten', {
+  return new NextRequest('https://iny.one/api/v1/shorten', {
     method: 'POST',
     headers: { 'content-type': 'application/json', ...headers },
     body: JSON.stringify({ utm: { source: '', medium: '', campaign: '' }, ...body }),
@@ -47,7 +48,7 @@ function request(body: ShortenBody, headers: Record<string, string> = {}) {
 
 const anonymous = { 'x-forwarded-for': '203.0.113.10' };
 
-describe('POST /api/shorten', () => {
+describe('POST /api/v1/shorten', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     defaultUsageStore.clear();
@@ -65,7 +66,7 @@ describe('POST /api/shorten', () => {
     const payload = await response.json();
 
     expect(response.status).toBe(200);
-    expect(payload.success).toBe(true);
+    expect(payload.ok).toBe(true);
     expect(payload.data.short).toMatch(/^https:\/\/iny\.one\/[a-z0-9_-]{7}$/i);
     expect(create).toHaveBeenCalledTimes(1);
   });
@@ -206,5 +207,107 @@ describe('POST /api/shorten', () => {
 
     await POST(request({ url: 'https://example.com' }), undefined);
     expect(create.mock.calls[0][0].expires).toBeUndefined();
+  });
+});
+
+describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
+  const authenticated = { data: { user: { id: 'user-1' }, role: null, plan: { id: null, name: 'free', isFree: true } } };
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    defaultUsageStore.clear();
+
+    bloomHas.mockReturnValue(false);
+    create.mockResolvedValue({ error: null });
+    isSafeDomain.mockResolvedValue({ data: true, error: null });
+    countLinksByIpInLastMonth.mockResolvedValue({ count: 0, error: null });
+    countLinksByUserInLastMonth.mockResolvedValue({ count: 0, error: null });
+    getCurrentUser.mockResolvedValue(authenticated);
+  });
+
+  it('uses the slug the user chose', async () => {
+    const response = await POST(request({ url: 'https://example.com', slug: 'promo-julio' }), undefined);
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.data.short).toBe('https://iny.one/promo-julio');
+    expect(create.mock.calls[0][0].slug).toBe('promo-julio');
+  });
+
+  it('normalises the chosen slug to lowercase', async () => {
+    await POST(request({ url: 'https://example.com', slug: 'Promo-Julio' }), undefined);
+
+    expect(create.mock.calls[0][0].slug).toBe('promo-julio');
+  });
+
+  // El nombre propio es la contrapartida de registrarse: sin sesión no se da.
+  it('rejects a chosen slug from an anonymous request', async () => {
+    getCurrentUser.mockResolvedValue({ data: { user: null, role: null, plan: null } });
+
+    const response = await POST(
+      request({ url: 'https://example.com', slug: 'promo-julio' }, anonymous),
+      undefined,
+    );
+    const payload = await response.json();
+
+    expect(response.status).toBe(401);
+    expect(payload.error.code).toBe(ERROR.SESSION_NOT_FOUND);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it('rejects a slug that collides with a reserved route', async () => {
+    const response = await POST(request({ url: 'https://example.com', slug: 'dashboard' }), undefined);
+
+    expect(response.status).toBe(422);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it.each(['ab', 'a'.repeat(33), '-promo', 'promo-', 'pro mo', 'promo.json'])(
+    'rejects the malformed slug %p',
+    async (slug) => {
+      const response = await POST(request({ url: 'https://example.com', slug }), undefined);
+
+      expect(response.status).toBe(422);
+      expect(create).not.toHaveBeenCalled();
+    },
+  );
+
+  // Reintentar con otro nombre le daría un enlace que no pidió: se devuelve
+  // conflicto para que elija.
+  it('returns 409 and does not retry when the chosen slug is taken', async () => {
+    create.mockResolvedValue({ error: { code: PG_ERROR.UNIQUE_VIOLATION } });
+
+    const response = await POST(request({ url: 'https://example.com', slug: 'promo-julio' }), undefined);
+    const payload = await response.json();
+
+    expect(response.status).toBe(409);
+    expect(payload.error.code).toBe(ERROR.DUPLICATE_ENTRY);
+    expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  it('falls back to a random slug when none is chosen', async () => {
+    const response = await POST(request({ url: 'https://example.com' }), undefined);
+    const payload = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(payload.data.short).toMatch(/^https:\/\/iny\.one\/[a-z0-9_-]{7}$/i);
+  });
+
+  // Un slug vacío es "no elegí nombre", no "quiero uno": no debe exigir sesión.
+  it('treats an empty slug as no slug at all', async () => {
+    getCurrentUser.mockResolvedValue({ data: { user: null, role: null, plan: null } });
+
+    const response = await POST(request({ url: 'https://example.com', slug: '  ' }, anonymous), undefined);
+
+    expect(response.status).toBe(200);
+    expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  it('does not spend quota on a slug it is going to reject', async () => {
+    getCurrentUser.mockResolvedValue({ data: { user: null, role: null, plan: null } });
+
+    await POST(request({ url: 'https://example.com', slug: 'promo-julio' }, anonymous), undefined);
+
+    expect(countLinksByIpInLastMonth).not.toHaveBeenCalled();
   });
 });

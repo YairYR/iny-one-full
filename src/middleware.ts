@@ -1,6 +1,5 @@
 import { type NextRequest, MiddlewareConfig, NextResponse } from 'next/server'
 import { updateSession } from "@/lib/middlewares/session";
-import { checkWebhook } from "@/lib/middlewares/webhooks";
 import { ROUTES } from "@/lib/routes";
 
 export async function middleware(request: NextRequest) {
@@ -14,9 +13,21 @@ export async function middleware(request: NextRequest) {
     request.headers.set('x-iny-locale', 'es');
   }
 
-  if (path === '/api/webhooks') {
-    return checkWebhook(request);
-  }
+  /* INACTIVO — este guard nunca llegó a ejecutarse (rev. 2026-08-23).
+   *
+   * El `matcher` de abajo excluye todo lo que empieza por `api`, así que el
+   * middleware jamás se invoca para `/api/webhooks` y esta rama era código
+   * muerto: un control de seguridad que aparentaba estar puesto.
+   *
+   * No se reactiva a propósito. Comprobaba cabeceras `x-vercel-internal-bot-*`,
+   * que no aportan nada sobre la verificación criptográfica de la firma —ya
+   * endurecida en `src/app/api/webhooks/utils.ts` con la validación del host del
+   * certificado— y sí pueden romper todos los webhooks si Vercel no las envía.
+   *
+   * if (path === '/api/webhooks') {
+   *   return checkWebhook(request);
+   * }
+   */
 
   if (isShortRoute(path)) {
     return NextResponse.next();

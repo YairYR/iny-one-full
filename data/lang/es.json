@@ -57,7 +57,18 @@
     "qrDownload": "Descargar PNG",
     "qrAlt": "Código QR de tu enlace corto",
     "anonymousNotice": "Los enlaces creados sin cuenta caducan a los {days, number} días.",
-    "anonymousNoticeCta": "Crea una cuenta gratis"
+    "anonymousNoticeCta": "Crea una cuenta gratis",
+    "errorAnonymousLimit": "Has usado tus 5 enlaces gratis del mes. Con una cuenta gratis son 50 y no caducan.",
+    "errorLimitCta": "Crear cuenta gratis",
+    "errorSlugInvalid": "Ese nombre no es válido. Usa letras, números, guiones o guiones bajos.",
+    "errorSlugNeedsAccount": "Elegir el nombre del enlace necesita una cuenta gratis.",
+    "errorSlugTaken": "Ese nombre ya está tomado. Prueba con otro.",
+    "slugHelp": "Letras, números, guiones y guiones bajos. Entre {min, number} y {max, number} caracteres.",
+    "slugLabel": "Nombre del enlace (opcional)",
+    "slugLocked": "Elige el nombre de tu enlace con una cuenta gratis.",
+    "slugLockedCta": "Crear una",
+    "slugPlaceholder": "promo-julio",
+    "slugTooltip": "Elige cómo se lee tu enlace corto. Si lo dejas vacío generamos uno aleatorio."
   },
   "HomeContent": {
     "howTitle": "Cómo acortar una URL con seguimiento UTM",
@@ -168,7 +179,15 @@
         "cancel": "Cancelar",
         "destination": "Destino URL",
         "error_alias_invalid": "El alias solo puede contener letras, números, guiones y guiones bajos.",
-        "error_alias_taken": "Este alias ya está en uso. Por favor elige otro."
+        "error_alias_taken": "Este alias ya está en uso. Por favor elige otro.",
+        "alias_help": "Una etiqueta para reconocer el enlace en tu panel. No cambia la URL corta.",
+        "alias_label": "Nombre (interno)",
+        "destination_help": "A dónde apunta el enlace. Cámbialo y el enlace corto sigue funcionando, apuntando a la nueva dirección.",
+        "destination_label": "URL de destino",
+        "error_destination": "No se pudo guardar ese destino. Revisa la dirección e inténtalo de nuevo.",
+        "error_forbidden": "No puedes editar este enlace.",
+        "error_unknown": "No se pudo guardar el cambio.",
+        "short_url": "Enlace corto"
       },
       "qr": {
         "title": "Código QR: {alias}",
@@ -187,7 +206,9 @@
           "clicks": "Clicks",
           "ctr": "CTR",
           "created": "Creado",
-          "actions": "Acciones"
+          "actions": "Acciones",
+          "name": "Nombre",
+          "short": "Enlace corto"
         },
         "pagination": {
           "label": "Páginas de enlaces",

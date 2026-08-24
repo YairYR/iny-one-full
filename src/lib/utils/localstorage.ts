@@ -1,3 +1,5 @@
+import 'client-only';
+
 interface LocalData {
   [key: string]: {
     value: string,
@@ -61,10 +63,6 @@ interface ICart {
   planId: string;
 }
 
-export const setCartPlan = (planId: string) => {
-  addToLocalStorage("cart", JSON.stringify({ planId }), 86400 * 30);
-}
-
 /** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export const getCart = (): ICart|null => {
   const cart = getFromLocalStorage("cart");
@@ -78,4 +76,13 @@ export const clearCart = () => {
     delete data['cart'];
     setAll(data);
   }
+}
+
+export const addCookie = (name: string, value: string) => {
+  const maxAge = 60 * 60 * 24 * 7; // 1 week in seconds
+  document.cookie = name + "=" + value + ";path=/;max-age=" + maxAge;
+}
+
+export const removeCookie = (name: string) => {
+  document.cookie = name + "=; path=/;";
 }
