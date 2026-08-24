@@ -42,7 +42,7 @@ where user_id = (select user_id from public.short_links where user_id is not nul
 
 
 -- 1) CORRECTITUD, independiente del volumen. El reintento por colisión de
---    /api/shorten se apoya en el error 23505 que sólo emite esta restricción.
+--    /api/v1/shorten se apoya en el error 23505 que sólo emite esta restricción.
 --    Requisito: que el bloque 2 de la auditoría no haya devuelto duplicados.
 -- create unique index concurrently if not exists short_links_slug_uidx
 --   on public.short_links (slug);

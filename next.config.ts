@@ -228,6 +228,14 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     return [
+      // Compatibilidad de la API pública. `/api/shorten` estuvo documentado en
+      // la landing indexada `/url-shortener-api` e invitaba a integrarlo «sin
+      // API key»; versionar está bien, romper a quien ya lo usaba no. El
+      // reescrito mantiene vivos esos clientes sin duplicar la ruta.
+      {
+        source: "/api/shorten",
+        destination: "/api/v1/shorten",
+      },
       {
         source: "/",
         destination: "/ui",
@@ -304,6 +312,10 @@ const nextConfig: NextConfig = {
       {
         source: "/auth/register",
         destination: "/ui/auth/register",
+      },
+      {
+        source: "/auth/logout",
+        destination: "/ui/auth/logout",
       },
       {
         source: "/auth/callback",

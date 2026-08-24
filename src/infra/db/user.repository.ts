@@ -1,47 +1,23 @@
 import { DbInstance } from "@/infra/db/supabase_service";
-import { PlanName } from "@/lib/types";
-import { IS_DEVELOPMENT, IS_PRODUCTION } from "@/constants";
+import { UserPlanSummary } from "@/lib/types";
 
 export function getUserRepository(db: DbInstance) {
   return {
     async getCurrentUser() {
-      const { data: { user } } = await db.auth.getUser();
+      const { data } = await db.auth.getUser();
       const metadata = {
         role: null as string | null,
-        plan: null as PlanName | null,
+        plan: null as UserPlanSummary | null,
         timezone: null as string | null,
       };
-      if(IS_PRODUCTION) {
-        const { data: claims } = await db.auth.getClaims();
-        const user_metadata = claims?.claims?.user_metadata;
-        metadata.role = user_metadata?.user_role ?? null;
-        metadata.plan = user_metadata?.user_plan ?? null;
-        metadata.timezone = user_metadata?.user_timezone ?? null;
-      }
-      else if(IS_DEVELOPMENT && user) {
-        const profileResponse = await db.from('users_profiles')
-          .select('plan, timezone')
-          .eq('id', user.id)
-          .limit(1);
-
-        if(profileResponse.data && profileResponse.data.length > 0) {
-          metadata.plan = profileResponse.data[0].plan as PlanName;
-          metadata.timezone = profileResponse.data[0].timezone;
-        }
-
-        const roleResponse = await db.from('user_roles')
-          .select('role')
-          .eq('user_id', user.id)
-          .limit(1);
-
-        if(roleResponse.data && roleResponse.data.length > 0) {
-          metadata.role = roleResponse.data[0].role;
-        }
-      }
+      const user_metadata = data.user?.user_metadata;
+      metadata.role = user_metadata?.user_role ?? null;
+      metadata.plan = user_metadata?.user_plan ?? null;
+      metadata.timezone = user_metadata?.user_timezone ?? null;
 
       return {
         data: {
-          user: user,
+          user: data.user,
           role: metadata.role,
           plan: metadata.plan,
         }
@@ -104,6 +80,36 @@ export function getUserRepository(db: DbInstance) {
         .from('short_links')
         .update({ alias: newAlias })
         .eq('slug', slug);
+    },
+
+    /**
+     * Estado del enlace necesario para editarlo. Las UTM se leen porque
+     * `destination` guarda la URL **ya compuesta** con ellas: cambiar el destino
+     * sin recomponerlas las perdería en silencio.
+     */
+    async getLinkForEdit(slug: string) {
+      return db
+        .from('short_links')
+        .select('destination, utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_id')
+        .eq('slug', slug)
+        .maybeSingle();
+    },
+
+    /**
+     * Repunta un enlace ya publicado.
+     *
+     * Escribe con la sesión del usuario, así que depende de la política
+     * `short_links_update_own`. Si esa política faltara, PostgREST devolvería
+     * cero filas **sin error** y el cambio se perdería en silencio —que es
+     * exactamente lo que le pasó a `changeAlias` durante meses—. Por eso pide
+     * las filas afectadas de vuelta: quien llama comprueba que no vengan vacías.
+     */
+    async changeDestination(slug: string, destination: string) {
+      return db
+        .from('short_links')
+        .update({ destination })
+        .eq('slug', slug)
+        .select('slug');
     },
 
     /* INACTIVO — sin importaciones ni referencias en el repositorio (rev. 2026-08-09).

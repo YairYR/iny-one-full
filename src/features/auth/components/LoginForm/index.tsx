@@ -3,67 +3,14 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from "next/navigation";
-import { Mail, SquareAsterisk } from 'lucide-react';
 
 import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
 import clsx from "clsx";
-import * as z from "zod/mini";
-import Link from "next/link";
-import { ALL_ROUTES, ROUTES } from "@/lib/routes";
 
-const zodEmail = z.email();
-
-interface Props {
-  nextPage?: string;
-}
-
-export default function LoginForm({ nextPage }: Readonly<Props>) {
+export default function LoginForm() {
   const router = useRouter();
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const onSubmit = async (ev: React.FormEvent) => {
-    ev.preventDefault();
-
-    if(!email || !password || !zodEmail.safeParse(email).success) {
-      return;
-    }
-
-    setLoading(true);
-    const response = await fetch('/api/auth/login', {
-      method: 'POST',
-      body: JSON.stringify({
-        email,
-        password,
-      })
-    }).then(res => res.json())
-      .catch(() => setLoading(false));
-
-    if (response.error) {
-      setLoading(false);
-      console.error(response.error)
-      return;
-    }
-
-    if(nextPage && ALL_ROUTES.includes(nextPage as never)) {
-      router.push(nextPage);
-    } else {
-      router.push(ROUTES.DASHBOARD);
-    }
-    setLoading(false);
-  }
-
-  const onChangeEmail = (ev: React.FormEvent<HTMLInputElement>) => {
-    const value = ev.currentTarget.value;
-    setEmail(value);
-  }
-
-  const onChangePassword = (ev: React.FormEvent<HTMLInputElement>) => {
-    const value = ev.currentTarget.value;
-    setPassword(value);
-  }
 
   const onClickGoogle = async () => {
     setLoading(true);
@@ -99,6 +46,7 @@ export default function LoginForm({ nextPage }: Readonly<Props>) {
           </GoogleButton>
         </div>
       </form>
+      {/*
       <div className="relative flex py-8 items-center">
         <div className="grow border-t border-[1px] border-gray-200"></div>
         <span className="shrink mx-4 font-medium text-gray-500">OR</span>
@@ -142,6 +90,7 @@ export default function LoginForm({ nextPage }: Readonly<Props>) {
             className="font-medium text-[#4F46E5] hover:underline">Sign Up</Link>
         </div>
       </form>
+      */}
 
     </div>
   )

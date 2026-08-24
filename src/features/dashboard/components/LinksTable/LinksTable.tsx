@@ -75,7 +75,13 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
           <thead className="bg-gray-50">
           <tr>
             <th className="p-3 md:hidden">{t("table.links.headers.actions")}</th>
-            <th className="p-3">{t("table.links.headers.alias")}</th>
+            {/*
+              El enlace corto y el nombre son columnas distintas a propósito.
+              Antes se mostraba `alias ?? '/slug'` bajo la cabecera del enlace, y
+              el alias no resuelve: la tabla enseñaba como URL algo que da 404.
+            */}
+            <th className="p-3">{t("table.links.headers.short")}</th>
+            <th className="p-3">{t("table.links.headers.name")}</th>
             <th className="p-3">{t("table.links.headers.destination")}</th>
             <th className="p-3">{t("table.links.headers.clicks")}</th>
             {/*<th className="p-3">CTR</th>*/}
@@ -89,7 +95,8 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
               <td className="p-3 md:hidden">
                 <LinkTools tools={tools} link={l} />
               </td>
-              <td className="p-3 font-medium">{l.alias ?? `/${l.slug}`}</td>
+              <td className="p-3 font-medium whitespace-nowrap">iny.one/{l.slug}</td>
+              <td className="p-3 text-gray-600">{l.alias ?? '—'}</td>
               <td className="p-3 truncate max-w-md" title={l.destination}>{substringAndSpread(l.destination, 30)}</td>
               <td className="p-3">{l.clicks}</td>
               {/*<td className="p-3">{l.ctr}</td>*/}

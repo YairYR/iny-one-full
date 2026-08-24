@@ -1,5 +1,5 @@
 export type SuccessResponse<T> = {
-  success: true;
+  ok: true;
   data: T;
   meta: {
     requestId: string;
@@ -8,7 +8,7 @@ export type SuccessResponse<T> = {
 };
 
 export type ErrorResponse = {
-  success: false;
+  ok: false;
   error: {
     code: string;
     message: string;

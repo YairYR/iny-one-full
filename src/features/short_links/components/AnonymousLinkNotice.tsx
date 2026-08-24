@@ -10,7 +10,7 @@ import { ROUTES } from "@/lib/routes";
  * iniciado sesión: para un usuario autenticado el plazo no aplica y el mensaje
  * sería ruido.
  *
- * El plazo sale de la misma constante que usa /api/shorten al fijar
+ * El plazo sale de la misma constante que usa /api/v1/shorten al fijar
  * `expires_at`, para que el aviso no pueda prometer algo distinto.
  */
 export default async function AnonymousLinkNotice() {
