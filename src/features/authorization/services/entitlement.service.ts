@@ -1,4 +1,4 @@
-import {AccessContext} from "@/features/authorization/types/access-context";
+import { AccessContext } from "@/features/authorization/types/access-context";
 
 export class EntitlementService {
     get(

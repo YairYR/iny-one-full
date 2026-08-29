@@ -1,4 +1,4 @@
-import { MESSAGE, ERROR } from "@/lib/api/error-codes";
+import { ERROR, MESSAGE } from "@/lib/api/error-codes";
 
 type ApiErrOptions = {
   type?: string;

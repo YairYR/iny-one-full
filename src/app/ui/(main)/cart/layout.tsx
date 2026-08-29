@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import type React from "react";
-import {PAYPAL_CONFIG} from "@/lib/paypal-client";
-import {PayPalProvider} from "@paypal/react-paypal-js/sdk-v6";
+import { PAYPAL_CONFIG } from "@/lib/paypal-client";
+import { PayPalProvider } from "@paypal/react-paypal-js/sdk-v6";
 
 export const metadata: Metadata = {
   robots: {

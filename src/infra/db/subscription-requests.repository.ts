@@ -1,5 +1,5 @@
 import { supabase_service } from "@/infra/db/supabase_service";
-import {Json, TablesInsert, TablesUpdate} from "@/lib/types/db.types";
+import { Json, TablesInsert, TablesUpdate } from "@/lib/types/db.types";
 
 export const SubscriptionRequestsRepository = {
   /**

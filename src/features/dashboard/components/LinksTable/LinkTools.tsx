@@ -2,13 +2,7 @@ import { Button, Menu, MenuButton, MenuItem, MenuItems, Portal } from "@headless
 import { SettingsIcon } from "lucide-react";
 import clsx from "clsx";
 import React from "react";
-import {
-  useFloating,
-  offset,
-  flip,
-  shift,
-  autoUpdate,
-} from '@floating-ui/react';
+import { autoUpdate, flip, offset, shift, useFloating, } from '@floating-ui/react';
 
 export type ITool<T> = {
   key: string;

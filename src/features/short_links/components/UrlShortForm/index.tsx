@@ -3,9 +3,9 @@
 import React from 'react';
 import { Zap } from 'lucide-react';
 import ShortUrlCard from "@/features/short_links/components/ShortUrlCard";
-import { Button, Input, Fieldset, Field, Label } from '@headlessui/react';
+import { Button, Field, Fieldset, Input, Label } from '@headlessui/react';
 import { useUrlShortForm } from "@/features/short_links/hooks/useUrlShortForm";
-import { useTranslations  } from "next-intl";
+import { useTranslations } from "next-intl";
 import { Tooltip } from "@/components/Tooltip/Tooltip";
 
 export default function UrlShortForm() {

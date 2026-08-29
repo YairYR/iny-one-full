@@ -1,5 +1,5 @@
 import { type DbInstance } from "@/infra/db/supabase_service";
-import {TablesInsert} from "@/lib/types/db.types";
+import { TablesInsert } from "@/lib/types/db.types";
 
 export function getOrderRepository(db: DbInstance) {
   return {
