@@ -1,7 +1,6 @@
 import React from "react";
 import { CheckIcon } from "lucide-react";
 import clsx from "clsx";
-import { PayPalSubscriptionButton, OnApproveDataSubscriptions } from "@paypal/react-paypal-js/sdk-v6";
 
 export interface IPricingCard {
   plan: {
@@ -16,11 +15,9 @@ export interface IPricingCard {
     button?: string;
     onClick?: () => void;
   };
-  createSubscription: (planId: string) => Promise<{ subscriptionId: string; }>;
-  onApprove: (data: OnApproveDataSubscriptions) => Promise<void>;
 }
 
-export default function PricingCard({ plan, createSubscription, onApprove }: Readonly<IPricingCard>) {
+export default function PricingCard({ plan }: Readonly<IPricingCard>) {
   const isDisabled = Boolean(plan.disabled);
 
   return (

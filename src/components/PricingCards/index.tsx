@@ -160,57 +160,12 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
     console.log(res);
   }
 
-  const createSubscription = async (planId: string) => {
-    const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription', {
-      method: "POST",
-      body: JSON.stringify({
-        planId: planId,
-      })
-    }).then((res) => res.json());
-
-    if (resp.ok) {
-      return {
-        subscriptionId: resp.data.subscriptionId,
-      }
-    }
-
-    if (resp.error.code === ERROR.SESSION_NOT_FOUND) {
-      addCookie('_redirect_to', `${ROUTES.PLANS}#plan=${planId}`);
-      return router.push(ROUTES.LOGIN);
-    }
-
-    if (resp.error.code === ERROR.PLAN_ALREADY) {
-      return router.refresh();
-    }
-
-    alert('Error creating new subscription');
-  }
-
-  const onApprove = async (data: OnApproveDataSubscriptions) => {
-    const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription/approve', {
-      method: "PATCH",
-      body: JSON.stringify({
-        id: data.subscriptionId,
-      })
-    }).then((res) => res.json());
-
-    if (resp.ok) {
-      return router.push(ROUTES.DASHBOARD);
-    }
-
-    alert("Subscription was not approved! Try again!");
-  }
-
-
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl w-full">
       {plans.map((item) => (
         <PricingCard
             key={`plan-${item.name}`}
             plan={item}
-            // @ts-expect-error Create subscription or redirect to log in
-            createSubscription={createSubscription}
-            onApprove={onApprove}
         />
       ))}
     </div>
