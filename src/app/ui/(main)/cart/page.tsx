@@ -1,13 +1,12 @@
 import {redirect} from "next/navigation";
 import {getCurrentUserDTO} from "@/data/dto/user-dto";
-import { CartItem, ICartItem } from "@/features/cart/components/CartItem";
+import { CartItem, ICartItem } from "@/features/payments/components/CartItem";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { ROUTES } from "@/lib/routes";
 import {getOrderRepository} from "@/infra/db/order.repository";
 import {PayPalSubscriptionButton} from "@paypal/react-paypal-js/sdk-v6";
-import {ErrorResponse, SuccessResponse} from "@/lib/types/api";
-import {ERROR} from "@/lib/api/error-codes";
-import {actionApproveSubscription, actionCreateSubscription} from "@/features/payments/actions/actions";
+import { actionCreateSubscription } from "@/features/payments/actions/create-subscription.action";
+import { actionApproveSubscription } from "@/features/payments/actions/approve-subscription.action";
 
 export default async function CartCheckoutPage() {
   const user = await getCurrentUserDTO();
@@ -78,13 +77,6 @@ export default async function CartCheckoutPage() {
   //   alert('Error creating new subscription');
   // }
 
-  const createSubscription = async () => {
-    'use server';
-    const resp = await actionCreateSubscription();
-    console.log('resp', resp);
-    return resp;
-  }
-
   return (
     <div className="max-w-lg mx-auto p-6 bg-white rounded-2xl shadow-md space-y-6">
 
@@ -150,8 +142,7 @@ export default async function CartCheckoutPage() {
       <div className="flex justify-between text-gray-700">
         {order && (
             <PayPalSubscriptionButton
-
-              createSubscription={createSubscription}
+              createSubscription={actionCreateSubscription}
               onApprove={actionApproveSubscription}
             />
         )}
