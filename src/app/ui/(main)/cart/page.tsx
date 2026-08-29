@@ -1,10 +1,10 @@
-import {redirect} from "next/navigation";
-import {getCurrentUserDTO} from "@/data/dto/user-dto";
+import { redirect } from "next/navigation";
+import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import { CartItem, ICartItem } from "@/features/payments/components/CartItem";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { ROUTES } from "@/lib/routes";
-import {getOrderRepository} from "@/infra/db/order.repository";
-import {PayPalSubscriptionButton} from "@paypal/react-paypal-js/sdk-v6";
+import { getOrderRepository } from "@/infra/db/order.repository";
+import { PayPalSubscriptionButton } from "@paypal/react-paypal-js/sdk-v6";
 import { actionCreateSubscription } from "@/features/payments/actions/create-subscription.action";
 import { actionApproveSubscription } from "@/features/payments/actions/approve-subscription.action";
 

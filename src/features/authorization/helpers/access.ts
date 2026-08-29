@@ -1,12 +1,12 @@
 import 'server-only';
 
-import {AuthorizationRepository} from "@/infra/db/authorization.repository";
-import {AccessService} from "@/features/authorization/services/access.service";
-import {AuthorizationService} from "@/features/authorization/services/authorization.service";
-import {EntitlementService} from "@/features/authorization/services/entitlement.service";
-import {Permission} from "@/features/authorization/types/permission";
-import {getCurrentUserDTO} from "@/data/dto/user-dto";
-import {cache} from "react";
+import { AuthorizationRepository } from "@/infra/db/authorization.repository";
+import { AccessService } from "@/features/authorization/services/access.service";
+import { AuthorizationService } from "@/features/authorization/services/authorization.service";
+import { EntitlementService } from "@/features/authorization/services/entitlement.service";
+import { Permission } from "@/features/authorization/types/permission";
+import { getCurrentUserDTO } from "@/data/dto/user-dto";
+import { cache } from "react";
 
 export const getAccessContext = cache(async function getAccessContext() {
     const user = await getCurrentUserDTO();

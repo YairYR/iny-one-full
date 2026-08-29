@@ -4,7 +4,7 @@ import { UserUrl } from "@/features/dashboard/types/types";
 import dayjs from "dayjs";
 import useClipboard from "@/hooks/useClipboard";
 import { LinkIcon } from 'lucide-react';
-import { LinkTools, ITool } from "@/features/dashboard/components/LinksTable/LinkTools";
+import { ITool, LinkTools } from "@/features/dashboard/components/LinksTable/LinkTools";
 import { useTranslations } from "next-intl";
 
 interface Props {

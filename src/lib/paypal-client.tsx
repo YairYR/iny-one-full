@@ -1,4 +1,4 @@
-import {Components, PageTypes} from "@paypal/paypal-js/sdk-v6";
+import { Components, PageTypes } from "@paypal/paypal-js/sdk-v6";
 
 export const PAYPAL_CONFIG = Object.freeze({
     clientId: process.env.PAYPAL_PUBLIC_API_CLIENT_ID!,

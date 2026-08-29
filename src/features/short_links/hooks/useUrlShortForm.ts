@@ -1,10 +1,10 @@
 'use client';
 
 import type React from 'react';
-import { useState, useRef, useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ApiResponse, UrlHistory, UtmParams } from "@/lib/types";
 import { getFromSessionStorage, removeFromSessionStorage } from "@/lib/utils/localstorage";
-import { url as isURLZod, regexes } from "zod/mini";
+import { regexes, url as isURLZod } from "zod/mini";
 import type { useTranslations } from "next-intl";
 import { ERROR } from "@/lib/api/error-codes";
 

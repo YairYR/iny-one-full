@@ -1,7 +1,7 @@
 import 'server-only';
 
-import {AuthorizationRepository} from "@/infra/db/authorization.repository";
-import {isSubscriptionEffective} from "@/features/authorization/util/subscription.utils";
+import { AuthorizationRepository } from "@/infra/db/authorization.repository";
+import { isSubscriptionEffective } from "@/features/authorization/util/subscription.utils";
 
 export class AccessService {
     constructor(

@@ -1,9 +1,5 @@
 import 'server-only';
-import {
-  Client,
-  Environment,
-  LogLevel,
-} from '@paypal/paypal-server-sdk';
+import { Client, Environment, LogLevel, } from '@paypal/paypal-server-sdk';
 
 const environment = (process.env.PAYPAL_API_ENVIRONMENT === Environment.Production)
   ? Environment.Production

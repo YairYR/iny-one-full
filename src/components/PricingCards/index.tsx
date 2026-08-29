@@ -4,14 +4,8 @@ import React from "react";
 import PricingCard from "@/components/PricingCards/PricingCard";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
-import {UserPlanSummary} from "@/lib/types";
-import {useLocale} from "next-intl";
-import {
-  OnApproveDataSubscriptions,
-} from "@paypal/react-paypal-js/sdk-v6";
-import {ErrorResponse, SuccessResponse} from "@/lib/types/api";
-import {ERROR} from "@/lib/api/error-codes";
-import {addCookie} from "@/lib/utils/localstorage";
+import { UserPlanSummary } from "@/lib/types";
+import { useLocale } from "next-intl";
 
 interface Props {
   logged: boolean;

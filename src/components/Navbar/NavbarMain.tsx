@@ -1,7 +1,7 @@
 'use client';
 
 import { Disclosure, DisclosureButton, DisclosurePanel } from '@headlessui/react';
-import { MenuIcon, XIcon, LogInIcon } from 'lucide-react';
+import { LogInIcon, MenuIcon, XIcon } from 'lucide-react';
 import React from "react";
 import UserProfileMenu from "@/components/Navbar/profile/UserProfileMenu";
 import Link from "next/link";

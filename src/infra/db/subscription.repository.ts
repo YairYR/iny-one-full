@@ -1,7 +1,7 @@
 import { supabase_service } from "@/infra/db/supabase_service";
 import { Subscription } from "@/lib/entities";
-import {SubscriptionStatus} from "@/features/authorization/util/subscription.utils";
-import {TablesInsert} from "@/lib/types/db.types";
+import { SubscriptionStatus } from "@/features/authorization/util/subscription.utils";
+import { TablesInsert } from "@/lib/types/db.types";
 
 /**
  * Repositorio para la tabla subscriptions.
