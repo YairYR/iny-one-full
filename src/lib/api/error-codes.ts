@@ -42,6 +42,7 @@ export const ERROR = {
   RATE_LIMIT_EXCEEDED: "RATE_LIMIT_EXCEEDED",
   PLAN_NOT_FOUND: "PLAN_NOT_FOUND",
   PLAN_ALREADY: "PLAN_ALREADY",
+  SUSPENDED_SUBSCRIPTION: "SUSPENDED_SUBSCRIPTION"
 } as const;
 
 export const MESSAGE = {
@@ -63,5 +64,6 @@ export const MESSAGE = {
   INSUFFICIENT_PERMISSIONS: "Insufficient permissions",
   ROLE_NOT_ALLOWED: "Role not allowed",
   RATE_LIMIT_EXCEEDED: "Rate limit exceeded",
+  SUSPENDED_SUBSCRIPTION: "Suspended subscription"
 } as const;
 
