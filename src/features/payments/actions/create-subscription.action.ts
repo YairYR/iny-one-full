@@ -1,7 +1,13 @@
 'use server';
 
 import {Logger, logger} from "@/lib/logger";
-import {ServiceError, SessionNotFoundError, UserAlReadyHasPlanError, ValidationError} from "@/lib/api/errors";
+import {
+    ApiError,
+    ServiceError,
+    SessionNotFoundError,
+    UserAlReadyHasPlanError,
+    ValidationError
+} from "@/lib/api/errors";
 import {getOrderRepository} from "@/infra/db/order.repository";
 import {supabase_service} from "@/infra/db/supabase_service";
 import {SubscriptionRepository} from "@/infra/db/subscription.repository";
@@ -11,16 +17,13 @@ import {getUserRepository} from "@/infra/db/user.repository";
 import {User} from "@supabase/auth-js";
 import {getServiceRepository} from "@/infra/db/service.repository";
 
-const log = logger.child({ parent: "payments-actions" });
+const log = logger.child({ action: "create-subscription" });
 
 export async function actionCreateSubscription() {
     const logAction = log.child({ action: "create subscription" });
     logAction.info("Create subscription");
 
-    // const user = await getCurrentUserDTO();
-    // if (!user) {
-    //     throw new SessionNotFoundError();
-    // }
+    // throw new ApiError("FAKE", "This endpoint is not implemented yet", { status: 501 });
 
     const supabase = await createClient();
     const usersRepo = getUserRepository(supabase);
@@ -87,11 +90,6 @@ export async function actionCreateSubscription() {
 
     // tiene un estado inesperado, debería crear una nueva suscripción???
     throw new ServiceError("Failed to create subscription");
-}
-
-export async function actionApproveSubscription() {
-    const logAction = log.child({ action: "approve subscription" });
-    logAction.info("Approve subscription");
 }
 
 /**
