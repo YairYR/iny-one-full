@@ -2,26 +2,36 @@
 
 import {Logger, logger} from "@/lib/logger";
 import {
-    ApiError,
     ServiceError,
     SessionNotFoundError,
-    UserAlReadyHasPlanError,
-    ValidationError
+    UserAlReadyHasPlanError, ValidationError,
 } from "@/lib/api/errors";
 import {getOrderRepository} from "@/infra/db/order.repository";
 import {supabase_service} from "@/infra/db/supabase_service";
 import {SubscriptionRepository} from "@/infra/db/subscription.repository";
-import {createPaypalSubscription} from "@/features/payments/services/create-subscription";
 import {createClient} from "@/lib/supabase/server";
 import {getUserRepository} from "@/infra/db/user.repository";
 import {User} from "@supabase/auth-js";
-import {getServiceRepository} from "@/infra/db/service.repository";
+import { SubscriptionsController } from "@paypal/paypal-server-sdk";
+import { getPayPalClient } from "@/lib/paypal";
+import { after } from "next/server";
+import { SubscriptionRequestsRepository } from "@/infra/db/subscription-requests.repository";
+import { MESSAGE } from "@/lib/api/error-codes";
 
 const log = logger.child({ action: "create-subscription" });
 
 /**
- * Crea una suscripción para el usuario actual y el servicio pendiente
- * @returns {Promise<{subscriptionId: string}>} - El ID de la suscripción creada
+ * Crea una suscripción para el usuario actual y el servicio de la orden pendiente.
+ *
+ * Sigue la máquina de estados descrita en SISTEMA_BILLING.txt:
+ * - Si el usuario ya tiene una suscripción ACTIVE/APPROVED para el servicio, no se permite duplicar.
+ * - Si hay una suscripción en curso con external_subscription_id (APPROVAL_PENDING, SUSPENDED, etc.),
+ *   se reutiliza en vez de crear una nueva en PayPal.
+ * - Si quedó INSERTED sin external_subscription_id, se reintenta la creación en PayPal.
+ * - Si no hay ninguna suscripción reutilizable (primera vez, o la anterior quedó CANCELLED/EXPIRED),
+ *   se crea una nueva suscripción desde cero.
+ *
+ * @returns {Promise<{subscriptionId: string}>} - El ID de la suscripción en PayPal
  * @throws {SessionNotFoundError} - Si no hay un usuario autenticado
  * @throws {ServiceError} - Si ocurre un error al crear la suscripción
  * @throws {UserAlReadyHasPlanError} - Si el usuario ya tiene una suscripción activa para el servicio
@@ -29,8 +39,6 @@ const log = logger.child({ action: "create-subscription" });
 export async function actionCreateSubscription(): Promise<{ subscriptionId: string; }> {
     const logAction = log.child({ action: "create subscription" });
     logAction.info("Create subscription");
-
-    // throw new ApiError("FAKE", "This endpoint is not implemented yet", { status: 501 });
 
     const supabase = await createClient();
     const usersRepo = getUserRepository(supabase);
@@ -41,87 +49,87 @@ export async function actionCreateSubscription(): Promise<{ subscriptionId: stri
 
     const orderRepo = getOrderRepository(supabase_service);
     const pendingOrder = await orderRepo.findPendingByUserId(user.id);
-    if (!pendingOrder.data || pendingOrder.error || !pendingOrder.data.services || !pendingOrder.data.services.external_service_id) {
+    const externalPlanId = pendingOrder.data?.services?.external_service_id;
+    if (!pendingOrder.data || pendingOrder.error || !externalPlanId) {
         throw new ServiceError("Failed to get pending order");
     }
+    const serviceId = pendingOrder.data.service_id as string;
 
     logAction.debug("Checking current subscription");
-    const currentSubscription = await hasSubscription(user.id, pendingOrder.data.service_id as string);
-    // Es la primera vez que se suscribe con este servicio en específico
-    if (!currentSubscription || currentSubscription.status === 'CANCELLED' || currentSubscription.status === 'EXPIRED') {
-        const subscription = await SubscriptionRepository.create({
-            user_id: user.id,
-            service_id: pendingOrder.data.service_id as string,
-            external_subscription_id: null,
-            status: 'INSERTED',
-        });
-        if (subscription.error || !subscription.data) {
-            logAction.debug("Failed to create subscription", { error: subscription.error });
-            throw new ServiceError("Failed to create subscription");
-        }
+    const currentSubscription = await getReusableSubscription(serviceId, user.id);
 
-        logAction.debug("Subscription created (DB)", { subscriptionId: subscription.data.id });
-
-        const paypalSubscriptionId = await createPaypalSubscriptionAndUpdateSubscription(logAction, pendingOrder.data.services.external_service_id, subscription.data.id, user);
-        return { subscriptionId: paypalSubscriptionId };
+    // Primera vez, o la anterior quedó CANCELLED/EXPIRED: se crea una suscripción nueva desde cero.
+    if (!currentSubscription) {
+        const subscription = await insertSubscription(logAction, user.id, serviceId);
+        const subscriptionId = await createPaypalSubscriptionAndUpdateSubscription(logAction, externalPlanId, subscription.id, user);
+        return { subscriptionId };
     }
 
-    const status = currentSubscription.status;
-    logAction.debug("Received external subscription", { status });
-
-    // ya se había suscrito antes
-
-    // Si es que está SUSPENDED ¿debería solicitar la reactivación o mandar el subscriptionId (external id)?
-    if (status === 'SUSPENDED') {
-        if (currentSubscription.external_subscription_id) {
-            return {
-                subscriptionId: currentSubscription.external_subscription_id
-            }
-        }
-        // TODO: tiene una suscripción suspendida pero no tiene el ID de Paypal
-    }
-
-    if (status === 'INSERTED' && !currentSubscription.external_subscription_id) {
-        const paypalSubscriptionId = await createPaypalSubscriptionAndUpdateSubscription(logAction, pendingOrder.data.service_id as string, currentSubscription.id, user);
-        return { subscriptionId: paypalSubscriptionId };
-    }
-
-    if (status === 'INSERTED' || status === 'APPROVAL_PENDING' || status === null) {
-        if (!currentSubscription.external_subscription_id) {
-            // TODO: por alguna razón se crearon pero no tienen el ID de Paypal
-            throw new ServiceError("Failed to create subscription");
-        }
-
+    // Ya existe una intención en curso con PayPal (APPROVAL_PENDING, APPROVED, SUSPENDED...):
+    // se reutiliza en vez de crear una segunda suscripción en PayPal.
+    if (currentSubscription.external_subscription_id) {
         return { subscriptionId: currentSubscription.external_subscription_id };
     }
 
-    // tiene un estado inesperado, debería crear una nueva suscripción???
+    // INSERTED sin external_subscription_id: la creación en PayPal falló o quedó incompleta antes.
+    if (currentSubscription.status === 'INSERTED') {
+        const subscriptionId = await createPaypalSubscriptionAndUpdateSubscription(logAction, externalPlanId, currentSubscription.id, user);
+        return { subscriptionId };
+    }
+
+    logAction.error("Subscription in unexpected state without external id", {
+        subscriptionId: currentSubscription.id,
+        status: currentSubscription.status,
+    });
     throw new ServiceError("Failed to create subscription");
 }
 
 /**
- * Valida si tiene una suscripción activa
- * @param user_id
- * @param service_id
+ * Busca la suscripción vigente del usuario para el servicio.
+ * @returns la suscripción reutilizable, o `null` si se debe crear una nueva
+ * @throws {UserAlReadyHasPlanError} si ya existe una suscripción ACTIVE/APPROVED
  */
-async function hasSubscription(user_id: string, service_id: string) {
+async function getReusableSubscription(service_id: string, user_id: string) {
     const currentSubscription = await SubscriptionRepository.findByUserId(user_id, service_id);
-
     if (currentSubscription.error) {
         throw new ServiceError("Failed to check user subscription");
     }
-    if (currentSubscription.data &&
-        currentSubscription.data.external_subscription_id &&
-        (currentSubscription.data.status === 'ACTIVE' || currentSubscription.data.status  === 'APPROVED')) {
+
+    const subscription = currentSubscription.data;
+    if (!subscription) {
+        return null;
+    }
+
+    if (subscription.status === 'ACTIVE' || subscription.status === 'APPROVED') {
         // TODO: cancel order
         throw new UserAlReadyHasPlanError();
     }
 
-    return currentSubscription.data;
+    // Una suscripción CANCELLED/EXPIRED no se reutiliza: queda como histórico y se crea una nueva.
+    if (subscription.status === 'CANCELLED' || subscription.status === 'EXPIRED') {
+        return null;
+    }
+
+    return subscription;
+}
+
+async function insertSubscription(logAction: Logger, user_id: string, service_id: string) {
+    const subscription = await SubscriptionRepository.create({
+        user_id,
+        service_id,
+        external_subscription_id: null,
+        status: 'INSERTED',
+    });
+    if (subscription.error || !subscription.data) {
+        logAction.error("Failed to create subscription", { error: subscription.error });
+        throw new ServiceError("Failed to create subscription");
+    }
+
+    logAction.debug("Subscription created (DB)", { subscriptionId: subscription.data.id });
+    return subscription.data;
 }
 
 async function createPaypalSubscriptionAndUpdateSubscription(logAction: Logger, paypal_plan_id: string, subscription_id: string, user: User) {
-    // TODO: corregir!!! NO estoy mandando los datos correstos FALLA
     const subscriptionPaypal = await createPaypalSubscription(logAction, paypal_plan_id, subscription_id, user);
     if (!subscriptionPaypal.result || !subscriptionPaypal.result.id) {
         // TODO: hacer algo con la suscripción (BD)
@@ -138,6 +146,46 @@ async function createPaypalSubscriptionAndUpdateSubscription(logAction: Logger, 
     }
 
     return subscriptionPaypal.result.id;
+}
+
+/**
+ * Crea la suscripción en Paypal
+ * @param reqLog
+ * @param paypal_plan_id
+ * @param request_id
+ * @param user
+ */
+export async function createPaypalSubscription(reqLog: Logger, paypal_plan_id: string, request_id: string, user: User) {
+    const paypal = getPayPalClient();
+    const subscriptionsController = new SubscriptionsController(paypal);
+
+    const subscriptionPaypal = await subscriptionsController.createSubscription({
+        prefer: "return=minimal",
+        paypalRequestId: request_id,
+        body: {
+            planId: paypal_plan_id,
+            customId: request_id,
+            subscriber: {
+                name: {
+                    givenName: user.user_metadata?.name ?? user.user_metadata?.display_name,
+                },
+                emailAddress: user.new_email ?? user.email,
+            },
+        },
+    });
+
+    if (!subscriptionPaypal.result?.id) {
+        reqLog.error("paypal subscription creation failed", {
+            request_id: request_id,
+            status: subscriptionPaypal.statusCode,
+        });
+        after(() => SubscriptionRequestsRepository.updateStatus(request_id, "REJECTED", undefined, {
+            reason: "PayPal subscription creation failed",
+        }));
+        throw new ValidationError(MESSAGE.PAYPAL_PLAN_NOT_FOUND);
+    }
+
+    return subscriptionPaypal;
 }
 
 /**
