@@ -1,7 +1,13 @@
 'use server';
 
 import { Logger, logger } from "@/lib/logger";
-import { ServiceError, SessionNotFoundError, UserAlReadyHasPlanError, ValidationError, } from "@/lib/api/errors";
+import {
+    ServiceError,
+    SessionNotFoundError,
+    SuspendedSubscriptionError,
+    UserAlReadyHasPlanError,
+    ValidationError,
+} from "@/lib/api/errors";
 import { getOrderRepository } from "@/infra/db/order.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { SubscriptionRepository } from "@/infra/db/subscription.repository";
@@ -61,7 +67,7 @@ export async function actionCreateSubscription(): Promise<{ subscriptionId: stri
         return { subscriptionId };
     }
 
-    // Ya existe una intención en curso con PayPal (APPROVAL_PENDING, APPROVED, SUSPENDED...):
+    // Ya existe una intención en curso con PayPal (APPROVAL_PENDING):
     // se reutiliza en vez de crear una segunda suscripción en PayPal.
     if (currentSubscription.external_subscription_id) {
         return { subscriptionId: currentSubscription.external_subscription_id };
@@ -101,6 +107,11 @@ async function getReusableSubscription(service_id: string, user_id: string) {
         throw new UserAlReadyHasPlanError();
     }
 
+    if (subscription.status === 'SUSPENDED') {
+        // TODO: definir si se permite reactivar la suscripción suspendida o no. Por ahora, se bloquea.
+        throw new SuspendedSubscriptionError();
+    }
+
     // Una suscripción CANCELLED/EXPIRED no se reutiliza: queda como histórico y se crea una nueva.
     if (subscription.status === 'CANCELLED' || subscription.status === 'EXPIRED') {
         return null;
@@ -128,7 +139,6 @@ async function insertSubscription(logAction: Logger, user_id: string, service_id
 async function createPaypalSubscriptionAndUpdateSubscription(logAction: Logger, paypal_plan_id: string, subscription_id: string, user: User) {
     const subscriptionPaypal = await createPaypalSubscription(logAction, paypal_plan_id, subscription_id, user);
     if (!subscriptionPaypal.result || !subscriptionPaypal.result.id) {
-        // TODO: hacer algo con la suscripción (BD)
         throw new ServiceError("Failed to Paypal create subscription");
     }
 

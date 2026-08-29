@@ -153,3 +153,13 @@ export class InsufficientPermissionsError extends ApiError {
     );
   }
 }
+
+export class SuspendedSubscriptionError extends ApiError {
+  constructor(message?: string|null, options?: ApiErrOptions) {
+    super(
+      ERROR.SUSPENDED_SUBSCRIPTION,
+      message ?? MESSAGE.SUSPENDED_SUBSCRIPTION,
+      options ?? { type: 'auth_error', status: 403 }
+    );
+  }
+}

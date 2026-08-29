@@ -1,3 +1,5 @@
+'use server';
+
 import { logger } from "@/lib/logger";
 
 const log = logger.child({ action: "approve-subscription" });
