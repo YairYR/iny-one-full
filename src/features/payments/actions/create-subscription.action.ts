@@ -19,7 +19,14 @@ import {getServiceRepository} from "@/infra/db/service.repository";
 
 const log = logger.child({ action: "create-subscription" });
 
-export async function actionCreateSubscription() {
+/**
+ * Crea una suscripción para el usuario actual y el servicio pendiente
+ * @returns {Promise<{subscriptionId: string}>} - El ID de la suscripción creada
+ * @throws {SessionNotFoundError} - Si no hay un usuario autenticado
+ * @throws {ServiceError} - Si ocurre un error al crear la suscripción
+ * @throws {UserAlReadyHasPlanError} - Si el usuario ya tiene una suscripción activa para el servicio
+ */
+export async function actionCreateSubscription(): Promise<{ subscriptionId: string; }> {
     const logAction = log.child({ action: "create subscription" });
     logAction.info("Create subscription");
 
