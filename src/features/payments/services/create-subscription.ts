@@ -123,7 +123,7 @@ async function insertSubscriptionRequest(reqLog: Logger, plan_id: string, user_i
  * @param request_id
  * @param user
  */
-async function createPaypalSubscription(reqLog: Logger, paypal_plan_id: string, request_id: string, user: User) {
+export async function createPaypalSubscription(reqLog: Logger, paypal_plan_id: string, request_id: string, user: User) {
     const paypal = getPayPalClient();
     const subscriptionsController = new SubscriptionsController(paypal);
 

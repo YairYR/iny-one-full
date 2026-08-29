@@ -15,7 +15,7 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
     gateway: 'paypal',
     external_event_id: payload.id,
     payload: payload,
-    processed: false,
+    processed_at: null,
     summary: payload.summary,
     resource_type: payload.resource_type,
   });

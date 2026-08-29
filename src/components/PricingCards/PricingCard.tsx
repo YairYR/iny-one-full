@@ -59,12 +59,28 @@ export default function PricingCard({ plan, createSubscription, onApprove }: Rea
         </button>
       )}
 
+      {/*{plan.id && typeof plan.id === 'string' && (*/}
+      {/*    <PayPalSubscriptionButton*/}
+      {/*        createSubscription={() => createSubscription(plan.id!)}*/}
+      {/*        onApprove={onApprove}*/}
+      {/*        disabled={isDisabled}*/}
+      {/*    />*/}
+      {/*)}*/}
       {plan.id && typeof plan.id === 'string' && (
-          <PayPalSubscriptionButton
-              createSubscription={() => createSubscription(plan.id!)}
-              onApprove={onApprove}
-              disabled={isDisabled}
-          />
+        <button
+            onClick={plan.onClick}
+            disabled={isDisabled}
+            className={clsx(
+                'w-full py-2 rounded-lg font-medium transition-colors mt-auto cursor-not-allowed',
+                (!isDisabled) && 'cursor-pointer',
+                isDisabled && 'disabled:opacity-50 disabled:pointer-events-none',
+                plan.highlight
+                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                    : "bg-gray-800 text-white hover:bg-gray-900"
+            )}
+        >
+          {plan.button ?? 'Choise plan'}
+        </button>
       )}
     </div>
   );
