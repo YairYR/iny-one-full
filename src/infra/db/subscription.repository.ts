@@ -1,5 +1,7 @@
 import { supabase_service } from "@/infra/db/supabase_service";
 import { Subscription } from "@/lib/entities";
+import {SubscriptionStatus} from "@/features/authorization/util/subscription.utils";
+import {TablesInsert} from "@/lib/types/db.types";
 
 /**
  * Repositorio para la tabla subscriptions.
@@ -18,12 +20,22 @@ export const SubscriptionRepository = {
   /**
    * Retorna la suscripción actual del usuario (solo puede tener una)
    */
-  async findByUserId(user_id: string) {
-    return supabase_service
+  async findByUserId(user_id: string, service_id?: string, status?: SubscriptionStatus[]) {
+    let query = supabase_service
       .from("subscriptions")
-      .select("*")
-      .eq("user_id", user_id)
-      .maybeSingle();
+      .select("*", {  })
+      .order("created_at", { ascending: false })
+      .eq("user_id", user_id);
+
+    if (service_id) {
+      query = query.eq("service_id", service_id);
+    }
+
+    if (status) {
+      query = query.in("status", status);
+    }
+
+    return query.maybeSingle();
   },
 
   /**
@@ -48,7 +60,7 @@ export const SubscriptionRepository = {
       .eq("status", status);
   },
 
-  async create(subscription: Subscription) {
+  async create(subscription: TablesInsert<'subscriptions'>) {
     return supabase_service
       .from("subscriptions")
       .insert(subscription)
@@ -64,7 +76,7 @@ export const SubscriptionRepository = {
       .from("subscriptions")
         // @ts-expect-error La suscripción se valida antes
       .upsert(subscription, {
-        onConflict: "user_id",
+        onConflict: "user_id,service_id",
         ignoreDuplicates: false,
       })
       .select()
@@ -112,5 +124,3 @@ export const SubscriptionRepository = {
       .maybeSingle();
   },
 };
-
-export type SubscriptionStatus = "ACTIVE" | "SUSPENDED" | "CANCELLED" | "EXPIRED";

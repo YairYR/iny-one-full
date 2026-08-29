@@ -1,6 +1,6 @@
 import { Database } from "@/lib/types/db.types";
 
-type SubscriptionStatus = Database["public"]["Enums"]["subscription_status"]
+export type SubscriptionStatus = Database["public"]["Enums"]["subscription_status"]
 
 type Subscription = {
     id: string;

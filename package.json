@@ -4,6 +4,7 @@
   "packageManager": "yarn@1.22.22",
   "scripts": {
     "dev": "next dev --turbopack",
+    "dev:noturbo": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src",

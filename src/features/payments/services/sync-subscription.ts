@@ -3,10 +3,11 @@ import {SubscriptionsController} from "@paypal/paypal-server-sdk";
 import {RequestStatus, SubscriptionRequestsRepository} from "@/infra/db/subscription-requests.repository";
 import {User} from "@supabase/auth-js";
 import {Logger, logger} from "@/lib/logger";
-import {SubscriptionRepository, SubscriptionStatus} from "@/infra/db/subscription.repository";
+import {SubscriptionRepository} from "@/infra/db/subscription.repository";
 import {BillingRepository} from "@/infra/payments/billing.repository";
 import {createClient} from "@/lib/supabase/server";
 import {UserPlanSummary} from "@/lib/types";
+import {SubscriptionStatus} from "@/features/authorization/util/subscription.utils";
 
 const log = logger.child({ service: "sync-subscription" });
 

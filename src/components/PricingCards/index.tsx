@@ -110,7 +110,7 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
       features: planInfo[locale].free.features,
       color: "border-gray-300 text-gray-700 bg-blue-50 hover:border-gray-400",
       disabled: logged,
-      button: 'Create Account',
+      button: planInfo[locale].free.button,
       onClick: function() {
         if (!logged) {
           router.push(ROUTES.LOGIN);
@@ -126,6 +126,10 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
       color: "border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-md",
       highlight: true,
       disabled: Boolean(plan && !plan.isFree),
+      onClick: function() {
+        return createOrder("fa88cc5f-4da5-464d-b571-eb690c7c2a31");
+      },
+      button: 'Choose'
     },
     // {
     //   id: "62f7de06-6bfc-4438-aa3d-e323e51ea0c4",
@@ -141,6 +145,20 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
     //   color: "border-gray-400 text-gray-800 hover:border-gray-500",
     // },
   ];
+
+  const createOrder = async (service_id: string) => {
+    const res = await fetch('/api/v1/billing/order', {
+      method: "POST",
+      body: JSON.stringify({
+        serviceId: service_id,
+      })
+    }).then((r) => r.json());
+    if (res.ok) {
+      return router.push(ROUTES.CART);
+    }
+    alert("ERROR");
+    console.log(res);
+  }
 
   const createSubscription = async (planId: string) => {
     const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription', {

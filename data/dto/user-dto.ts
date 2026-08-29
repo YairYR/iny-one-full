@@ -1,3 +1,4 @@
+'use server';
 import 'server-only';
 
 import { cache } from "react";

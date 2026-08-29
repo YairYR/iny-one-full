@@ -1,5 +1,3 @@
-import {DashboardStatsSummary} from "@/lib/types/index";
-
 export type Json =
   | string
   | number
@@ -252,6 +250,7 @@ export type Database = {
           description: string | null
           discount_amount: number | null
           discount_id: string | null
+          expires_at: string | null
           external_order_id: string | null
           id: string
           payment_gateway: string | null
@@ -267,6 +266,7 @@ export type Database = {
           description?: string | null
           discount_amount?: number | null
           discount_id?: string | null
+          expires_at?: string | null
           external_order_id?: string | null
           id?: string
           payment_gateway?: string | null
@@ -282,6 +282,7 @@ export type Database = {
           description?: string | null
           discount_amount?: number | null
           discount_id?: string | null
+          expires_at?: string | null
           external_order_id?: string | null
           id?: string
           payment_gateway?: string | null
@@ -890,7 +891,7 @@ export type Database = {
           gateway: string | null
           id: string
           payload: Json | null
-          processed: boolean | null
+          processed_at: string | null
           resource_type: string | null
           summary: string | null
         }
@@ -901,7 +902,7 @@ export type Database = {
           gateway?: string | null
           id?: string
           payload?: Json | null
-          processed?: boolean | null
+          processed_at?: string | null
           resource_type?: string | null
           summary?: string | null
         }
@@ -912,7 +913,7 @@ export type Database = {
           gateway?: string | null
           id?: string
           payload?: Json | null
-          processed?: boolean | null
+          processed_at?: string | null
           resource_type?: string | null
           summary?: string | null
         }
@@ -932,22 +933,22 @@ export type Database = {
       click_short_link: {
         Args: {
           page_slug: string
-          user_browser: string | null
-          user_browser_version: string | null
-          user_city: string | null
-          user_country_code: string | null
-          user_device_model: string | null
-          user_device_type: string | null
-          user_device_vendor: string | null
-          user_ip: string | null
+          user_browser: string
+          user_browser_version: string
+          user_city: string
+          user_country_code: string
+          user_device_model: string
+          user_device_type: string
+          user_device_vendor: string
+          user_ip: string
           user_is_bot: boolean
-          user_latitude: string | null
-          user_longitude: string | null
-          user_os: string | null
-          user_os_version: string | null
-          user_referer: string | null
-          user_region: string | null
-          user_ua: string | null
+          user_latitude: string
+          user_longitude: string
+          user_os: string
+          user_os_version: string
+          user_referer: string
+          user_region: string
+          user_ua: string
         }
         Returns: undefined
       }
@@ -960,7 +961,7 @@ export type Database = {
           _slugs: string[]
           _start_date: string
         }
-        Returns: DashboardStatsSummary
+        Returns: Json
       }
       get_page_clicks_between_dates: {
         Args: { _end_date: string; _slug: string[]; _start_date: string }
