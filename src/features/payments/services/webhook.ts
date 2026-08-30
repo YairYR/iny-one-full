@@ -47,6 +47,7 @@ function isSubscriptionEvent(payload: WebhookEventPaypal) {
     PaypalEventType.SUBSCRIPTION_EXPIRED,
     PaypalEventType.SUBSCRIPTION_CANCELLED,
     PaypalEventType.SUBSCRIPTION_SUSPENDED,
+    // @ts-expect-error solo es importante comparar el string
   ].includes(payload.event_type);
 }
 

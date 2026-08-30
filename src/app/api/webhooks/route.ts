@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySignature } from "@/app/api/webhooks/utils";
-import { WebhookEventPaypal } from "@/lib/types";
+import { PaypalEventType, WebhookEventPaypal } from "@/lib/types";
 import * as z from 'zod';
 import { processPaypalWebhook } from "@/features/payments/services/webhook";
 
@@ -8,7 +8,7 @@ const PaypalWebhookBody = z.object({
   id: z.string(),
   create_time: z.string(),
   resource_type: z.string(),
-  event_type: z.string(),
+  event_type: z.enum(Object.values(PaypalEventType)),
   event_version: z.string(),
   summary: z.string(),
   resource: z.any(),
@@ -23,7 +23,7 @@ export async function POST(req: NextRequest) {
   try {
     const rawBody = await req.text();
     const body: WebhookEventPaypal = JSON.parse(rawBody);
-    const data = PaypalWebhookBody.parse(body);
+    const data: WebhookEventPaypal = PaypalWebhookBody.parse(body);
     const headers = req.headers;
 
     console.log('📬 Webhook recibido');
