@@ -58,3 +58,5 @@ next-env.d.ts
 
 # next-openapi-gen
 /.openapi-gen
+
+certificates

@@ -123,4 +123,13 @@ export const SubscriptionRepository = {
       .select()
       .maybeSingle();
   },
+
+  async findByExternalId(gateway: string, external_id: string) {
+    return supabase_service
+      .from("subscriptions")
+      .select("*")
+      .eq("external_subscription_id", external_id)
+      .eq("subscription_gateway", gateway)
+      .maybeSingle();
+  }
 };
