@@ -19,6 +19,7 @@ import { getPayPalClient } from "@/lib/paypal";
 import { after } from "next/server";
 import { SubscriptionRequestsRepository } from "@/infra/db/subscription-requests.repository";
 import { MESSAGE } from "@/lib/api/error-codes";
+import { SubscriptionStatus } from "@/features/authorization/util/subscription.utils";
 
 const log = logger.child({ action: "create-subscription" });
 
@@ -70,7 +71,10 @@ export async function actionCreateSubscription(): Promise<{ subscriptionId: stri
     // Ya existe una intención en curso con PayPal (APPROVAL_PENDING):
     // se reutiliza en vez de crear una segunda suscripción en PayPal.
     if (currentSubscription.external_subscription_id) {
-        return { subscriptionId: currentSubscription.external_subscription_id };
+        const isValid = await isValidPaypalSubscriptionId(currentSubscription.external_subscription_id);
+        if (isValid) {
+            return { subscriptionId: currentSubscription.external_subscription_id };
+        }
     }
 
     // INSERTED sin external_subscription_id: la creación en PayPal falló o quedó incompleta antes.
@@ -192,6 +196,37 @@ export async function createPaypalSubscription(reqLog: Logger, paypal_plan_id: s
     }
 
     return subscriptionPaypal;
+}
+
+/**
+ * Valida si el subscription_id de Paypal es válido y existe en Paypal.
+ *
+ * @param subscription_id
+ */
+async function isValidPaypalSubscriptionId(subscription_id: string) {
+    const paypal = getPayPalClient();
+    const subscriptionsController = new SubscriptionsController(paypal);
+
+    const apiResponse = await subscriptionsController.getSubscription({ id: subscription_id });
+    const subscription = apiResponse.result;
+    if (!subscription || !subscription.id) {
+        log.error("Paypal subscription not found", { subscription_id });
+        throw new ServiceError(`Paypal subscription not found`);
+    }
+
+    // @ts-expect-error El campo "status" si es retornado por la API de Paypal, pero no está tipado en el SDK.
+    const status: SubscriptionStatus = subscription.status;
+    if (status === 'ACTIVE') {
+        await SubscriptionRepository.updateByExternalId(subscription_id, 'paypal', { status: 'ACTIVE' });
+        throw new UserAlReadyHasPlanError();
+    }
+
+    if (status && status !== 'APPROVAL_PENDING') {
+        log.error("Paypal subscription is in unexpected state", { subscription_id, status });
+        throw new ServiceError(`Paypal subscription is in unexpected state: ${status}`);
+    }
+
+    return true;
 }
 
 /**

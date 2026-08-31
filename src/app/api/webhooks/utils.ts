@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import crc32 from 'buffer-crc32';
 import path from 'node:path';
 import { logger } from "@/lib/logger";
+import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 
 const log = logger.child({ module: 'webhooks/verify' });
 
@@ -72,7 +73,7 @@ async function downloadAndCache(url: string, cacheKey?: string) {
   return data;
 }
 
-export async function verifySignature(event: string|Buffer, headers: Headers) {
+export async function verifySignature(event: string|Buffer, headers: ReadonlyHeaders) {
   const transmissionId = headers.get('paypal-transmission-id');
   const timeStamp = headers.get('paypal-transmission-time');
   const certUrl = headers.get('paypal-cert-url');

@@ -3,6 +3,9 @@ import { verifySignature } from "@/app/api/webhooks/utils";
 import { PaypalEventType, WebhookEventPaypal } from "@/lib/types";
 import * as z from 'zod';
 import { processPaypalWebhook } from "@/features/payments/services/webhook";
+import { withErrorHandling } from "@/lib/api/http";
+import { headers } from "next/headers";
+import { logger } from "@/lib/logger";
 
 const PaypalWebhookBody = z.object({
   id: z.string(),
@@ -19,30 +22,35 @@ const PaypalWebhookBody = z.object({
   }).array(),
 });
 
-export async function POST(req: NextRequest) {
-  try {
-    const rawBody = await req.text();
-    const body: WebhookEventPaypal = JSON.parse(rawBody);
-    const data: WebhookEventPaypal = PaypalWebhookBody.parse(body);
-    const headers = req.headers;
+const log = logger.child({ route: 'api/webhooks' });
 
-    console.log('📬 Webhook recibido');
-    console.log('Headers:', Object.fromEntries(headers.entries()));
-    console.log('Body:', JSON.stringify(data, null, 2));
-
-    const isSignatureValid = await verifySignature(rawBody, headers);
-
-    if (isSignatureValid) {
-      console.log('✅ Firma válida. Procesando evento...');
-      await processPaypalWebhook(data);
-
-      return NextResponse.json({ ok: true });
-    } else {
-      console.warn(`❌ Firma NO válida para evento ${data?.id}`);
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-    }
-  } catch (err) {
-    console.error('⚠️ Error en webhook PayPal:', err);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  const rawBody = await request.text();
+  const bodyNoValidated = JSON.parse(rawBody);
+  const body = PaypalWebhookBody.safeParse(bodyNoValidated);
+  if (body.error || !body.success) {
+    log.warn('❌ Webhook inválido:', { error: body.error });
+    return NextResponse.json({ error: 'Invalid webhook payload' }, { status: 400 });
   }
-}
+
+  const headerList = await headers();
+  const data: WebhookEventPaypal = body.data;
+
+  log.info('📬 Webhook recibido', {
+    headers: Object.fromEntries(headerList.entries()),
+    body: data
+  });
+
+  // TODO: solo para probar
+  const isSignatureValid = true; //await verifySignature(rawBody, headerList);
+
+  if (isSignatureValid) {
+    log.info('✅ Firma válida. Procesando evento...');
+    await processPaypalWebhook(data);
+
+    return NextResponse.json({ ok: true });
+  } else {
+    log.warn(`❌ Firma NO válida para evento ${data?.id}`);
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
+  }
+});

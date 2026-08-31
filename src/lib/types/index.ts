@@ -127,7 +127,9 @@ export type WebhookEventPaypal = {
 }
 
 export const PaypalEventType = {
+  // A product is created.
   PRODUCT_CREATED: "CATALOG.PRODUCT.CREATED",
+  // A product is updated.
   PRODUCT_UPDATED: "CATALOG.PRODUCT.UPDATED",
 
   // A payment is made on a subscription.
