@@ -110,17 +110,24 @@ export const SubscriptionRepository = {
   async updateByExternalId(
     external_id: string,
     gateway: string,
-    subscription: Partial<Subscription>
+    subscription: Partial<Subscription>,
+    status?: SubscriptionStatus[]
   ) {
-    return supabase_service
+    let query = supabase_service
       .from("subscriptions")
       .update({
         ...subscription,
         updated_at: new Date().toISOString(),
       })
       .eq("external_subscription_id", external_id)
-      .eq("subscription_gateway", gateway)
-      .select()
+      .eq("subscription_gateway", gateway);
+
+
+    if (status) {
+      query = query.in("status", status);
+    }
+
+    return query.select()
       .maybeSingle();
   },
 
