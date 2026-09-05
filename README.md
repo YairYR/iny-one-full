@@ -89,7 +89,7 @@ src/
 │  ├─ short-links/               # Generación de slugs y construcción del destino
 │  ├─ supabase/                  # Fábricas de cliente (browser / server)
 │  ├─ utils/                     # rate limits, retry, geolocalización, url…
-│  ├─ logger.ts                  # Logger estructurado
+│  ├─ logger-simple.ts                  # Logger estructurado
 │  ├─ routes.ts                  # Rutas públicas y parámetros permitidos por plan
 │  └─ reserved-slugs.ts          # Denylist de slugs del sistema
 │

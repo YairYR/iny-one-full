@@ -19,7 +19,7 @@ export async function editLinkAction(initialState: LinkState, formData: FormData
   const slug = initialState.slug;
 
   if(REGEX_ALIAS.test(alias) || !slug) {
-    log.info('rejected alias', { slug });
+    log.warn({ slug }, 'rejected alias: %s', alias);
     return { ...initialState, success: false };
   }
 
@@ -28,22 +28,22 @@ export async function editLinkAction(initialState: LinkState, formData: FormData
 
   const { data: { user } } = await supabase.auth.getUser();
   if(!user) {
-    log.info('rejected alias change without session', { slug });
+    log.info({ slug }, 'rejected alias change without session');
     return { ...initialState, success: false };
   }
 
   const { data: isOwner } = await userRepo.isOwner(user.id, slug);
   if(!isOwner) {
-    log.warn('rejected alias change from non-owner', { slug, userId: user.id });
+    log.warn({ slug, userId: user.id }, 'rejected alias change from non-owner');
     return { ...initialState, success: false };
   }
   const { error } = await userRepo.changeAlias(slug, alias);
 
   if(error) {
-    log.error('failed to change alias', { slug, error });
+    log.error({ slug, error }, 'failed to change alias');
     return { ...initialState, success: false };
   }
 
-  log.info('alias updated', { slug });
+  log.info({ slug }, 'alias updated');
   return { ...initialState, alias, success: true };
 }
