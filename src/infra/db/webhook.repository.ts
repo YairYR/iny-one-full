@@ -15,9 +15,10 @@ export function getWebhookRepository(db: DbInstance) {
     },
 
     async setProcessed(id: string) {
+      const now = dayjs.utc().toISOString();
       return db
         .from('webhook_events')
-        .update({ processed_at: dayjs.utc().toISOString() })
+        .update({ processed_at: now })
         .eq('id', id);
     }
   }

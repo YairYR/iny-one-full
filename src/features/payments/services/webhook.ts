@@ -5,11 +5,11 @@ import { supabase_service } from "@/infra/db/supabase_service";
 import { Enums } from "@/lib/types/db.types";
 import { logger } from "@/lib/logger";
 import { ServiceError } from "@/lib/api/errors";
+import { SubscriptionStatus } from "@/features/authorization/util/subscription.utils";
 
 const log = logger.child({ service: 'payments', module: 'webhook' });
 
 /**
- * TODO: validar si ya existe el "external_event_id" + "gateway"
  * @param payload
  */
 export async function processPaypalWebhook(payload: WebhookEventPaypal) {
@@ -30,8 +30,8 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
       return;
     }
 
-    log.error(error, 'Error creating webhook record');
-    return;
+    log.error({ error, id: payload.id }, 'Error creating webhook record');
+    throw new ServiceError('Error creating webhook record');
   }
 
   log.info({ id: payload.id }, 'Webhook record created successfully');
@@ -47,8 +47,14 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
   if(isSubscriptionEvent(payload)) {
     const newSubscriptionStatus = PaypalEventTypeSubscription[payload.event_type];
     if(resourceId) {
-      await SubscriptionRepository.updateByExternalId(resourceId, 'paypal', { status: newSubscriptionStatus });
-      await webhookRepo.setProcessed(webhookId);
+      const checkStatus: SubscriptionStatus[] = [];
+      if (newSubscriptionStatus === 'ACTIVE') {
+        checkStatus.push('APPROVAL_PENDING', 'APPROVED');
+      }
+      const responseUpdate = await SubscriptionRepository.updateByExternalId(resourceId, 'paypal', { status: newSubscriptionStatus }, checkStatus);
+      if (!responseUpdate.error && responseUpdate.data) {
+        await webhookRepo.setProcessed(webhookId);
+      }
       // TODO: Actualizar el estado de la orden asociada a la suscripción según el nuevo estado (ACTIVE -> completed, EXPIRED -> ???, CANCELLED/SUSPENDED -> cancelled)
       processedWebhook = true;
     }
