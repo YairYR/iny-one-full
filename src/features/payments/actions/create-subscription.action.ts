@@ -83,10 +83,10 @@ export async function actionCreateSubscription(): Promise<{ subscriptionId: stri
         return { subscriptionId };
     }
 
-    logAction.error("Subscription in unexpected state without external id", {
+    logAction.error({
         subscriptionId: currentSubscription.id,
         status: currentSubscription.status,
-    });
+    }, "Subscription in unexpected state without external id");
     throw new ServiceError("Failed to create subscription");
 }
 
@@ -132,11 +132,11 @@ async function insertSubscription(logAction: Logger, user_id: string, service_id
         status: 'INSERTED',
     });
     if (subscription.error || !subscription.data) {
-        logAction.error("Failed to create subscription", { error: subscription.error });
+        logAction.error({ error: subscription.error }, "Failed to create subscription");
         throw new ServiceError("Failed to create subscription");
     }
 
-    logAction.debug("Subscription created (DB)", { subscriptionId: subscription.data.id });
+    logAction.debug({ subscriptionId: subscription.data.id }, "Subscription created (DB)");
     return subscription.data;
 }
 
@@ -185,10 +185,7 @@ export async function createPaypalSubscription(reqLog: Logger, paypal_plan_id: s
     });
 
     if (!subscriptionPaypal.result?.id) {
-        reqLog.error("paypal subscription creation failed", {
-            request_id: request_id,
-            status: subscriptionPaypal.statusCode,
-        });
+        reqLog.error({ request_id: request_id, status: subscriptionPaypal.statusCode }, "paypal subscription creation failed");
         after(() => SubscriptionRequestsRepository.updateStatus(request_id, "REJECTED", undefined, {
             reason: "PayPal subscription creation failed",
         }));
@@ -210,7 +207,7 @@ async function isValidPaypalSubscriptionId(subscription_id: string) {
     const apiResponse = await subscriptionsController.getSubscription({ id: subscription_id });
     const subscription = apiResponse.result;
     if (!subscription || !subscription.id) {
-        log.error("Paypal subscription not found", { subscription_id });
+        log.error({ subscription_id }, "Paypal subscription not found");
         throw new ServiceError(`Paypal subscription not found`);
     }
 
@@ -222,7 +219,7 @@ async function isValidPaypalSubscriptionId(subscription_id: string) {
     }
 
     if (status && status !== 'APPROVAL_PENDING') {
-        log.error("Paypal subscription is in unexpected state", { subscription_id, status });
+        log.error({ subscription_id, status }, "Paypal subscription is in unexpected state");
         throw new ServiceError(`Paypal subscription is in unexpected state: ${status}`);
     }
 

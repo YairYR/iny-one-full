@@ -3,6 +3,8 @@ import { logger } from '@/lib/logger';
 import { createClient } from '@/lib/supabase/server';
 import { ROUTES } from '@/lib/routes';
 
+const log = logger.child({ module: 'auth/callback' });
+
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://iny.one';
 
 function sanitizeNext(next: string | null) {
@@ -36,7 +38,7 @@ export async function GET(request: NextRequest) {
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
-    logger.error('oauth callback exchange failed', { module: 'auth/callback', error });
+    log.error(error, 'oauth callback exchange failed');
     return NextResponse.redirect(`${SITE_URL}/auth/login?error=oauth_callback`);
   }
 

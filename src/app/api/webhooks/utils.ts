@@ -67,7 +67,7 @@ async function downloadAndCache(url: string, cacheKey?: string) {
   // Que la caché falle no puede tumbar la verificación: el certificado ya está
   // descargado y sirve igual. Se registra y se sigue.
   await fs.writeFile(filePath, data).catch((error) => {
-    log.warn('could not cache paypal certificate', { filePath, error });
+    log.warn(error, 'could not cache paypal certificate', filePath);
   });
 
   return data;
@@ -80,7 +80,7 @@ export async function verifySignature(event: string|Buffer, headers: ReadonlyHea
   const transmissionSig = headers.get('paypal-transmission-sig');
 
   if (!transmissionId || !timeStamp || !certUrl || !transmissionSig) {
-    log.warn('webhook rejected: missing signature headers');
+    log.warn('Missing signature headers');
     return false;
   }
 
@@ -90,7 +90,7 @@ export async function verifySignature(event: string|Buffer, headers: ReadonlyHea
   }
 
   if (!isTrustedCertUrl(certUrl)) {
-    log.warn('webhook rejected: certificate url is not a paypal host', { certUrl });
+    log.warn('Certificate url is not a paypal host: %s', certUrl);
     return false;
   }
 
@@ -101,7 +101,7 @@ export async function verifySignature(event: string|Buffer, headers: ReadonlyHea
   try {
     certPem = await downloadAndCache(certUrl);
   } catch (error) {
-    log.error('could not obtain paypal certificate', { certUrl, error });
+    log.error(error, 'could not obtain paypal certificate: %s', certUrl);
     return false;
   }
 
@@ -112,7 +112,7 @@ export async function verifySignature(event: string|Buffer, headers: ReadonlyHea
   try {
     return verifier.verify(certPem, signatureBuffer);
   } catch (error) {
-    log.warn('signature verification threw', { error });
+    log.warn(error, 'signature verification threw');
     return false;
   }
 }

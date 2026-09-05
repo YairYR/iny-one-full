@@ -26,19 +26,19 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
 
   if (error) {
     if (/unique constraint/i.test(error.message)) {
-      log.warn('Webhook record already exists, skipping processing:', { error, id: payload.id });
+      log.warn({ error, id: payload.id }, 'Webhook record already exists, skipping processing');
       return;
     }
 
-    log.error('Error creating webhook record:', { error });
+    log.error(error, 'Error creating webhook record');
     return;
   }
 
-  log.info('Webhook record created successfully:', { id: payload.id });
+  log.info({ id: payload.id }, 'Webhook record created successfully');
 
   const webhookId = data[0].id;
   if(!webhookId) {
-    log.error('Webhook record ID is undefined after creation:', { id: payload.id });
+    log.error({ id: payload.id }, 'Webhook record ID is undefined after creation');
     throw new ServiceError('Webhook record ID is undefined after creation');
   }
   const resourceId: string|undefined = payload.resource?.id;
@@ -59,7 +59,7 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
   // }
 
   if (processedWebhook) {
-    log.info('Webhook processed successfully:', { id: payload.id, event_type: payload.event_type });
+    log.info({ id: payload.id, event_type: payload.event_type }, 'Webhook processed successfully');
   }
 }
 

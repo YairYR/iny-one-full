@@ -25,7 +25,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
   const { data, error } = await shorterRepo.getBySlug(short);
 
   if (error) {
-    log.error('failed to resolve short link', { slug: short, error });
+    log.error(error, 'failed to resolve short link', { slug: short });
     return render404();
   }
 

@@ -91,10 +91,8 @@ export function resolveRateLimitPlan(userId: string | null, plan: PlanName | nul
   if (!userId) return 'freeAnonymous';
   if (plan !== null && Object.hasOwn(RATE_LIMITS, plan)) return plan;
 
-  log.warn('unknown plan for authenticated user, applying fallback', {
-    plan,
-    fallback: FALLBACK_AUTHENTICATED_PLAN,
-  });
+  log.warn({ plan, fallback: FALLBACK_AUTHENTICATED_PLAN },
+    'unknown plan for authenticated user, applying fallback');
   return FALLBACK_AUTHENTICATED_PLAN;
 }
 
@@ -157,7 +155,7 @@ async function loadUsage({
   if (userId) {
     const { count, error } = await repo.countLinksByUserInLastMonth(userId);
     if (error) {
-      log.error('failed to count links by user', { error });
+      log.error(error, 'failed to count links by user');
       return null;
     }
     return count ?? 0;
@@ -166,7 +164,7 @@ async function loadUsage({
   if (ip) {
     const { count, error } = await repo.countLinksByIpInLastMonth(ip);
     if (error) {
-      log.error('failed to count links by ip', { error });
+      log.error(error, 'failed to count links by ip');
       return null;
     }
     return count ?? 0;

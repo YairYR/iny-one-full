@@ -72,7 +72,7 @@ Cada una de estas costó un ciclo de trabajo. Leerlas antes de explorar el repo.
 
 - El acceso a datos pasa **siempre** por un repositorio de `src/infra/`; nunca Supabase directo
   desde una ruta o un componente.
-- Nada de `console.*` en código de servidor: usar `logger` de `src/lib/logger.ts`, con
+- Nada de `console.*` en código de servidor: usar `logger` de `src/lib/logger-simple.ts`, con
   `logger.child({ route: '...' })`. Redacta claves sensibles en cualquier nivel del contexto.
 - Los errores de API se lanzan con las clases de `src/lib/api/errors.ts`; `withErrorHandling` las
   convierte en respuesta. No construir respuestas de error a mano.

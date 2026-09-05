@@ -29,28 +29,23 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const bodyNoValidated = JSON.parse(rawBody);
   const body = PaypalWebhookBody.safeParse(bodyNoValidated);
   if (body.error || !body.success) {
-    log.warn('❌ Webhook inválido:', { error: body.error });
+    log.warn({ error: body.error }, '❌ Webhook inválido');
     return NextResponse.json({ error: 'Invalid webhook payload' }, { status: 400 });
   }
 
   const headerList = await headers();
   const data: WebhookEventPaypal = body.data;
 
-  log.info('📬 Webhook recibido', {
-    headers: Object.fromEntries(headerList.entries()),
-    body: data
-  });
+  log.info({ event_id: data.id }, '📬 Webhook recibido');
 
-  // TODO: solo para probar
-  const isSignatureValid = true; //await verifySignature(rawBody, headerList);
-
+  const isSignatureValid = await verifySignature(rawBody, headerList);
   if (isSignatureValid) {
     log.info('✅ Firma válida. Procesando evento...');
     await processPaypalWebhook(data);
 
     return NextResponse.json({ ok: true });
   } else {
-    log.warn(`❌ Firma NO válida para evento ${data?.id}`);
+    log.warn({ event_id: data.id }, '❌ Firma NO válida para evento %s', data.id);
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
 });

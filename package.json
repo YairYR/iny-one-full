@@ -4,7 +4,7 @@
   "packageManager": "yarn@1.22.22",
   "scripts": {
     "dev": "next dev --turbopack",
-    "dev:noturbo": "next dev",
+    "dev:pretty": "npm run dev | pino-pretty -c",
     "build": "next build",
     "start": "next start",
     "lint": "eslint src",
@@ -36,6 +36,7 @@
     "next": "15.5.19",
     "next-intl": "4.9.2",
     "node-fetch": "^3.3.2",
+    "pino": "^10.3.1",
     "qrcode": "^1.5.4",
     "react": "19.1.2",
     "react-chartjs-2": "^5.3.1",
