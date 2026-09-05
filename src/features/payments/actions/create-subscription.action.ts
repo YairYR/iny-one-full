@@ -16,8 +16,6 @@ import { getUserRepository } from "@/infra/db/user.repository";
 import { User } from "@supabase/auth-js";
 import { SubscriptionsController } from "@paypal/paypal-server-sdk";
 import { getPayPalClient } from "@/lib/paypal";
-import { after } from "next/server";
-import { SubscriptionRequestsRepository } from "@/infra/db/subscription-requests.repository";
 import { MESSAGE } from "@/lib/api/error-codes";
 import { SubscriptionStatus } from "@/features/authorization/util/subscription.utils";
 
@@ -162,19 +160,19 @@ async function createPaypalSubscriptionAndUpdateSubscription(logAction: Logger, 
  * Crea la suscripción en Paypal
  * @param reqLog
  * @param paypal_plan_id
- * @param request_id
+ * @param subscription_id
  * @param user
  */
-export async function createPaypalSubscription(reqLog: Logger, paypal_plan_id: string, request_id: string, user: User) {
+export async function createPaypalSubscription(reqLog: Logger, paypal_plan_id: string, subscription_id: string, user: User) {
     const paypal = getPayPalClient();
     const subscriptionsController = new SubscriptionsController(paypal);
 
     const subscriptionPaypal = await subscriptionsController.createSubscription({
         prefer: "return=minimal",
-        paypalRequestId: request_id,
+        paypalRequestId: subscription_id,
         body: {
             planId: paypal_plan_id,
-            customId: request_id,
+            customId: subscription_id,
             subscriber: {
                 name: {
                     givenName: user.user_metadata?.name ?? user.user_metadata?.display_name,
@@ -185,10 +183,7 @@ export async function createPaypalSubscription(reqLog: Logger, paypal_plan_id: s
     });
 
     if (!subscriptionPaypal.result?.id) {
-        reqLog.error({ request_id: request_id, status: subscriptionPaypal.statusCode }, "paypal subscription creation failed");
-        after(() => SubscriptionRequestsRepository.updateStatus(request_id, "REJECTED", undefined, {
-            reason: "PayPal subscription creation failed",
-        }));
+        reqLog.error({ subscription_id: subscription_id, status: subscriptionPaypal.statusCode }, "paypal subscription creation failed");
         throw new ValidationError(MESSAGE.PAYPAL_PLAN_NOT_FOUND);
     }
 
