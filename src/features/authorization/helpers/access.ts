@@ -16,11 +16,8 @@ export const getAccessContext = cache(async function getAccessContext() {
         return null;
     }
 
-    const repository =
-        new AuthorizationRepository();
-
-    const service =
-        new AccessService(repository);
+    const repository = new AuthorizationRepository();
+    const service = new AccessService(repository);
 
     return service.resolve(user.id);
 });
@@ -34,9 +31,7 @@ export async function requirePermission(
         throw new SessionNotFoundError();
     }
 
-    const authorization =
-        new AuthorizationService();
-
+    const authorization = new AuthorizationService();
     authorization.require(
         context,
         permission,
@@ -54,9 +49,7 @@ export async function requireFeature(
         throw new SessionNotFoundError();
     }
 
-    const entitlements =
-        new EntitlementService();
-
+    const entitlements = new EntitlementService();
     entitlements.requireEnabled(
         context,
         key,

@@ -27,17 +27,14 @@ export class AccessService {
                 .filter((key): key is string => Boolean(key)),
         );
 
-        const permissionRows =
-            await this.repository.getRolePermissions(roleIds);
-
+        const permissionRows = await this.repository.getRolePermissions(roleIds);
         const permissions = new Set(
             permissionRows
                 .map((row) => row.permission?.key)
                 .filter((key): key is string => Boolean(key)),
         );
 
-        const effectiveSubscription =
-            isSubscriptionEffective(subscription);
+        const effectiveSubscription = isSubscriptionEffective(subscription);
 
         let serviceId: string;
         let effectiveSubscriptionData = null;
@@ -59,9 +56,7 @@ export class AccessService {
             serviceId = freeService.id;
         }
 
-        const entitlementRows =
-            await this.repository.getServiceEntitlements(serviceId);
-
+        const entitlementRows = await this.repository.getServiceEntitlements(serviceId);
         const entitlements = new Map<string, unknown>(
             entitlementRows.map((row) => [
                 row.key,
