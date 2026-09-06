@@ -123,7 +123,7 @@ function resolveCustomSlug(requested: string | undefined, userId: string | null)
   const slug = normalizeCustomSlug(raw);
 
   if (!isValidCustomSlug(slug) || isReservedSlug(normalizeSlug(slug))) {
-    log.info('rejected custom slug', { slug });
+    log.info({ slug }, 'rejected custom slug');
     throw new ValidationError("Invalid custom slug");
   }
 
@@ -147,7 +147,7 @@ function buildAnonymousExpiry() {
  * reintentar con otro slug le daría un enlace que no pidió, así que la colisión
  * se devuelve como conflicto para que elija otro nombre.
  *
- * No hay endpoint previo de «¿está libre?» por el mismo motivo que no lo hay en
+ * No hay endpoint previo de «¿está libre?», por el mismo motivo que no lo hay en
  * la ruta aleatoria: no elimina la condición de carrera —entre la consulta y el
  * insert alguien puede tomarlo— y además permitiría enumerar qué nombres están
  * ocupados. La violación del índice único es la única fuente de verdad.
@@ -162,11 +162,11 @@ async function createWithChosenSlug(
   if (!error) return slug;
 
   if (isUniqueViolation(error)) {
-    log.info('custom slug already taken', { slug });
+    log.info({ slug }, 'custom slug already taken');
     throw new ApiError(ERROR.DUPLICATE_ENTRY, "That link name is already taken", { status: 409 });
   }
 
-  log.error('failed to create short link', { error });
+  log.error(error, 'failed to create short link');
   throw new ApiError("SERVER_ERROR", "internal server error", { status: 500 });
 }
 
@@ -190,13 +190,13 @@ async function createWithUniqueSlug(
     if (!error) return slug;
 
     if (!isUniqueViolation(error)) {
-      log.error('failed to create short link', { error });
+      log.error(error, 'failed to create short link');
       throw new ApiError("SERVER_ERROR", "internal server error", { status: 500 });
     }
 
-    log.warn('slug collision, retrying', { attempt, maxAttempts: MAX_SLUG_INSERT_ATTEMPTS });
+    log.warn({ attempt, maxAttempts: MAX_SLUG_INSERT_ATTEMPTS }, 'slug collision, retrying');
   }
 
-  log.error('exhausted slug attempts', { maxAttempts: MAX_SLUG_INSERT_ATTEMPTS });
+  log.error({ maxAttempts: MAX_SLUG_INSERT_ATTEMPTS }, 'exhausted slug attempts');
   throw new ApiError("SERVER_ERROR", "internal server error", { status: 500 });
 }
