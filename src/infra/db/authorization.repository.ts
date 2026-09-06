@@ -1,12 +1,10 @@
 import 'server-only';
-import { createClient } from "@/lib/supabase/server";
 import { ApiError } from "@/lib/api/errors";
+import { supabase_service } from "@/infra/db/supabase_service";
 
 export class AuthorizationRepository {
     async getUserRoles(userId: string) {
-        const supabase = await createClient();
-
-        const { data, error } = await supabase
+        const { data, error } = await supabase_service
             .from("user_roles")
             .select(`
         role:roles (
@@ -30,9 +28,7 @@ export class AuthorizationRepository {
             return [];
         }
 
-        const supabase = await createClient();
-
-        const { data, error } = await supabase
+        const { data, error } = await supabase_service
             .from("role_permissions")
             .select(`
         permission:permissions (
@@ -52,9 +48,7 @@ export class AuthorizationRepository {
     }
 
     async getSubscription(userId: string) {
-        const supabase = await createClient();
-
-        const { data, error } = await supabase
+        const { data, error } = await supabase_service
             .from("subscriptions")
             .select(`
               id,
@@ -77,9 +71,7 @@ export class AuthorizationRepository {
     }
 
     async getFreeService() {
-        const supabase = await createClient();
-
-        const { data, error } = await supabase
+        const { data, error } = await supabase_service
             .from("services")
             .select("id, name")
             .eq("service_gateway", "internal")
@@ -97,10 +89,27 @@ export class AuthorizationRepository {
         return data;
     }
 
-    async getServiceEntitlements(serviceId: string) {
-        const supabase = await createClient();
+    async getFreeAnonymousService() {
+        const { data, error } = await supabase_service
+          .from("services")
+          .select("id, name")
+          .eq("service_gateway", "internal")
+          .eq("name", "FREE_ANONYMOUS")
+          .eq("active", true)
+          .single();
 
-        const { data, error } = await supabase
+        if (error) {
+            throw new ApiError(
+              "UWU",
+              `Free anonymous service is not configured: ${error.message}`
+            );
+        }
+
+        return data;
+    }
+
+    async getServiceEntitlements(serviceId: string) {
+        const { data, error } = await supabase_service
             .from("service_entitlements")
             .select("key, value")
             .eq("service_id", serviceId);

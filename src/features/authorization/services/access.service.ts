@@ -2,13 +2,17 @@ import 'server-only';
 
 import { AuthorizationRepository } from "@/infra/db/authorization.repository";
 import { isSubscriptionEffective } from "@/features/authorization/util/subscription.utils";
+import {
+    AccessContextAnonymous,
+    AccessContextAuthenticated
+} from "@/features/authorization/types/access-context";
 
 export class AccessService {
     constructor(
         private readonly repository: AuthorizationRepository,
     ) {}
 
-    async resolve(userId: string) {
+    async resolve(userId: string): Promise<AccessContextAuthenticated> {
         const [
             roleRows,
             subscription,
@@ -64,10 +68,31 @@ export class AccessService {
 
         return {
             userId,
+            anonymous: false,
             roles,
             permissions,
             serviceId,
             subscription: effectiveSubscriptionData,
+            entitlements,
+        };
+    }
+
+    async resolveAnonymous(): Promise<AccessContextAnonymous> {
+        const freeService = await this.repository.getFreeAnonymousService();
+        const entitlementRows = await this.repository.getServiceEntitlements(freeService.id);
+        const entitlements = new Map<string, unknown>(
+            entitlementRows.map((row) => [
+                row.key,
+                row.value,
+            ]),
+        );
+
+        return {
+            anonymous: true,
+            roles: new Set(),
+            permissions: new Set(),
+            serviceId: freeService.id,
+            subscription: null,
             entitlements,
         };
     }

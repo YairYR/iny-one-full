@@ -174,7 +174,7 @@ export default async function PlansPage() {
   const t = content[locale] ?? content.en;
 
   const logged = await isLoggedIn();
-  const userHasSubscription = await hasSubscription();
+  const alreadySubscribed = await hasSubscription();
 
   return (
     <PayPalProvider {...PAYPAL_CONFIG}>
@@ -191,7 +191,7 @@ export default async function PlansPage() {
           <p className="text-lg text-gray-600">{t.intro}</p>
         </div>
 
-        <PricingCards logged={logged} userHasSubscription={userHasSubscription} />
+        <PricingCards logged={logged} alreadySubscribed={alreadySubscribed} />
 
         <section className="max-w-2xl w-full mt-14 space-y-10 text-gray-700">
           <div>
