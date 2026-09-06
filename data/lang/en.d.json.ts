@@ -60,7 +60,18 @@ declare const messages: {
     "qrDownload": "Download PNG",
     "qrAlt": "QR code for your short link",
     "anonymousNotice": "Links created without an account expire after {days, number} days.",
-    "anonymousNoticeCta": "Create a free account"
+    "anonymousNoticeCta": "Create a free account",
+    "errorAnonymousLimit": "You have used your 5 free links this month. With a free account you get 50 and they never expire.",
+    "errorLimitCta": "Create a free account",
+    "errorSlugInvalid": "That name is not valid. Use letters, numbers, hyphens or underscores.",
+    "errorSlugNeedsAccount": "Choosing the link name needs a free account.",
+    "errorSlugTaken": "That name is already taken. Try another one.",
+    "slugHelp": "Letters, numbers, hyphens and underscores. Between {min, number} and {max, number} characters.",
+    "slugLabel": "Link name (optional)",
+    "slugLocked": "Choose your own link name with a free account.",
+    "slugLockedCta": "Create one",
+    "slugPlaceholder": "july-promo",
+    "slugTooltip": "Choose how your short link reads. If you leave it empty we generate a random one."
   },
   "HomeContent": {
     "howTitle": "How to shorten a URL with UTM tracking",
@@ -171,7 +182,15 @@ declare const messages: {
         "cancel": "Cancel",
         "destination": "Destination URL",
         "error_alias_invalid": "Alias can only contain letters, numbers, hyphens, and underscores.",
-        "error_alias_taken": "This alias is already taken. Please choose another one."
+        "error_alias_taken": "This alias is already taken. Please choose another one.",
+        "alias_help": "A label to recognise this link in your dashboard. It does not change the short URL.",
+        "alias_label": "Name (internal)",
+        "destination_help": "Where the link points. Change it and the short link keeps working, pointing to the new address.",
+        "destination_label": "Destination URL",
+        "error_destination": "That destination could not be saved. Check the address and try again.",
+        "error_forbidden": "You cannot edit this link.",
+        "error_unknown": "The change could not be saved.",
+        "short_url": "Short link"
       },
       "qr": {
         "title": "QR Code: {alias}",
@@ -190,7 +209,9 @@ declare const messages: {
           "clicks": "Clicks",
           "ctr": "CTR",
           "created": "Created",
-          "actions": "Actions"
+          "actions": "Actions",
+          "name": "Name",
+          "short": "Short link"
         },
         "pagination": {
           "label": "Link pages",
