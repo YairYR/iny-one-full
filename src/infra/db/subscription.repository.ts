@@ -1,5 +1,7 @@
 import { supabase_service } from "@/infra/db/supabase_service";
 import { Subscription } from "@/lib/entities";
+import { SubscriptionStatus } from "@/features/authorization/util/subscription.utils";
+import { TablesInsert } from "@/lib/types/db.types";
 
 /**
  * Repositorio para la tabla subscriptions.
@@ -34,12 +36,22 @@ export const SubscriptionRepository = {
       .maybeSingle();
   },
 
-  async findByUserId(user_id: string) {
-    return supabase_service
+  async findByUserId(user_id: string, service_id?: string, status?: SubscriptionStatus[]) {
+    let query = supabase_service
       .from("subscriptions")
-      .select("*")
-      .eq("user_id", user_id)
-      .maybeSingle();
+      .select("*", {  })
+      .order("created_at", { ascending: false })
+      .eq("user_id", user_id);
+
+    if (service_id) {
+      query = query.eq("service_id", service_id);
+    }
+
+    if (status) {
+      query = query.in("status", status);
+    }
+
+    return query.maybeSingle();
   },
 
   /**
@@ -64,7 +76,7 @@ export const SubscriptionRepository = {
       .eq("status", status);
   },
 
-  async create(subscription: Subscription) {
+  async create(subscription: TablesInsert<'subscriptions'>) {
     return supabase_service
       .from("subscriptions")
       .insert(subscription)
@@ -80,7 +92,7 @@ export const SubscriptionRepository = {
       .from("subscriptions")
         // @ts-expect-error La suscripción se valida antes
       .upsert(subscription, {
-        onConflict: "user_id",
+        onConflict: "user_id,service_id",
         ignoreDuplicates: false,
       })
       .select()
@@ -114,19 +126,33 @@ export const SubscriptionRepository = {
   async updateByExternalId(
     external_id: string,
     gateway: string,
-    subscription: Partial<Subscription>
+    subscription: Partial<Subscription>,
+    status?: SubscriptionStatus[]
   ) {
-    return supabase_service
+    let query = supabase_service
       .from("subscriptions")
       .update({
         ...subscription,
         updated_at: new Date().toISOString(),
       })
       .eq("external_subscription_id", external_id)
-      .eq("subscription_gateway", gateway)
-      .select()
+      .eq("subscription_gateway", gateway);
+
+
+    if (status) {
+      query = query.in("status", status);
+    }
+
+    return query.select()
       .maybeSingle();
   },
-};
 
-export type SubscriptionStatus = "ACTIVE" | "SUSPENDED" | "CANCELLED" | "EXPIRED";
+  async findByExternalId(gateway: string, external_id: string) {
+    return supabase_service
+      .from("subscriptions")
+      .select("*")
+      .eq("external_subscription_id", external_id)
+      .eq("subscription_gateway", gateway)
+      .maybeSingle();
+  }
+};

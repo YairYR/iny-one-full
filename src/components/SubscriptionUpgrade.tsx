@@ -1,6 +1,6 @@
 import PricingCards from "@/components/PricingCards";
 import type React from "react";
-import {getUserPlan, isLoggedIn} from "@/data/dto/user-dto";
+import { getUserPlan, isLoggedIn } from "@/data/dto/user-dto";
 
 interface Props {
   hidden: boolean;

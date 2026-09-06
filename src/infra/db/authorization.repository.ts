@@ -1,6 +1,6 @@
 import 'server-only';
 import { createClient } from "@/lib/supabase/server";
-import {ApiError} from "@/lib/api/errors";
+import { ApiError } from "@/lib/api/errors";
 
 export class AuthorizationRepository {
     async getUserRoles(userId: string) {

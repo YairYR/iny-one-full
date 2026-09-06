@@ -49,7 +49,6 @@ next-env.d.ts
 *.db
 
 /scripts/files
-/supabase
 /data/cache
 /.scannerwork/
 /.swc/
@@ -59,3 +58,6 @@ next-env.d.ts
 
 # next-openapi-gen
 /.openapi-gen
+
+certificates
+supabase

@@ -4,6 +4,7 @@ import fs from 'node:fs/promises';
 import crc32 from 'buffer-crc32';
 import path from 'node:path';
 import { logger } from "@/lib/logger";
+import { ReadonlyHeaders } from "next/dist/server/web/spec-extension/adapters/headers";
 
 const log = logger.child({ module: 'webhooks/verify' });
 
@@ -66,20 +67,20 @@ async function downloadAndCache(url: string, cacheKey?: string) {
   // Que la caché falle no puede tumbar la verificación: el certificado ya está
   // descargado y sirve igual. Se registra y se sigue.
   await fs.writeFile(filePath, data).catch((error) => {
-    log.warn('could not cache paypal certificate', { filePath, error });
+    log.warn(error, 'could not cache paypal certificate', filePath);
   });
 
   return data;
 }
 
-export async function verifySignature(event: string|Buffer, headers: Headers) {
+export async function verifySignature(event: string|Buffer, headers: ReadonlyHeaders) {
   const transmissionId = headers.get('paypal-transmission-id');
   const timeStamp = headers.get('paypal-transmission-time');
   const certUrl = headers.get('paypal-cert-url');
   const transmissionSig = headers.get('paypal-transmission-sig');
 
   if (!transmissionId || !timeStamp || !certUrl || !transmissionSig) {
-    log.warn('webhook rejected: missing signature headers');
+    log.warn('Missing signature headers');
     return false;
   }
 
@@ -89,7 +90,7 @@ export async function verifySignature(event: string|Buffer, headers: Headers) {
   }
 
   if (!isTrustedCertUrl(certUrl)) {
-    log.warn('webhook rejected: certificate url is not a paypal host', { certUrl });
+    log.warn('Certificate url is not a paypal host: %s', certUrl);
     return false;
   }
 
@@ -100,7 +101,7 @@ export async function verifySignature(event: string|Buffer, headers: Headers) {
   try {
     certPem = await downloadAndCache(certUrl);
   } catch (error) {
-    log.error('could not obtain paypal certificate', { certUrl, error });
+    log.error(error, 'could not obtain paypal certificate: %s', certUrl);
     return false;
   }
 
@@ -111,7 +112,7 @@ export async function verifySignature(event: string|Buffer, headers: Headers) {
   try {
     return verifier.verify(certPem, signatureBuffer);
   } catch (error) {
-    log.warn('signature verification threw', { error });
+    log.warn(error, 'signature verification threw');
     return false;
   }
 }

@@ -1,5 +1,5 @@
 import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { type NextRequest, NextResponse } from 'next/server'
 import { CART_COOKIE_NAME, REDIRECT_TO_COOKIE_NAME } from "@/constants";
 import { ROUTES } from "@/lib/routes";
 

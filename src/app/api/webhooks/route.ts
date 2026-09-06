@@ -1,17 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifySignature } from "@/app/api/webhooks/utils";
-import { WebhookEventPaypal } from "@/lib/types";
+import { PaypalEventType, WebhookEventPaypal } from "@/lib/types";
 import * as z from 'zod';
 import { processPaypalWebhook } from "@/features/payments/services/webhook";
+import { withErrorHandling } from "@/lib/api/http";
+import { headers } from "next/headers";
 import { logger } from "@/lib/logger";
-
-const log = logger.child({ route: 'api/webhooks' });
 
 const PaypalWebhookBody = z.object({
   id: z.string(),
   create_time: z.string(),
   resource_type: z.string(),
-  event_type: z.string(),
+  event_type: z.enum(Object.values(PaypalEventType)),
   event_version: z.string(),
   summary: z.string(),
   resource: z.any(),
@@ -22,31 +22,30 @@ const PaypalWebhookBody = z.object({
   }).array(),
 });
 
-/**
- * No se vuelca ni el cuerpo ni las cabeceras del webhook.
- *
- * El cuerpo de PayPal lleva nombre, correo y país del pagador, y el mensaje
- * firmado incluye `WEBHOOK_ID`, que es un secreto. Se registra sólo lo que
- * sirve para diagnosticar: identificador del evento y tipo.
- */
-export async function POST(req: NextRequest) {
-  try {
-    const rawBody = await req.text();
-    const data = PaypalWebhookBody.parse(JSON.parse(rawBody) as WebhookEventPaypal);
+const log = logger.child({ route: 'api/webhooks' });
 
-    const isSignatureValid = await verifySignature(rawBody, req.headers);
+export const POST = withErrorHandling(async (request: NextRequest) => {
+  const rawBody = await request.text();
+  const bodyNoValidated = JSON.parse(rawBody);
+  const body = PaypalWebhookBody.safeParse(bodyNoValidated);
+  if (body.error || !body.success) {
+    log.warn({ error: body.error }, '❌ Webhook inválido');
+    return NextResponse.json({ error: 'Invalid webhook payload' }, { status: 400 });
+  }
 
-    if (!isSignatureValid) {
-      log.warn('webhook rejected: invalid signature', { event_id: data.id, event_type: data.event_type });
-      return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
-    }
+  const headerList = await headers();
+  const data: WebhookEventPaypal = body.data;
 
-    log.info('webhook accepted', { event_id: data.id, event_type: data.event_type });
+  log.info({ event_id: data.id }, '📬 Webhook recibido');
+
+  const isSignatureValid = await verifySignature(rawBody, headerList);
+  if (isSignatureValid) {
+    log.info('✅ Firma válida. Procesando evento...');
     await processPaypalWebhook(data);
 
     return NextResponse.json({ ok: true });
-  } catch (err) {
-    log.error('webhook processing failed', { error: err });
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+  } else {
+    log.warn({ event_id: data.id }, '❌ Firma NO válida para evento %s', data.id);
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 400 });
   }
-}
+});
