@@ -1,4 +1,4 @@
-import {ApiResponse, DashboardStatsSummary} from "@/lib/types";
+import { ApiResponse, DashboardStatsSummary } from "@/lib/types";
 import { ILinkDateStats, UserUrlStats } from "@/features/dashboard/types/types";
 
 export async function getStatsCommon(page = 1): Promise<UserDashboardStats | null> {

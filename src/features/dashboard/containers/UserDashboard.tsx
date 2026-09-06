@@ -2,7 +2,7 @@
 
 import React from "react";
 import dynamic from "next/dynamic";
-import { Kpi, LinksTable, LinkDetailModal } from "@/features/dashboard/components";
+import { Kpi, LinkDetailModal, LinksTable } from "@/features/dashboard/components";
 import Link from "next/link";
 import { ROUTES } from "@/lib/routes";
 import InfoPopover from "@/components/Popover/InfoPopover";

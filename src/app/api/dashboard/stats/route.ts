@@ -60,7 +60,7 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
   ]);
 
   if (!summaryResponse.data || summaryResponse.error) {
-    log.error('failed to fetch stats summary', { error: summaryResponse.error });
+    log.error(summaryResponse.error, 'failed to fetch stats summary');
     throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching stats summary');
   }
 
@@ -80,9 +80,9 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
 /** Aborta con 500 si alguna de las consultas del panel devolvió error. */
 function assertNoError(responses: Record<string, { error: unknown }>): void {
-  for (const [nombre, response] of Object.entries(responses)) {
+  for (const [name, response] of Object.entries(responses)) {
     if (response.error) {
-      log.error('dashboard query failed', { query: nombre, error: response.error });
+      log.error(response.error, 'dashboard query failed: %s', name);
       throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching dashboard data');
     }
   }

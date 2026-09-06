@@ -1,5 +1,9 @@
 import { type DbInstance } from "@/infra/db/supabase_service";
 import { WebhookEvent } from "@/lib/entities";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export function getWebhookRepository(db: DbInstance) {
   return {
@@ -10,10 +14,11 @@ export function getWebhookRepository(db: DbInstance) {
         .select();
     },
 
-    async setProcessed(id: string, processed: boolean) {
+    async setProcessed(id: string) {
+      const now = dayjs.utc().toISOString();
       return db
         .from('webhook_events')
-        .update({ processed })
+        .update({ processed_at: now })
         .eq('id', id);
     }
   }

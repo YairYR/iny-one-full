@@ -4,14 +4,8 @@ import React from "react";
 import PricingCard from "@/components/PricingCards/PricingCard";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
-import {UserPlanSummary} from "@/lib/types";
-import {useLocale} from "next-intl";
-import {
-  OnApproveDataSubscriptions,
-} from "@paypal/react-paypal-js/sdk-v6";
-import {ErrorResponse, SuccessResponse} from "@/lib/types/api";
-import {ERROR} from "@/lib/api/error-codes";
-import {addCookie} from "@/lib/utils/localstorage";
+import { UserPlanSummary } from "@/lib/types";
+import { useLocale } from "next-intl";
 
 interface Props {
   logged: boolean;
@@ -110,7 +104,7 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
       features: planInfo[locale].free.features,
       color: "border-gray-300 text-gray-700 bg-blue-50 hover:border-gray-400",
       disabled: logged,
-      button: 'Create Account',
+      button: planInfo[locale].free.button,
       onClick: function() {
         if (!logged) {
           router.push(ROUTES.LOGIN);
@@ -126,6 +120,10 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
       color: "border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-md",
       highlight: true,
       disabled: Boolean(plan && !plan.isFree),
+      onClick: function() {
+        return createOrder("fa88cc5f-4da5-464d-b571-eb690c7c2a31");
+      },
+      button: 'Choose'
     },
     // {
     //   id: "62f7de06-6bfc-4438-aa3d-e323e51ea0c4",
@@ -142,47 +140,19 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
     // },
   ];
 
-  const createSubscription = async (planId: string) => {
-    const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription', {
+  const createOrder = async (service_id: string) => {
+    const res = await fetch('/api/v1/billing/order', {
       method: "POST",
       body: JSON.stringify({
-        planId: planId,
+        serviceId: service_id,
       })
-    }).then((res) => res.json());
-
-    if (resp.ok) {
-      return {
-        subscriptionId: resp.data.subscriptionId,
-      }
+    }).then((r) => r.json());
+    if (res.ok) {
+      return router.push(ROUTES.CART);
     }
-
-    if (resp.error.code === ERROR.SESSION_NOT_FOUND) {
-      addCookie('_redirect_to', `${ROUTES.PLANS}#plan=${planId}`);
-      return router.push(ROUTES.LOGIN);
-    }
-
-    if (resp.error.code === ERROR.PLAN_ALREADY) {
-      return router.refresh();
-    }
-
-    alert('Error creating new subscription');
+    alert("ERROR");
+    console.log(res);
   }
-
-  const onApprove = async (data: OnApproveDataSubscriptions) => {
-    const resp: SuccessResponse<{ subscriptionId: string }>|ErrorResponse = await fetch('/api/v1/subscription/approve', {
-      method: "PATCH",
-      body: JSON.stringify({
-        id: data.subscriptionId,
-      })
-    }).then((res) => res.json());
-
-    if (resp.ok) {
-      return router.push(ROUTES.DASHBOARD);
-    }
-
-    alert("Subscription was not approved! Try again!");
-  }
-
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-6xl w-full">
@@ -190,9 +160,6 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
         <PricingCard
             key={`plan-${item.name}`}
             plan={item}
-            // @ts-expect-error Create subscription or redirect to log in
-            createSubscription={createSubscription}
-            onApprove={onApprove}
         />
       ))}
     </div>

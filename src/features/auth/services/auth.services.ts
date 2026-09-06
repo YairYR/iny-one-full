@@ -62,7 +62,7 @@ export async function handleLogin(request: NextRequest) {
       return response;
     }
 
-    log.error('oauth sign-in failed', { error });
+    log.warn({ error: error?.message }, 'oauth sign-in failed');
     throw new ProviderAuthenticationError();
   }
 
@@ -72,7 +72,7 @@ export async function handleLogin(request: NextRequest) {
   });
 
   if (error) {
-    log.info('sign-in rejected', { error });
+    log.warn({ error: error.message },'sign-in rejected');
     throw new AuthenticationError();
   }
 
@@ -100,7 +100,7 @@ export async function handleRegister(request: NextRequest) {
     } });
 
   if (error) {
-    log.error('sign-up failed', { error });
+    log.warn({ error: error.message }, 'sign-up failed');
     throw new ProviderAuthenticationError();
   }
 
@@ -120,7 +120,7 @@ export async function handleConfirm(request: NextRequest) {
       token_hash,
     })
     if (error) {
-      log.info('otp verification failed', { error });
+      log.warn({ error: error.message }, 'otp verification failed');
     } else {
       const paramNext = request.nextUrl.searchParams.get("next");
       if(paramNext?.startsWith("/")) {
