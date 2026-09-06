@@ -1,11 +1,12 @@
-import { PaypalEventType, WebhookEventPaypal } from "@/lib/types";
-import { SubscriptionRepository } from "@/infra/db/subscription.repository";
+import { WebhookEventPaypal } from "@/lib/types";
 import { getWebhookRepository } from "@/infra/db/webhook.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
-import { Enums } from "@/lib/types/db.types";
 import { logger } from "@/lib/logger";
 import { ServiceError } from "@/lib/api/errors";
-import { SubscriptionStatus } from "@/features/authorization/util/subscription.utils";
+import {
+  isSubscriptionEvent,
+  proccessSubscriptionWebhook
+} from "@/features/payments/services/webhook/subscription.webhook";
 
 const log = logger.child({ service: 'payments', module: 'webhook' });
 
@@ -41,23 +42,10 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
     log.error({ id: payload.id }, 'Webhook record ID is undefined after creation');
     throw new ServiceError('Webhook record ID is undefined after creation');
   }
-  const resourceId: string|undefined = payload.resource?.id;
 
   let processedWebhook = false;
   if(isSubscriptionEvent(payload)) {
-    const newSubscriptionStatus = PaypalEventTypeSubscription[payload.event_type];
-    if(resourceId) {
-      const checkStatus: SubscriptionStatus[] = [];
-      if (newSubscriptionStatus === 'ACTIVE') {
-        checkStatus.push('APPROVAL_PENDING', 'APPROVED');
-      }
-      const responseUpdate = await SubscriptionRepository.updateByExternalId(resourceId, 'paypal', { status: newSubscriptionStatus }, checkStatus);
-      if (!responseUpdate.error && responseUpdate.data) {
-        await webhookRepo.setProcessed(webhookId);
-      }
-      // TODO: Actualizar el estado de la orden asociada a la suscripción según el nuevo estado (ACTIVE -> completed, EXPIRED -> ???, CANCELLED/SUSPENDED -> cancelled)
-      processedWebhook = true;
-    }
+    processedWebhook = await proccessSubscriptionWebhook(webhookId, payload);
   }
 
   // if (isPaymentEvent(payload)) {
@@ -67,16 +55,6 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
   if (processedWebhook) {
     log.info({ id: payload.id, event_type: payload.event_type }, 'Webhook processed successfully');
   }
-}
-
-function isSubscriptionEvent(payload: WebhookEventPaypal) {
-  return [
-    PaypalEventType.SUBSCRIPTION_ACTIVATED,
-    PaypalEventType.SUBSCRIPTION_EXPIRED,
-    PaypalEventType.SUBSCRIPTION_CANCELLED,
-    PaypalEventType.SUBSCRIPTION_SUSPENDED,
-    // @ts-expect-error solo es necesario comparar algunos eventos, no todos los eventos de paypal
-  ].includes(payload.event_type);
 }
 
 // Se comenta por ahora porque no se está manejando eventos de pago
@@ -89,10 +67,3 @@ function isSubscriptionEvent(payload: WebhookEventPaypal) {
 //     // @ts-expect-error solo es necesario comparar algunos eventos, no todos los eventos de paypal
 //   ].includes(payload.event_type);
 // }
-
-const PaypalEventTypeSubscription: Record<string, Enums<'subscription_status'>> = {
-  [PaypalEventType.SUBSCRIPTION_ACTIVATED]: 'ACTIVE',
-  [PaypalEventType.SUBSCRIPTION_EXPIRED]: 'EXPIRED',
-  [PaypalEventType.SUBSCRIPTION_CANCELLED]: 'CANCELLED',
-  [PaypalEventType.SUBSCRIPTION_SUSPENDED]: 'SUSPENDED',
-} as const;

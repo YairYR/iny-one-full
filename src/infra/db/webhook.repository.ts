@@ -19,7 +19,9 @@ export function getWebhookRepository(db: DbInstance) {
       return db
         .from('webhook_events')
         .update({ processed_at: now })
-        .eq('id', id);
+        .eq('id', id)
+        // @ts-expect-error nullable column
+        .eq('processed_at', null);
     }
   }
 }

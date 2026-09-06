@@ -57,13 +57,14 @@ export class AuthorizationRepository {
         const { data, error } = await supabase
             .from("subscriptions")
             .select(`
-        id,
-        status,
-        start_date,
-        end_date,
-        service_id
-      `)
+              id,
+              status,
+              start_date,
+              end_date,
+              service_id
+            `)
             .eq("user_id", userId)
+            .eq("status", "ACTIVE")
             .maybeSingle();
 
         if (error) {
