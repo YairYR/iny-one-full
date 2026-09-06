@@ -4,12 +4,11 @@ import React from "react";
 import PricingCard from "@/components/PricingCards/PricingCard";
 import { useRouter } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
-import { UserPlanSummary } from "@/lib/types";
 import { useLocale } from "next-intl";
 
 interface Props {
   logged: boolean;
-  plan: UserPlanSummary | null;
+  userHasSubscription: boolean;
 }
 
 /**
@@ -92,7 +91,7 @@ const planInfo = {
   }
 };
 
-export default function PricingCards({ logged, plan }: Readonly<Props>) {
+export default function PricingCards({ logged, userHasSubscription }: Readonly<Props>) {
   const locale = useLocale() as 'es' | 'en';
   const router = useRouter();
   const plans = [
@@ -119,7 +118,7 @@ export default function PricingCards({ logged, plan }: Readonly<Props>) {
       features: planInfo[locale].starter.features,
       color: "border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-md",
       highlight: true,
-      disabled: Boolean(plan && !plan.isFree),
+      disabled: Boolean(userHasSubscription),
       onClick: function() {
         return createOrder("fa88cc5f-4da5-464d-b571-eb690c7c2a31");
       },

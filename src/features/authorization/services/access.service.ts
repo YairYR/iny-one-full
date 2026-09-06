@@ -50,9 +50,7 @@ export class AccessService {
                 endDate: subscription.end_date,
             };
         } else {
-            const freeService =
-                await this.repository.getFreeService();
-
+            const freeService = await this.repository.getFreeService();
             serviceId = freeService.id;
         }
 
