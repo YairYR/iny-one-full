@@ -6,6 +6,7 @@ import { getUserRepository } from "@/infra/db/user.repository";
 import { UserClient } from "@/lib/types";
 import { createClient } from "@/lib/supabase/server";
 import {hideEmail} from "@/lib/utils/hide-information";
+import { getAccessContext } from "@/features/authorization/helpers/access";
 
 export const getCurrentUserDTO = cache(async () => {
   const supabase = await createClient();
@@ -36,4 +37,14 @@ export const isLoggedIn = cache(async () => {
 export const getUserPlan = cache(async () => {
   const user = await getCurrentUserDTO();
   return user?.plan ?? null;
+});
+
+export const hasSubscription = cache(async function hasSubscription() {
+  const context = await getAccessContext();
+
+  if (!context) {
+    return false;
+  }
+
+  return context.subscription !== null;
 });

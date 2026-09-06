@@ -16,7 +16,7 @@ export default async function SubscriptionUpgrade({ hidden }: Readonly<Props>) {
 
   return (
     <div className="m-8 mb-6" id="subscriptions">
-      <PricingCards logged={logged} plan={plan} />
+      <PricingCards logged={logged} userHasSubscription={plan} />
     </div>
   )
 }
