@@ -6,11 +6,21 @@ export interface SubscriptionContext {
     endDate: string | null;
 }
 
-export interface AccessContext {
-    userId: string;
+type AccessContextBase = {
     roles: Set<string>;
     permissions: Set<string>;
     serviceId: string;
     subscription: SubscriptionContext | null;
     entitlements: Map<string, unknown>;
 }
+
+export type AccessContextAnonymous = AccessContextBase & {
+    anonymous: true;
+}
+
+export type AccessContextAuthenticated = AccessContextBase & {
+    userId: string;
+    anonymous: false;
+};
+
+export type AccessContext = AccessContextAnonymous | AccessContextAuthenticated;

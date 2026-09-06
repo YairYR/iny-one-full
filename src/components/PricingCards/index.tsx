@@ -8,7 +8,7 @@ import { useLocale } from "next-intl";
 
 interface Props {
   logged: boolean;
-  userHasSubscription: boolean;
+  alreadySubscribed: boolean;
 }
 
 /**
@@ -91,7 +91,7 @@ const planInfo = {
   }
 };
 
-export default function PricingCards({ logged, userHasSubscription }: Readonly<Props>) {
+export default function PricingCards({ logged, alreadySubscribed }: Readonly<Props>) {
   const locale = useLocale() as 'es' | 'en';
   const router = useRouter();
   const plans = [
@@ -118,7 +118,7 @@ export default function PricingCards({ logged, userHasSubscription }: Readonly<P
       features: planInfo[locale].starter.features,
       color: "border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-md",
       highlight: true,
-      disabled: Boolean(userHasSubscription),
+      disabled: Boolean(alreadySubscribed),
       onClick: function() {
         return createOrder("fa88cc5f-4da5-464d-b571-eb690c7c2a31");
       },

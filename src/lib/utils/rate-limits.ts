@@ -2,6 +2,8 @@ import { ShorterRepository } from "@/infra/db/shorter.repository";
 import { PlanName } from "@/lib/types";
 import { TtlCache } from "@/lib/cache/ttl-cache";
 import { logger } from "@/lib/logger";
+import { getAccessContext } from "@/features/authorization/helpers/access";
+import { EntitlementService } from "@/features/authorization/services/entitlement.service";
 
 export type RateLimitPlan = PlanName | 'freeAnonymous';
 
@@ -114,8 +116,21 @@ export async function checkRateLimit({
   repo,
   store = defaultUsageStore,
 }: RateLimitInput): Promise<RateLimitResult> {
+  let limit: number;
+
+  const access = await getAccessContext();
+  if (access) {
+  }
+  const entitlementService = new EntitlementService();
+  const maxLinks = entitlementService.getNumber(access, "links.max_per_month");
+  if (maxLinks === null) {
+    log.error("Unable to determine max links from entitlements for user %s", userId);
+    limit = RATE_LIMITS['freeAnonymous'];
+  } else {
+    limit = maxLinks;
+  }
+
   const effectivePlan = resolveRateLimitPlan(userId, plan);
-  const limit = RATE_LIMITS[effectivePlan];
   const key = usageKey(userId, ip);
 
   const cached = store.get(key);
