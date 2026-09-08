@@ -27,6 +27,13 @@ jest.mock('@/infra/db/shorter.repository', () => ({
 jest.mock('@/infra/db/user.repository', () => ({
   getUserRepository: () => ({ getCurrentUser }),
 }));
+// `getAccessContext` resuelve sesión, roles y entitlements contra la base: se
+// mockea en la frontera, como el resto. Sin entitlements la cuota cae a la del
+// plan, que es lo que asertan estas pruebas; el caso con entitlement se cubre
+// como unidad en `__tests__/lib/rate-limits.test.ts`.
+jest.mock('@/features/authorization/helpers/access', () => ({
+  getAccessContext: () => Promise.resolve({ entitlements: new Map() }),
+}));
 
 // Se importa después de registrar los mocks para que la ruta reciba los dobles.
 // eslint-disable-next-line @typescript-eslint/no-require-imports
