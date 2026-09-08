@@ -2,8 +2,6 @@ import { ShorterRepository } from "@/infra/db/shorter.repository";
 import { PlanName } from "@/lib/types";
 import { TtlCache } from "@/lib/cache/ttl-cache";
 import { logger } from "@/lib/logger";
-import { getAccessContext } from "@/features/authorization/helpers/access";
-import { EntitlementService } from "@/features/authorization/services/entitlement.service";
 
 export type RateLimitPlan = PlanName | 'freeAnonymous';
 
@@ -87,6 +85,13 @@ export type RateLimitInput = {
   ip: string | null;
   repo: ShorterRepository;
   store?: UsageStore;
+  /**
+   * Límite resuelto desde los entitlements del llamante. Se inyecta en lugar de
+   * leerlo aquí: resolverlo exige sesión y base de datos, y arrastrarlas a esta
+   * utilidad la volvía imposible de probar y hacía que ignorase su propio
+   * `userId` en favor de la sesión ambiente. Si viene `null`, manda el plan.
+   */
+  limit?: number | null;
 };
 
 export function resolveRateLimitPlan(userId: string | null, plan: PlanName | null): RateLimitPlan {
@@ -115,22 +120,16 @@ export async function checkRateLimit({
   ip,
   repo,
   store = defaultUsageStore,
+  limit: entitlementLimit = null,
 }: RateLimitInput): Promise<RateLimitResult> {
-  let limit: number;
-
-  const access = await getAccessContext();
-  if (access) {
-  }
-  const entitlementService = new EntitlementService();
-  const maxLinks = entitlementService.getNumber(access, "links.max_per_month");
-  if (maxLinks === null) {
-    log.error("Unable to determine max links from entitlements for user %s", userId);
-    limit = RATE_LIMITS['freeAnonymous'];
-  } else {
-    limit = maxLinks;
-  }
-
   const effectivePlan = resolveRateLimitPlan(userId, plan);
+
+  // El entitlement manda cuando se pudo resolver; si no, el límite del plan. No se
+  // cae a la cuota anónima: dejaría a un usuario de pago en 5 enlaces por un fallo
+  // transitorio de la resolución, y contradice el criterio de `resolveRateLimitPlan`,
+  // que ante la duda aplica el más restrictivo de los planes *autenticados*.
+  const limit = entitlementLimit ?? RATE_LIMITS[effectivePlan];
+
   const key = usageKey(userId, ip);
 
   const cached = store.get(key);

@@ -16,6 +16,8 @@ import { createClient } from "@/lib/supabase/server";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { checkRateLimit, recordRateLimitUsage } from "@/lib/utils/rate-limits";
+import { getAccessContext } from "@/features/authorization/helpers/access";
+import { EntitlementService } from "@/features/authorization/services/entitlement.service";
 import { ERROR } from "@/lib/api/error-codes";
 import {
   generateSlug,
@@ -76,7 +78,18 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   // petición que se va a rechazar de todos modos.
   const customSlug = resolveCustomSlug(requestedSlug, userId);
 
-  const rateLimit = await checkRateLimit({ userId, plan: plan?.name ?? null, ip, repo: shorterRepo });
+  // La cuota vive en los entitlements del servicio contratado. Se resuelve aquí,
+  // donde ya hay sesión, y se inyecta: `checkRateLimit` sólo cuenta.
+  const access = await getAccessContext();
+  const entitlementLimit = new EntitlementService().getNumber(access, "links.max_per_month");
+
+  const rateLimit = await checkRateLimit({
+    userId,
+    plan: plan?.name ?? null,
+    ip,
+    repo: shorterRepo,
+    limit: entitlementLimit,
+  });
   if (!rateLimit.allowed) {
     throw new ApiError(
       ERROR.RATE_LIMIT_EXCEEDED,
