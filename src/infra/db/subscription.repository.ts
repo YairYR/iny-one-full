@@ -47,7 +47,7 @@ export const SubscriptionRepository = {
       query = query.eq("service_id", service_id);
     }
 
-    if (status) {
+    if (status?.length) {
       query = query.in("status", status);
     }
 
@@ -139,7 +139,10 @@ export const SubscriptionRepository = {
       .eq("subscription_gateway", gateway);
 
 
-    if (status) {
+    // Un array vacío significa «sin filtro», no «ningún estado»: `.in("status", [])`
+    // no casa ninguna fila y convertía el UPDATE en un no-op silencioso. Así es como
+    // los webhooks de CANCELLED/EXPIRED/SUSPENDED dejaron de aplicarse.
+    if (status?.length) {
       query = query.in("status", status);
     }
 

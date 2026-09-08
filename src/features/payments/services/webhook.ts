@@ -3,6 +3,7 @@ import { getWebhookRepository } from "@/infra/db/webhook.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { logger } from "@/lib/logger";
 import { ServiceError } from "@/lib/api/errors";
+import { isUniqueViolation } from "@/infra/db/db-errors";
 import {
   isSubscriptionEvent,
   proccessSubscriptionWebhook
@@ -26,7 +27,10 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
   });
 
   if (error) {
-    if (/unique constraint/i.test(error.message)) {
+    // PostgREST propaga el código nativo de Postgres en `error.code`; el texto del
+    // mensaje no es contrato estable. Con el regex, un reintento de PayPal caía en el
+    // `throw` de abajo y devolvía 500, que dispara otro reintento.
+    if (isUniqueViolation(error)) {
       log.warn({ error, id: payload.id }, 'Webhook record already exists, skipping processing');
       return;
     }
@@ -37,7 +41,9 @@ export async function processPaypalWebhook(payload: WebhookEventPaypal) {
 
   log.info({ id: payload.id }, 'Webhook record created successfully');
 
-  const webhookId = data[0].id;
+  // El insert puede volver sin filas: el encadenamiento opcional tiene que cubrir
+  // también el índice, o `data[0]` lanza TypeError antes del guard de abajo.
+  const webhookId = data?.[0]?.id;
   if(!webhookId) {
     log.error({ id: payload.id }, 'Webhook record ID is undefined after creation');
     throw new ServiceError('Webhook record ID is undefined after creation');
