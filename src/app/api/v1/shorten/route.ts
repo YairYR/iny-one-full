@@ -1,6 +1,6 @@
 import { withErrorHandling } from "@/lib/api/http";
 import { NextRequest } from "next/server";
-import { UserPlanSummary } from "@/lib/types";
+import { PlanName } from "@/lib/types";
 import * as z from "zod/mini";
 import { ApiError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";
@@ -26,7 +26,7 @@ import {
   MAX_SLUG_INSERT_ATTEMPTS,
 } from "@/lib/short-links/slug";
 import { isReservedSlug, normalizeSlug } from "@/lib/reserved-slugs";
-import { buildDestination, type DestinationPlan } from "@/lib/short-links/destination";
+import { buildDestination, toDestinationPlan } from "@/lib/short-links/destination";
 import { validateDestination } from "@/lib/short-links/validate-destination";
 import { ANONYMOUS_LINK_TTL_DAYS } from "@/lib/short-links/expiry";
 import { logger } from "@/lib/logger";
@@ -71,7 +71,6 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const { data: currUser } = await userRepo.getCurrentUser();
 
   const userId = currUser.user?.id ?? null;
-  const plan = currUser.plan;
 
   // Elegir el nombre del enlace es la contrapartida de registrarse. Se comprueba
   // antes de tocar la cuota para que un anónimo no gaste un enlace en una
@@ -85,7 +84,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const rateLimit = await checkRateLimit({
     userId,
-    plan: plan?.name ?? null,
+    plan: access.planKey as PlanName | null,
     ip,
     repo: shorterRepo,
     limit: entitlementLimit,
@@ -98,7 +97,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     );
   }
 
-  const { destination, utm: utmParams } = buildDestination(target, utm, toDestinationPlan(plan, userId));
+  const { destination, utm: utmParams } = buildDestination(target, utm, toDestinationPlan(access.planKey, access.anonymous));
 
   const input: Omit<CreateShortLinkInput, 'slug'> = {
     userId,
@@ -143,10 +142,6 @@ function resolveCustomSlug(requested: string | undefined, userId: string | null)
   return slug;
 }
 
-function toDestinationPlan(plan: UserPlanSummary | null, userId: string | null): DestinationPlan {
-  if (!userId) return 'freeAnonymous';
-  return plan?.name ?? 'free';
-}
 
 function buildAnonymousExpiry() {
   return {

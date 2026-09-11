@@ -12,6 +12,8 @@ export function getUserRepository(db: DbInstance) {
       };
       const user_metadata = data.user?.user_metadata;
       metadata.role = user_metadata?.user_role ?? null;
+      /* INACTIVO: el plan del JWT ya no decide nada (rev. 2026-09-11); ver la nota en
+         `UserClient.plan`. El plan efectivo es `AccessContext.planKey`. */
       metadata.plan = user_metadata?.user_plan ?? null;
       metadata.timezone = user_metadata?.user_timezone ?? null;
 
@@ -19,6 +21,7 @@ export function getUserRepository(db: DbInstance) {
         data: {
           user: data.user,
           role: metadata.role,
+          /** INACTIVO: sin consumidores (rev. 2026-09-11). */
           plan: metadata.plan,
         }
       };

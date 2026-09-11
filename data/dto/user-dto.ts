@@ -34,6 +34,12 @@ export const isLoggedIn = cache(async () => {
   return !!user;
 });
 
+/**
+ * INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-09-11).
+ *
+ * Devolvía el plan del JWT. Para decidir capacidades hay que usar
+ * `getAccessContext()`, que resuelve el servicio efectivo desde `subscriptions`.
+ */
 export const getUserPlan = cache(async () => {
   const user = await getCurrentUserDTO();
   return user?.plan ?? null;

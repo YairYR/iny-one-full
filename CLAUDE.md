@@ -34,9 +34,10 @@ lo genera Next a partir del árbol de rutas y no existe en un checkout limpio. D
 
 Cada una de estas costó un ciclo de trabajo. Leerlas antes de explorar el repo.
 
-- `src/lib/types/db.types.d.ts` está en **UTF-16**. `grep` y `rg` no encuentran nada dentro y fallan
-  **en silencio**, así que es fácil concluir que un símbolo no existe. Convertir a UTF-8 para
-  buscar, o leerlo desde Python con `encoding='utf-16'`.
+- `src/lib/types/db.types.d.ts` estuvo en **UTF-16** y desde el 2026-09-11 está en UTF-8: `grep`
+  ya funciona dentro. Se deja anotado porque la lección sobrevive al fichero: una búsqueda que no
+  encuentra nada en un `.d.ts` generado puede estar fallando **en silencio** por codificación, no
+  porque el símbolo falte. Comprobar los primeros bytes antes de concluir que algo no existe.
 - Las rutas con corchetes (`src/app/ui/(main)/cart/[[...checkout]]/`) **rompen los patrones glob**,
   que interpretan `[...]` como clase de caracteres. Para recorrer el repo usar `os.walk` o
   `rg --files`, nunca `glob`/`rglob`: un barrido de código muerto con glob produce falsos
@@ -66,7 +67,15 @@ Cada una de estas costó un ciclo de trabajo. Leerlas antes de explorar el repo.
 - Los Server Components asíncronos no producen marcado con `@testing-library/react`. Probar su
   `generateMetadata` o extraer la lógica a una función pura.
 - `VERCEL_ENV` sólo vale `production` en producción: en preview y en local, `IS_PRODUCTION` e
-  `IS_DEVELOPMENT` son ambos `false` y el plan del usuario queda en `null` (hay fallback a `free`).
+  `IS_DEVELOPMENT` son ambos `false`. Hoy eso sólo afecta al bloque de gtag de `app/layout.tsx`;
+  **ya no toca el plan del usuario**.
+- **El plan efectivo se resuelve desde `subscriptions`, nunca desde el JWT.** El token lleva un
+  `user_metadata.user_plan` que el hook `custom_access_token_hook` toma de `users_profiles.plan`,
+  y **nada actualiza esa tabla cuando una suscripción se activa**: quien pagaba conservaba las
+  capacidades de su plan anterior. La fuente de verdad es `AccessContext.planKey`, que sale del
+  `services.plan_key` del servicio efectivo —el mismo origen que la cuota—. Toda decisión por plan
+  (cuotas, UTM permitidos) pasa por `getAccessContext()`. La cadena del JWT sigue en el código
+  marcada como `INACTIVO`.
 
 - El resolver compara el slug **exacto y sensible a mayúsculas** (`.eq('slug', short)`), y los slugs
   antiguos de nanoid son de caso mixto. Los slugs que elige el usuario se normalizan a minúsculas

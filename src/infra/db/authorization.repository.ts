@@ -73,7 +73,7 @@ export class AuthorizationRepository {
     async getFreeService() {
         const { data, error } = await supabase_service
             .from("services")
-            .select("id, name")
+            .select("id, name, plan_key")
             .eq("service_gateway", "internal")
             .eq("name", "FREE")
             .eq("active", true)
@@ -92,7 +92,7 @@ export class AuthorizationRepository {
     async getFreeAnonymousService() {
         const { data, error } = await supabase_service
           .from("services")
-          .select("id, name")
+          .select("id, name, plan_key")
           .eq("service_gateway", "internal")
           .eq("name", "FREE_ANONYMOUS")
           .eq("active", true)
@@ -106,6 +106,27 @@ export class AuthorizationRepository {
         }
 
         return data;
+    }
+
+    /**
+     * `plan_key` del servicio. Es la clave con la que se indexan las capacidades
+     * por plan (cuotas, parámetros UTM permitidos), distinta de `name`, que es
+     * el nombre comercial —«Plan Starter»— y no sirve para indexar nada.
+     */
+    async getServicePlanKey(serviceId: string) {
+        const { data, error } = await supabase_service
+            .from("services")
+            .select("plan_key")
+            .eq("id", serviceId)
+            .maybeSingle();
+
+        if (error) {
+            throw new Error(
+                `Failed to load service plan key: ${error.message}`
+            );
+        }
+
+        return data?.plan_key ?? null;
     }
 
     async getServiceEntitlements(serviceId: string) {
