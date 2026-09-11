@@ -41,10 +41,12 @@ export class AccessService {
         const effectiveSubscription = isSubscriptionEffective(subscription);
 
         let serviceId: string;
+        let planKey: string | null;
         let effectiveSubscriptionData = null;
 
         if (effectiveSubscription && subscription) {
             serviceId = subscription.service_id;
+            planKey = await this.repository.getServicePlanKey(serviceId);
 
             effectiveSubscriptionData = {
                 id: subscription.id,
@@ -56,6 +58,7 @@ export class AccessService {
         } else {
             const freeService = await this.repository.getFreeService();
             serviceId = freeService.id;
+            planKey = freeService.plan_key;
         }
 
         const entitlementRows = await this.repository.getServiceEntitlements(serviceId);
@@ -74,6 +77,7 @@ export class AccessService {
             serviceId,
             subscription: effectiveSubscriptionData,
             entitlements,
+            planKey,
         };
     }
 
@@ -94,6 +98,7 @@ export class AccessService {
             serviceId: freeService.id,
             subscription: null,
             entitlements,
+            planKey: freeService.plan_key,
         };
     }
 }

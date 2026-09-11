@@ -46,9 +46,19 @@ export interface UserClient {
   picture: string | null;
   created_at: string;
   role: string | null;
+  /**
+   * INACTIVO: sin consumidores (rev. 2026-09-11).
+   *
+   * Viene de `user_metadata.user_plan`, que el hook de token toma de
+   * `users_profiles.plan`. Nada actualiza esa tabla al activarse una
+   * suscripción, así que el valor era incorrecto para quien pagaba. El plan
+   * efectivo se resuelve ahora en `AccessContext.planKey`, desde la tabla
+   * `subscriptions`.
+   */
   plan: UserPlanSummary | null;
 }
 
+/** INACTIVO: sólo tipa campos ya inactivos (rev. 2026-09-11). */
 export interface UserPlanSummary {
   id: string | null;
   name: PlanName;

@@ -4,7 +4,8 @@ import { getUserRepository } from "@/infra/db/user.repository";
 import { getShorterRepository } from "@/infra/db/shorter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { createClient } from "@/lib/supabase/server";
-import { buildDestination, type DestinationPlan } from "@/lib/short-links/destination";
+import { buildDestination, toDestinationPlan, type DestinationPlan } from "@/lib/short-links/destination";
+import { getAccessContext } from "@/features/authorization/helpers/access";
 import { validateDestination } from "@/lib/short-links/validate-destination";
 import { isValidAlias, normalizeAlias } from "@/lib/short-links/alias";
 import { ApiError } from "@/lib/api/errors";
@@ -58,11 +59,16 @@ export async function updateLinkAction(
   const next: LinkEditState = { ...initialState };
 
   if (destination !== null) {
+    // El plan sale del servicio efectivo, no del JWT: editar un enlace reescribe
+    // el destino con `buildDestination`, y con el plan desactualizado un
+    // suscriptor perdía en la edición los UTM que su plan sí permite.
+    const access = await getAccessContext();
+
     const updated = await applyDestination({
       slug,
       rawDestination: destination,
       userId: user.id,
-      plan: currUser.plan?.name ?? 'free',
+      plan: toDestinationPlan(access.planKey, access.anonymous),
       userRepo,
     });
 

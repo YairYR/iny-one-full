@@ -1,12 +1,45 @@
 import 'server-only';
 import { Client, Environment, LogLevel, } from '@paypal/paypal-server-sdk';
+import { logger } from '@/lib/logger';
 
-const environment = (process.env.PAYPAL_API_ENVIRONMENT === Environment.Production)
-  ? Environment.Production
-  : Environment.Sandbox;
+const log = logger.child({ module: 'paypal' });
+
+/**
+ * Traduce `PAYPAL_API_ENVIRONMENT` al enum del SDK.
+ *
+ * El valor del enum es `"Production"`, con mayúscula. La comparación estricta
+ * anterior mandaba a Sandbox cualquier otra grafía —`production`, `live`,
+ * `PRODUCTION`— sin dejar rastro: se configuraba la cuenta real, se desplegaba,
+ * y los usuarios firmaban suscripciones de juguete. El repo además ceba el
+ * error, porque `VERCEL_ENV` vale `production` en minúscula.
+ *
+ * Ante un valor desconocido se elige Sandbox a propósito: equivocarse hacia el
+ * entorno de pruebas no cobra dinero real, y el log lo hace evidente.
+ */
+export function resolvePaypalEnvironment(raw: string | undefined): Environment {
+  const valor = raw?.trim().toLowerCase();
+
+  if (valor === 'production' || valor === 'live') return Environment.Production;
+  if (valor === 'sandbox' || valor === 'test') return Environment.Sandbox;
+
+  if (valor) {
+    log.error({ PAYPAL_API_ENVIRONMENT: raw },
+      'unrecognised paypal environment, falling back to Sandbox: no real payment will be taken');
+  } else {
+    log.warn('PAYPAL_API_ENVIRONMENT is not set, using Sandbox');
+  }
+
+  return Environment.Sandbox;
+}
+
+const environment = resolvePaypalEnvironment(process.env.PAYPAL_API_ENVIRONMENT);
 
 let client: Client | null = null;
 export function getPayPalClient(): Client {
+  if (!client) {
+    log.info({ environment }, 'initialising paypal client');
+  }
+
   client ??= new Client({
     environment: environment,
     clientCredentialsAuthCredentials: {
