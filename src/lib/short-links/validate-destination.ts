@@ -35,7 +35,7 @@ export async function validateDestination(
   const urlInfo = parseUrl(target);
 
   if (urlInfo.domain === null || urlInfo.isIp || BLOCKED_DOMAINS.has(urlInfo.domain)) {
-    log.info('rejected destination url', { domain: urlInfo.domain, isIp: urlInfo.isIp });
+    log.info({ domain: urlInfo.domain, isIp: urlInfo.isIp }, 'rejected destination url');
     throw new ValidationError("Invalid url provided");
   }
 
@@ -59,12 +59,12 @@ async function assertDomainIsAllowed(domain: string, repo: ShorterRepository): P
   const { data, error } = await repo.isSafeDomain(domain);
 
   if (error) {
-    log.error('domain safety check failed', { domain, error });
+    log.error(error, 'domain safety check failed for %s', domain);
     throw new ValidationError("Error when validating url");
   }
 
   if (data === false) {
-    log.warn('blocked banned domain', { domain });
+    log.warn('blocked banned domain %s', domain);
     throw new ValidationError("Error when validating url");
   }
 }

@@ -1,4 +1,4 @@
-import { type NextRequest, MiddlewareConfig, NextResponse } from 'next/server'
+import { MiddlewareConfig, type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from "@/lib/middlewares/session";
 import { ROUTES } from "@/lib/routes";
 

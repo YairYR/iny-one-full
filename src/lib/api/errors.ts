@@ -1,4 +1,4 @@
-import { MESSAGE, ERROR } from "@/lib/api/error-codes";
+import { ERROR, MESSAGE } from "@/lib/api/error-codes";
 
 type ApiErrOptions = {
   type?: string;
@@ -149,6 +149,16 @@ export class InsufficientPermissionsError extends ApiError {
     super(
       ERROR.INSUFFICIENT_PERMISSIONS,
       message ?? MESSAGE.INSUFFICIENT_PERMISSIONS,
+      options ?? { type: 'auth_error', status: 403 }
+    );
+  }
+}
+
+export class SuspendedSubscriptionError extends ApiError {
+  constructor(message?: string|null, options?: ApiErrOptions) {
+    super(
+      ERROR.SUSPENDED_SUBSCRIPTION,
+      message ?? MESSAGE.SUSPENDED_SUBSCRIPTION,
       options ?? { type: 'auth_error', status: 403 }
     );
   }

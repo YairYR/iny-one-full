@@ -1,4 +1,5 @@
-import {AccessContext} from "@/features/authorization/types/access-context";
+import { AccessContext } from "@/features/authorization/types/access-context";
+import { InsufficientPermissionsError } from "@/lib/api/errors";
 
 export class EntitlementService {
     get(
@@ -35,7 +36,7 @@ export class EntitlementService {
         key: string,
     ): void {
         if (!this.getBoolean(context, key)) {
-            throw new Error(
+            throw new InsufficientPermissionsError(
                 `Feature is not included in the current service: ${key}`,
             );
         }

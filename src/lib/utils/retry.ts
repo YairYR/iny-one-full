@@ -33,7 +33,7 @@ export async function retry<T>(
 
       if (attempt >= retries) break;
 
-      log.warn('attempt failed, retrying', { attempt, retries, delayMs: currentDelay, error });
+      log.warn({ error, attempt, retries, delayMs: currentDelay }, 'attempt failed, retrying');
 
       await sleep(currentDelay);
       currentDelay *= backoff;

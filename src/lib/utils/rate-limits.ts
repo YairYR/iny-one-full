@@ -85,16 +85,21 @@ export type RateLimitInput = {
   ip: string | null;
   repo: ShorterRepository;
   store?: UsageStore;
+  /**
+   * Límite resuelto desde los entitlements del llamante. Se inyecta en lugar de
+   * leerlo aquí: resolverlo exige sesión y base de datos, y arrastrarlas a esta
+   * utilidad la volvía imposible de probar y hacía que ignorase su propio
+   * `userId` en favor de la sesión ambiente. Si viene `null`, manda el plan.
+   */
+  limit?: number | null;
 };
 
 export function resolveRateLimitPlan(userId: string | null, plan: PlanName | null): RateLimitPlan {
   if (!userId) return 'freeAnonymous';
   if (plan !== null && Object.hasOwn(RATE_LIMITS, plan)) return plan;
 
-  log.warn('unknown plan for authenticated user, applying fallback', {
-    plan,
-    fallback: FALLBACK_AUTHENTICATED_PLAN,
-  });
+  log.warn({ plan, fallback: FALLBACK_AUTHENTICATED_PLAN },
+    'unknown plan for authenticated user, applying fallback');
   return FALLBACK_AUTHENTICATED_PLAN;
 }
 
@@ -115,9 +120,16 @@ export async function checkRateLimit({
   ip,
   repo,
   store = defaultUsageStore,
+  limit: entitlementLimit = null,
 }: RateLimitInput): Promise<RateLimitResult> {
   const effectivePlan = resolveRateLimitPlan(userId, plan);
-  const limit = RATE_LIMITS[effectivePlan];
+
+  // El entitlement manda cuando se pudo resolver; si no, el límite del plan. No se
+  // cae a la cuota anónima: dejaría a un usuario de pago en 5 enlaces por un fallo
+  // transitorio de la resolución, y contradice el criterio de `resolveRateLimitPlan`,
+  // que ante la duda aplica el más restrictivo de los planes *autenticados*.
+  const limit = entitlementLimit ?? RATE_LIMITS[effectivePlan];
+
   const key = usageKey(userId, ip);
 
   const cached = store.get(key);
@@ -157,7 +169,7 @@ async function loadUsage({
   if (userId) {
     const { count, error } = await repo.countLinksByUserInLastMonth(userId);
     if (error) {
-      log.error('failed to count links by user', { error });
+      log.error(error, 'failed to count links by user');
       return null;
     }
     return count ?? 0;
@@ -166,7 +178,7 @@ async function loadUsage({
   if (ip) {
     const { count, error } = await repo.countLinksByIpInLastMonth(ip);
     if (error) {
-      log.error('failed to count links by ip', { error });
+      log.error(error, 'failed to count links by ip');
       return null;
     }
     return count ?? 0;

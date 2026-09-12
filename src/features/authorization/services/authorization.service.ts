@@ -1,6 +1,6 @@
-import {InsufficientPermissionsError} from "@/lib/api/errors";
-import {AccessContext} from "@/features/authorization/types/access-context";
-import {Permission} from "@/features/authorization/types/permission";
+import { InsufficientPermissionsError } from "@/lib/api/errors";
+import { AccessContext } from "@/features/authorization/types/access-context";
+import { Permission } from "@/features/authorization/types/permission";
 
 export class AuthorizationService {
     can(

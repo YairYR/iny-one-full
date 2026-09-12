@@ -41,20 +41,25 @@ describe('processPaypalWebhook', () => {
     afterCallbacks.length = 0;
     create.mockResolvedValue({ data: [{ id: 'row-1' }], error: null });
     setProcessed.mockResolvedValue({ error: null });
-    updateByExternalId.mockResolvedValue({ error: null });
+    updateByExternalId.mockResolvedValue({ data: { id: 'sub-1' }, error: null });
   });
 
+  /**
+   * El cuarto argumento es el guard de estados de origen. ACTIVE sólo puede
+   * aplicarse sobre una suscripción aún pendiente —si no, un ACTIVATED que llegue
+   * tarde resucitaría una cancelada—; el resto de eventos van sin filtro.
+   */
   it.each([
-    ['BILLING.SUBSCRIPTION.EXPIRED', 'EXPIRED'],
-    ['BILLING.SUBSCRIPTION.CANCELLED', 'CANCELLED'],
-    ['BILLING.SUBSCRIPTION.SUSPENDED', 'SUSPENDED'],
-    ['BILLING.SUBSCRIPTION.ACTIVATED', 'ACTIVE'],
-  ])('%s deja la suscripción en %s', async (eventType, status) => {
+    ['BILLING.SUBSCRIPTION.EXPIRED', 'EXPIRED', []],
+    ['BILLING.SUBSCRIPTION.CANCELLED', 'CANCELLED', []],
+    ['BILLING.SUBSCRIPTION.SUSPENDED', 'SUSPENDED', []],
+    ['BILLING.SUBSCRIPTION.ACTIVATED', 'ACTIVE', ['APPROVAL_PENDING', 'APPROVED']],
+  ])('%s deja la suscripción en %s', async (eventType, status, guard) => {
     await processPaypalWebhook(evento(eventType));
     await correrAfter();
 
-    expect(updateByExternalId).toHaveBeenCalledWith('I-SUB-1', 'paypal', { status });
-    expect(setProcessed).toHaveBeenCalledWith('row-1', true);
+    expect(updateByExternalId).toHaveBeenCalledWith('I-SUB-1', 'paypal', { status }, guard);
+    expect(setProcessed).toHaveBeenCalledWith('row-1');
   });
 
   /**
@@ -73,11 +78,16 @@ describe('processPaypalWebhook', () => {
     expect(setProcessed).not.toHaveBeenCalled();
   });
 
-  // Regresión: `data?.[0].id` lanzaba TypeError cuando el insert no devolvía filas.
-  it('no revienta si el insert no devuelve filas', async () => {
+  /**
+   * Regresión: `data[0].id` lanzaba TypeError cuando el insert no devolvía filas,
+   * y reventaba antes del guard que debía cubrirlo. Ahora falla de forma
+   * controlada: error de dominio, y la suscripción no se toca.
+   */
+  it('falla de forma controlada si el insert no devuelve filas', async () => {
     create.mockResolvedValue({ data: [], error: null });
 
-    await expect(processPaypalWebhook(evento('BILLING.SUBSCRIPTION.EXPIRED'))).resolves.toBeUndefined();
+    await expect(processPaypalWebhook(evento('BILLING.SUBSCRIPTION.EXPIRED')))
+      .rejects.toThrow('Webhook record ID is undefined after creation');
     expect(updateByExternalId).not.toHaveBeenCalled();
   });
 

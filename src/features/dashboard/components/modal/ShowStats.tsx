@@ -1,10 +1,10 @@
 import { UserUrlStats } from "@/features/dashboard/types/types";
 import dynamic from "next/dynamic";
-import {useLinkStatsCommon} from "@/features/dashboard/hooks/useLinkStatsCommon";
-import {useMemo} from "react";
+import { useLinkStatsCommon } from "@/features/dashboard/hooks/useLinkStatsCommon";
+import { useMemo } from "react";
 import dayjs from "dayjs";
-import {dayToName} from "@/features/dashboard/helpers/stats";
-import {SkeletonRectangle} from "@/components/Skeleton/Skeleton";
+import { dayToName } from "@/features/dashboard/helpers/stats";
+import { SkeletonRectangle } from "@/components/Skeleton/Skeleton";
 
 const Bar = dynamic(
   () => import("@/features/dashboard/components/charts").then((m) => m.Bar),

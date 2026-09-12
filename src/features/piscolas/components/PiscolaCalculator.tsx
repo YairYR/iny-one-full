@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { Calculator, BottleWine, ShoppingCart, Users, Coins, RefreshCcw } from 'lucide-react';
+import { BottleWine, Calculator, Coins, RefreshCcw, ShoppingCart, Users } from 'lucide-react';
 
 const colaBottleOptions = [1, 1.5, 2, 2.5, 3] as const;
 const piscoBottleOptions = [0.7, 0.75, 1, 1.5] as const;

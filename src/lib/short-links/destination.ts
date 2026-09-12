@@ -4,6 +4,29 @@ import { safeDecodeURI } from "@/lib/utils/url";
 
 export type DestinationPlan = PlanName | 'freeAnonymous';
 
+/**
+ * Plan con el que se filtran los UTM, a partir del contexto de acceso.
+ *
+ * Antes salía de `user_metadata.user_plan`, es decir del JWT, que a su vez
+ * viene de `users_profiles.plan`. Nada actualiza esa tabla cuando una
+ * suscripción se activa, así que quien pagaba el plan Básico seguía sin
+ * `utm_content` ni `utm_term` —justo lo que ese plan promete— hasta que
+ * alguien la tocaba a mano. Ahora sale del `plan_key` del servicio efectivo,
+ * el mismo origen que decide la cuota.
+ *
+ * Un `plan_key` desconocido cae a `free`, nunca a `freeAnonymous`: un usuario
+ * con sesión no puede quedar por debajo del plan gratuito por un dato raro.
+ */
+export function toDestinationPlan(planKey: string | null, anonymous: boolean): DestinationPlan {
+  if (anonymous) return 'freeAnonymous';
+
+  if (planKey && planKey !== 'freeAnonymous' && Object.hasOwn(ALLOWED_PARAMS, planKey)) {
+    return planKey as PlanName;
+  }
+
+  return 'free';
+}
+
 /** Parámetros UTM soportados, en el orden en que se escriben en la URL. */
 export const UTM_KEYS = ['source', 'medium', 'campaign', 'term', 'content', 'id'] as const;
 

@@ -2,17 +2,17 @@
 
 import React, { useState } from 'react';
 import {
-  useFloating,
-  useHover,
-  useFocus,
-  useRole,
-  useInteractions,
-  offset,
-  flip,
-  shift,
-  autoUpdate,
   arrow,
+  autoUpdate,
+  flip,
   FloatingArrow,
+  offset,
+  shift,
+  useFloating,
+  useFocus,
+  useHover,
+  useInteractions,
+  useRole,
 } from '@floating-ui/react';
 import { HelpCircle } from 'lucide-react';
 
