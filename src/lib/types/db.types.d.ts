@@ -1,4 +1,4 @@
-import {DashboardStatsSummary} from "@/lib/types/index";
+import { DashboardStatsSummary } from "@/lib/types/index";
 
 export type Json =
   | string
@@ -252,6 +252,7 @@ export type Database = {
           description: string | null
           discount_amount: number | null
           discount_id: string | null
+          expires_at: string | null
           external_order_id: string | null
           id: string
           payment_gateway: string | null
@@ -267,6 +268,7 @@ export type Database = {
           description?: string | null
           discount_amount?: number | null
           discount_id?: string | null
+          expires_at?: string | null
           external_order_id?: string | null
           id?: string
           payment_gateway?: string | null
@@ -282,6 +284,7 @@ export type Database = {
           description?: string | null
           discount_amount?: number | null
           discount_id?: string | null
+          expires_at?: string | null
           external_order_id?: string | null
           id?: string
           payment_gateway?: string | null
@@ -928,7 +931,7 @@ export type Database = {
           gateway: string | null
           id: string
           payload: Json | null
-          processed: boolean | null
+          processed_at: string | null
           resource_type: string | null
           summary: string | null
         }
@@ -939,7 +942,7 @@ export type Database = {
           gateway?: string | null
           id?: string
           payload?: Json | null
-          processed?: boolean | null
+          processed_at?: string | null
           resource_type?: string | null
           summary?: string | null
         }
@@ -950,7 +953,7 @@ export type Database = {
           gateway?: string | null
           id?: string
           payload?: Json | null
-          processed?: boolean | null
+          processed_at?: string | null
           resource_type?: string | null
           summary?: string | null
         }

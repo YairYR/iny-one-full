@@ -1,12 +1,10 @@
 import 'server-only';
-import { createClient } from "@/lib/supabase/server";
-import {ApiError} from "@/lib/api/errors";
+import { ApiError } from "@/lib/api/errors";
+import { supabase_service } from "@/infra/db/supabase_service";
 
 export class AuthorizationRepository {
     async getUserRoles(userId: string) {
-        const supabase = await createClient();
-
-        const { data, error } = await supabase
+        const { data, error } = await supabase_service
             .from("user_roles")
             .select(`
         role:roles (
@@ -30,9 +28,7 @@ export class AuthorizationRepository {
             return [];
         }
 
-        const supabase = await createClient();
-
-        const { data, error } = await supabase
+        const { data, error } = await supabase_service
             .from("role_permissions")
             .select(`
         permission:permissions (
@@ -52,18 +48,17 @@ export class AuthorizationRepository {
     }
 
     async getSubscription(userId: string) {
-        const supabase = await createClient();
-
-        const { data, error } = await supabase
+        const { data, error } = await supabase_service
             .from("subscriptions")
             .select(`
-        id,
-        status,
-        start_date,
-        end_date,
-        service_id
-      `)
+              id,
+              status,
+              start_date,
+              end_date,
+              service_id
+            `)
             .eq("user_id", userId)
+            .eq("status", "ACTIVE")
             .maybeSingle();
 
         if (error) {
@@ -76,11 +71,9 @@ export class AuthorizationRepository {
     }
 
     async getFreeService() {
-        const supabase = await createClient();
-
-        const { data, error } = await supabase
+        const { data, error } = await supabase_service
             .from("services")
-            .select("id, name")
+            .select("id, name, plan_key")
             .eq("service_gateway", "internal")
             .eq("name", "FREE")
             .eq("active", true)
@@ -96,10 +89,48 @@ export class AuthorizationRepository {
         return data;
     }
 
-    async getServiceEntitlements(serviceId: string) {
-        const supabase = await createClient();
+    async getFreeAnonymousService() {
+        const { data, error } = await supabase_service
+          .from("services")
+          .select("id, name, plan_key")
+          .eq("service_gateway", "internal")
+          .eq("name", "FREE_ANONYMOUS")
+          .eq("active", true)
+          .single();
 
-        const { data, error } = await supabase
+        if (error) {
+            throw new ApiError(
+              "UWU",
+              `Free anonymous service is not configured: ${error.message}`
+            );
+        }
+
+        return data;
+    }
+
+    /**
+     * `plan_key` del servicio. Es la clave con la que se indexan las capacidades
+     * por plan (cuotas, parámetros UTM permitidos), distinta de `name`, que es
+     * el nombre comercial —«Plan Starter»— y no sirve para indexar nada.
+     */
+    async getServicePlanKey(serviceId: string) {
+        const { data, error } = await supabase_service
+            .from("services")
+            .select("plan_key")
+            .eq("id", serviceId)
+            .maybeSingle();
+
+        if (error) {
+            throw new Error(
+                `Failed to load service plan key: ${error.message}`
+            );
+        }
+
+        return data?.plan_key ?? null;
+    }
+
+    async getServiceEntitlements(serviceId: string) {
+        const { data, error } = await supabase_service
             .from("service_entitlements")
             .select("key, value")
             .eq("service_id", serviceId);

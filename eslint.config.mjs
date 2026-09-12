@@ -23,6 +23,22 @@ const eslintConfig = [
       "data/lang/en.d.json.ts",
     ],
   },
+  {
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        {
+          paths: [
+            {
+              name: "@supabase/ssr",
+              importNames: ["createBrowserClient"],
+              message: "Don't use the Supabase client in the browser, as it exposes the API Key. Use the server Supabase client or Next.js API (App Router / Route Handlers) instead.",
+            }
+          ]
+        },
+      ]
+    }
+  },
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 ];
 

@@ -1,6 +1,6 @@
 import PricingCards from "@/components/PricingCards";
 import type React from "react";
-import {getUserPlan, isLoggedIn} from "@/data/dto/user-dto";
+import { hasSubscription, isLoggedIn } from "@/data/dto/user-dto";
 
 interface Props {
   hidden: boolean;
@@ -8,7 +8,7 @@ interface Props {
 
 export default async function SubscriptionUpgrade({ hidden }: Readonly<Props>) {
   const logged = await isLoggedIn();
-  const plan = await getUserPlan();
+  const alreadySubscribed = await hasSubscription();
 
   if(!logged || hidden) {
     return null;
@@ -16,7 +16,7 @@ export default async function SubscriptionUpgrade({ hidden }: Readonly<Props>) {
 
   return (
     <div className="m-8 mb-6" id="subscriptions">
-      <PricingCards logged={logged} plan={plan} />
+      <PricingCards logged={logged} alreadySubscribed={alreadySubscribed} />
     </div>
   )
 }

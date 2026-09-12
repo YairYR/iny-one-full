@@ -4,7 +4,8 @@ import { getUserRepository } from "@/infra/db/user.repository";
 import { getShorterRepository } from "@/infra/db/shorter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { createClient } from "@/lib/supabase/server";
-import { buildDestination, type DestinationPlan } from "@/lib/short-links/destination";
+import { buildDestination, toDestinationPlan, type DestinationPlan } from "@/lib/short-links/destination";
+import { getAccessContext } from "@/features/authorization/helpers/access";
 import { validateDestination } from "@/lib/short-links/validate-destination";
 import { isValidAlias, normalizeAlias } from "@/lib/short-links/alias";
 import { ApiError } from "@/lib/api/errors";
@@ -45,24 +46,29 @@ export async function updateLinkAction(
   const user = currUser.user;
 
   if (!user) {
-    log.info('rejected edit without session', { slug });
+    log.info({ slug }, 'rejected edit without session');
     return fail(initialState, 'forbidden');
   }
 
   const { data: isOwner } = await userRepo.isOwner(user.id, slug);
   if (!isOwner) {
-    log.warn('rejected edit from non-owner', { slug, userId: user.id });
+    log.warn({ slug, userId: user.id }, 'rejected edit from non-owner');
     return fail(initialState, 'forbidden');
   }
 
   const next: LinkEditState = { ...initialState };
 
   if (destination !== null) {
+    // El plan sale del servicio efectivo, no del JWT: editar un enlace reescribe
+    // el destino con `buildDestination`, y con el plan desactualizado un
+    // suscriptor perdía en la edición los UTM que su plan sí permite.
+    const access = await getAccessContext();
+
     const updated = await applyDestination({
       slug,
       rawDestination: destination,
       userId: user.id,
-      plan: currUser.plan?.name ?? 'free',
+      plan: toDestinationPlan(access.planKey, access.anonymous),
       userRepo,
     });
 
@@ -72,25 +78,25 @@ export async function updateLinkAction(
 
   if (alias !== null) {
     if (!isValidAlias(alias)) {
-      log.info('rejected alias', { slug });
+      log.info({ slug }, 'rejected alias');
       return fail(initialState, 'alias');
     }
 
     const { error } = await userRepo.changeAlias(slug, normalizeAlias(alias));
 
     if (error) {
-      log.error('failed to change alias', { slug, error });
+      log.error(error, 'failed to change alias for /%s', slug);
       return fail(initialState, 'alias');
     }
 
     next.alias = alias;
   }
 
-  log.info('link updated', {
+  log.info({
     slug,
     changedAlias: alias !== null,
     changedDestination: destination !== null,
-  });
+  }, 'link updated');
 
   return { ...next, success: true, reason: undefined };
 }
@@ -123,7 +129,7 @@ async function applyDestination(
   // se comprueba en vez de forzar el tipo, porque el rastro de auditoría lo
   // necesita y un null aquí significaría una fila corrupta, no un caso normal.
   if (readError || !current?.destination) {
-    log.error('failed to read link before destination change', { slug, error: readError });
+    log.error(readError, 'failed to read link before destination change for /%s', slug);
     return { ok: false };
   }
 
@@ -133,7 +139,7 @@ async function applyDestination(
   try {
     ({ target } = await validateDestination(rawDestination, shorterRepo));
   } catch (err) {
-    log.info('rejected new destination', { slug, code: err instanceof ApiError ? err.code : 'unknown' });
+    log.info({ slug, code: err instanceof ApiError ? err.code : 'unknown' }, 'rejected new destination');
     return { ok: false };
   }
 
@@ -153,14 +159,14 @@ async function applyDestination(
   const { data: updated, error } = await userRepo.changeDestination(slug, destination);
 
   if (error) {
-    log.error('failed to change destination', { slug, error });
+    log.error(error, 'failed to change destination for /%s', slug);
     return { ok: false };
   }
 
   // Cero filas sin error es el fallo característico de PostgREST cuando RLS
   // deniega. Se trata como fallo explícito en lugar de darlo por bueno.
   if (!updated || updated.length === 0) {
-    log.error('destination update affected no rows', { slug, userId });
+    log.error(null, 'destination update affected no rows for /%s and user %s', slug, userId);
     return { ok: false };
   }
 
@@ -171,7 +177,7 @@ async function applyDestination(
     changedBy: userId,
   });
 
-  if (auditError) log.error('failed to write destination audit row', { slug, error: auditError });
+  if (auditError) log.error(auditError, 'failed to write destination audit row for /%s', slug);
 
   return { ok: true, destination };
 }

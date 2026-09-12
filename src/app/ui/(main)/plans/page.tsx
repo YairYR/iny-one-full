@@ -2,11 +2,11 @@ import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
 import Link from "next/link";
 import PricingCards from "@/components/PricingCards";
-import {PAYPAL_CONFIG} from "@/lib/paypal-client";
-import {PayPalProvider} from "@paypal/react-paypal-js/sdk-v6";
+import { PAYPAL_CONFIG } from "@/lib/paypal-client";
+import { PayPalProvider } from "@paypal/react-paypal-js/sdk-v6";
 import { ROUTES } from "@/lib/routes";
 import { buildPageMetadata, normalizeLocale } from "@/lib/seo/metadata";
-import {getUserPlan, isLoggedIn} from "@/data/dto/user-dto";
+import { hasSubscription, isLoggedIn } from "@/data/dto/user-dto";
 
 const META = {
   en: {
@@ -174,7 +174,7 @@ export default async function PlansPage() {
   const t = content[locale] ?? content.en;
 
   const logged = await isLoggedIn();
-  const plan = await getUserPlan();
+  const alreadySubscribed = await hasSubscription();
 
   return (
     <PayPalProvider {...PAYPAL_CONFIG}>
@@ -191,7 +191,7 @@ export default async function PlansPage() {
           <p className="text-lg text-gray-600">{t.intro}</p>
         </div>
 
-        <PricingCards logged={logged} plan={plan} />
+        <PricingCards logged={logged} alreadySubscribed={alreadySubscribed} />
 
         <section className="max-w-2xl w-full mt-14 space-y-10 text-gray-700">
           <div>

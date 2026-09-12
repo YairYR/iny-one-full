@@ -12,6 +12,8 @@ const countLinksByIpInLastMonth = jest.fn();
 const countLinksByUserInLastMonth = jest.fn();
 const getCurrentUser = jest.fn();
 const bloomHas = jest.fn();
+let mockAccess: { entitlements: Map<string, unknown>; planKey: string | null; anonymous: boolean };
+const accesoAnonimo = () => ({ entitlements: new Map<string, unknown>(), planKey: null, anonymous: true });
 
 jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
 jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
@@ -26,6 +28,13 @@ jest.mock('@/infra/db/shorter.repository', () => ({
 }));
 jest.mock('@/infra/db/user.repository', () => ({
   getUserRepository: () => ({ getCurrentUser }),
+}));
+// `getAccessContext` resuelve sesión, roles, plan y entitlements contra la base:
+// se mockea en la frontera, como el resto. Sin entitlements la cuota cae a la del
+// plan, que es lo que asertan estas pruebas; el caso con entitlement se cubre
+// como unidad en `__tests__/lib/rate-limits.test.ts`.
+jest.mock('@/features/authorization/helpers/access', () => ({
+  getAccessContext: () => Promise.resolve(mockAccess),
 }));
 
 // Se importa después de registrar los mocks para que la ruta reciba los dobles.
@@ -59,6 +68,7 @@ describe('POST /api/v1/shorten', () => {
     countLinksByIpInLastMonth.mockResolvedValue({ count: 0, error: null });
     countLinksByUserInLastMonth.mockResolvedValue({ count: 0, error: null });
     getCurrentUser.mockResolvedValue({ data: { user: null, role: null, plan: null } });
+    mockAccess = accesoAnonimo();
   });
 
   it('creates a short link and returns its url', async () => {
@@ -179,6 +189,42 @@ describe('POST /api/v1/shorten', () => {
   });
 
   // Regresión: cada parámetro ajeno a los UTM se sobreescribía con "undefined".
+  /**
+   * B2. El plan de pago promete literalmente «utm_content y utm_term». El plan
+   * con el que se filtran salía del JWT, que nadie actualiza al activarse una
+   * suscripción: el cliente pagaba y seguía viéndolos desaparecer. Ahora sale
+   * del `plan_key` del servicio efectivo, el mismo origen que la cuota.
+   *
+   * Van en la URL de destino, que es la única vía por la que hoy pueden llegar:
+   * el esquema de la petición sólo admite source/medium/campaign y el formulario
+   * no ofrece los otros dos.
+   */
+  const destinoConUtmExtra =
+    'https://example.com/?utm_source=instagram&utm_content=boton&utm_term=zapatillas';
+
+  it('un suscriptor de pago conserva utm_content y utm_term', async () => {
+    getCurrentUser.mockResolvedValue({ data: { user: { id: 'user-1' }, role: null, plan: null } });
+    mockAccess = { entitlements: new Map(), planKey: 'basic', anonymous: false };
+
+    await POST(request({ url: destinoConUtmExtra }), undefined);
+
+    const destination = new URL(create.mock.calls[0][0].destination);
+    expect(destination.searchParams.get('utm_content')).toBe('boton');
+    expect(destination.searchParams.get('utm_term')).toBe('zapatillas');
+  });
+
+  /** El plan gratuito los pierde: es justo la contrapartida del de pago. */
+  it('un usuario del plan gratuito pierde utm_content y utm_term', async () => {
+    getCurrentUser.mockResolvedValue({ data: { user: { id: 'user-1' }, role: null, plan: null } });
+    mockAccess = { entitlements: new Map(), planKey: 'free', anonymous: false };
+
+    await POST(request({ url: destinoConUtmExtra }), undefined);
+
+    const destination = new URL(create.mock.calls[0][0].destination);
+    expect(destination.searchParams.get('utm_content')).toBeNull();
+    expect(destination.searchParams.get('utm_term')).toBeNull();
+  });
+
   it('keeps the destination query parameters intact', async () => {
     await POST(
       request({

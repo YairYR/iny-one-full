@@ -1,4 +1,4 @@
-import {Copy, Link, Zap} from "lucide-react";
+import { Copy, Link, Zap } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 export default function UtmInfoSmall() {

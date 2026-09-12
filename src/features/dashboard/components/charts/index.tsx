@@ -6,17 +6,17 @@
  * fuera del bundle inicial del dashboard.
  */
 import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
   ArcElement,
-  Tooltip,
-  Legend,
+  BarElement,
+  CategoryScale,
+  Chart as ChartJS,
   Colors,
   Filler,
+  Legend,
+  LinearScale,
+  LineElement,
+  PointElement,
+  Tooltip,
 } from "chart.js";
 
 ChartJS.register(

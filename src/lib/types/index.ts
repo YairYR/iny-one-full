@@ -46,9 +46,19 @@ export interface UserClient {
   picture: string | null;
   created_at: string;
   role: string | null;
+  /**
+   * INACTIVO: sin consumidores (rev. 2026-09-11).
+   *
+   * Viene de `user_metadata.user_plan`, que el hook de token toma de
+   * `users_profiles.plan`. Nada actualiza esa tabla al activarse una
+   * suscripción, así que el valor era incorrecto para quien pagaba. El plan
+   * efectivo se resuelve ahora en `AccessContext.planKey`, desde la tabla
+   * `subscriptions`.
+   */
   plan: UserPlanSummary | null;
 }
 
+/** INACTIVO: sólo tipa campos ya inactivos (rev. 2026-09-11). */
 export interface UserPlanSummary {
   id: string | null;
   name: PlanName;
@@ -115,7 +125,7 @@ export type WebhookEventPaypal = {
   id: string;
   create_time: string;
   resource_type: string;
-  event_type: string;
+  event_type: (typeof PaypalEventType)[keyof typeof PaypalEventType];
   summary: string;
   event_version: string;
   resource: Record<string, never>;
@@ -125,6 +135,36 @@ export type WebhookEventPaypal = {
     method?: string;
   }>;
 }
+
+export const PaypalEventType = {
+  // A product is created.
+  PRODUCT_CREATED: "CATALOG.PRODUCT.CREATED",
+  // A product is updated.
+  PRODUCT_UPDATED: "CATALOG.PRODUCT.UPDATED",
+
+  // A payment is made on a subscription.
+  PAYMENT_COMPLETED: "PAYMENT.SALE.COMPLETED",
+  // A merchant refunds a sale.
+  PAYMENT_REFUNDED: "PAYMENT.SALE.REFUNDED",
+  // A payment is reversed on a subscription.
+  PAYMENT_REVERSED: "PAYMENT.SALE.REVERSED",
+
+  PLAN_CREATED: "BILLING.PLAN.CREATED",
+  PLAN_UPDATED: "BILLING.PLAN.UPDATED",
+  PLAN_ACTIVATED: "BILLING.PLAN.ACTIVATED",
+  PLAN_DEACTIVATED: "BILLING.PLAN.DEACTIVATED",
+  // A price change for the plan is activated.
+  PLAN_PRICING_CHANGE: "BILLING.PLAN.PRICING-CHANGE.ACTIVATED",
+
+  SUBSCRIPTION_CREATED: "BILLING.SUBSCRIPTION.CREATED",
+  SUBSCRIPTION_ACTIVATED: "BILLING.SUBSCRIPTION.ACTIVATED",
+  SUBSCRIPTION_UPDATED: "BILLING.SUBSCRIPTION.UPDATED",
+  SUBSCRIPTION_EXPIRED: "BILLING.SUBSCRIPTION.EXPIRED",
+  SUBSCRIPTION_CANCELLED: "BILLING.SUBSCRIPTION.CANCELLED",
+  SUBSCRIPTION_SUSPENDED: "BILLING.SUBSCRIPTION.SUSPENDED",
+  // Payment failed on subscription.
+  SUBSCRIPTION_PAYMENT_FAILED: "BILLING.SUBSCRIPTION.PAYMENT.FAILED"
+} as const;
 
 export type UrlExpires = {
   expires_in_days: number;

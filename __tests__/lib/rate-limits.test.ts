@@ -79,6 +79,30 @@ describe('checkRateLimit', () => {
     });
   });
 
+  /**
+   * La cuota real vive en los entitlements del servicio contratado; el plan es el
+   * respaldo. Se inyecta ya resuelta porque leerla exige sesión y base de datos.
+   */
+  it('el entitlement manda sobre el límite del plan', async () => {
+    const { repo } = repoStub({ byUser: { count: 0, error: null } });
+
+    const result = await checkRateLimit({ userId: 'user-1', plan: 'free', ip: null, repo, store, limit: 7 });
+
+    expect(result).toMatchObject({ plan: 'free', limit: 7, remaining: 7 });
+  });
+
+  /**
+   * Si el entitlement no se pudo resolver se aplica el límite del plan, no la cuota
+   * anónima: un fallo transitorio no puede dejar a un usuario de pago en 5 enlaces.
+   */
+  it('sin entitlement aplica el límite del plan, no el anónimo', async () => {
+    const { repo } = repoStub({ byUser: { count: 0, error: null } });
+
+    const result = await checkRateLimit({ userId: 'user-1', plan: 'pro', ip: null, repo, store, limit: null });
+
+    expect(result.limit).toBe(RATE_LIMITS.pro);
+  });
+
   it('denies a request once the limit is reached', async () => {
     const { repo } = repoStub({ byIp: { count: RATE_LIMITS.freeAnonymous, error: null } });
 

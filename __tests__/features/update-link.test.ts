@@ -10,6 +10,7 @@ const changeDestination = jest.fn();
 const getLinkForEdit = jest.fn();
 const logDestinationChange = jest.fn();
 const validateDestination = jest.fn();
+let mockAccess: { entitlements: Map<string, unknown>; planKey: string | null; anonymous: boolean };
 
 jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
 jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
@@ -21,6 +22,11 @@ jest.mock('@/infra/db/shorter.repository', () => ({
 }));
 jest.mock('@/lib/short-links/validate-destination', () => ({
   validateDestination: (...args: unknown[]) => validateDestination(...args),
+}));
+// El plan efectivo sale del contexto de acceso, que consulta la base: se mockea
+// en la frontera, como el resto de repositorios.
+jest.mock('@/features/authorization/helpers/access', () => ({
+  getAccessContext: () => Promise.resolve(mockAccess),
 }));
 
 // Se importa después de registrar los mocks para que la acción reciba los dobles.
@@ -42,6 +48,7 @@ describe('updateLinkAction', () => {
     jest.clearAllMocks();
 
     getCurrentUser.mockResolvedValue({ data: { user: { id: 'user-1' }, role: null, plan: 'free' } });
+    mockAccess = { entitlements: new Map(), planKey: 'free', anonymous: false };
     isOwner.mockResolvedValue({ data: { slug: SLUG } });
     changeAlias.mockResolvedValue({ error: null });
     changeDestination.mockResolvedValue({ data: [{ slug: SLUG }], error: null });
@@ -78,6 +85,46 @@ describe('updateLinkAction', () => {
     expect(written.searchParams.get('utm_source')).toBe('instagram');
     expect(written.searchParams.get('utm_medium')).toBe('social');
     expect(written.searchParams.get('utm_campaign')).toBe('verano');
+  });
+
+  /**
+   * El plan salía del JWT, que no se actualiza al activarse una suscripción. Con
+   * él, un suscriptor que editaba un enlace perdía en la reescritura los UTM que
+   * su plan sí permite: la edición le degradaba el plan en silencio.
+   */
+  /** El enlace ya tenía `utm_content` guardado, como lo tendría un suscriptor. */
+  function enlaceConUtmContent() {
+    getLinkForEdit.mockResolvedValue({
+      data: {
+        destination: 'https://old.example/?utm_source=instagram&utm_content=boton',
+        utm_source: 'instagram',
+        utm_medium: null,
+        utm_campaign: null,
+        utm_term: null,
+        utm_content: 'boton',
+        utm_id: null,
+      },
+      error: null,
+    });
+  }
+
+  it('un suscriptor de pago no pierde utm_content al editar', async () => {
+    enlaceConUtmContent();
+    mockAccess = { entitlements: new Map(), planKey: 'basic', anonymous: false };
+
+    await updateLinkAction(state, form({ destination: 'https://new.example/landing' }));
+
+    const written = new URL(changeDestination.mock.calls[0][1]);
+    expect(written.searchParams.get('utm_content')).toBe('boton');
+  });
+
+  it('un usuario del plan gratuito sí pierde utm_content al editar', async () => {
+    enlaceConUtmContent();
+
+    await updateLinkAction(state, form({ destination: 'https://new.example/landing' }));
+
+    const written = new URL(changeDestination.mock.calls[0][1]);
+    expect(written.searchParams.get('utm_content')).toBeNull();
   });
 
   // Sin esto el blocklist sería evitable: crear limpio y repuntar después.

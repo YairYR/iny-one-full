@@ -1,10 +1,10 @@
-import {withErrorHandling} from "@/lib/api/http";
-import {getCurrentUserDTO} from "@/data/dto/user-dto";
-import {SessionNotFoundError} from "@/lib/api/errors";
-import {createClient} from "@/lib/supabase/server";
-import {getUserRepository} from "@/infra/db/user.repository";
-import {UserUrl} from "@/features/dashboard/types/types";
-import {successResponse} from "@/lib/api/responses";
+import { withErrorHandling } from "@/lib/api/http";
+import { getCurrentUserDTO } from "@/data/dto/user-dto";
+import { SessionNotFoundError } from "@/lib/api/errors";
+import { createClient } from "@/lib/supabase/server";
+import { getUserRepository } from "@/infra/db/user.repository";
+import { UserUrl } from "@/features/dashboard/types/types";
+import { successResponse } from "@/lib/api/responses";
 
 
 export const GET = withErrorHandling(async () => {

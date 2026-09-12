@@ -110,6 +110,15 @@ function supabaseConnectSources(origin: string | null): string[] {
 }
 
 const nextConfig: NextConfig = {
+  /**
+   * Hay un `package.json` y un `yarn.lock` sueltos en el directorio de usuario
+   * (una instalación ajena hecha por error fuera de cualquier proyecto). Next
+   * los detecta al subir buscando la raíz del workspace y elige ESA carpeta,
+   * con lo que el trazado de ficheros de salida parte del sitio equivocado.
+   * Fijarla aquí lo corta sin depender de que esos ficheros sigan o no ahí.
+   */
+  outputFileTracingRoot: process.cwd(),
+
   logging: {
     fetches: {
       fullUrl: true,
