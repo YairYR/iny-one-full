@@ -83,7 +83,7 @@ export function getShorterRepository(db: DbInstance) {
           user_is_bot: agent?.isBot ?? false,
           user_browser: browser?.name ?? null,
           user_browser_version: browser?.major ?? browser?.version ?? null,
-          user_device_type: device?.type ?? null,
+          user_device_type: device?.type ?? 'desktop',
           user_device_vendor: device?.vendor ?? null,
           user_device_model: device?.model ?? null,
           user_os: os?.name ?? null,
