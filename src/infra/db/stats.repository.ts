@@ -42,6 +42,16 @@ export function getStatsRepository(db: DbInstance)  {
           .lte('created_at', endDate.toISOString());
     },
 
+    async getLinkBreakdown(slug: string, startDate: Date, endDate: Date) {
+      // TODO: generar tipos de la base de datos
+      // @ts-expect-error Supabase RPC params are not typed correctly, so we need to ignore this error.
+      return db.rpc('get_link_breakdown', {
+        p_slug: slug,
+        p_from: startDate.toISOString(),
+        p_to: endDate.toISOString()
+      });
+    },
+
     /* INACTIVO — sin importaciones ni referencias en el repositorio (rev. 2026-08-09).
      * No se elimina por si retoma uso en una build futura; hoy no tiene efecto en
      * producción. Al reactivarlo: descomentar y cubrirlo con tests. */
