@@ -368,34 +368,19 @@ export type Database = {
           description: string | null
           id: string
           key: string
+          scope: Database["public"]["Enums"]["role_scope"]
         }
         Insert: {
           description?: string | null
           id?: string
           key: string
+          scope?: Database["public"]["Enums"]["role_scope"]
         }
         Update: {
           description?: string | null
           id?: string
           key?: string
-        }
-        Relationships: []
-      }
-      plan_permission: {
-        Row: {
-          id: number
-          permission: Database["public"]["Enums"]["app_permission"]
-          plan: Database["public"]["Enums"]["app_plan"]
-        }
-        Insert: {
-          id?: number
-          permission: Database["public"]["Enums"]["app_permission"]
-          plan: Database["public"]["Enums"]["app_plan"]
-        }
-        Update: {
-          id?: number
-          permission?: Database["public"]["Enums"]["app_permission"]
-          plan?: Database["public"]["Enums"]["app_plan"]
+          scope?: Database["public"]["Enums"]["role_scope"]
         }
         Relationships: []
       }
@@ -435,18 +420,21 @@ export type Database = {
           id: string
           key: string
           name: string
+          scope: Database["public"]["Enums"]["role_scope"]
         }
         Insert: {
           description?: string | null
           id?: string
           key: string
           name: string
+          scope?: Database["public"]["Enums"]["role_scope"]
         }
         Update: {
           description?: string | null
           id?: string
           key?: string
           name?: string
+          scope?: Database["public"]["Enums"]["role_scope"]
         }
         Relationships: []
       }
@@ -569,6 +557,7 @@ export type Database = {
           ip_user: string | null
           slug: string
           status: boolean
+          team_id: string | null
           user_id: string | null
           utm_campaign: string | null
           utm_content: string | null
@@ -589,6 +578,7 @@ export type Database = {
           ip_user?: string | null
           slug: string
           status?: boolean
+          team_id?: string | null
           user_id?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
@@ -609,6 +599,7 @@ export type Database = {
           ip_user?: string | null
           slug?: string
           status?: boolean
+          team_id?: string | null
           user_id?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
@@ -617,7 +608,15 @@ export type Database = {
           utm_source?: string | null
           utm_term?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "short_links_team_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       short_links_daily_stats: {
         Row: {
@@ -867,6 +866,81 @@ export type Database = {
           },
         ]
       }
+      team_members: {
+        Row: {
+          created_at: string
+          joined_at: string
+          role_id: string
+          status: string
+          team_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          joined_at?: string
+          role_id: string
+          status?: string
+          team_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          joined_at?: string
+          role_id?: string
+          status?: string
+          team_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_members_role_fkey"
+            columns: ["role_id"]
+            isOneToOne: false
+            referencedRelation: "roles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_members_team_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          slug: string | null
+          team_kind: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          slug?: string | null
+          team_kind?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          slug?: string | null
+          team_kind?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           role_id: string
@@ -964,31 +1038,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      authorize: {
-        Args: {
-          requested_permission: Database["public"]["Enums"]["app_permission"]
-        }
-        Returns: boolean
-      }
+      authorize: { Args: { requested_permission: string }; Returns: boolean }
       click_short_link: {
         Args: {
           page_slug: string
-          user_browser: string | null
-          user_browser_version: string | null
-          user_city: string | null
-          user_country_code: string | null
-          user_device_model: string | null
-          user_device_type: string | null
-          user_device_vendor: string | null
-          user_ip: string | null
+          user_browser: string
+          user_browser_version: string
+          user_city: string
+          user_country_code: string
+          user_device_model: string
+          user_device_type: string
+          user_device_vendor: string
+          user_ip: string
           user_is_bot: boolean
-          user_latitude: string | null
-          user_longitude: string | null
-          user_os: string | null
-          user_os_version: string | null
-          user_referer: string | null
-          user_region: string | null
-          user_ua: string | null
+          user_latitude: string
+          user_longitude: string
+          user_os: string
+          user_os_version: string
+          user_referer: string
+          user_region: string
+          user_ua: string
         }
         Returns: undefined
       }
@@ -1003,6 +1072,14 @@ export type Database = {
         }
         Returns: DashboardStatsSummary
       }
+      get_dashboard_stats_temp: {
+        Args: { p_from?: string; p_to?: string; p_user_id: string }
+        Returns: Json
+      }
+      get_link_breakdown: {
+        Args: { p_from?: string; p_slug: string; p_to?: string }
+        Returns: Json
+      }
       get_page_clicks_between_dates: {
         Args: { _end_date: string; _slug: string[]; _start_date: string }
         Returns: number
@@ -1016,38 +1093,9 @@ export type Database = {
       }
     }
     Enums: {
-      app_permission:
-        | "links.create"
-        | "links.read"
-        | "links.update"
-        | "links.delete"
-        | "links.transfer"
-        | "stats.view"
-        | "stats.export"
-        | "stats.view_sensitive"
-        | "domains.add"
-        | "domains.delete"
-        | "domains.verify"
-        | "domains.read"
-        | "team.read"
-        | "team.invite"
-        | "team.remove"
-        | "team.manage_roles"
-        | "admin.read"
-        | "admin.manage_users"
-        | "admin.manage_permissions"
-        | "admin.manage_plans"
-        | "admin.manage_billing"
-        | "admin.access_audit_log"
-        | "security.blacklist_domains"
-        | "security.whitelist_domains"
-        | "security.view_protected"
-        | "security.change_ratelimits"
-        | "system.view_health"
-        | "system.restart_workers"
-        | "system.manage_keys"
       app_plan: "basic" | "pro" | "free"
       app_role: "user" | "editor" | "manager" | "admin"
+      role_scope: "global" | "team"
       subscription_status:
         | "INSERTED"
         | "APPROVAL_PENDING"
@@ -1275,39 +1323,9 @@ export const Constants = {
   },
   public: {
     Enums: {
-      app_permission: [
-        "links.create",
-        "links.read",
-        "links.update",
-        "links.delete",
-        "links.transfer",
-        "stats.view",
-        "stats.export",
-        "stats.view_sensitive",
-        "domains.add",
-        "domains.delete",
-        "domains.verify",
-        "domains.read",
-        "team.read",
-        "team.invite",
-        "team.remove",
-        "team.manage_roles",
-        "admin.read",
-        "admin.manage_users",
-        "admin.manage_permissions",
-        "admin.manage_plans",
-        "admin.manage_billing",
-        "admin.access_audit_log",
-        "security.blacklist_domains",
-        "security.whitelist_domains",
-        "security.view_protected",
-        "security.change_ratelimits",
-        "system.view_health",
-        "system.restart_workers",
-        "system.manage_keys",
-      ],
       app_plan: ["basic", "pro", "free"],
       app_role: ["user", "editor", "manager", "admin"],
+      role_scope: ["global", "team"],
       subscription_status: [
         "INSERTED",
         "APPROVAL_PENDING",
