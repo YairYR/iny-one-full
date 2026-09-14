@@ -9,10 +9,13 @@ import { createClient } from "@/lib/supabase/server";
 import { getUserRepository } from "@/infra/db/user.repository";
 import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import { ResourceNotFoundError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
+import logger from "@/lib/logger";
 
 dayjs.extend(utc);
 
 const STATS_WINDOW_DAYS = 7;
+
+const log = logger.child({ route: 'api/dashboard/stats/[slug]' });
 
 export const GET = withErrorHandling(async (_request: NextRequest, ctx: RouteContext<'/api/dashboard/stats/[slug]'>) => {
   const { slug } = await ctx.params;
@@ -40,5 +43,17 @@ export const GET = withErrorHandling(async (_request: NextRequest, ctx: RouteCon
     today.toDate(),
   );
 
-  return successResponse(data ?? []);
+  const linkBreakdown = await getStatsRepository(supabase_service).getLinkBreakdown(
+    slug,
+    today.subtract(3000, 'day').toDate(),
+    today.toDate(),
+  );
+
+  log.info({ slug, data, linkBreakdown }, 'Fetched stats for slug');
+
+  return successResponse({
+    slug,
+    stats: data,
+    breakdown: linkBreakdown,
+  });
 });
