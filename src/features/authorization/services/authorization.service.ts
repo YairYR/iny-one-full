@@ -1,6 +1,6 @@
 import { InsufficientPermissionsError } from "@/lib/api/errors";
 import { AccessContext } from "@/features/authorization/types/access-context";
-import { Permission } from "@/features/authorization/types/permission";
+import { Permission, PermissionScope } from "@/features/authorization/types/permission";
 
 export class AuthorizationService {
     can(
@@ -13,6 +13,7 @@ export class AuthorizationService {
     require(
         context: AccessContext,
         permission: Permission,
+        scope?: PermissionScope,
     ): void {
         if (!this.can(context, permission)) {
             throw new InsufficientPermissionsError();
