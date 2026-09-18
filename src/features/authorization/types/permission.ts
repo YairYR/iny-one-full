@@ -38,3 +38,8 @@ export const PERMISSIONS = {
 
 export type Permission =
     (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
+
+export type PermissionScope = {
+    scope: 'personal' | 'workspace';
+    teamId: string;
+};

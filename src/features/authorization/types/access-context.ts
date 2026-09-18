@@ -6,9 +6,17 @@ export interface SubscriptionContext {
     endDate: string | null;
 }
 
+export type TeamAccess = {
+    teamId: string;
+    role: string;
+    permissions: Set<string>;
+}
+
 type AccessContextBase = {
     roles: Set<string>;
     permissions: Set<string>;
+    teams: Map<string, TeamAccess>;
+
     serviceId: string;
     subscription: SubscriptionContext | null;
     entitlements: Map<string, unknown>;

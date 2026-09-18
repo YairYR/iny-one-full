@@ -43,8 +43,6 @@ export function getStatsRepository(db: DbInstance)  {
     },
 
     async getLinkBreakdown(slug: string, startDate: Date, endDate: Date) {
-      // TODO: generar tipos de la base de datos
-      // @ts-expect-error Supabase RPC params are not typed correctly, so we need to ignore this error.
       return db.rpc('get_link_breakdown', {
         p_slug: slug,
         p_from: startDate.toISOString(),
