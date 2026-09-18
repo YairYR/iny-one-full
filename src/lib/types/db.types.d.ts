@@ -164,12 +164,12 @@ export type Database = {
           ip: string | null
           is_bot: boolean
           latitude: string | null
+          link_id: string
           longitude: string | null
           os: string | null
           os_version: string | null
           referer: string | null
           region: string | null
-          slug: string
           user_agent: string | null
           utm_campaign: string | null
           utm_content: string | null
@@ -192,12 +192,12 @@ export type Database = {
           ip?: string | null
           is_bot?: boolean
           latitude?: string | null
+          link_id: string
           longitude?: string | null
           os?: string | null
           os_version?: string | null
           referer?: string | null
           region?: string | null
-          slug: string
           user_agent?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
@@ -220,12 +220,12 @@ export type Database = {
           ip?: string | null
           is_bot?: boolean
           latitude?: string | null
+          link_id?: string
           longitude?: string | null
           os?: string | null
           os_version?: string | null
           referer?: string | null
           region?: string | null
-          slug?: string
           user_agent?: string | null
           utm_campaign?: string | null
           utm_content?: string | null
@@ -236,11 +236,78 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "history_clicks_slug_fkey"
-            columns: ["slug"]
+            foreignKeyName: "history_clicks_link_fkey"
+            columns: ["link_id"]
             isOneToOne: false
             referencedRelation: "short_links"
-            referencedColumns: ["slug"]
+            referencedColumns: ["link_id"]
+          },
+        ]
+      }
+      link_destinations: {
+        Row: {
+          domain: string | null
+          link_id: string
+          subdomain: string | null
+          validated_at: string | null
+          validation_status: string
+        }
+        Insert: {
+          domain?: string | null
+          link_id: string
+          subdomain?: string | null
+          validated_at?: string | null
+          validation_status?: string
+        }
+        Update: {
+          domain?: string | null
+          link_id?: string
+          subdomain?: string | null
+          validated_at?: string | null
+          validation_status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_destinations_link_fkey"
+            columns: ["link_id"]
+            isOneToOne: true
+            referencedRelation: "short_links"
+            referencedColumns: ["link_id"]
+          },
+        ]
+      }
+      link_hosts: {
+        Row: {
+          created_at: string
+          host_id: string
+          status: string
+          subdomain: string
+          team_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          host_id?: string
+          status?: string
+          subdomain: string
+          team_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          host_id?: string
+          status?: string
+          subdomain?: string
+          team_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "link_hosts_team_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -514,101 +581,93 @@ export type Database = {
           changed_at: string
           changed_by: string
           id: number
+          link_id: string
           new_destination: string
           old_destination: string
-          slug: string
         }
         Insert: {
           changed_at?: string
           changed_by: string
           id?: number
+          link_id: string
           new_destination: string
           old_destination: string
-          slug: string
         }
         Update: {
           changed_at?: string
           changed_by?: string
           id?: number
+          link_id?: string
           new_destination?: string
           old_destination?: string
-          slug?: string
         }
         Relationships: [
           {
-            foreignKeyName: "short_link_destination_changes_slug_fkey"
-            columns: ["slug"]
+            foreignKeyName: "short_link_destination_changes_link_fkey"
+            columns: ["link_id"]
             isOneToOne: false
             referencedRelation: "short_links"
-            referencedColumns: ["slug"]
+            referencedColumns: ["link_id"]
           },
         ]
       }
       short_links: {
         Row: {
-          alias: string | null
           clicks: number | null
-          country_code_user: string | null
           created_at: string
-          destination: string | null
-          domain: string | null
+          created_by: string | null
+          created_by_country_code: string | null
+          created_by_ip: unknown
+          destination: string
           expires_at: string | null
           expires_in: number | null
-          ip_user: string | null
+          host_id: string | null
+          link_id: string
+          name: string | null
           slug: string
-          status: boolean
+          status: string
           team_id: string | null
-          user_id: string | null
-          utm_campaign: string | null
-          utm_content: string | null
-          utm_id: string | null
-          utm_medium: string | null
-          utm_source: string | null
-          utm_term: string | null
         }
         Insert: {
-          alias?: string | null
           clicks?: number | null
-          country_code_user?: string | null
           created_at?: string
-          destination?: string | null
-          domain?: string | null
+          created_by?: string | null
+          created_by_country_code?: string | null
+          created_by_ip?: unknown
+          destination: string
           expires_at?: string | null
           expires_in?: number | null
-          ip_user?: string | null
+          host_id?: string | null
+          link_id: string
+          name?: string | null
           slug: string
-          status?: boolean
+          status?: string
           team_id?: string | null
-          user_id?: string | null
-          utm_campaign?: string | null
-          utm_content?: string | null
-          utm_id?: string | null
-          utm_medium?: string | null
-          utm_source?: string | null
-          utm_term?: string | null
         }
         Update: {
-          alias?: string | null
           clicks?: number | null
-          country_code_user?: string | null
           created_at?: string
-          destination?: string | null
-          domain?: string | null
+          created_by?: string | null
+          created_by_country_code?: string | null
+          created_by_ip?: unknown
+          destination?: string
           expires_at?: string | null
           expires_in?: number | null
-          ip_user?: string | null
+          host_id?: string | null
+          link_id?: string
+          name?: string | null
           slug?: string
-          status?: boolean
+          status?: string
           team_id?: string | null
-          user_id?: string | null
-          utm_campaign?: string | null
-          utm_content?: string | null
-          utm_id?: string | null
-          utm_medium?: string | null
-          utm_source?: string | null
-          utm_term?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "short_links_host_team_fkey"
+            columns: ["host_id", "team_id"]
+            isOneToOne: false
+            referencedRelation: "link_hosts"
+            referencedColumns: ["host_id", "team_id"]
+          },
           {
             foreignKeyName: "short_links_team_fkey"
             columns: ["team_id"]
@@ -624,8 +683,8 @@ export type Database = {
           country_counts: Json
           date: string
           device_type_counts: Json
+          link_id: string
           os_counts: Json
-          slug: string
           total_clicks: number
           unique_ips: number
           updated_at: string | null
@@ -635,8 +694,8 @@ export type Database = {
           country_counts?: Json
           date: string
           device_type_counts?: Json
+          link_id: string
           os_counts?: Json
-          slug: string
           total_clicks?: number
           unique_ips?: number
           updated_at?: string | null
@@ -646,19 +705,19 @@ export type Database = {
           country_counts?: Json
           date?: string
           device_type_counts?: Json
+          link_id?: string
           os_counts?: Json
-          slug?: string
           total_clicks?: number
           unique_ips?: number
           updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "short_links_daily_stats_slug_fkey"
-            columns: ["slug"]
+            foreignKeyName: "short_links_daily_stats_link_fkey"
+            columns: ["link_id"]
             isOneToOne: false
             referencedRelation: "short_links"
-            referencedColumns: ["slug"]
+            referencedColumns: ["link_id"]
           },
         ]
       }
@@ -667,9 +726,9 @@ export type Database = {
           browser_counts: Json
           country_counts: Json
           device_type_counts: Json
+          link_id: string
           month: number
           os_counts: Json
-          slug: string
           total_clicks: number
           unique_ips: number
           updated_at: string | null
@@ -679,9 +738,9 @@ export type Database = {
           browser_counts?: Json
           country_counts?: Json
           device_type_counts?: Json
+          link_id: string
           month: number
           os_counts?: Json
-          slug: string
           total_clicks?: number
           unique_ips?: number
           updated_at?: string | null
@@ -691,9 +750,9 @@ export type Database = {
           browser_counts?: Json
           country_counts?: Json
           device_type_counts?: Json
+          link_id?: string
           month?: number
           os_counts?: Json
-          slug?: string
           total_clicks?: number
           unique_ips?: number
           updated_at?: string | null
@@ -701,11 +760,11 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "short_links_monthly_stats_slug_fkey"
-            columns: ["slug"]
+            foreignKeyName: "short_links_monthly_stats_link_fkey"
+            columns: ["link_id"]
             isOneToOne: false
             referencedRelation: "short_links"
-            referencedColumns: ["slug"]
+            referencedColumns: ["link_id"]
           },
         ]
       }
@@ -716,8 +775,8 @@ export type Database = {
           created_at: string
           device_type_counts: Json
           last_click_at: string | null
+          link_id: string
           os_counts: Json
-          slug: string
           total_clicks: number
           unique_ips: number
           updated_at: string
@@ -728,8 +787,8 @@ export type Database = {
           created_at?: string
           device_type_counts?: Json
           last_click_at?: string | null
+          link_id: string
           os_counts?: Json
-          slug: string
           total_clicks?: number
           unique_ips?: number
           updated_at?: string
@@ -740,19 +799,19 @@ export type Database = {
           created_at?: string
           device_type_counts?: Json
           last_click_at?: string | null
+          link_id?: string
           os_counts?: Json
-          slug?: string
           total_clicks?: number
           unique_ips?: number
           updated_at?: string
         }
         Relationships: [
           {
-            foreignKeyName: "short_links_stats_slug_fkey"
-            columns: ["slug"]
+            foreignKeyName: "short_links_stats_link_fkey"
+            columns: ["link_id"]
             isOneToOne: true
             referencedRelation: "short_links"
-            referencedColumns: ["slug"]
+            referencedColumns: ["link_id"]
           },
         ]
       }
@@ -821,12 +880,12 @@ export type Database = {
           external_subscription_id: string | null
           id: string
           next_billing_date: string | null
-          service_id: string
+          service_id: string | null
           start_date: string | null
           status: Database["public"]["Enums"]["subscription_status"] | null
           subscription_gateway: string | null
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           cancel_reason?: string | null
@@ -835,12 +894,12 @@ export type Database = {
           external_subscription_id?: string | null
           id?: string
           next_billing_date?: string | null
-          service_id: string
+          service_id?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"] | null
           subscription_gateway?: string | null
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           cancel_reason?: string | null
@@ -849,12 +908,12 @@ export type Database = {
           external_subscription_id?: string | null
           id?: string
           next_billing_date?: string | null
-          service_id?: string
+          service_id?: string | null
           start_date?: string | null
           status?: Database["public"]["Enums"]["subscription_status"] | null
           subscription_gateway?: string | null
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -917,7 +976,6 @@ export type Database = {
           created_by: string
           id: string
           name: string
-          slug: string | null
           updated_at: string
         }
         Insert: {
@@ -925,7 +983,6 @@ export type Database = {
           created_by: string
           id?: string
           name: string
-          slug?: string | null
           updated_at?: string
         }
         Update: {
@@ -933,7 +990,6 @@ export type Database = {
           created_by?: string
           id?: string
           name?: string
-          slug?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -965,6 +1021,7 @@ export type Database = {
         Row: {
           country: string | null
           created_at: string
+          default_team_id: string | null
           full_name: string | null
           id: string
           phone: string | null
@@ -975,6 +1032,7 @@ export type Database = {
         Insert: {
           country?: string | null
           created_at?: string
+          default_team_id?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
@@ -985,6 +1043,7 @@ export type Database = {
         Update: {
           country?: string | null
           created_at?: string
+          default_team_id?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
@@ -992,7 +1051,59 @@ export type Database = {
           timezone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "users_profiles_default_team_fkey"
+            columns: ["default_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      utms: {
+        Row: {
+          created_at: string
+          link_id: string
+          updated_at: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_id: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+        }
+        Insert: {
+          created_at?: string
+          link_id: string
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_id?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Update: {
+          created_at?: string
+          link_id?: string
+          updated_at?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_id?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "utms_link_fkey"
+            columns: ["link_id"]
+            isOneToOne: true
+            referencedRelation: "short_links"
+            referencedColumns: ["link_id"]
+          },
+        ]
       }
       webhook_events: {
         Row: {
@@ -1068,10 +1179,6 @@ export type Database = {
           _start_date: string
         }
         Returns: DashboardStatsSummary
-      }
-      get_dashboard_stats_temp: {
-        Args: { p_from?: string; p_to?: string; p_user_id: string }
-        Returns: Json
       }
       get_link_breakdown: {
         Args: { p_from?: string; p_slug: string; p_to?: string }
