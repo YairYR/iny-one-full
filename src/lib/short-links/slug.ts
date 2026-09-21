@@ -1,8 +1,10 @@
 import { nanoid } from "nanoid";
 import { isReservedSlug } from "@/lib/reserved-slugs";
+import { randomIntFromInterval } from "@/lib/utils/math";
 
 /** Longitud por defecto de los slugs autogenerados. */
-export const SLUG_SIZE = 7;
+export const SLUG_SIZE_MIN = 7;
+export const SLUG_SIZE_MAX = 8;
 
 /**
  * Intentos máximos para obtener un slug que no choque con la denylist.
@@ -61,7 +63,10 @@ export class SlugGenerationError extends Error {
  *
  * @throws {SlugGenerationError} si no encuentra un candidato válido.
  */
-export function generateSlug(size: number = SLUG_SIZE, generate: (size: number) => string = nanoid): string {
+export function generateSlug(size: number|undefined = undefined, generate: (size: number) => string = nanoid): string {
+  if (size === undefined) {
+    size = randomIntFromInterval(SLUG_SIZE_MIN, SLUG_SIZE_MAX);
+  }
   for (let attempt = 0; attempt < MAX_SLUG_GENERATION_ATTEMPTS; attempt++) {
     const candidate = generate(size).toLowerCase();
     if (!isReservedSlug(candidate)) return candidate;
