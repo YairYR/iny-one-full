@@ -1,10 +1,9 @@
 import 'server-only';
 
 import { AuthorizationRepository } from "@/infra/db/authorization.repository";
-import { isSubscriptionEffective } from "@/features/authorization/util/subscription.utils";
 import {
-    AccessContextAnonymous,
-    AccessContextAuthenticated
+    AccessContext,
+    AccessContextRow, TeamAccess
 } from "@/features/authorization/types/access-context";
 
 export class AccessService {
@@ -12,93 +11,74 @@ export class AccessService {
         private readonly repository: AuthorizationRepository,
     ) {}
 
-    async resolve(userId: string): Promise<AccessContextAuthenticated> {
-        const [
-            roleRows,
-            subscription,
-        ] = await Promise.all([
-            this.repository.getUserRoles(userId),
-            this.repository.getSubscription(userId),
-        ]);
-
-        const roleIds = roleRows
-            .map((row) => row.role?.id)
-            .filter((id): id is string => Boolean(id));
-
-        const roles = new Set(
-            roleRows
-                .map((row) => row.role?.key)
-                .filter((key): key is string => Boolean(key)),
-        );
-
-        const permissionRows = await this.repository.getRolePermissions(roleIds);
-        const permissions = new Set(
-            permissionRows
-                .map((row) => row.permission?.key)
-                .filter((key): key is string => Boolean(key)),
-        );
-
-        const effectiveSubscription = isSubscriptionEffective(subscription);
-
-        let serviceId: string;
-        let planKey: string | null;
-        let effectiveSubscriptionData = null;
-
-        if (effectiveSubscription && subscription) {
-            serviceId = subscription.service_id;
-            planKey = await this.repository.getServicePlanKey(serviceId);
-
-            effectiveSubscriptionData = {
-                id: subscription.id,
-                serviceId: subscription.service_id,
-                status: subscription.status,
-                startDate: subscription.start_date,
-                endDate: subscription.end_date,
-            };
-        } else {
-            const freeService = await this.repository.getFreeService();
-            serviceId = freeService.id;
-            planKey = freeService.plan_key;
-        }
-
-        const entitlementRows = await this.repository.getServiceEntitlements(serviceId);
-        const entitlements = new Map<string, unknown>(
-            entitlementRows.map((row) => [
-                row.key,
-                row.value,
-            ]),
-        );
-
-        return {
-            userId,
-            anonymous: false,
-            roles,
-            permissions,
-            serviceId,
-            subscription: effectiveSubscriptionData,
-            entitlements,
-            planKey,
-        };
+    async resolve(): Promise<AccessContext> {
+        const result = await this.repository.getSessionAccessContext() as unknown as AccessContextRow;
+        return this.mapAccessContext(result);
     }
 
-    async resolveAnonymous(): Promise<AccessContextAnonymous> {
-        const freeService = await this.repository.getFreeAnonymousService();
-        const entitlementRows = await this.repository.getServiceEntitlements(freeService.id);
-        const entitlements = new Map<string, unknown>(
-            entitlementRows.map((row) => [
-                row.key,
-                row.value,
-            ]),
+    private mapAccessContext(row: AccessContextRow): AccessContext {
+        const roles = new Set(row.roles);
+        const permissions = new Set(row.permissions);
+
+        const entitlements = new Map(
+          row.entitlements.map(
+            (entitlement) => [
+                entitlement.key,
+                entitlement.value,
+            ],
+          ),
         );
 
-        return {
-            anonymous: true,
-            roles: new Set(),
-            permissions: new Set(),
-            serviceId: freeService.id,
+        const teams = new Map<string, TeamAccess>(
+          row.teams.map((team) => [
+              team.team_id,
+              {
+                  teamId: team.team_id,
+                  role: team.role,
+                  permissions: new Set(team.permissions),
+              },
+          ]),
+        );
+
+        const base = {
+            roles,
+            permissions,
+            userId: null,
+            default_team_id: null,
+            serviceId: row.service_id,
             subscription: null,
             entitlements,
-            planKey: freeService.plan_key,
+            planKey: row.plan_key,
+            teams,
         };
+
+        if (row.anonymous) {
+            return Object.freeze({
+                ...base,
+                anonymous: true,
+            });
+        }
+
+        if (!row.user_id) {
+            throw new Error(
+              'Authenticated access context has no user_id',
+            );
+        }
+
+        return Object.freeze({
+            ...base,
+            userId: row.user_id,
+            default_team_id: row.default_team_id,
+            subscription: row.subscription
+              ? {
+                  id: row.subscription.id,
+                  serviceId: row.subscription.service_id,
+                  status: row.subscription.status,
+                  startDate: row.subscription.start_date,
+                  endDate: row.subscription.end_date,
+              }
+              : null,
+            anonymous: false,
+        });
     }
 }

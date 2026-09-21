@@ -99,7 +99,10 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const { destination, utm: utmParams } = buildDestination(target, utm, toDestinationPlan(access.planKey, access.anonymous));
 
+  const teamId = access.teams.size > 0 ? Array.from(access.teams.keys())[0] : null;
   const input: Omit<CreateShortLinkInput, 'slug'> = {
+    teamId,
+    hostId: null,
     userId,
     destination,
     utm: utmParams,

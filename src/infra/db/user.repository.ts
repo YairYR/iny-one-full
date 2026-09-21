@@ -81,7 +81,7 @@ export function getUserRepository(db: DbInstance) {
     async changeAlias(slug: string, newAlias: string|null) {
       return db
         .from('short_links')
-        .update({ alias: newAlias })
+        .update({ name: newAlias })
         .eq('slug', slug);
     },
 
@@ -93,7 +93,7 @@ export function getUserRepository(db: DbInstance) {
     async getLinkForEdit(slug: string) {
       return db
         .from('short_links')
-        .select('destination, utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_id')
+        .select('link_id, destination, utms(utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_id)')
         .eq('slug', slug)
         .maybeSingle();
     },

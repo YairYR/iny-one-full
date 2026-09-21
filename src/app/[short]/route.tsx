@@ -34,8 +34,8 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
   if (state === 'expired') {
     // Sólo la primera visita tras caducar necesita escribir; después `status`
     // ya es false y repetirlo sería un write por cada visita.
-    if (data?.status === true) {
-      await shorterRepo.setStatus(short, false);
+    if (data?.status === 'active') {
+      await shorterRepo.setStatus(short, 'disabled');
     }
     return renderExpired();
   }
