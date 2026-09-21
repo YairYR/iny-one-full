@@ -1,5 +1,3 @@
-import { DashboardStatsSummary } from "@/lib/types/index";
-
 export type Json =
   | string
   | number
@@ -435,18 +433,21 @@ export type Database = {
           description: string | null
           id: string
           key: string
+          name: string | null
           scope: Database["public"]["Enums"]["role_scope"]
         }
         Insert: {
           description?: string | null
           id?: string
           key: string
+          name?: string | null
           scope?: Database["public"]["Enums"]["role_scope"]
         }
         Update: {
           description?: string | null
           id?: string
           key?: string
+          name?: string | null
           scope?: Database["public"]["Enums"]["role_scope"]
         }
         Relationships: []
@@ -1169,27 +1170,50 @@ export type Database = {
         }
         Returns: undefined
       }
+      create_link: {
+        Args: {
+          p_created_by?: string
+          p_created_by_country_code?: string
+          p_created_by_ip?: unknown
+          p_destination: string
+          p_domain: string
+          p_expires_in?: number
+          p_host_id: string
+          p_name?: string
+          p_slug: string
+          p_subdomain?: string
+          p_team_id: string
+          p_utm_campaign?: string
+          p_utm_content?: string
+          p_utm_id?: string
+          p_utm_medium?: string
+          p_utm_source?: string
+          p_utm_term?: string
+        }
+        Returns: {
+          host_id: string
+          link_id: string
+          slug: string
+        }[]
+      }
       custom_access_token_hook: { Args: { event: Json }; Returns: Json }
       fn_verify_shortlink_expired: { Args: never; Returns: undefined }
+      get_access_context: { Args: never; Returns: Json }
       get_dashboard_stats_summary: {
         Args: {
           _date_grouping?: string
           _end_date: string
-          _slugs: string[]
           _start_date: string
+          p_link_ids: string[]
         }
-        Returns: DashboardStatsSummary
-      }
-      get_link_breakdown: {
-        Args: { p_from?: string; p_slug: string; p_to?: string }
         Returns: Json
       }
-      get_page_clicks_between_dates: {
-        Args: { _end_date: string; _slug: string[]; _start_date: string }
-        Returns: number
+      get_link_breakdown: {
+        Args: { p_from?: string; p_link_id: string; p_to?: string }
+        Returns: Json
       }
       get_page_traffic: {
-        Args: { _slug: string[] }
+        Args: { p_link_ids: string[] }
         Returns: {
           count: number
           referer: string
