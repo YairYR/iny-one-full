@@ -146,12 +146,12 @@ async function applyDestination(
   // `destination` guarda la URL ya compuesta con las UTM, así que hay que
   // recomponerlas con las que ya tenía el enlace o el cambio las perdería.
   const { destination } = buildDestination(target, {
-    source: current.utm_source,
-    medium: current.utm_medium,
-    campaign: current.utm_campaign,
-    term: current.utm_term,
-    content: current.utm_content,
-    id: current.utm_id,
+    source: current.utms?.utm_source,
+    medium: current.utms?.utm_medium,
+    campaign: current.utms?.utm_campaign,
+    term: current.utms?.utm_term,
+    content: current.utms?.utm_content,
+    id: current.utms?.utm_id,
   }, plan);
 
   if (destination === currentDestination) return { ok: true };
@@ -171,7 +171,7 @@ async function applyDestination(
   }
 
   const { error: auditError } = await shorterRepo.logDestinationChange({
-    slug,
+    link_id: current.link_id,
     oldDestination: currentDestination,
     newDestination: destination,
     changedBy: userId,

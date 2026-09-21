@@ -1,7 +1,9 @@
+import { Tables } from "@/lib/types/db.types";
+
 export type LinkRow = {
   destination: string | null;
   expires_at: string | null;
-  status: boolean | null;
+  status: Tables<'short_links'>['status'] | null;
 };
 
 export type LinkState = 'not-found' | 'expired' | 'active';
@@ -27,7 +29,7 @@ export function resolveLinkState(link: LinkRow | null, now: Date = new Date()): 
 
   // `status` a false lo escribe el propio resolver la primera vez que alguien
   // visita un enlace ya caducado, así que sigue siendo un caducado.
-  if (link.status === false) return hasValidExpiry ? 'expired' : 'not-found';
+  if (link.status === 'disabled') return hasValidExpiry ? 'expired' : 'not-found';
 
   return 'active';
 }

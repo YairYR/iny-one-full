@@ -2,6 +2,7 @@ import { DbInstance } from "@/infra/db/supabase_service";
 import { ClientInfo, UrlExpires, UtmValues } from "@/lib/types";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import { Tables } from "@/lib/types/db.types";
 
 // dayjs es un singleton: extender aquí garantiza que `.utc()` esté disponible
 // aunque este repositorio se importe sin pasar antes por una ruta que lo extienda.
@@ -9,6 +10,8 @@ dayjs.extend(utc);
 
 export type CreateShortLinkInput = {
   userId: string | null;
+  teamId?: string | null;
+  hostId?: string | null;
   slug: string;
   destination: string;
   utm: Partial<UtmValues>;
@@ -19,28 +22,56 @@ export type CreateShortLinkInput = {
 
 export function getShorterRepository(db: DbInstance) {
   return {
-    async create({ userId, slug, destination, utm, domain, expires, client }: CreateShortLinkInput) {
-      return db
-        .from('short_links')
-        .insert([
-          {
-            slug,
-            destination,
-            utm_source: utm?.source ?? null,
-            utm_medium: utm?.medium ?? null,
-            utm_campaign: utm?.campaign ?? null,
-            utm_term: utm?.term ?? null,
-            utm_content: utm?.content ?? null,
-            utm_id: utm?.id ?? null,
-            user_id: userId ?? null,
-            ip_user: client?.ip ?? null,
-            country_code_user: client?.countryCode ?? null,
-            domain: domain ?? null,
-            expires_in: expires?.expires_in_days ?? null,
-            expires_at: expires?.expires_at ?? null,
-          },
-        ])
-        .select('slug');
+    async create({ userId, teamId, hostId, slug, destination, utm, domain, expires, client }: CreateShortLinkInput) {
+      // return db
+      //   .from('short_links')
+      //   .insert([
+      //     {
+      //       slug,
+      //       destination,
+      //       host_id: hostId ?? null,
+      //       team_id: teamId ?? null,
+      //       created_by: userId ?? null,
+      //       created_by_ip: client?.ip ?? null,
+      //       created_by_country_code: client?.countryCode ?? null,
+      //       expires_in: expires?.expires_in_days ?? null,
+      //       expires_at: expires?.expires_at ?? null,
+      //       utms: {
+      //         utm_source: utm?.source ?? null,
+      //         utm_medium: utm?.medium ?? null,
+      //         utm_campaign: utm?.campaign ?? null,
+      //         utm_term: utm?.term ?? null,
+      //         utm_content: utm?.content ?? null,
+      //         utm_id: utm?.id ?? null,
+      //       },
+      //       // link_destinations: (domain ? { domain: domain ?? null } : undefined),
+      //     },
+      //   ])
+      //   .select('slug');
+
+      const created_by_ip = (client?.ip && client.ip !== '::1') ? client.ip : null;
+      const created_by_country_code = client?.countryCode ?? null;
+
+      // @ts-expect-error Needs to map DB types to RPC params
+      return db.rpc('create_link', {
+        p_team_id: teamId ?? null,
+        p_host_id: hostId ?? null,
+        p_slug: slug,
+        p_destination: destination,
+        p_domain: domain ?? null,
+        p_subdomain: null,
+        p_created_by: userId ?? null,
+        p_created_by_ip: created_by_ip,
+        p_created_by_country_code: created_by_country_code,
+        p_name: null,
+        p_utm_source: utm?.source ?? null,
+        p_utm_medium: utm?.medium ?? null,
+        p_utm_campaign: utm?.campaign ?? null,
+        p_utm_content: utm?.content ?? null,
+        p_utm_term: utm?.term ?? null,
+        p_utm_id: utm?.id ?? null,
+        p_expires_in: expires?.expires_in_days ?? null,
+      });
     },
 
     /**
@@ -57,7 +88,7 @@ export function getShorterRepository(db: DbInstance) {
         .maybeSingle();
     },
 
-    async setStatus(slug: string, status: boolean) {
+    async setStatus(slug: string, status: Tables<'short_links'>['status']) {
       return db
         .from('short_links')
         .update({ status })
@@ -117,7 +148,7 @@ export function getShorterRepository(db: DbInstance) {
       return db
         .from('short_links')
         .select('slug', { count: 'exact', head: true })
-        .eq('user_id', userId)
+        .eq('created_by', userId)
         .gte('created_at', oneMonthAgo.toISOString());
     },
 
@@ -130,7 +161,7 @@ export function getShorterRepository(db: DbInstance) {
      * no puede leer ni falsear su historial.
      */
     async logDestinationChange(entry: {
-      slug: string;
+      link_id: string;
       oldDestination: string;
       newDestination: string;
       changedBy: string;
@@ -138,7 +169,7 @@ export function getShorterRepository(db: DbInstance) {
       return db
         .from('short_link_destination_changes')
         .insert([{
-          slug: entry.slug,
+          link_id: entry.link_id,
           old_destination: entry.oldDestination,
           new_destination: entry.newDestination,
           changed_by: entry.changedBy,

@@ -1,6 +1,7 @@
 import 'server-only';
 import { ApiError } from "@/lib/api/errors";
 import { supabase_service } from "@/infra/db/supabase_service";
+import { createClient } from "@/lib/supabase/server";
 
 export class AuthorizationRepository {
     async getUserRoles(userId: string) {
@@ -142,5 +143,45 @@ export class AuthorizationRepository {
         }
 
         return data ?? [];
+    }
+
+    async getTeamsForUser(userId: string) {
+        const { data, error } = await supabase_service
+            .from("team_members")
+            .select(`
+                team:teams (
+                    id,
+                    name
+                ),
+                role:roles (
+                    id,
+                    key
+                )
+            `)
+            .eq("user_id", userId)
+            .eq('status', 'active');
+
+        if (error) {
+            throw new Error(
+                `Failed to load teams for user: ${error.message}`
+            );
+        }
+
+        return data ?? [];
+    }
+
+    async getSessionAccessContext() {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+          // @ts-expect-error Requires RPC to map DB types to AccessContext
+          .rpc('get_access_context');
+
+        if (error) {
+            throw new Error(
+              `Failed to load access context for user: ${error.message}`
+            );
+        }
+
+        return data ?? null;
     }
 }

@@ -880,7 +880,7 @@ export type Database = {
           external_subscription_id: string | null
           id: string
           next_billing_date: string | null
-          service_id: string | null
+          service_id: string
           start_date: string | null
           status: Database["public"]["Enums"]["subscription_status"] | null
           subscription_gateway: string | null
