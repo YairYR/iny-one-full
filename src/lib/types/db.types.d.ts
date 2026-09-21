@@ -1201,10 +1201,10 @@ export type Database = {
       get_access_context: { Args: never; Returns: Json }
       get_dashboard_stats_summary: {
         Args: {
-          _date_grouping?: string
-          _end_date: string
-          _start_date: string
+          p_date_grouping?: string
+          p_end_date: string
           p_link_ids: string[]
+          p_start_date: string
         }
         Returns: Json
       }
