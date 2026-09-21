@@ -2,49 +2,49 @@ import type { DbInstance } from "@/infra/db/supabase_service";
 
 export function getStatsRepository(db: DbInstance)  {
   return {
-    async getDayStatsBetweenDates(slug: string[], startDate: Date, endDate: Date) {
+    async getDayStatsBetweenDates(linkIds: string[], startDate: Date, endDate: Date) {
       return db
         .from('short_links_daily_stats')
-        .select('slug, date, total_clicks, unique_ips, country_counts, browser_counts, os_counts, device_type_counts')
-        .in('slug', slug)
+        .select('link_id, date, total_clicks, unique_ips, country_counts, browser_counts, os_counts, device_type_counts')
+        .in('link_id', linkIds)
         .gte('date', startDate.toISOString().split('T')[0])
         .lte('date', endDate.toISOString().split('T')[0])
         .order('date', { ascending: true });
     },
 
-    async getRefererersStats(slugs: string[]) {
+    async getRefererersStats(linkIds: string[]) {
       return db
         .rpc('get_page_traffic', {
-          _slug: slugs
+          p_link_ids: linkIds
         });
     },
 
-    async getDashboardStatsSummary(slugs: string[], start_date: string, end_date: string, grouping: 'day' | 'week' | 'month' = 'day') {
+    async getDashboardStatsSummary(linkIds: string[], start_date: string, end_date: string, grouping: 'day' | 'week' | 'month' = 'day') {
       return db.rpc('get_dashboard_stats_summary', {
-        _slugs: slugs,
-        _start_date: start_date,
-        _end_date: end_date,
-        _date_grouping: grouping,
+        p_link_ids: linkIds,
+        p_start_date: start_date,
+        p_end_date: end_date,
+        p_date_grouping: grouping,
       })
     },
 
-    async getClicksAllTime(slugs: string[]) {
+    async getClicksAllTime(linkIds: string[]) {
       return db.from('short_links_stats')
           .select('total_clicks.sum()')
-          .in('slug', slugs);
+          .in('link_id', linkIds);
     },
 
-    async getClicksBetweenTime(slugs: string[], startDate: Date, endDate: Date) {
+    async getClicksBetweenTime(linkIds: string[], startDate: Date, endDate: Date) {
       return db.from('history_clicks')
           .select('*', { count: 'exact', head: true })
-          .in('slug', slugs)
+          .in('link_id', linkIds)
           .gte('created_at', startDate.toISOString())
           .lte('created_at', endDate.toISOString());
     },
 
-    async getLinkBreakdown(slug: string, startDate: Date, endDate: Date) {
+    async getLinkBreakdown(linkId: string, startDate: Date, endDate: Date) {
       return db.rpc('get_link_breakdown', {
-        p_slug: slug,
+        p_link_id: linkId,
         p_from: startDate.toISOString(),
         p_to: endDate.toISOString()
       });

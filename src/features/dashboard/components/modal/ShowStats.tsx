@@ -23,9 +23,9 @@ interface Props {
 }
 
 export default function ShowStats({ link, t }: Readonly<Props>) {
-  const { data, isLoading } = useLinkStatsCommon(link.slug);
+  const { data, isLoading } = useLinkStatsCommon(link.link_id);
 
-  const summary = data?.reduce((obj, curr) => {
+  const summary = data?.stats?.reduce((obj, curr) => {
     Object.keys(curr.country_counts).forEach(key => {
       if (!(key in obj)) {
         obj.countries[key] = 0;
@@ -64,7 +64,7 @@ export default function ShowStats({ link, t }: Readonly<Props>) {
     let current_day = dayjs();
     for (let i = 0; i < 7; i++) {
       const label = t(dayToName(current_day.day()));
-      const value = data.find(d => dayjs(d.date).isSame(current_day, 'day'))?.total_clicks ?? 0;
+      const value = data.stats.find(d => dayjs(d.date).isSame(current_day, 'day'))?.total_clicks ?? 0;
 
       values.labels.unshift(label);
       values.datasets[0].data.unshift(value);

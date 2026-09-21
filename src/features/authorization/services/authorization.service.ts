@@ -41,9 +41,12 @@ export class AuthorizationService {
 
     hasTeamPermission(
         context: AccessContext,
-        teamId: string,
+        teamId: string | null,
         permission: Permission,
     ): boolean {
+        if (!teamId) {
+            return false;
+        }
         return this.can(context, permission, { teamId });
     }
 
@@ -56,9 +59,12 @@ export class AuthorizationService {
 
     hasTeamRole(
         context: AccessContext,
-        teamId: string,
+        teamId: string | null,
         role: string,
     ): boolean {
+        if (!teamId) {
+            return false;
+        }
         const teamAccess = context.teams.get(teamId);
         if (!teamAccess) {
             return false;

@@ -40,7 +40,7 @@ export function getUserRepository(db: DbInstance) {
       return db
         .from('short_links')
         .select(`
-          slug, alias, destination, created_at, utm_source, utm_medium, utm_campaign, clicks
+          link_id, slug, name, destination, clicks, created_at, utms(utm_source, utm_medium, utm_campaign)
         `, { count: 'exact' })
         .eq('user_id', user_id)
         .order('created_at', { ascending: false })

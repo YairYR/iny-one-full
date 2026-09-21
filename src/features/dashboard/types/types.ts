@@ -17,7 +17,7 @@ export interface ILink {
 }
 
 export interface ILinkStats {
-  slug: string;
+  link_id: string;
   total_clicks: number;
   unique_ips: number;
   last_click_at: string | null;
@@ -33,12 +33,29 @@ export interface ILinkDateStats extends ILinkStats {
   date: string;
 }
 
+export interface ILinkBreakdown {
+  link_id: string;
+  total_clicks: number;
+  unique_ips: number;
+  country_counts: Record<string, number>;
+  browser_counts: Record<string, number>;
+  os_counts: Record<string, number>;
+  device_type_counts: Record<string, number>;
+}
+
+export interface ILinkStatsSummary {
+  link_id: string;
+  stats: ILinkDateStats[];
+  breakdown: ILinkBreakdown;
+}
+
 export interface IRefererStat {
   referer: string;
   count: number;
 }
 
 export type UserUrl = {
+  link_id: string;
   slug: string;
   alias: string | null;
   destination: string;
