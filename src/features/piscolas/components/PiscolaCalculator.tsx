@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useNumberField } from '@/features/piscolas/hooks/useNumberField';
 import { BottleWine, Calculator, Coins, RefreshCcw, ShoppingCart, Users } from 'lucide-react';
 
 const colaBottleOptions = [1, 1.5, 2, 2.5, 3] as const;
@@ -23,29 +24,29 @@ function ceilBottles(totalLiters: number, bottleSizeLiters: number): number {
 }
 
 export default function PiscolaCalculator() {
-  const [people, setPeople] = useState(10);
-  const [piscolasPerPerson, setPiscolasPerPerson] = useState(3);
-  const [piscoPerDrinkMl, setPiscoPerDrinkMl] = useState(60);
-  const [colaPerDrinkMl, setColaPerDrinkMl] = useState(150);
+  const people = useNumberField(10, 1);
+  const piscolasPerPerson = useNumberField(3, 1);
+  const piscoPerDrinkMl = useNumberField(60, 30);
+  const colaPerDrinkMl = useNumberField(150, 90);
   const [extraMargin, setExtraMargin] = useState(10);
   const [colaBottleSize, setColaBottleSize] = useState(1.5);
   const [piscoBottleSize, setPiscoBottleSize] = useState(0.75);
-  const [colaBottlePrice, setColaBottlePrice] = useState(2490);
-  const [piscoBottlePrice, setPiscoBottlePrice] = useState(6990);
+  const colaBottlePrice = useNumberField(2490, 0);
+  const piscoBottlePrice = useNumberField(6990, 0);
   const [selectedPreset, setSelectedPreset] = useState<'suave' | 'tipica' | 'cargada' | 'personalizada'>('tipica');
 
   const calculations = useMemo(() => {
-    const totalDrinks = people * piscolasPerPerson;
+    const totalDrinks = people.value * piscolasPerPerson.value;
     const multiplier = 1 + extraMargin / 100;
 
-    const totalPiscoLiters = (totalDrinks * piscoPerDrinkMl * multiplier) / 1000;
-    const totalColaLiters = (totalDrinks * colaPerDrinkMl * multiplier) / 1000;
+    const totalPiscoLiters = (totalDrinks * piscoPerDrinkMl.value * multiplier) / 1000;
+    const totalColaLiters = (totalDrinks * colaPerDrinkMl.value * multiplier) / 1000;
 
     const piscoBottles = ceilBottles(totalPiscoLiters, piscoBottleSize);
     const colaBottles = ceilBottles(totalColaLiters, colaBottleSize);
 
-    const piscoTotal = piscoBottles * piscoBottlePrice;
-    const colaTotal = colaBottles * colaBottlePrice;
+    const piscoTotal = piscoBottles * piscoBottlePrice.value;
+    const colaTotal = colaBottles * colaBottlePrice.value;
     const totalBudget = piscoTotal + colaTotal;
 
     return {
@@ -57,22 +58,22 @@ export default function PiscolaCalculator() {
       piscoTotal,
       colaTotal,
       totalBudget,
-      costPerPerson: people > 0 ? totalBudget / people : 0,
+      costPerPerson: people.value > 0 ? totalBudget / people.value : 0,
       costPerDrink: totalDrinks > 0 ? totalBudget / totalDrinks : 0,
-      ratio: `1 : ${(colaPerDrinkMl / piscoPerDrinkMl).toFixed(2)}`,
+      ratio: `1 : ${(colaPerDrinkMl.value / piscoPerDrinkMl.value).toFixed(2)}`,
     };
-  }, [people, piscolasPerPerson, piscoPerDrinkMl, colaPerDrinkMl, extraMargin, colaBottleSize, piscoBottleSize, colaBottlePrice, piscoBottlePrice]);
+  }, [people.value, piscolasPerPerson.value, piscoPerDrinkMl.value, colaPerDrinkMl.value, extraMargin, colaBottleSize, piscoBottleSize, colaBottlePrice.value, piscoBottlePrice.value]);
 
   function resetValues() {
-    setPeople(10);
-    setPiscolasPerPerson(3);
-    setPiscoPerDrinkMl(60);
-    setColaPerDrinkMl(150);
+    people.set(10);
+    piscolasPerPerson.set(3);
+    piscoPerDrinkMl.set(60);
+    colaPerDrinkMl.set(150);
     setExtraMargin(10);
     setColaBottleSize(1.5);
     setPiscoBottleSize(0.75);
-    setColaBottlePrice(2490);
-    setPiscoBottlePrice(6990);
+    colaBottlePrice.set(2490);
+    piscoBottlePrice.set(6990);
     setSelectedPreset('tipica');
   }
 
@@ -80,19 +81,19 @@ export default function PiscolaCalculator() {
     setSelectedPreset(type);
 
     if (type === 'suave') {
-      setPiscoPerDrinkMl(50);
-      setColaPerDrinkMl(170);
+      piscoPerDrinkMl.set(50);
+      colaPerDrinkMl.set(170);
       return;
     }
 
     if (type === 'tipica') {
-      setPiscoPerDrinkMl(60);
-      setColaPerDrinkMl(150);
+      piscoPerDrinkMl.set(60);
+      colaPerDrinkMl.set(150);
       return;
     }
 
-    setPiscoPerDrinkMl(70);
-    setColaPerDrinkMl(140);
+    piscoPerDrinkMl.set(70);
+    colaPerDrinkMl.set(140);
   }
 
   function getPresetButtonClass(type: 'suave' | 'tipica' | 'cargada') {
@@ -181,8 +182,7 @@ export default function PiscolaCalculator() {
               <input
                 type="number"
                 min={1}
-                value={people}
-                onChange={(e) => setPeople(Math.max(1, Number(e.target.value) || 1))}
+                {...people.inputProps}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-indigo-500"
               />
             </label>
@@ -192,8 +192,7 @@ export default function PiscolaCalculator() {
               <input
                 type="number"
                 min={1}
-                value={piscolasPerPerson}
-                onChange={(e) => setPiscolasPerPerson(Math.max(1, Number(e.target.value) || 1))}
+                {...piscolasPerPerson.inputProps}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-indigo-500"
               />
             </label>
@@ -204,9 +203,9 @@ export default function PiscolaCalculator() {
                 type="number"
                 min={30}
                 step={5}
-                value={piscoPerDrinkMl}
+                {...piscoPerDrinkMl.inputProps}
                 onChange={(e) => {
-                  setPiscoPerDrinkMl(Math.max(30, Number(e.target.value) || 30));
+                  piscoPerDrinkMl.inputProps.onChange(e);
                   setSelectedPreset('personalizada');
                 }}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-indigo-500"
@@ -219,9 +218,9 @@ export default function PiscolaCalculator() {
                 type="number"
                 min={90}
                 step={10}
-                value={colaPerDrinkMl}
+                {...colaPerDrinkMl.inputProps}
                 onChange={(e) => {
-                  setColaPerDrinkMl(Math.max(90, Number(e.target.value) || 90));
+                  colaPerDrinkMl.inputProps.onChange(e);
                   setSelectedPreset('personalizada');
                 }}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-indigo-500"
@@ -263,8 +262,7 @@ export default function PiscolaCalculator() {
                 type="number"
                 min={0}
                 step={100}
-                value={colaBottlePrice}
-                onChange={(e) => setColaBottlePrice(Math.max(0, Number(e.target.value) || 0))}
+                {...colaBottlePrice.inputProps}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-indigo-500"
               />
             </label>
@@ -278,8 +276,7 @@ export default function PiscolaCalculator() {
                 type="number"
                 min={0}
                 step={100}
-                value={piscoBottlePrice}
-                onChange={(e) => setPiscoBottlePrice(Math.max(0, Number(e.target.value) || 0))}
+                {...piscoBottlePrice.inputProps}
                 className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-indigo-500"
               />
             </label>
