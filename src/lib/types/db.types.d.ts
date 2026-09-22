@@ -995,6 +995,30 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_counters: {
+        Row: {
+          metric: string
+          period_start: string
+          scope_id: string
+          scope_type: string
+          used: number
+        }
+        Insert: {
+          metric: string
+          period_start: string
+          scope_id: string
+          scope_type: string
+          used?: number
+        }
+        Update: {
+          metric?: string
+          period_start?: string
+          scope_id?: string
+          scope_type?: string
+          used?: number
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           role_id: string
@@ -1218,6 +1242,16 @@ export type Database = {
           count: number
           referer: string
         }[]
+      }
+      increment_usage_counter: {
+        Args: {
+          p_increment: number
+          p_metric: string
+          p_period_start: string
+          p_scope_id: string
+          p_scope_type: string
+        }
+        Returns: undefined
       }
     }
     Enums: {
