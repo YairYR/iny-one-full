@@ -22,55 +22,46 @@ export type CreateShortLinkInput = {
 
 export function getShorterRepository(db: DbInstance) {
   return {
-    async create({ userId, teamId, hostId, slug, destination, utm, domain, expires, client }: CreateShortLinkInput) {
-      // return db
-      //   .from('short_links')
-      //   .insert([
-      //     {
-      //       slug,
-      //       destination,
-      //       host_id: hostId ?? null,
-      //       team_id: teamId ?? null,
-      //       created_by: userId ?? null,
-      //       created_by_ip: client?.ip ?? null,
-      //       created_by_country_code: client?.countryCode ?? null,
-      //       expires_in: expires?.expires_in_days ?? null,
-      //       expires_at: expires?.expires_at ?? null,
-      //       utms: {
-      //         utm_source: utm?.source ?? null,
-      //         utm_medium: utm?.medium ?? null,
-      //         utm_campaign: utm?.campaign ?? null,
-      //         utm_term: utm?.term ?? null,
-      //         utm_content: utm?.content ?? null,
-      //         utm_id: utm?.id ?? null,
-      //       },
-      //       // link_destinations: (domain ? { domain: domain ?? null } : undefined),
-      //     },
-      //   ])
-      //   .select('slug');
+    async create(data: CreateShortLinkInput) {
+      const teamId = (typeof data.teamId === 'string' ? data.teamId : undefined) as string;
+      const hostId = (typeof data.hostId === 'string' ? data.hostId : undefined) as string;
+      const slug = data.slug;
+      const destination = data.destination;
+      const domain = data.domain;
+      const userId = (typeof data.userId === 'string' ? data.userId : undefined) as string;
+      const utm = data.utm;
+      const expires = data.expires;
+      const expires_in_days = expires?.expires_in_days ?? undefined;
 
-      const created_by_ip = (client?.ip && client.ip !== '::1') ? client.ip : null;
-      const created_by_country_code = client?.countryCode ?? null;
+      const client = data.client;
+      const created_by_ip = (client?.ip && client.ip !== '::1') ? client.ip : undefined;
+      const created_by_country_code = client?.countryCode ?? undefined;
 
-      // @ts-expect-error Needs to map DB types to RPC params
+      const utm_source = utm?.source ?? undefined;
+      const utm_medium = utm?.medium ?? undefined;
+      const utm_campaign = utm?.campaign ?? undefined;
+      const utm_content = utm?.content ?? undefined;
+      const utm_term = utm?.term ?? undefined;
+      const utm_id = utm?.id ?? undefined;
+
       return db.rpc('create_link', {
-        p_team_id: teamId ?? null,
-        p_host_id: hostId ?? null,
+        p_team_id: teamId,
+        p_host_id: hostId,
         p_slug: slug,
         p_destination: destination,
-        p_domain: domain ?? null,
-        p_subdomain: null,
-        p_created_by: userId ?? null,
+        p_domain: domain,
+        p_subdomain: undefined,
+        p_created_by: userId,
         p_created_by_ip: created_by_ip,
         p_created_by_country_code: created_by_country_code,
-        p_name: null,
-        p_utm_source: utm?.source ?? null,
-        p_utm_medium: utm?.medium ?? null,
-        p_utm_campaign: utm?.campaign ?? null,
-        p_utm_content: utm?.content ?? null,
-        p_utm_term: utm?.term ?? null,
-        p_utm_id: utm?.id ?? null,
-        p_expires_in: expires?.expires_in_days ?? null,
+        p_name: undefined,
+        p_utm_source: utm_source,
+        p_utm_medium: utm_medium,
+        p_utm_campaign: utm_campaign,
+        p_utm_content: utm_content,
+        p_utm_term: utm_term,
+        p_utm_id: utm_id,
+        p_expires_in: expires_in_days,
       });
     },
 
