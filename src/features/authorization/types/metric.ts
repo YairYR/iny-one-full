@@ -1,0 +1,28 @@
+export const METRICS = {
+  LINKS_CREATED: 'links.created',
+  DOMAINS_ADDED: 'domains.added',
+  TEAM_MEMBERS_INVITED: 'team.members.invited',
+  TEAM_MEMBERS_REMOVED: 'team.members.removed',
+  TEAM_ROLES_MANAGED: 'team.roles.managed',
+  STATS_VIEWED: 'stats.viewed',
+  STATS_EXPORTED: 'stats.exported',
+  ADMIN_USERS_MANAGED: 'admin.users.managed',
+  ADMIN_PERMISSIONS_MANAGED: 'admin.permissions.managed',
+  ADMIN_PLANS_MANAGED: 'admin.plans.managed',
+  ADMIN_BILLING_MANAGED: 'admin.billing.managed',
+  SECURITY_BLACKLISTED_DOMAINS: 'security.blacklisted_domains',
+  SECURITY_WHITELISTED_DOMAINS: 'security.whitelisted_domains',
+  SECURITY_PROTECTED_VIEWED: 'security.protected_viewed',
+  SECURITY_RATELIMITS_CHANGED: 'security.ratelimits_changed',
+  SYSTEM_HEALTH_VIEWED: 'system.health_viewed',
+  SYSTEM_WORKERS_RESTARTED: 'system.workers_restarted',
+  SYSTEM_KEYS_MANAGED: 'system.keys_managed',
+  PROJECT_CREATED: 'project.created',
+  PROJECT_DELETED: 'project.deleted',
+  PROJECT_UPDATED: 'project.updated',
+  PROJECT_MEMBERS_INVITED: 'project.members.invited',
+  PROJECT_MEMBERS_REMOVED: 'project.members.removed',
+  PROJECT_ROLES_MANAGED: 'project.roles.managed',
+} as const;
+
+export type Metric = (typeof METRICS)[keyof typeof METRICS];
