@@ -2,6 +2,7 @@ import { ShorterRepository } from "@/infra/db/shorter.repository";
 import { PlanName } from "@/lib/types";
 import { TtlCache } from "@/lib/cache/ttl-cache";
 import { logger } from "@/lib/logger";
+import { UsageCounterService } from "@/features/authorization/services/usage_counter.service";
 
 export type RateLimitPlan = PlanName | 'freeAnonymous';
 
@@ -166,8 +167,9 @@ async function loadUsage({
   ip,
   repo,
 }: Pick<RateLimitInput, 'userId' | 'ip' | 'repo'>): Promise<number | null> {
+  const usageService = new UsageCounterService(repo);
   if (userId) {
-    const { count, error } = await repo.countLinksByUserInLastMonth(userId);
+    const { count, error } = await usageService.checkRateLimitByUser(userId);
     if (error) {
       log.error(error, 'failed to count links by user');
       return null;
@@ -176,7 +178,7 @@ async function loadUsage({
   }
 
   if (ip) {
-    const { count, error } = await repo.countLinksByIpInLastMonth(ip);
+    const { count, error } = await usageService.checkRateLimitByIp(ip);
     if (error) {
       log.error(error, 'failed to count links by ip');
       return null;

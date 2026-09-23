@@ -40,6 +40,7 @@ export type Permission =
     (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
 
 export type PermissionScope = {
-    scope?: 'personal' | 'workspace';
+    // Unused for now, but could be used in the future to specify the scope of a permission (personal, workspace, project, etc.).
+    //scope?: 'personal' | 'workspace';
     teamId: string;
 };
