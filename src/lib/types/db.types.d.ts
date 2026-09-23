@@ -1232,6 +1232,18 @@ export type Database = {
         }
         Returns: Json
       }
+      get_effective_service: {
+        Args: never
+        Returns: {
+          anonymous: boolean
+          plan_key: string
+          service_id: string
+        }[]
+      }
+      get_entitlement_limit: {
+        Args: { p_metric: string; p_service_id: string }
+        Returns: number
+      }
       get_link_breakdown: {
         Args: { p_from?: string; p_link_id: string; p_to?: string }
         Returns: Json
@@ -1243,6 +1255,40 @@ export type Database = {
           referer: string
         }[]
       }
+      get_team_role: { Args: { p_team_id: string }; Returns: string }
+      get_usage: {
+        Args: {
+          p_metric: string
+          p_period_start: string
+          p_scope_id: string
+          p_scope_type: string
+        }
+        Returns: number
+      }
+      has_entitlement_enabled: {
+        Args: { p_metric: string; p_service_id: string }
+        Returns: boolean
+      }
+      has_global_permission: {
+        Args: { p_permission: string }
+        Returns: boolean
+      }
+      has_team_permission: {
+        Args: { p_permission: string; p_team_id: string }
+        Returns: boolean
+      }
+      has_usage_capacity: {
+        Args: {
+          p_entitlement: string
+          p_increment?: number
+          p_metric: string
+          p_period_start: string
+          p_scope_id: string
+          p_scope_type: string
+          p_service_id: string
+        }
+        Returns: boolean
+      }
       increment_usage_counter: {
         Args: {
           p_increment: number
@@ -1253,6 +1299,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      is_team_member: { Args: { p_team_id: string }; Returns: boolean }
     }
     Enums: {
       app_plan: "basic" | "pro" | "free"
