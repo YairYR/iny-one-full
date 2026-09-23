@@ -60,4 +60,3 @@ next-env.d.ts
 /.openapi-gen
 
 certificates
-supabase
