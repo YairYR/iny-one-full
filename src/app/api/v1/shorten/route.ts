@@ -63,10 +63,10 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     ?? request.headers.get('x-real-ip');
   const countryCode = request.headers.get('x-vercel-ip-country');
 
-  const shorterRepo = getShorterRepository(supabase_service);
+  const supabase = await createClient();
+  const shorterRepo = getShorterRepository(supabase);
   const { target, domain } = await validateDestination(url, shorterRepo);
 
-  const supabase = await createClient();
   const userRepo = getUserRepository(supabase);
   const { data: currUser } = await userRepo.getCurrentUser();
 
@@ -103,7 +103,6 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const input: Omit<CreateShortLinkInput, 'slug'> = {
     teamId,
     hostId: null,
-    userId,
     destination,
     utm: utmParams,
     domain,
