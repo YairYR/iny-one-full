@@ -65,7 +65,6 @@ CREATE OR REPLACE FUNCTION public.create_link(
     p_destination text,
     p_domain text,
     p_subdomain text DEFAULT NULL,
-    p_created_by uuid DEFAULT NULL,
     p_created_by_ip inet DEFAULT NULL,
     p_created_by_country_code text DEFAULT NULL,
     p_name text DEFAULT NULL,
@@ -88,8 +87,13 @@ SET search_path = public
 AS $$
 DECLARE
     v_link_id uuid;
+    v_created_by uuid;
     v_expires_at timestamptz;
+    v_has_usage_capacity boolean;
 BEGIN
+
+    v_created_by := auth.uid();
+
     /*
      * Validaciones básicas
      */
@@ -147,13 +151,13 @@ BEGIN
      * team_id, user_id
      */
 
-    IF p_team_id IS NOT NULL OR p_created_by IS NOT NULL THEN
+    IF p_team_id IS NOT NULL OR v_created_by IS NOT NULL THEN
 
       IF NOT EXISTS (
           SELECT 1
           FROM public.team_members tm
           WHERE tm.team_id = p_team_id
-            AND tm.user_id = p_created_by
+            AND tm.user_id = v_created_by
       ) THEN
           RAISE EXCEPTION 'USER_NOT_TEAM_MEMBER'
               USING ERRCODE = '42501';
@@ -161,12 +165,25 @@ BEGIN
 
     END IF;
 
-    IF p_created_by IS NOT NULL THEN
+    IF v_created_by IS NOT NULL THEN
        -- Check rate limit for user with usage_counters table
           -- Check if the user has exceeded the limit of 100 links per month
-          IF (SELECT used FROM public.usage_counters WHERE scope_type = 'user' AND scope_id = p_created_by AND metric = 'links.create' AND period_start = date_trunc('month', now())::date) >= 100 THEN
-                RAISE EXCEPTION 'USER_LINK_CREATION_LIMIT_EXCEEDED'
+
+        SELECT public.has_usage_capacity(
+            (select service_id from public.get_effective_service() as service_id),
+            'user',
+            v_created_by,
+            'links.create',
+            'links.max_per_month',
+            date_trunc('month', now())::date,
+            1
+        ) INTO v_has_usage_capacity;
+
+       IF NOT v_has_usage_capacity THEN
+            RAISE EXCEPTION 'USER_LINK_CREATION_LIMIT_EXCEEDED'
                  USING ERRCODE = '42999';
+          IF (SELECT used FROM public.usage_counters WHERE scope_type = 'user' AND scope_id = v_created_by AND metric = 'links.create' AND period_start = date_trunc('month', now())::date) >= 100 THEN
+
           END IF;
     END IF;
 
@@ -210,7 +227,7 @@ BEGIN
         p_destination,
         p_name,
         'active',
-        p_created_by,
+        v_created_by,
         p_created_by_ip,
         p_created_by_country_code,
         p_expires_in,
@@ -276,7 +293,7 @@ BEGIN
     -- Incrementar contador de uso para el usuario que creó el link.
     SELECT public.increment_usage_counter(
         'user',
-        p_created_by,
+        v_created_by,
         'links.create',
         date_trunc('month', now())::date,
         1
