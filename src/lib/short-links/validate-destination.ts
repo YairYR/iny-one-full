@@ -58,6 +58,7 @@ async function assertDomainIsAllowed(domain: string, repo: ShorterRepository): P
 
   const { data, error } = await repo.isSafeDomain(domain);
 
+
   if (error) {
     log.error(error, 'domain safety check failed for %s', domain);
     throw new ValidationError("Error when validating url");

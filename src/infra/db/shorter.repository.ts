@@ -9,7 +9,6 @@ import { Tables } from "@/lib/types/db.types";
 dayjs.extend(utc);
 
 export type CreateShortLinkInput = {
-  userId: string | null;
   teamId?: string | null;
   hostId?: string | null;
   slug: string;
@@ -28,7 +27,6 @@ export function getShorterRepository(db: DbInstance) {
       const slug = data.slug;
       const destination = data.destination;
       const domain = data.domain;
-      const userId = (typeof data.userId === 'string' ? data.userId : undefined) as string;
       const utm = data.utm;
       const expires = data.expires;
       const expires_in_days = expires?.expires_in_days ?? undefined;
@@ -51,7 +49,6 @@ export function getShorterRepository(db: DbInstance) {
         p_destination: destination,
         p_domain: domain,
         p_subdomain: undefined,
-        p_created_by: userId,
         p_created_by_ip: created_by_ip,
         p_created_by_country_code: created_by_country_code,
         p_name: undefined,

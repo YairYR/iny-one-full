@@ -1196,7 +1196,6 @@ export type Database = {
       }
       create_link: {
         Args: {
-          p_created_by?: string
           p_created_by_country_code?: string
           p_created_by_ip?: unknown
           p_destination: string
