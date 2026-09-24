@@ -92,14 +92,6 @@ export function getShorterRepository(db: DbInstance) {
         });
     },
 
-    async isSafeDomain(domain: string) {
-      return db
-        .schema('security')
-        .rpc('is_domain_secure', {
-          domain_to_check: domain
-        });
-    },
-
     async countLinksByIpInLastMonth(ip: string) {
       const oneMonthAgo = dayjs().utc().subtract(1, 'month');
 

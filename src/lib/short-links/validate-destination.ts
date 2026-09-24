@@ -3,6 +3,7 @@ import { ValidationError } from "@/lib/api/errors";
 import { loadBloom } from "@/lib/utils/check_domain";
 import type { ShorterRepository } from "@/infra/db/shorter.repository";
 import { logger } from "@/lib/logger";
+import { isSafeDomain } from "@/lib/turso/createTursoClient";
 
 const log = logger.child({ module: 'validate-destination' });
 
@@ -56,14 +57,8 @@ export function withProtocol(url: string): string {
 async function assertDomainIsAllowed(domain: string, repo: ShorterRepository): Promise<void> {
   if (!loadBloom().has(domain)) return;
 
-  const { data, error } = await repo.isSafeDomain(domain);
-
-  if (error) {
-    log.error(error, 'domain safety check failed for %s', domain);
-    throw new ValidationError("Error when validating url");
-  }
-
-  if (data === false) {
+  const isSafe = await isSafeDomain(domain);
+  if (!isSafe) {
     log.warn('blocked banned domain %s', domain);
     throw new ValidationError("Error when validating url");
   }
