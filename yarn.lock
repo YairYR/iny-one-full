@@ -1954,6 +1954,11 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.4.tgz#0b92dcc0cc1c81f6f306a381f28e31b1a56536e9"
   integrity sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==
 
+"@tursodatabase/serverless@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@tursodatabase/serverless/-/serverless-1.4.0.tgz#d5c73ddf29ff6f0d0f35d17cd88b32ef9a606a13"
+  integrity sha512-ZU3T76NG/E0NTKULqJ9TggJfbdPgRaChOS4HDOu3Srds7w7fSPie7jbPHzz+CLGrxs2TtMYtYB1lH5Bh6q1w7A==
+
 "@tybys/wasm-util@^0.10.0":
   version "0.10.0"
   resolved "https://registry.yarnpkg.com/@tybys/wasm-util/-/wasm-util-0.10.0.tgz#2fd3cd754b94b378734ce17058d0507c45c88369"
