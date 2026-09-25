@@ -12,7 +12,7 @@ export const rateLimiters = {
     limiter: Ratelimit.slidingWindow(120, "1 m"),
     prefix: "rl:global",
     ephemeralCache: globalCache,
-    analytics: true
+    analytics: false
   }),
 
   globalBurst: new Ratelimit({
@@ -20,25 +20,28 @@ export const rateLimiters = {
     limiter: Ratelimit.slidingWindow(30, "10 s"),
     prefix: "rl:global-burst",
     ephemeralCache: burstCache,
-    analytics: true,
+    analytics: false,
   }),
 
   createLink: new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(30, "1 m"),
     prefix: "rl:create-link",
+    analytics: false,
   }),
 
   createLinkAnonymous: new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(5, "1 m"),
     prefix: "rl:create-link-anon",
+    analytics: false,
   }),
 
   auth: new Ratelimit({
     redis,
     limiter: Ratelimit.slidingWindow(10, "1 m"),
     prefix: "rl:auth",
+    analytics: false,
   }),
 };
 
