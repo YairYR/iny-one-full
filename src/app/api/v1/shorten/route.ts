@@ -2,7 +2,7 @@ import { withErrorHandling } from "@/lib/api/http";
 import { NextRequest } from "next/server";
 import { PlanName } from "@/lib/types";
 import * as z from "zod/mini";
-import { ApiError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
+import { ApiError, RateLimitExceededError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
 import { successResponse } from "@/lib/api/responses";
 import { getUserRepository } from "@/infra/db/user.repository";
 import {
@@ -30,6 +30,9 @@ import { buildDestination, toDestinationPlan } from "@/lib/short-links/destinati
 import { validateDestination } from "@/lib/short-links/validate-destination";
 import { ANONYMOUS_LINK_TTL_DAYS } from "@/lib/short-links/expiry";
 import { logger } from "@/lib/logger";
+import { getClientCountryCode, getClientIp, getRateLimitGeo } from "@/lib/utils/geolocation";
+import { executeIfProduction } from "@/lib/utils/enviroment";
+import { rateLimiters } from "@/lib/rate-limit/rate-limiter";
 
 dayjs.extend(utc);
 
@@ -58,10 +61,9 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const { url, utm, slug: requestedSlug } = body.data;
 
-  const ip = request.headers.get('x-vercel-forwarded-for')
-    ?? request.headers.get('x-forwarded-for')
-    ?? request.headers.get('x-real-ip');
-  const countryCode = request.headers.get('x-vercel-ip-country');
+  const geo = getRateLimitGeo(request.headers);
+  const ip = geo.ip;
+  const countryCode = geo.country;
 
   const shorterRepo = getShorterRepository(supabase_service);
   const { target, domain } = await validateDestination(url, shorterRepo);
@@ -71,6 +73,19 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const { data: currUser } = await userRepo.getCurrentUser();
 
   const userId = currUser.user?.id ?? null;
+
+  /**
+   * Limita la cantidad de requests de creación de enlaces por usuario o IP. Se hace antes de comprobar el slug para que un anónimo no gaste un enlace en una petición que se va a rechazar de todos modos.
+   */
+  await executeIfProduction(async () => {
+    const status = (userId)
+      ? await rateLimiters.createLink.limit(userId, { geo })
+      : await rateLimiters.createLinkAnonymous.limit(ip ?? 'unknown', { geo });
+
+    if (!status.success) {
+      throw new RateLimitExceededError();
+    }
+  });
 
   // Elegir el nombre del enlace es la contrapartida de registrarse. Se comprueba
   // antes de tocar la cuota para que un anónimo no gaste un enlace en una

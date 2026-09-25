@@ -163,3 +163,13 @@ export class SuspendedSubscriptionError extends ApiError {
     );
   }
 }
+
+export class RateLimitExceededError extends ApiError {
+  constructor(message?: string|null, options?: ApiErrOptions) {
+    super(
+      ERROR.RATE_LIMIT_EXCEEDED,
+      message ?? MESSAGE.RATE_LIMIT_EXCEEDED,
+      options ?? { type: 'rate_limit', status: 429 }
+    );
+  }
+}

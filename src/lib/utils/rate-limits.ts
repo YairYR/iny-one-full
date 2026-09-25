@@ -82,7 +82,7 @@ export type RateLimitResult = {
 export type RateLimitInput = {
   userId: string | null;
   plan: PlanName | null;
-  ip: string | null;
+  ip?: string | null;
   repo: ShorterRepository;
   store?: UsageStore;
   /**
@@ -103,7 +103,7 @@ export function resolveRateLimitPlan(userId: string | null, plan: PlanName | nul
   return FALLBACK_AUTHENTICATED_PLAN;
 }
 
-export function usageKey(userId: string | null, ip: string | null): string {
+export function usageKey(userId: string | null, ip?: string | null): string {
   return userId ? `user:${userId}` : `ip:${ip ?? UNKNOWN_CLIENT}`;
 }
 

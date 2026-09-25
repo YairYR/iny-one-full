@@ -26,6 +26,8 @@
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.43.2",
     "@tursodatabase/serverless": "^1.4.0",
+    "@upstash/ratelimit": "^2.2.0",
+    "@upstash/redis": "^1.39.0",
     "bloom-filters": "^3.0.4",
     "buffer-crc32": "^1.0.0",
     "chart.js": "^4.5.1",
