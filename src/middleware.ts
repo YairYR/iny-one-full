@@ -56,6 +56,7 @@ const UPDATABLE_SESSION = [
   ROUTES.PISCOLAS,
   ROUTES.LOGIN,
   ROUTES.REGISTER,
+  ROUTES.DASHBOARD,
 ] as const;
 
 function isShortRoute(path: string) {
