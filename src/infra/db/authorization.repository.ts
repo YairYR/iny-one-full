@@ -173,12 +173,25 @@ export class AuthorizationRepository {
     async getSessionAccessContext() {
         const supabase = await createClient();
         const { data, error } = await supabase
-          // @ts-expect-error Requires RPC to map DB types to AccessContext
           .rpc('get_access_context');
 
         if (error) {
             throw new Error(
               `Failed to load access context for user: ${error.message}`
+            );
+        }
+
+        return data ?? null;
+    }
+
+    async getEffectiveService() {
+        const supabase = await createClient();
+        const { data, error } = await supabase
+          .rpc('get_effective_service');
+
+        if (error) {
+            throw new Error(
+              `Failed to load effective service: ${error.message}`
             );
         }
 

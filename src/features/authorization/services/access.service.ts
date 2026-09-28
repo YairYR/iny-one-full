@@ -1,10 +1,7 @@
 import 'server-only';
 
 import { AuthorizationRepository } from "@/infra/db/authorization.repository";
-import {
-    AccessContext,
-    AccessContextRow, TeamAccess
-} from "@/features/authorization/types/access-context";
+import { AccessContext, AccessContextRow, TeamAccess } from "@/features/authorization/types/access-context";
 
 export class AccessService {
     constructor(
@@ -14,6 +11,10 @@ export class AccessService {
     async resolve(): Promise<AccessContext> {
         const result = await this.repository.getSessionAccessContext() as unknown as AccessContextRow;
         return this.mapAccessContext(result);
+    }
+
+    async getService() {
+      return await this.repository.getEffectiveService();
     }
 
     private mapAccessContext(row: AccessContextRow): AccessContext {

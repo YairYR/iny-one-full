@@ -10,9 +10,18 @@ import { SessionNotFoundError } from "@/lib/api/errors";
 import { AccessContext } from "@/features/authorization/types/access-context";
 
 export const getAccessContext = cache(async function getAccessContext(): Promise<AccessContext> {
-    const repository = new AuthorizationRepository();
-    const service = new AccessService(repository);
+    const service = await getAccessService();
     return service.resolve();
+});
+
+export const getEffectiveService = cache(async function getEffectiveService() {
+    const service = await getAccessService();
+    return service.getService();
+});
+
+const getAccessService = cache(async function getAccessService() {
+    const repository = new AuthorizationRepository();
+    return new AccessService(repository);
 });
 
 export async function requirePermission(
