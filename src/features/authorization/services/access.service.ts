@@ -2,6 +2,7 @@ import 'server-only';
 
 import { AuthorizationRepository } from "@/infra/db/authorization.repository";
 import { AccessContext, AccessContextRow, TeamAccess } from "@/features/authorization/types/access-context";
+import { Permission } from "@/features/authorization/types/permission";
 
 export class AccessService {
     constructor(
@@ -14,7 +15,11 @@ export class AccessService {
     }
 
     async getService() {
-      return await this.repository.getEffectiveService();
+      return this.repository.getEffectiveService();
+    }
+
+    async hasTeamPermission(teamId: string | null, permission: Permission): Promise<boolean> {
+      return this.repository.hasTeamPermission(teamId, permission);
     }
 
     private mapAccessContext(row: AccessContextRow): AccessContext {

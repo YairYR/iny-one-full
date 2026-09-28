@@ -2,6 +2,7 @@ import 'server-only';
 import { ApiError } from "@/lib/api/errors";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { createClient } from "@/lib/supabase/server";
+import { Permission } from "@/features/authorization/types/permission";
 
 export class AuthorizationRepository {
     async getUserRoles(userId: string) {
@@ -196,5 +197,23 @@ export class AuthorizationRepository {
         }
 
         return data ?? null;
+    }
+
+    async hasTeamPermission(teamId: string | null, permission: Permission): Promise<boolean> {
+        if (!teamId) {
+            return false;
+        }
+
+        const supabase = await createClient();
+        const { data, error } = await supabase
+          .rpc('has_team_permission', { p_team_id: teamId, p_permission: permission });
+
+        if (error) {
+            throw new Error(
+              `Failed to check team permission: ${error.message}`
+            );
+        }
+
+        return data ?? false;
     }
 }

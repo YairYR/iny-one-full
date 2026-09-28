@@ -30,8 +30,8 @@ export const getCurrentUserDTO = cache(async () => {
 });
 
 export const isLoggedIn = cache(async () => {
-  const user = await getCurrentUserDTO();
-  return !!user;
+  const service = await getEffectiveService();
+  return service[0] && !service[0].anonymous;
 });
 
 export const hasSubscription = cache(async function hasSubscription() {

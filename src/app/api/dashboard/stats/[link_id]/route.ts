@@ -6,13 +6,12 @@ import utc from "dayjs/plugin/utc";
 import { successResponse } from "@/lib/api/responses";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { createClient } from "@/lib/supabase/server";
-import { getCurrentUserDTO } from "@/data/dto/user-dto";
+import { isLoggedIn } from "@/data/dto/user-dto";
 import { ResourceNotFoundError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
 import logger from "@/lib/logger";
-import { getAccessContext } from "@/features/authorization/helpers/access";
+import { hasTeamPermission } from "@/features/authorization/helpers/access";
 import { getTeamRepository } from "@/infra/db/team.repository";
 import { uuid } from 'zod';
-import { AuthorizationService } from "@/features/authorization/services/authorization.service";
 
 dayjs.extend(utc);
 
@@ -31,13 +30,8 @@ export const GET = withErrorHandling(async (_request: NextRequest, ctx: RouteCon
 
   // Estas métricas se leen con el service role, que salta RLS: la pertenencia
   // del link hay que comprobarla aquí de forma explícita.
-  const user = await getCurrentUserDTO();
-  if (!user) {
-    throw new SessionNotFoundError();
-  }
-
-  const access = await getAccessContext();
-  if (access.anonymous) {
+  const logged = await isLoggedIn();
+  if (!logged) {
     throw new SessionNotFoundError();
   }
 
@@ -45,9 +39,8 @@ export const GET = withErrorHandling(async (_request: NextRequest, ctx: RouteCon
   const teamRepo = getTeamRepository(supabase);
   const { data: linkTeam } = await teamRepo.getLinkById(link_id);
 
-  const authorization = new AuthorizationService();
-  if (!linkTeam
-    || !authorization.hasTeamPermission(access, linkTeam.team_id, 'links.read')) {
+  const canReadLinks = await hasTeamPermission(linkTeam?.team_id ?? null, 'links.read');
+  if (!canReadLinks) {
     throw new ResourceNotFoundError();
   }
 

@@ -19,6 +19,14 @@ export const getEffectiveService = cache(async function getEffectiveService() {
     return service.getService();
 });
 
+export const hasTeamPermission = cache(async function hasTeamPermission(
+    teamId: string | null,
+    permission: Permission,
+): Promise<boolean> {
+    const service = await getAccessService();
+    return service.hasTeamPermission(teamId, permission);
+});
+
 const getAccessService = cache(async function getAccessService() {
     const repository = new AuthorizationRepository();
     return new AccessService(repository);
