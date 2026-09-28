@@ -53,7 +53,7 @@ export const GET = withErrorHandling(async (_request: NextRequest, ctx: RouteCon
 
   const linkBreakdown = await getStatsRepository(supabase_service).getLinkBreakdown(
     link_id,
-    today.subtract(3000, 'day').toDate(),
+    today.subtract(STATS_WINDOW_DAYS, 'day').toDate(),
     today.toDate(),
   );
 

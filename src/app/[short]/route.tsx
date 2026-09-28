@@ -42,6 +42,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
 
   if (state === 'not-found') return render404();
 
+  const host_id = data?.host_id ?? null;
   const headerList = await getHeaders();
 
   after(async () => {
@@ -50,7 +51,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
       (headerList as Readonly<Headers>).get('user-agent') || ''
     );
 
-    await shorterRepo.click(short, {
+    await shorterRepo.click(short, host_id, {
       ...geo,
       userAgent,
       referer: (headerList as Readonly<Headers>).get('referer'),

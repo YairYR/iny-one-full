@@ -71,7 +71,7 @@ export function getShorterRepository(db: DbInstance) {
     async getBySlug(slug: string) {
       return db
         .from('short_links')
-        .select('destination, expires_at, status')
+        .select('link_id, host_id, destination, expires_at, status')
         .eq('slug', slug)
         .maybeSingle();
     },
@@ -83,7 +83,7 @@ export function getShorterRepository(db: DbInstance) {
         .eq('slug', slug);
     },
 
-    async click(slug: string, client?: Partial<ClientInfo>) {
+    async click(slug: string, host_id: string|null, client?: Partial<ClientInfo>) {
       const agent = client?.userAgent;
       const browser = agent?.browser;
       const device = agent?.device ?? { type: 'desktop' };
@@ -91,23 +91,24 @@ export function getShorterRepository(db: DbInstance) {
       return db
         .schema('public')
         .rpc('click_short_link', {
-          page_slug: slug,
-          user_ip: client?.ip ?? null,
-          user_country_code: client?.countryCode ?? null,
-          user_region: client?.region ?? null,
-          user_city: client?.city ?? null,
-          user_latitude: client?.latitude ?? null,
-          user_longitude: client?.longitude ?? null,
-          user_ua: client?.userAgent?.ua ?? null,
-          user_is_bot: agent?.isBot ?? false,
-          user_browser: browser?.name ?? null,
-          user_browser_version: browser?.major ?? browser?.version ?? null,
-          user_device_type: device?.type ?? 'desktop',
-          user_device_vendor: device?.vendor ?? null,
-          user_device_model: device?.model ?? null,
-          user_os: os?.name ?? null,
-          user_os_version: os?.version ?? null,
-          user_referer: client?.referer ?? null,
+          p_slug: slug,
+          p_host_id: host_id,
+          p_ip: client?.ip ?? null,
+          p_country: client?.countryCode ?? null,
+          p_region: client?.region ?? null,
+          p_city: client?.city ?? null,
+          p_latitude: client?.latitude ?? null,
+          p_longitude: client?.longitude ?? null,
+          p_ua: client?.userAgent?.ua ?? null,
+          p_is_bot: agent?.isBot ?? false,
+          p_browser: browser?.name ?? null,
+          p_browser_version: browser?.major ?? browser?.version ?? null,
+          p_device_type: device?.type ?? 'desktop',
+          p_device_vendor: device?.vendor ?? null,
+          p_device_model: device?.model ?? null,
+          p_os: os?.name ?? null,
+          p_os_version: os?.version ?? null,
+          p_referer: client?.referer ?? null,
         });
     },
 
