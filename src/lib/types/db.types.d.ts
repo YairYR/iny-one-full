@@ -531,7 +531,7 @@ isOneToOne: true
 { Args: { "requested_permission": string }; Returns: boolean
                            },
 "click_short_link":
-{ Args: { "p_browser": string,"p_browser_version": string,"p_city": string,"p_country": string,"p_device_model": string,"p_device_type": string,"p_device_vendor": string,"p_host_id": string,"p_ip": string,"p_is_bot": boolean,"p_latitude": string,"p_longitude": string,"p_os": string,"p_os_version": string,"p_referer": string,"p_region": string,"p_slug": string,"p_ua": string }; Returns: undefined
+{ Args: { "p_browser": string|null,"p_browser_version": string|null,"p_city": string|null,"p_country": string|null,"p_device_model": string|null,"p_device_type": string|null,"p_device_vendor": string|null,"p_host_id": string|null,"p_ip": string|null,"p_is_bot": boolean,"p_latitude": string|null,"p_longitude": string|null,"p_os": string|null,"p_os_version": string|null,"p_referer": string|null,"p_region": string|null,"p_slug": string,"p_ua": string|null }; Returns: undefined
                            },
 "create_link":
 { Args: { "p_created_by_country_code"?: string,"p_created_by_ip"?: unknown,"p_destination": string,"p_domain": string,"p_expires_in"?: number,"p_host_id": string,"p_name"?: string,"p_slug": string,"p_subdomain"?: string,"p_team_id": string,"p_utm_campaign"?: string,"p_utm_content"?: string,"p_utm_id"?: string,"p_utm_medium"?: string,"p_utm_source"?: string,"p_utm_term"?: string }; Returns: {
