@@ -1,6 +1,7 @@
 import { MiddlewareConfig, type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from "@/lib/middlewares/session";
 import { ROUTES } from "@/lib/routes";
+import { checkRequestRateLimit } from "@/lib/middlewares/rate_limit";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
@@ -30,6 +31,11 @@ export async function middleware(request: NextRequest) {
    */
 
   if (isShortRoute(path)) {
+    const rateLimitResponse = await checkRequestRateLimit(request);
+    if (rateLimitResponse) {
+      return rateLimitResponse;
+    }
+
     return NextResponse.next();
   }
 
@@ -50,6 +56,7 @@ const UPDATABLE_SESSION = [
   ROUTES.PISCOLAS,
   ROUTES.LOGIN,
   ROUTES.REGISTER,
+  ROUTES.DASHBOARD,
 ] as const;
 
 function isShortRoute(path: string) {
