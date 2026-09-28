@@ -88,12 +88,13 @@ export function getShorterRepository(db: DbInstance) {
       const browser = agent?.browser;
       const device = agent?.device ?? { type: 'desktop' };
       const os = agent?.os;
+      const ip = (client?.ip == '::1' ? null : client?.ip) ?? null;
       return db
         .schema('public')
         .rpc('click_short_link', {
           p_slug: slug,
           p_host_id: host_id,
-          p_ip: client?.ip ?? null,
+          p_ip: ip,
           p_country: client?.countryCode ?? null,
           p_region: client?.region ?? null,
           p_city: client?.city ?? null,
