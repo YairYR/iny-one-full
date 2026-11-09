@@ -90,7 +90,6 @@ export const SubscriptionRepository = {
   async upsert(subscription: Partial<Subscription>) {
     return supabase_service
       .from("subscriptions")
-        // @ts-expect-error La suscripción se valida antes
       .upsert(subscription, {
         onConflict: "user_id,service_id",
         ignoreDuplicates: false,

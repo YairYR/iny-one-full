@@ -1,7 +1,6 @@
 import { parse as parseUrl } from "tldts";
 import { ValidationError } from "@/lib/api/errors";
 import { loadBloom } from "@/lib/utils/check_domain";
-import type { ShorterRepository } from "@/infra/db/shorter.repository";
 import { logger } from "@/lib/logger";
 import { isSafeDomain } from "@/lib/turso/createTursoClient";
 
@@ -30,7 +29,6 @@ export type ValidatedDestination = {
  */
 export async function validateDestination(
   rawUrl: string,
-  repo: ShorterRepository,
 ): Promise<ValidatedDestination> {
   const target = withProtocol(rawUrl.trim());
   const urlInfo = parseUrl(target);
@@ -40,7 +38,7 @@ export async function validateDestination(
     throw new ValidationError("Invalid url provided");
   }
 
-  await assertDomainIsAllowed(urlInfo.domain, repo);
+  await assertDomainIsAllowed(urlInfo.domain);
 
   return { target, domain: urlInfo.domain };
 }
@@ -54,7 +52,7 @@ export function withProtocol(url: string): string {
  * El filtro de Bloom descarta la mayoría de dominios sin tocar la base de datos;
  * sólo los positivos (incluidos los falsos positivos) se confirman contra ella.
  */
-async function assertDomainIsAllowed(domain: string, repo: ShorterRepository): Promise<void> {
+async function assertDomainIsAllowed(domain: string): Promise<void> {
   if (!loadBloom().has(domain)) return;
 
   const isSafe = await isSafeDomain(domain);

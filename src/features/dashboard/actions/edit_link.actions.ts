@@ -137,7 +137,7 @@ async function applyDestination(
 
   let target: string;
   try {
-    ({ target } = await validateDestination(rawDestination, shorterRepo));
+    ({ target } = await validateDestination(rawDestination));
   } catch (err) {
     log.info({ slug, code: err instanceof ApiError ? err.code : 'unknown' }, 'rejected new destination');
     return { ok: false };

@@ -1,7 +1,6 @@
 import { withErrorHandling } from "@/lib/api/http";
 import { NextRequest } from "next/server";
 import { ApiError, InsufficientPermissionsError, SessionNotFoundError } from "@/lib/api/errors";
-import { getUserRepository } from "@/infra/db/user.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { getStatsRepository } from "@/infra/db/stats.repository";
 import { UserUrl } from "@/features/dashboard/types/types";

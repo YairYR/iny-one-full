@@ -10,7 +10,6 @@ import {
   type CreateShortLinkInput,
   type ShorterRepository,
 } from "@/infra/db/shorter.repository";
-import { supabase_service } from "@/infra/db/supabase_service";
 import { isUniqueViolation } from "@/infra/db/db-errors";
 import { createClient } from "@/lib/supabase/server";
 import dayjs from "dayjs";
@@ -30,7 +29,7 @@ import { buildDestination, toDestinationPlan } from "@/lib/short-links/destinati
 import { validateDestination } from "@/lib/short-links/validate-destination";
 import { ANONYMOUS_LINK_TTL_DAYS } from "@/lib/short-links/expiry";
 import { logger } from "@/lib/logger";
-import { getClientCountryCode, getClientIp, getRateLimitGeo } from "@/lib/utils/geolocation";
+import { getRateLimitGeo } from "@/lib/utils/geolocation";
 import { executeIfProduction } from "@/lib/utils/enviroment";
 import { rateLimiters } from "@/lib/rate-limit/rate-limiter";
 
@@ -67,7 +66,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const supabase = await createClient();
   const shorterRepo = getShorterRepository(supabase);
-  const { target, domain } = await validateDestination(url, shorterRepo);
+  const { target, domain } = await validateDestination(url);
 
   const userRepo = getUserRepository(supabase);
   const { data: currUser } = await userRepo.getCurrentUser();
