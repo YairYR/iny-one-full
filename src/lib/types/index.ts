@@ -1,4 +1,4 @@
-import type { userAgent } from "next/server";
+import { UserAgent } from "@/lib/utils/ua";
 
 export type { ApiResponse } from '@/lib/types/api';
 
@@ -25,7 +25,7 @@ export interface ClientInfo {
   city: string | null;
   latitude: string | null;
   longitude: string | null;
-  userAgent?: ReturnType<typeof userAgent>;
+  userAgent?: UserAgent;
   referer?: string | null;
 }
 

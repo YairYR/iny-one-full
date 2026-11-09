@@ -45,6 +45,7 @@
     "react-dom": "19.1.2",
     "swr": "^2.3.7",
     "tldts": "^7.0.10",
+    "ua-parser-js": "^2.0.10",
     "zod": "^4.1.12"
   },
   "devDependencies": {

@@ -86,7 +86,7 @@ export function getShorterRepository(db: DbInstance) {
     async click(slug: string, host_id: string|null, client?: Partial<ClientInfo>) {
       const agent = client?.userAgent;
       const browser = agent?.browser;
-      const device = agent?.device ?? { type: 'desktop' };
+      const device = agent?.device ?? { type: 'desktop', vendor: undefined, model: undefined };
       const os = agent?.os;
       const ip = (client?.ip == '::1' ? null : client?.ip) ?? null;
       return db
@@ -100,7 +100,7 @@ export function getShorterRepository(db: DbInstance) {
           p_city: client?.city ?? null,
           p_latitude: client?.latitude ?? null,
           p_longitude: client?.longitude ?? null,
-          p_ua: client?.userAgent?.ua ?? null,
+          p_ua: agent?.ua ?? null,
           p_is_bot: agent?.isBot ?? false,
           p_browser: browser?.name ?? null,
           p_browser_version: browser?.major ?? browser?.version ?? null,

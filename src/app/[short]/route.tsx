@@ -1,5 +1,5 @@
 import { headers as getHeaders } from 'next/headers';
-import { after, NextRequest, NextResponse, userAgentFromString } from 'next/server';
+import { after, NextRequest, NextResponse } from 'next/server';
 import { getGeoLocation } from '@/lib/utils/geolocation';
 import { getShorterRepository } from "@/infra/db/shorter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
@@ -10,6 +10,7 @@ import { safeDecodeURI } from '@/lib/utils/url';
 import { resolveLinkState } from '@/lib/short-links/resolve-link-state';
 import { renderStatusPage } from '@/lib/short-links/status-page';
 import { logger } from '@/lib/logger';
+import { getUserAgent } from "@/lib/utils/ua";
 
 const log = logger.child({ route: '[short]' });
 
@@ -47,9 +48,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
 
   after(async () => {
     const geo = getGeoLocation(headerList as Readonly<Headers>);
-    const userAgent = userAgentFromString(
-      (headerList as Readonly<Headers>).get('user-agent') || ''
-    );
+    const userAgent = getUserAgent(headerList);
 
     await shorterRepo.click(short, host_id, {
       ...geo,
