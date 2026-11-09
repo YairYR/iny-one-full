@@ -34,13 +34,10 @@ export interface ILinkDateStats extends ILinkStats {
 }
 
 export interface ILinkBreakdown {
-  link_id: string;
-  total_clicks: number;
-  unique_ips: number;
-  country_counts: Record<string, number>;
-  browser_counts: Record<string, number>;
-  os_counts: Record<string, number>;
-  device_type_counts: Record<string, number>;
+  // link_id: string;
+  by_country: { country_code: string; clicks: number }[];
+  by_browser: { browser: string; clicks: number }[];
+  by_device: { device_type: string; clicks: number }[];
 }
 
 export interface ILinkStatsSummary {

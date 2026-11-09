@@ -5,6 +5,9 @@ import { useMemo } from "react";
 import dayjs from "dayjs";
 import { dayToName } from "@/features/dashboard/helpers/stats";
 import { SkeletonRectangle } from "@/components/Skeleton/Skeleton";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 const Bar = dynamic(
   () => import("@/features/dashboard/components/charts").then((m) => m.Bar),
@@ -25,31 +28,8 @@ interface Props {
 export default function ShowStats({ link, t }: Readonly<Props>) {
   const { data, isLoading } = useLinkStatsCommon(link.link_id);
 
-  const summary = data?.stats?.reduce((obj, curr) => {
-    Object.keys(curr.country_counts).forEach(key => {
-      if (!(key in obj)) {
-        obj.countries[key] = 0;
-      }
-      obj.countries[key] += curr.country_counts[key];
-    });
-    Object.keys(curr.device_type_counts).forEach(key => {
-      if (!(key in obj)) {
-        obj.devices[key] = 0;
-      }
-      obj.devices[key] += curr.device_type_counts[key];
-    });
-    return obj;
-  }, {
-    countries: {} as Record<string, number>,
-    devices: {} as Record<string, number>
-  });
-
-  const countries = Object.entries(summary?.countries ?? {})
-    .sort((a, b) => b[1] - a[1]);
-  const devices = Object.entries(summary?.devices ?? {})
-    .sort((a, b) => b[1] - a[1]);
-  const countryTop = countries[0]?.[0];
-  const deviceTop = (devices[0]?.[0] === 'unknown') ? 'desktop' : devices[0]?.[0];
+  const countryTop = data?.breakdown.by_country[0]?.country_code ?? 'N/A';
+  const deviceTop = data?.breakdown.by_device[0]?.device_type ?? 'N/A';
 
   const clicks = useMemo(() => {
     const values = {
@@ -61,10 +41,10 @@ export default function ShowStats({ link, t }: Readonly<Props>) {
       return values;
     }
 
-    let current_day = dayjs();
+    let current_day = dayjs().utc();
     for (let i = 0; i < 7; i++) {
       const label = t(dayToName(current_day.day()));
-      const value = data.stats.find(d => dayjs(d.date).isSame(current_day, 'day'))?.total_clicks ?? 0;
+      const value = data.stats.find(d => d.date == current_day.toISOString().split('T')[0])?.total_clicks ?? 0;
 
       values.labels.unshift(label);
       values.datasets[0].data.unshift(value);
