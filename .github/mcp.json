@@ -1,0 +1,8 @@
+{
+  "servers": {
+    "supabase": {
+      "type": "http",
+      "url": "http://192.168.100.15:54321/mcp?read_only=true&features=docs%2Cdatabase%2Cdebugging%2Cdevelopment"
+    }
+  }
+}
