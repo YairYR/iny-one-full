@@ -80,7 +80,8 @@ export function getShorterRepository(db: DbInstance) {
         query = query.is('host_id', null);
       }
 
-      return query.maybeSingle();
+      return query.limit(1)
+                  .maybeSingle();
     },
 
     async setStatus(slug: string, status: Tables<'short_links'>['status']) {
@@ -117,7 +118,7 @@ export function getShorterRepository(db: DbInstance) {
           p_os: os?.name ?? null,
           p_os_version: os?.version ?? null,
           p_referer: client?.referer ?? null,
-        });
+        }, { head: true });
     },
 
     async countLinksByIpInLastMonth(ip: string) {
