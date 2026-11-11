@@ -68,6 +68,12 @@ export function getUserRepository(db: DbInstance) {
         .limit(limit);
     },
 
+    /**
+     * TODO: Eliminar este método y usar los métodos de la base de datos
+     * TODO: corregir, este método ya no funciona porque user_id no es parte de la tabla short_links, se debe usar el sistema de teams.
+     * @param user_id
+     * @param slug
+     */
     async isOwner(user_id: string, slug: string) {
       return db
         .from('short_links')
@@ -78,11 +84,11 @@ export function getUserRepository(db: DbInstance) {
         .single();
     },
 
-    async changeAlias(slug: string, newAlias: string|null) {
+    async changeAlias(link_id: string, newAlias: string|null) {
       return db
         .from('short_links')
         .update({ name: newAlias })
-        .eq('slug', slug);
+        .eq('link_id', link_id);
     },
 
     /**
@@ -90,11 +96,11 @@ export function getUserRepository(db: DbInstance) {
      * `destination` guarda la URL **ya compuesta** con ellas: cambiar el destino
      * sin recomponerlas las perdería en silencio.
      */
-    async getLinkForEdit(slug: string) {
+    async getLinkForEdit(link_id: string) {
       return db
         .from('short_links')
         .select('link_id, destination, utms(utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_id)')
-        .eq('slug', slug)
+        .eq('link_id', link_id)
         .maybeSingle();
     },
 
@@ -107,12 +113,12 @@ export function getUserRepository(db: DbInstance) {
      * exactamente lo que le pasó a `changeAlias` durante meses—. Por eso pide
      * las filas afectadas de vuelta: quien llama comprueba que no vengan vacías.
      */
-    async changeDestination(slug: string, destination: string) {
+    async changeDestination(link_id: string, destination: string) {
       return db
         .from('short_links')
         .update({ destination })
-        .eq('slug', slug)
-        .select('slug');
+        .eq('link_id', link_id)
+        .select('link_id');
     },
 
     /* INACTIVO — sin importaciones ni referencias en el repositorio (rev. 2026-08-09).

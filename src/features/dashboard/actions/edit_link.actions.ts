@@ -14,6 +14,7 @@ import { logger } from "@/lib/logger";
 const log = logger.child({ action: 'updateLink' });
 
 export type LinkEditState = {
+  link_id: string;
   slug: string;
   alias: string;
   destination?: string;
@@ -33,11 +34,12 @@ export async function updateLinkAction(
   initialState: LinkEditState,
   formData: FormData,
 ): Promise<LinkEditState> {
+  const link_id = initialState.link_id;
   const slug = initialState.slug;
   const alias = readField(formData, 'alias');
   const destination = readField(formData, 'destination');
 
-  if (!slug) return fail(initialState, 'unknown');
+  if (!link_id) return fail(initialState, 'unknown');
 
   const supabase = await createClient();
   const userRepo = getUserRepository(supabase);
@@ -46,13 +48,13 @@ export async function updateLinkAction(
   const user = currUser.user;
 
   if (!user) {
-    log.info({ slug }, 'rejected edit without session');
+    log.info({ link_id }, 'rejected edit without session');
     return fail(initialState, 'forbidden');
   }
 
   const { data: isOwner } = await userRepo.isOwner(user.id, slug);
   if (!isOwner) {
-    log.warn({ slug, userId: user.id }, 'rejected edit from non-owner');
+    log.warn({ link_id, userId: user.id }, 'rejected edit from non-owner');
     return fail(initialState, 'forbidden');
   }
 
@@ -65,6 +67,7 @@ export async function updateLinkAction(
     const access = await getAccessContext();
 
     const updated = await applyDestination({
+      link_id,
       slug,
       rawDestination: destination,
       userId: user.id,
@@ -78,14 +81,14 @@ export async function updateLinkAction(
 
   if (alias !== null) {
     if (!isValidAlias(alias)) {
-      log.info({ slug }, 'rejected alias');
+      log.info({ link_id }, 'rejected alias');
       return fail(initialState, 'alias');
     }
 
-    const { error } = await userRepo.changeAlias(slug, normalizeAlias(alias));
+    const { error } = await userRepo.changeAlias(link_id, normalizeAlias(alias));
 
     if (error) {
-      log.error(error, 'failed to change alias for /%s', slug);
+      log.error(error, 'failed to change alias for %s', link_id);
       return fail(initialState, 'alias');
     }
 
@@ -93,7 +96,7 @@ export async function updateLinkAction(
   }
 
   log.info({
-    slug,
+    link_id,
     changedAlias: alias !== null,
     changedDestination: destination !== null,
   }, 'link updated');
@@ -102,6 +105,7 @@ export async function updateLinkAction(
 }
 
 type ApplyDestinationInput = {
+  link_id: string;
   slug: string;
   rawDestination: string;
   userId: string;
@@ -117,19 +121,19 @@ type ApplyDestinationInput = {
  * hacia un destino limpio y repuntándolo después.
  */
 async function applyDestination(
-  { slug, rawDestination, userId, plan, userRepo }: ApplyDestinationInput,
+  { link_id, slug, rawDestination, userId, plan, userRepo }: ApplyDestinationInput,
 ): Promise<{ ok: boolean; destination?: string }> {
   if (!rawDestination.trim()) return { ok: false };
 
   const shorterRepo = getShorterRepository(supabase_service);
 
-  const { data: current, error: readError } = await userRepo.getLinkForEdit(slug);
+  const { data: current, error: readError } = await userRepo.getLinkForEdit(link_id);
 
   // `destination` es nullable en el esquema aunque en la práctica nunca lo sea:
   // se comprueba en vez de forzar el tipo, porque el rastro de auditoría lo
   // necesita y un null aquí significaría una fila corrupta, no un caso normal.
   if (readError || !current?.destination) {
-    log.error(readError, 'failed to read link before destination change for /%s', slug);
+    log.error(readError, 'failed to read link before destination change for %s', link_id);
     return { ok: false };
   }
 
@@ -156,17 +160,17 @@ async function applyDestination(
 
   if (destination === currentDestination) return { ok: true };
 
-  const { data: updated, error } = await userRepo.changeDestination(slug, destination);
+  const { data: updated, error } = await userRepo.changeDestination(link_id, destination);
 
   if (error) {
-    log.error(error, 'failed to change destination for /%s', slug);
+    log.error(error, 'failed to change destination for %s', link_id);
     return { ok: false };
   }
 
   // Cero filas sin error es el fallo característico de PostgREST cuando RLS
   // deniega. Se trata como fallo explícito en lugar de darlo por bueno.
   if (!updated || updated.length === 0) {
-    log.error(null, 'destination update affected no rows for /%s and user %s', slug, userId);
+    log.error(null, 'destination update affected no rows for %s and user %s', link_id, userId);
     return { ok: false };
   }
 
@@ -177,7 +181,7 @@ async function applyDestination(
     changedBy: userId,
   });
 
-  if (auditError) log.error(auditError, 'failed to write destination audit row for /%s', slug);
+  if (auditError) log.error(auditError, 'failed to write destination audit row for %s', link_id);
 
   return { ok: true, destination };
 }

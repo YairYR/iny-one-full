@@ -18,6 +18,7 @@ const INPUT_CLASS = `mt-1 block w-full rounded-md border border-gray-300 px-3 py
 
 export default function EditLink({ link, t, onClose }: Readonly<Props>) {
   const initialState: LinkEditState = {
+    link_id: link.link_id,
     slug: link.slug,
     alias: link.alias ?? '',
     destination: link.destination,
