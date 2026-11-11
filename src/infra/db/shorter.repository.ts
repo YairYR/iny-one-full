@@ -68,12 +68,19 @@ export function getShorterRepository(db: DbInstance) {
      * hacía que, tras la primera visita a un caducado, la fila desapareciera de
      * la consulta y ambos casos quedaran indistinguibles.
      */
-    async getBySlug(slug: string) {
-      return db
+    async getBySlug(slug: string, hostId: string|null) {
+      let query = db
         .from('short_links')
         .select('link_id, host_id, destination, expires_at, status')
-        .eq('slug', slug)
-        .maybeSingle();
+        .eq('slug', slug);
+
+      if (hostId !== null) {
+        query = query.eq('host_id', hostId);
+      } else {
+        query = query.is('host_id', null);
+      }
+
+      return query.maybeSingle();
     },
 
     async setStatus(slug: string, status: Tables<'short_links'>['status']) {

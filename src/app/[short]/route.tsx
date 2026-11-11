@@ -23,7 +23,7 @@ export async function GET(request: NextRequest, ctx: RouteContext<'/[short]'>) {
   }
 
   const shorterRepo = getShorterRepository(supabase_service);
-  const { data, error } = await shorterRepo.getBySlug(short);
+  const { data, error } = await shorterRepo.getBySlug(short, null);
 
   if (error) {
     log.error(error, 'failed to resolve short link', { slug: short });

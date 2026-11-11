@@ -524,9 +524,6 @@ isOneToOne: true
             [_ in never]: never
           }
           Functions: {
-            "aggregate_daily_link_stats":
-{ Args: { "p_end_date": string,"p_start_date": string }; Returns: undefined
-                           },
 "authorize":
 { Args: { "requested_permission": string }; Returns: boolean
                            },
@@ -657,6 +654,9 @@ isOneToOne: true
             [_ in never]: never
           }
           Functions: {
+            "aggregate_daily_link_stats":
+{ Args: { "p_end_date": string,"p_start_date": string }; Returns: undefined
+                           },
             "insert_blocked_url":
 { Args: { "domains": (string)[] }; Returns: number
                            },
@@ -793,4 +793,3 @@ export const Constants = {
           }
         }
 } as const
-
