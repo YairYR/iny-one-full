@@ -19,9 +19,9 @@ const isUuid = uuid();
 
 const STATS_WINDOW_DAYS = 7;
 
-const log = logger.child({ route: 'api/dashboard/stats/[link_id]' });
+const log = logger.child({ route: 'api/v1/dashboard/links/[link_id]' });
 
-export const GET = withErrorHandling(async (_request: NextRequest, ctx: RouteContext<'/api/dashboard/stats/[link_id]'>) => {
+export const GET = withErrorHandling(async (_request: NextRequest, ctx: RouteContext<'/api/v1/dashboard/links/[link_id]'>) => {
   const { link_id } = await ctx.params;
   const validated = isUuid.safeParse(link_id);
   if (!link_id || !validated.success) {
@@ -44,14 +44,23 @@ export const GET = withErrorHandling(async (_request: NextRequest, ctx: RouteCon
     throw new ResourceNotFoundError();
   }
 
-  const today = dayjs().utc();
-  const { data: stats } = await getStatsRepository(supabase_service).getDayStatsBetweenDates(
-    [link_id],
-    today.subtract(STATS_WINDOW_DAYS, 'day').toDate(),
-    today.toDate(),
-  );
+  const statsRepo = getStatsRepository(supabase_service);
 
-  const linkBreakdown = await getStatsRepository(supabase_service).getLinkBreakdown(
+  const today = dayjs().utc();
+  const { data: clicksWeek } = await statsRepo.getClicksBetweenDates(
+    [link_id],
+    today.subtract(6, 'day').toDate(),
+    today.subtract(1, 'day').toDate(),
+  );
+  const { count: clicksToday } = await statsRepo.getClicksToday([link_id]);
+
+  const stats = (clicksWeek ?? []);
+  stats.push({
+    date: today.toISOString().split('T')[0],
+    total_clicks: clicksToday ?? 0,
+  });
+
+  const linkBreakdown = await statsRepo.getLinkBreakdown(
     link_id,
     today.subtract(STATS_WINDOW_DAYS, 'day').toDate(),
     today.toDate(),

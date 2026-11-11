@@ -2,12 +2,12 @@ import { ApiResponse, DashboardStatsSummary } from "@/lib/types";
 import { ILinkStatsSummary, UserUrlStats } from "@/features/dashboard/types/types";
 
 export async function getStatsCommon(page = 1): Promise<UserDashboardStats | null> {
-  return fetchData<UserDashboardStats>(`/api/dashboard/stats?page=${page}`);
+  return fetchData<UserDashboardStats>(`/api/v1/dashboard/summary?page=${page}`);
 }
 
 export async function getLinkStatsCommon([link_id]: [link_id: string]): Promise<ILinkStatsSummary | null> {
   if (!link_id) return null;
-  return fetchData<ILinkStatsSummary>(`/api/dashboard/stats/${link_id}`);
+  return fetchData<ILinkStatsSummary>(`/api/v1/dashboard/links/${link_id}`);
 }
 
 export async function getUserLinksSummary() {

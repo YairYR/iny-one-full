@@ -1,4 +1,8 @@
 import type { DbInstance } from "@/infra/db/supabase_service";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc);
 
 export function getStatsRepository(db: DbInstance)  {
   return {
@@ -12,6 +16,29 @@ export function getStatsRepository(db: DbInstance)  {
         .order('date', { ascending: true });
     },
 
+    async getClicksBetweenDates(linkIds: string[], startDate: Date, endDate: Date) {
+      return db
+        .from('short_links_daily_stats')
+        .select('date, total_clicks')
+        .in('link_id', linkIds)
+        .gte('created_at', startDate.toISOString())
+        .lte('created_at', endDate.toISOString())
+        .order('date', { ascending: true });
+    },
+
+    async getClicksToday(linkIds: string[]) {
+      const today = dayjs().utc();
+      const startOfDay = today.startOf('day').toISOString();
+      const endOfDay = today.endOf('day').toISOString();
+      return db
+        .from('history_clicks')
+        .select('*', { count: 'exact', head: true })
+        .in('link_id', linkIds)
+        .is('is_bot', false)
+        .gte('created_at', startOfDay)
+        .lte('created_at', endOfDay);
+    },
+
     async getRefererersStats(linkIds: string[]) {
       return db
         .rpc('get_page_traffic', {
@@ -19,12 +46,10 @@ export function getStatsRepository(db: DbInstance)  {
         });
     },
 
-    async getDashboardStatsSummary(linkIds: string[], start_date: string, end_date: string, grouping: 'day' | 'week' | 'month' = 'day') {
+    async getDashboardStatsSummary(teamId: string) {
       return db.rpc('get_dashboard_stats_summary', {
-        p_link_ids: linkIds,
-        p_start_date: start_date,
-        p_end_date: end_date,
-        p_date_grouping: grouping,
+        // @ts-expect-error TS no reconoce el parámetro de la función RPC, pero sí existe en la base de datos.
+        p_team_id: teamId,
       })
     },
 

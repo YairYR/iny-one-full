@@ -1,57 +1,123 @@
 import { withErrorHandling } from "@/lib/api/http";
-import { getCurrentUserDTO } from "@/data/dto/user-dto";
-import { SessionNotFoundError } from "@/lib/api/errors";
-import { getUserRepository } from "@/infra/db/user.repository";
+import { NextRequest } from "next/server";
+import { ApiError, InsufficientPermissionsError, SessionNotFoundError } from "@/lib/api/errors";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { getStatsRepository } from "@/infra/db/stats.repository";
+import { UserUrl } from "@/features/dashboard/types/types";
 import { successResponse } from "@/lib/api/responses";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { createClient } from "@/lib/supabase/server";
+import { ERROR } from "@/lib/api/error-codes";
+import { logger } from "@/lib/logger";
+import { getAccessContext } from "@/features/authorization/helpers/access";
+import { AuthorizationService } from "@/features/authorization/services/authorization.service";
+import { getTeamRepository } from "@/infra/db/team.repository";
+import { isLoggedIn } from "@/data/dto/user-dto";
+import { DashboardStatsSummary } from "@/lib/types";
 
 dayjs.extend(utc);
 
-export const GET = withErrorHandling(async () => {
-    const user = await getCurrentUserDTO();
-    if (!user) {
-        throw new SessionNotFoundError();
-    }
+const log = logger.child({ route: 'api/v1/dashboard/summary' });
 
-    const supabase = await createClient();
-    const userRepo = getUserRepository(supabase);
-    const statsRepo = getStatsRepository(supabase_service);
+/** Links por página en la tabla del dashboard. */
+const PAGE_SIZE = 20;
 
-    // La tabla se pagina (20 por página) pero los agregados NO pueden calcularse
-    // sobre esa página: `getStatsUserUrls` sin argumentos devuelve 20 enlaces, y
-    // con ellos el total de clics y el número de enlaces salían mal sin ninguna
-    // señal. Es el mismo fallo que se corrigió en /api/dashboard/stats.
-    const [{ data: _urls }, { data: allSlugs }] = await Promise.all([
-        userRepo.getStatsUserUrls(user.id),
-        userRepo.getSlugs(user.id),
-    ]);
+/** Links del ranking de rendimiento que se envían al cliente. */
+const TOP_LINKS = 5;
 
-    const slugs = (allSlugs ?? []).map(item => item.slug);
+export const GET = withErrorHandling(async (request: NextRequest) => {
+  // Primero validamos con `isLoggedIn` para no hacer consultas a la base de datos si el usuario no tiene sesión. `getAccessContext` hace varias consultas a la base de datos, así que es mejor abortar antes si no hay sesión.
+  const loggedIn = await isLoggedIn();
+  if (!loggedIn) {
+    throw new SessionNotFoundError();
+  }
 
-    const today = dayjs().utc();
-    const yesterday = today.subtract(1, 'day');
+  const access = await getAccessContext();
+  if (access.anonymous || !access.default_team_id) {
+    throw new SessionNotFoundError();
+  }
 
-    const [
-        clicksAllTime,
-        clicksLastDay,
-    ] = await Promise.all([
-        statsRepo.getClicksAllTime(slugs),
-        statsRepo.getClicksBetweenTime(slugs, yesterday.toDate(), today.toDate()),
-    ]);
+  const authorization = new AuthorizationService();
+  if (! authorization.hasTeamPermission(access, access.default_team_id, 'stats.view')) {
+    throw new InsufficientPermissionsError();
+  }
 
-    return successResponse({
-        urls: _urls,
-        links: slugs.length,
-        allTime: {
-            clicks: clicksAllTime.data?.[0]?.sum ?? 0,
-            country: ''
-        },
-        lastDay: {
-            clicks: clicksLastDay.count,
-        },
-    });
+  const teamId = access.default_team_id;
+  const page = Math.max(1, Number(request.nextUrl.searchParams.get('page')) || 1);
+
+  const supabase = await createClient();
+  const teamRepo = getTeamRepository(supabase);
+  const statsRepo = getStatsRepository(supabase_service);
+
+  // Los KPI y las series se calculan sobre todos los links del usuario; la
+  // tabla sólo muestra la página pedida. Antes ambas cosas salían de la misma
+  // consulta limitada a 20 filas, así que las métricas de una cuenta con más
+  // links eran incorrectas sin ninguna señal.
+  const [allLinksId, pageUrls, topLinks] = await Promise.all([
+    teamRepo.getLinksId(teamId),
+    teamRepo.getLinks(teamId, (page - 1) * PAGE_SIZE, PAGE_SIZE),
+    teamRepo.getTopLinks(teamId, TOP_LINKS),
+  ]);
+
+  // Un fallo aquí no puede degradarse en silencio: `data` vendría vacío y el
+  // dashboard mostraría cero enlaces como si la cuenta no tuviera ninguno, que
+  // es indistinguible de un problema real de permisos o de conexión.
+  assertNoError({ allLinksId, pageUrls, topLinks });
+
+  const linkIds = (allLinksId.data ?? []).map((item) => item.link_id).filter((linkId): linkId is string => linkId !== null);
+
+  const [summaryResponse, refererResponse] = await Promise.all([
+    statsRepo.getDashboardStatsSummary(teamId),
+    statsRepo.getRefererersStats(linkIds),
+  ]);
+
+  if (!summaryResponse.data || summaryResponse.error) {
+    log.error(summaryResponse.error, 'failed to fetch stats summary');
+    throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching stats summary');
+  }
+
+  const now = dayjs().utc();
+  const oneWeekAgo = now.subtract(6, 'day').toISOString();
+  const today = now.toISOString();
+
+  const summaryData = summaryResponse.data as Record<string, never>;
+  const summary: DashboardStatsSummary = {
+    summary: {
+      date_start: oneWeekAgo,
+      date_end: today,
+      date_grouping: 'day',
+      clicks: 0, //summaryData.clicks_all_time ?? 0,
+      clicks_last_24h: summaryData.clicks_last_24hrs ?? 0,
+      stats: summaryData.weekly_activity ?? [],
+    },
+    all_time: {
+      clicks: summaryData.clicks_all_time ?? 0,
+      top_browsers: [],
+      top_countries: summaryData.top_countries ?? [],
+    },
+  };
+
+  return successResponse({
+    urls: (pageUrls.data ?? []) as never as UserUrl[],
+    topLinks: (topLinks.data ?? []).map(({ slug, clicks }) => ({ slug: slug ?? '', clicks: clicks ?? 0 })),
+    refererStats: refererResponse.data ?? [],
+    summary: summary.summary,
+    all_time: summary.all_time,
+    pagination: {
+      page,
+      pageSize: PAGE_SIZE,
+      total: pageUrls.count ?? 0,
+    },
+  });
 });
+
+/** Aborta con 500 si alguna de las consultas del panel devolvió error. */
+function assertNoError(responses: Record<string, { error: unknown }>): void {
+  for (const [name, response] of Object.entries(responses)) {
+    if (response.error) {
+      log.error(response.error, 'dashboard query failed: %s', name);
+      throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching dashboard data');
+    }
+  }
+}
