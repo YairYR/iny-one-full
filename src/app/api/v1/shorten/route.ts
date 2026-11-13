@@ -188,7 +188,9 @@ async function createWithChosenSlug(
   input: Omit<CreateShortLinkInput, 'slug'>,
   slug: string,
 ): Promise<string> {
-  const { error } = await repo.create({ ...input, slug });
+  const { status, statusText, error } = await repo.create({ ...input, slug });
+
+  log.info({ slug, status, statusText }, 'attempted to create short link with custom slug');
 
   if (!error) return slug;
 
@@ -216,7 +218,9 @@ async function createWithUniqueSlug(
 ): Promise<string> {
   for (let attempt = 1; attempt <= MAX_SLUG_INSERT_ATTEMPTS; attempt++) {
     const slug = generateSlug();
-    const { error } = await repo.create({ ...input, slug });
+    const { statusText, status, error } = await repo.create({ ...input, slug });
+
+    log.info({ slug, status, statusText }, 'attempted to create short link with unique slug');
 
     if (!error) return slug;
 

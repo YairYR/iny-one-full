@@ -27,6 +27,7 @@ export type Database = {
                   Row: {
                     "action": string | null,"created_at": string | null,"entity_id": string | null,"entity_type": string | null,"id": string,"new_data": Json | null,"old_data": Json | null,"user_id": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "action"?: string | null,"created_at"?: string | null,"entity_id"?: string | null,"entity_type"?: string | null,"id"?: string,"new_data"?: Json | null,"old_data"?: Json | null,"user_id"?: string | null
                   }
@@ -40,6 +41,7 @@ export type Database = {
                   Row: {
                     "active": boolean | null,"amount": number,"applies_to": string | null,"code": string,"created_at": string | null,"currency": string | null,"description": string | null,"discount_type": string,"id": string,"service_id": string | null,"updated_at": string | null,"usage_limit": number | null,"used_count": number | null,"valid_from": string | null,"valid_until": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "active"?: boolean | null,"amount": number,"applies_to"?: string | null,"code": string,"created_at"?: string | null,"currency"?: string | null,"description"?: string | null,"discount_type": string,"id"?: string,"service_id"?: string | null,"updated_at"?: string | null,"usage_limit"?: number | null,"used_count"?: number | null,"valid_from"?: string | null,"valid_until"?: string | null
                   }
@@ -59,6 +61,7 @@ isOneToOne: false
                   Row: {
                     "domain": string | null,"id": number,"validated": boolean
                   }
+                  ComputedFields: never
                   Insert: {
                     "domain"?: string | null,"id"?: number,"validated"?: boolean
                   }
@@ -72,6 +75,7 @@ isOneToOne: false
                   Row: {
                     "browser": string | null,"browser_version": string | null,"city": string | null,"country_code": string | null,"created_at": string,"device_model": string | null,"device_type": string | null,"device_vendor": string | null,"domain": string | null,"id": number,"ip": string | null,"is_bot": boolean,"latitude": string | null,"link_id": string,"longitude": string | null,"os": string | null,"os_version": string | null,"referer": string | null,"region": string | null,"user_agent": string | null,"utm_campaign": string | null,"utm_content": string | null,"utm_id": string | null,"utm_medium": string | null,"utm_source": string | null,"utm_term": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "browser"?: string | null,"browser_version"?: string | null,"city"?: string | null,"country_code"?: string | null,"created_at"?: string,"device_model"?: string | null,"device_type"?: string | null,"device_vendor"?: string | null,"domain"?: string | null,"id"?: number,"ip"?: string | null,"is_bot"?: boolean,"latitude"?: string | null,"link_id": string,"longitude"?: string | null,"os"?: string | null,"os_version"?: string | null,"referer"?: string | null,"region"?: string | null,"user_agent"?: string | null,"utm_campaign"?: string | null,"utm_content"?: string | null,"utm_id"?: string | null,"utm_medium"?: string | null,"utm_source"?: string | null,"utm_term"?: string | null
                   }
@@ -91,6 +95,7 @@ isOneToOne: false
                   Row: {
                     "domain": string | null,"link_id": string,"subdomain": string | null,"validated_at": string | null,"validation_status": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "domain"?: string | null,"link_id": string,"subdomain"?: string | null,"validated_at"?: string | null,"validation_status"?: string
                   }
@@ -110,6 +115,7 @@ isOneToOne: true
                   Row: {
                     "created_at": string,"host_id": string,"status": string,"subdomain": string,"team_id": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"host_id"?: string,"status"?: string,"subdomain": string,"team_id": string,"updated_at"?: string
                   }
@@ -129,6 +135,7 @@ isOneToOne: false
                   Row: {
                     "amount": number,"created_at": string | null,"currency": string | null,"description": string | null,"discount_amount": number | null,"discount_id": string | null,"expires_at": string | null,"external_order_id": string | null,"id": string,"payment_gateway": string | null,"service_id": string | null,"status": string | null,"updated_at": string | null,"user_id": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount": number,"created_at"?: string | null,"currency"?: string | null,"description"?: string | null,"discount_amount"?: number | null,"discount_id"?: string | null,"expires_at"?: string | null,"external_order_id"?: string | null,"id"?: string,"payment_gateway"?: string | null,"service_id"?: string | null,"status"?: string | null,"updated_at"?: string | null,"user_id"?: string | null
                   }
@@ -154,6 +161,7 @@ isOneToOne: false
                   Row: {
                     "amount": number | null,"created_at": string | null,"currency": string | null,"external_payment_id": string | null,"gateway": string | null,"id": string,"order_id": string | null,"payer_email": string | null,"payer_id": string | null,"raw_response": Json | null,"status": string | null,"updated_at": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "amount"?: number | null,"created_at"?: string | null,"currency"?: string | null,"external_payment_id"?: string | null,"gateway"?: string | null,"id"?: string,"order_id"?: string | null,"payer_email"?: string | null,"payer_id"?: string | null,"raw_response"?: Json | null,"status"?: string | null,"updated_at"?: string | null
                   }
@@ -173,6 +181,7 @@ isOneToOne: false
                   Row: {
                     "description": string | null,"id": string,"key": string,"name": string | null,"scope": Database["public"]['Enums']["role_scope"]
                   }
+                  ComputedFields: never
                   Insert: {
                     "description"?: string | null,"id"?: string,"key": string,"name"?: string | null,"scope"?: Database["public"]['Enums']["role_scope"]
                   }
@@ -186,6 +195,7 @@ isOneToOne: false
                   Row: {
                     "permission_id": string,"role_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "permission_id": string,"role_id": string
                   }
@@ -211,6 +221,7 @@ isOneToOne: false
                   Row: {
                     "description": string | null,"id": string,"key": string,"name": string,"scope": Database["public"]['Enums']["role_scope"]
                   }
+                  ComputedFields: never
                   Insert: {
                     "description"?: string | null,"id"?: string,"key": string,"name": string,"scope"?: Database["public"]['Enums']["role_scope"]
                   }
@@ -224,6 +235,7 @@ isOneToOne: false
                   Row: {
                     "key": string,"service_id": string,"value": NonNullable<Json>
                   }
+                  ComputedFields: never
                   Insert: {
                     "key": string,"service_id": string,"value": NonNullable<Json>
                   }
@@ -243,6 +255,7 @@ isOneToOne: false
                   Row: {
                     "active": boolean | null,"created_at": string | null,"currency": string | null,"description": string | null,"external_service_id": string | null,"id": string,"interval": string | null,"name": string,"plan_key": string | null,"price": number,"service_gateway": string | null,"type": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "active"?: boolean | null,"created_at"?: string | null,"currency"?: string | null,"description"?: string | null,"external_service_id"?: string | null,"id"?: string,"interval"?: string | null,"name": string,"plan_key"?: string | null,"price": number,"service_gateway"?: string | null,"type": string
                   }
@@ -256,6 +269,7 @@ isOneToOne: false
                   Row: {
                     "changed_at": string,"changed_by": string,"id": number,"link_id": string,"new_destination": string,"old_destination": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "changed_at"?: string,"changed_by": string,"id"?: number,"link_id": string,"new_destination": string,"old_destination": string
                   }
@@ -275,6 +289,7 @@ isOneToOne: false
                   Row: {
                     "clicks": number | null,"created_at": string,"created_by": string | null,"created_by_country_code": string | null,"created_by_ip": unknown,"destination": string,"expires_at": string | null,"expires_in": number | null,"host_id": string | null,"link_id": string,"name": string | null,"slug": string,"status": string,"team_id": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "clicks"?: number | null,"created_at"?: string,"created_by"?: string | null,"created_by_country_code"?: string | null,"created_by_ip"?: unknown,"destination": string,"expires_at"?: string | null,"expires_in"?: number | null,"host_id"?: string | null,"link_id"?: string,"name"?: string | null,"slug": string,"status"?: string,"team_id"?: string | null
                   }
@@ -298,13 +313,14 @@ isOneToOne: false
                   ]
                 },"short_links_daily_stats": {
                   Row: {
-                    "bot_clicks": number,"browser_counts": NonNullable<Json>,"country_counts": NonNullable<Json>,"date": string,"device_type_counts": NonNullable<Json>,"link_id": string,"os_counts": NonNullable<Json>,"total_clicks": number,"unique_ips": number,"updated_at": string | null
+                    "bot_clicks": number,"browser_counts": NonNullable<Json>,"country_counts": NonNullable<Json>,"date": string,"device_type_counts": NonNullable<Json>,"link_id": string,"os_counts": NonNullable<Json>,"referer_counts": NonNullable<Json>,"team_id": string | null,"total_clicks": number,"unique_ips": number,"updated_at": string | null
                   }
+                  ComputedFields: never
                   Insert: {
-                    "bot_clicks"?: number,"browser_counts"?: NonNullable<Json>,"country_counts"?: NonNullable<Json>,"date": string,"device_type_counts"?: NonNullable<Json>,"link_id": string,"os_counts"?: NonNullable<Json>,"total_clicks"?: number,"unique_ips"?: number,"updated_at"?: string | null
+                    "bot_clicks"?: number,"browser_counts"?: NonNullable<Json>,"country_counts"?: NonNullable<Json>,"date": string,"device_type_counts"?: NonNullable<Json>,"link_id": string,"os_counts"?: NonNullable<Json>,"referer_counts"?: NonNullable<Json>,"team_id"?: string | null,"total_clicks"?: number,"unique_ips"?: number,"updated_at"?: string | null
                   }
                   Update: {
-                    "bot_clicks"?: number,"browser_counts"?: NonNullable<Json>,"country_counts"?: NonNullable<Json>,"date"?: string,"device_type_counts"?: NonNullable<Json>,"link_id"?: string,"os_counts"?: NonNullable<Json>,"total_clicks"?: number,"unique_ips"?: number,"updated_at"?: string | null
+                    "bot_clicks"?: number,"browser_counts"?: NonNullable<Json>,"country_counts"?: NonNullable<Json>,"date"?: string,"device_type_counts"?: NonNullable<Json>,"link_id"?: string,"os_counts"?: NonNullable<Json>,"referer_counts"?: NonNullable<Json>,"team_id"?: string | null,"total_clicks"?: number,"unique_ips"?: number,"updated_at"?: string | null
                   }
                   Relationships: [
                     {
@@ -313,68 +329,11 @@ isOneToOne: false
 isOneToOne: false
       referencedRelation: "short_links"
       referencedColumns: ["link_id"]
-    }
-                  ]
-                },"short_links_monthly_stats": {
-                  Row: {
-                    "browser_counts": NonNullable<Json>,"country_counts": NonNullable<Json>,"device_type_counts": NonNullable<Json>,"link_id": string,"month": number,"os_counts": NonNullable<Json>,"total_clicks": number,"unique_ips": number,"updated_at": string | null,"year": number
-                  }
-                  Insert: {
-                    "browser_counts"?: NonNullable<Json>,"country_counts"?: NonNullable<Json>,"device_type_counts"?: NonNullable<Json>,"link_id": string,"month": number,"os_counts"?: NonNullable<Json>,"total_clicks"?: number,"unique_ips"?: number,"updated_at"?: string | null,"year": number
-                  }
-                  Update: {
-                    "browser_counts"?: NonNullable<Json>,"country_counts"?: NonNullable<Json>,"device_type_counts"?: NonNullable<Json>,"link_id"?: string,"month"?: number,"os_counts"?: NonNullable<Json>,"total_clicks"?: number,"unique_ips"?: number,"updated_at"?: string | null,"year"?: number
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "short_links_monthly_stats_link_fkey"
-      columns: ["link_id"]
-isOneToOne: false
-      referencedRelation: "short_links"
-      referencedColumns: ["link_id"]
-    }
-                  ]
-                },"short_links_stats": {
-                  Row: {
-                    "browser_counts": NonNullable<Json>,"country_counts": NonNullable<Json>,"created_at": string,"device_type_counts": NonNullable<Json>,"last_click_at": string | null,"link_id": string,"os_counts": NonNullable<Json>,"total_clicks": number,"unique_ips": number,"updated_at": string
-                  }
-                  Insert: {
-                    "browser_counts"?: NonNullable<Json>,"country_counts"?: NonNullable<Json>,"created_at"?: string,"device_type_counts"?: NonNullable<Json>,"last_click_at"?: string | null,"link_id": string,"os_counts"?: NonNullable<Json>,"total_clicks"?: number,"unique_ips"?: number,"updated_at"?: string
-                  }
-                  Update: {
-                    "browser_counts"?: NonNullable<Json>,"country_counts"?: NonNullable<Json>,"created_at"?: string,"device_type_counts"?: NonNullable<Json>,"last_click_at"?: string | null,"link_id"?: string,"os_counts"?: NonNullable<Json>,"total_clicks"?: number,"unique_ips"?: number,"updated_at"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "short_links_stats_link_fkey"
-      columns: ["link_id"]
-isOneToOne: true
-      referencedRelation: "short_links"
-      referencedColumns: ["link_id"]
-    }
-                  ]
-                },"subscription_requests": {
-                  Row: {
-                    "created_at": string,"external_subscription_id": string | null,"id": string,"metadata": Json | null,"request_type": string,"service_id": string,"status": string,"subscription_gateway": string,"subscription_id": string | null,"updated_at": string,"user_id": string
-                  }
-                  Insert: {
-                    "created_at"?: string,"external_subscription_id"?: string | null,"id"?: string,"metadata"?: Json | null,"request_type": string,"service_id": string,"status": string,"subscription_gateway"?: string,"subscription_id"?: string | null,"updated_at"?: string,"user_id": string
-                  }
-                  Update: {
-                    "created_at"?: string,"external_subscription_id"?: string | null,"id"?: string,"metadata"?: Json | null,"request_type"?: string,"service_id"?: string,"status"?: string,"subscription_gateway"?: string,"subscription_id"?: string | null,"updated_at"?: string,"user_id"?: string
-                  }
-                  Relationships: [
-                    {
-      foreignKeyName: "subscription_requests_service_id_fkey"
-      columns: ["service_id"]
-isOneToOne: false
-      referencedRelation: "services"
-      referencedColumns: ["id"]
     },{
-      foreignKeyName: "subscription_requests_subscription_id_fkey"
-      columns: ["subscription_id"]
+      foreignKeyName: "short_links_daily_stats_team_id_fkey"
+      columns: ["team_id"]
 isOneToOne: false
-      referencedRelation: "subscriptions"
+      referencedRelation: "teams"
       referencedColumns: ["id"]
     }
                   ]
@@ -382,6 +341,7 @@ isOneToOne: false
                   Row: {
                     "cancel_reason": string | null,"created_at": string | null,"end_date": string | null,"external_subscription_id": string | null,"id": string,"next_billing_date": string | null,"service_id": string | null,"start_date": string | null,"status": Database["public"]['Enums']["subscription_status"] | null,"subscription_gateway": string | null,"updated_at": string | null,"user_id": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "cancel_reason"?: string | null,"created_at"?: string | null,"end_date"?: string | null,"external_subscription_id"?: string | null,"id"?: string,"next_billing_date"?: string | null,"service_id"?: string | null,"start_date"?: string | null,"status"?: Database["public"]['Enums']["subscription_status"] | null,"subscription_gateway"?: string | null,"updated_at"?: string | null,"user_id"?: string | null
                   }
@@ -401,6 +361,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"joined_at": string,"role_id": string,"status": string,"team_id": string,"updated_at": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"joined_at"?: string,"role_id": string,"status"?: string,"team_id": string,"updated_at"?: string,"user_id": string
                   }
@@ -426,6 +387,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"created_by": string,"id": string,"name": string,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"created_by": string,"id"?: string,"name": string,"updated_at"?: string
                   }
@@ -439,6 +401,7 @@ isOneToOne: false
                   Row: {
                     "metric": string,"period_start": string,"scope_id": string,"scope_type": string,"used": number
                   }
+                  ComputedFields: never
                   Insert: {
                     "metric": string,"period_start": string,"scope_id": string,"scope_type": string,"used"?: number
                   }
@@ -452,6 +415,7 @@ isOneToOne: false
                   Row: {
                     "role_id": string,"user_id": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "role_id": string,"user_id": string
                   }
@@ -471,6 +435,7 @@ isOneToOne: false
                   Row: {
                     "country": string | null,"created_at": string,"default_team_id": string | null,"full_name": string | null,"id": string,"phone": string | null,"plan": Database["public"]['Enums']["app_plan"],"timezone": string | null,"updated_at": string
                   }
+                  ComputedFields: never
                   Insert: {
                     "country"?: string | null,"created_at"?: string,"default_team_id"?: string | null,"full_name"?: string | null,"id": string,"phone"?: string | null,"plan"?: Database["public"]['Enums']["app_plan"],"timezone"?: string | null,"updated_at"?: string
                   }
@@ -490,6 +455,7 @@ isOneToOne: false
                   Row: {
                     "created_at": string,"link_id": string,"updated_at": string,"utm_campaign": string | null,"utm_content": string | null,"utm_id": string | null,"utm_medium": string | null,"utm_source": string | null,"utm_term": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string,"link_id": string,"updated_at"?: string,"utm_campaign"?: string | null,"utm_content"?: string | null,"utm_id"?: string | null,"utm_medium"?: string | null,"utm_source"?: string | null,"utm_term"?: string | null
                   }
@@ -509,6 +475,7 @@ isOneToOne: true
                   Row: {
                     "created_at": string | null,"event_type": string | null,"external_event_id": string | null,"gateway": string | null,"id": string,"payload": Json | null,"processed_at": string | null,"resource_type": string | null,"summary": string | null
                   }
+                  ComputedFields: never
                   Insert: {
                     "created_at"?: string | null,"event_type"?: string | null,"external_event_id"?: string | null,"gateway"?: string | null,"id"?: string,"payload"?: Json | null,"processed_at"?: string | null,"resource_type"?: string | null,"summary"?: string | null
                   }
@@ -524,7 +491,7 @@ isOneToOne: true
             [_ in never]: never
           }
           Functions: {
-"authorize":
+            "authorize":
 { Args: { "requested_permission": string }; Returns: boolean
                            },
 "click_short_link":
@@ -546,6 +513,10 @@ isOneToOne: true
                            },
 "get_dashboard_stats_summary":
 { Args: { "p_date_grouping"?: string,"p_end_date": string,"p_link_ids": (string)[],"p_start_date": string }; Returns: Json
+                           } |
+{ Args: { "p_team_id": string }; Returns: Json
+                           } |
+{ Args: { "p_end_date": string,"p_start_date": string,"p_team_id": string }; Returns: Json
                            },
 "get_effective_service":
 { Args: Record<PropertyKey, never>; Returns: {
@@ -586,86 +557,13 @@ isOneToOne: true
                            },
 "is_team_member":
 { Args: { "p_team_id": string }; Returns: boolean
+                           },
+"normalize_referer":
+{ Args: { "p_referer": string }; Returns: string
                            }
           }
           Enums: {
             "app_plan": "basic"|"pro"|"free","app_role": "user"|"editor"|"manager"|"admin","role_scope": "global"|"team","subscription_status": "INSERTED"|"APPROVAL_PENDING"|"APPROVED"|"ACTIVE"|"SUSPENDED"|"CANCELLED"|"EXPIRED"
-          }
-          CompositeTypes: {
-            [_ in never]: never
-          }
-        },"security": {
-          Tables: {
-            "blocked_url": {
-                  Row: {
-                    "created_at": string,"domain": string,"is_custom": boolean
-                  }
-                  Insert: {
-                    "created_at"?: string,"domain": string,"is_custom"?: boolean
-                  }
-                  Update: {
-                    "created_at"?: string,"domain"?: string,"is_custom"?: boolean
-                  }
-                  Relationships: [
-                    
-                  ]
-                },"blocklist_url_phishing_active": {
-                  Row: {
-                    "domain": string,"id": number
-                  }
-                  Insert: {
-                    "domain": string,"id"?: number
-                  }
-                  Update: {
-                    "domain"?: string,"id"?: number
-                  }
-                  Relationships: [
-                    
-                  ]
-                },"cached_blocked_url": {
-                  Row: {
-                    "created_at": string,"domain": string,"is_custom": boolean,"is_permanent": boolean
-                  }
-                  Insert: {
-                    "created_at"?: string,"domain": string,"is_custom"?: boolean,"is_permanent"?: boolean
-                  }
-                  Update: {
-                    "created_at"?: string,"domain"?: string,"is_custom"?: boolean,"is_permanent"?: boolean
-                  }
-                  Relationships: [
-                    
-                  ]
-                },"whitelist_url": {
-                  Row: {
-                    "created_at": string,"domain": string,"is_custom": boolean
-                  }
-                  Insert: {
-                    "created_at"?: string,"domain": string,"is_custom"?: boolean
-                  }
-                  Update: {
-                    "created_at"?: string,"domain"?: string,"is_custom"?: boolean
-                  }
-                  Relationships: [
-                    
-                  ]
-                }
-          }
-          Views: {
-            [_ in never]: never
-          }
-          Functions: {
-            "aggregate_daily_link_stats":
-{ Args: { "p_end_date": string,"p_start_date": string }; Returns: undefined
-                           },
-            "insert_blocked_url":
-{ Args: { "domains": (string)[] }; Returns: number
-                           },
-"is_domain_secure":
-{ Args: { "domain_to_check": string }; Returns: boolean
-                           }
-          }
-          Enums: {
-            [_ in never]: never
           }
           CompositeTypes: {
             [_ in never]: never
@@ -786,10 +684,6 @@ export const Constants = {
         },"public": {
           Enums: {
             "app_plan": ["basic", "pro", "free"],"app_role": ["user", "editor", "manager", "admin"],"role_scope": ["global", "team"],"subscription_status": ["INSERTED", "APPROVAL_PENDING", "APPROVED", "ACTIVE", "SUSPENDED", "CANCELLED", "EXPIRED"]
-          }
-        },"security": {
-          Enums: {
-            
           }
         }
 } as const
