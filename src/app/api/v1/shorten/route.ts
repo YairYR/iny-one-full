@@ -125,12 +125,6 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     client: { ip, countryCode },
   };
 
-  /**
-   *
-   * TODO: crear una una nueva función Postgresql create_link que no reciba "created_by" y se capture desde la sesión de supabase, para que no se pueda falsificar el creador del enlace. Esto es importante para evitar que un usuario malintencionado pueda crear enlaces en nombre de otro usuario y evadir las restricciones de cuota o de acceso.
-   *
-   */
-
   const slug = customSlug
     ? await createWithChosenSlug(shorterRepo, input, customSlug)
     : await createWithUniqueSlug(shorterRepo, input);
