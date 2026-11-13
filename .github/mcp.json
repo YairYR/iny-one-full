@@ -2,20 +2,22 @@
   "servers": {
     "supabase-local": {
       "type": "http",
-      "url": "http://127.0.0.1:54321/mcp?read_only=true&features=docs%2Cdatabase%2Cdebugging%2Cdevelopment"
+      "url": "http://192.168.100.10:54321/mcp?read_only=true&features=docs%2Cdatabase%2Cdebugging%2Cdevelopment"
     },
     "iny-memory": {
-      "command": "/run/current-system/sw/bin/node",
+      "type": "http",
+      "url": "http://192.168.100.10:8888/mcp"
+    },
+    "dbhub": {
+      "type": "stdio",
+      "command": "npx",
       "args": [
-        "/home/tato/Proyectos/project-memory-mcp/tools/project-memory-mcp/dist/index.js"
-      ],
-      "env": {
-        "PROJECT_NAME": "iny",
-        "PROJECT_ROOT": "/home/tato/Proyectos/project-memory-mcp",
-        "OLLAMA_BASE_URL": "http://127.0.0.1:11434",
-        "MEMORY_EMBEDDING_MODEL": "nomic-embed-text:v1.5",
-        "MEMORY_SEMANTIC_ENABLED": "true"
-      }
+        "@bytebase/dbhub@latest",
+        "--transport",
+        "stdio",
+        "--dsn",
+        "postgresql://postgres:postgres@192.168.100.10:54322/postgres"
+      ]
     }
   }
 }
