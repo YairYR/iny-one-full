@@ -31,10 +31,10 @@ export async function validateDestination(
   rawUrl: string,
 ): Promise<ValidatedDestination> {
   const target = withProtocol(rawUrl.trim());
-  const urlInfo = parseUrl(target);
+  const urlInfo = parseUrl(target, { detectSpecialUse: true });
 
-  if (urlInfo.domain === null || urlInfo.isIp || BLOCKED_DOMAINS.has(urlInfo.domain)) {
-    log.info({ domain: urlInfo.domain, isIp: urlInfo.isIp }, 'rejected destination url');
+  if (urlInfo.domain === null || urlInfo.isIp || urlInfo.isSpecialUse || BLOCKED_DOMAINS.has(urlInfo.domain)) {
+    log.info({ domain: urlInfo.domain, isIp: urlInfo.isIp, isSpecialUse: urlInfo.isSpecialUse }, 'rejected destination url');
     throw new ValidationError("Invalid url provided");
   }
 
