@@ -5,7 +5,6 @@ export type UserProfile = Tables<'users_profiles'>;
 export type Service = Tables<'services'>;
 export type Payment = Tables<'payments'>;
 export type Subscription = Tables<'subscriptions'>;
-export type SubscriptionRequest = Tables<'subscription_requests'>;
 export type Discount = Tables<'discounts'>;
 export type Order = Tables<'orders'>;
 export type WebhookEvent = Tables<'webhook_events'>;
@@ -18,7 +17,6 @@ type entities = {
   Service: Service
   Payment: Payment
   Subscription: Subscription
-  SubscriptionRequest: SubscriptionRequest
   Discount: Discount
   Order: Order
   WebhookEvent: WebhookEvent

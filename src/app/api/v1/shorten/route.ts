@@ -32,7 +32,6 @@ import { logger } from "@/lib/logger";
 import { getRateLimitGeo } from "@/lib/utils/geolocation";
 import { executeIfProduction } from "@/lib/utils/enviroment";
 import { rateLimiters } from "@/lib/rate-limit/rate-limiter";
-import {supabase_service} from "@/infra/db/supabase_service";
 
 dayjs.extend(utc);
 

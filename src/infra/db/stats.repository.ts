@@ -48,15 +48,8 @@ export function getStatsRepository(db: DbInstance)  {
 
     async getDashboardStatsSummary(teamId: string) {
       return db.rpc('get_dashboard_stats_summary', {
-        // @ts-expect-error TS no reconoce el parámetro de la función RPC, pero sí existe en la base de datos.
         p_team_id: teamId,
       })
-    },
-
-    async getClicksAllTime(linkIds: string[]) {
-      return db.from('short_links_stats')
-          .select('total_clicks.sum()')
-          .in('link_id', linkIds);
     },
 
     async getClicksBetweenTime(linkIds: string[], startDate: Date, endDate: Date) {
