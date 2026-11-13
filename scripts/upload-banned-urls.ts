@@ -62,16 +62,22 @@ async function get_urls() {
   return lines;
 }
 
+/**
+ * @deprecated
+ * @param domains
+ */
 async function insert_domains_supabase(domains: string[]) {
-  const { data, error } = await supabase
-    .schema('security')
-    .rpc('insert_blocked_url', { domains });
+  // Se comenta porque ya no es necesario subir los dominios a Supabase, ya que ahora se hace en Turso. Se deja el código comentado por si se necesita en el futuro.
 
-  if (error) {
-    console.error("Error al subir URLs:", error);
-  } else {
-    console.log("URLs subidas exitosamente:", data);
-  }
+  // const { data, error } = await supabase
+  //   .schema('security')
+  //   .rpc('insert_blocked_url', { domains });
+  //
+  // if (error) {
+  //   console.error("Error al subir URLs:", error);
+  // } else {
+  //   console.log("URLs subidas exitosamente:", data);
+  // }
 }
 
 async function insert_domains_turso(domains: string[]) {
