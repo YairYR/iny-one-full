@@ -34,8 +34,8 @@ export function calcUserStats({ urls, topLinks, summary, all_time, refererStats,
     topLinks,
     pagination,
     week: fillDays(summary.stats ?? [], {
-      startDate: dayjs(summary.date_start).toDate(),
-      endDate: dayjs(summary.date_end).toDate(),
+      startDate: dayjs(summary.date_start).utc(),
+      endDate: dayjs(summary.date_end).utc(),
     }),
     traffic: calcRefererStats(refererStats ?? []),
   };
@@ -64,7 +64,7 @@ export function dayToName(key: number) {
 function fillDays(stats: UserDashboardStats['summary']['stats'], {
   startDate = null,
   endDate = null,
-}: { startDate?: Date|null; endDate?: Date|null } = {}) {
+}: { startDate?: dayjs.Dayjs|null; endDate?: dayjs.Dayjs|null } = {}) {
   const sorted = stats.toSorted((a, b) => dayjs(a.date).diff(dayjs(b.date)));
 
   const data = {
@@ -72,8 +72,8 @@ function fillDays(stats: UserDashboardStats['summary']['stats'], {
     days: [] as string[],
     daysKey: [] as string[],
   };
-  const end = dayjs(endDate).add(1, 'day');
-  let current_date = dayjs(startDate);
+  const end = dayjs(endDate).utc().add(1, 'day');
+  let current_date = dayjs(startDate).utc();
   while(current_date != null && current_date.isBefore(end)) {
     const value = sorted[0];
     data.daysKey.push(dayToName(current_date.day()));

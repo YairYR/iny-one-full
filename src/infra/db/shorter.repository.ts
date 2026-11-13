@@ -96,7 +96,7 @@ export function getShorterRepository(db: DbInstance) {
       const browser = agent?.browser;
       const device = agent?.device ?? { type: 'desktop', vendor: undefined, model: undefined };
       const os = agent?.os;
-      const ip = (client?.ip == '::1' ? null : client?.ip) ?? null;
+      const ip = ([null, undefined, '::1', '127.0.0.1', 'localhost'].includes(client?.ip)) ? null : client?.ip ?? null;
       return db
         .schema('public')
         .rpc('click_short_link', {
@@ -118,7 +118,7 @@ export function getShorterRepository(db: DbInstance) {
           p_os: os?.name ?? null,
           p_os_version: os?.version ?? null,
           p_referer: client?.referer ?? null,
-        }, { head: true });
+        });
     },
 
     async countLinksByIpInLastMonth(ip: string) {
