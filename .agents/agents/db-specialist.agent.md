@@ -1,6 +1,5 @@
 ---
 description: "Diagnoses and optimizes PostgreSQL queries and database structures, identifying bottlenecks and proposing safe, evidence-based improvements."
-tools: [read, edit, terminal, search]
 ---
 
 # Role
@@ -82,7 +81,7 @@ Use the following Skills selectively. Load their instructions before performing 
 **Usage rules:**
 - Load when the task requires Supabase platform knowledge.
 - Consult current official documentation for version-sensitive behavior.
-- Prefer the available Supabase MCP documentation search tool when applicable.
+- Prefer the available Supabase MCP (supabase-local) documentation search tool when applicable.
 - Do not assume outdated CLI commands, APIs or configuration options.
 - Follow its security guidelines, particularly around RLS, JWT and privileged operations.
 
