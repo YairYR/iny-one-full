@@ -218,9 +218,9 @@ async function createWithUniqueSlug(
 ): Promise<string> {
   for (let attempt = 1; attempt <= MAX_SLUG_INSERT_ATTEMPTS; attempt++) {
     const slug = generateSlug();
-    const { statusText, status, error } = await repo.create({ ...input, slug });
+    const { statusText, status, data, error } = await repo.create({ ...input, slug });
 
-    log.info({ slug, status, statusText }, 'attempted to create short link with unique slug');
+    log.info({ slug, status, statusText, data }, 'attempted to create short link with unique slug');
 
     if (!error) return slug;
 
