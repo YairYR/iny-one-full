@@ -15,6 +15,7 @@ import { AuthorizationService } from "@/features/authorization/services/authoriz
 import { getTeamRepository } from "@/infra/db/team.repository";
 import { isLoggedIn } from "@/data/dto/user-dto";
 import { DashboardStatsSummary } from "@/lib/types";
+import { z } from "zod";
 
 dayjs.extend(utc);
 
@@ -26,7 +27,38 @@ const PAGE_SIZE = 20;
 /** Links del ranking de rendimiento que se envían al cliente. */
 const TOP_LINKS = 5;
 
+const paramsSchema = z.object({
+  /**
+   * Número de página de la tabla de links. Se ignora si no es un número positivo.
+   */
+  page: z.string().regex(/^\d+$/).optional(),
+  /**
+   * Si se pasa `true`, se incluyen los links en la respuesta. Esto es útil para que el cliente pueda mostrar la tabla de links sin hacer otra petición.
+   */
+  links: z.literal("true").optional(),
+
+  /**
+   * Kpi que se quieren incluir en la respuesta. Se pueden pasar varios parámetros separados por comas.
+   * * total_clicks
+   * * top_country
+   * * last_clicks
+   * * traffic
+   * * week
+   * * performance
+   */
+  kpi: z.string()
+      .regex(/^(total_clicks|top_country|last_clicks|traffic|week|performance)(,(total_clicks|top_country|last_clicks|traffic|week|performance))*$/)
+      .transform((value) => value.split(',').map((item) => item.trim()))
+      .optional(),
+});
+
 export const GET = withErrorHandling(async (request: NextRequest) => {
+
+  const paramsNoValidated = request.nextUrl.searchParams;
+  const params = paramsSchema.parse(Object.fromEntries(paramsNoValidated.entries()));
+
+  log.info(params, 'dashboard summary request params');
+
   // Primero validamos con `isLoggedIn` para no hacer consultas a la base de datos si el usuario no tiene sesión. `getAccessContext` hace varias consultas a la base de datos, así que es mejor abortar antes si no hay sesión.
   const loggedIn = await isLoggedIn();
   if (!loggedIn) {
