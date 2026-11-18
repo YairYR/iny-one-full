@@ -30,7 +30,8 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
   const { copyToClipboard } = useClipboard();
 
   const onClickCopy = useCallback((link: UserUrl) => {
-    void copyToClipboard('https://iny.one/' + link.slug);
+    const origin = window.location.origin ?? 'https://iny.one';
+    void copyToClipboard(origin + '/' + link.slug);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
