@@ -1,0 +1,19 @@
+# Supabase
+.branches
+.temp
+snippets
+
+# dotenvx
+.env
+.env.keys
+.env.local
+.env.*.local
+
+/*.sql
+
+# custom
+/migrations
+/diff
+/backups
+/backups-local
+/tests/audit/

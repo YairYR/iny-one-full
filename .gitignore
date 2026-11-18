@@ -60,7 +60,6 @@ next-env.d.ts
 /.openapi-gen
 
 certificates
-supabase
 
 # Local AI project memory
 .ai-memory/
