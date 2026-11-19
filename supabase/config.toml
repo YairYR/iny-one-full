@@ -60,7 +60,7 @@ schema_paths = []
 enabled = true
 # Specifies an ordered list of seed files to load during db reset.
 # Supports glob patterns relative to supabase directory: "./seeds/*.sql"
-sql_paths = ["./seed.sql"]
+sql_paths = ["./seed_auth.sql", "./seed_clean_teams.sql", "./seed.sql"]
 
 [db.network_restrictions]
 # Enable management of network restrictions.
@@ -102,7 +102,7 @@ openai_api_key = "env(OPENAI_API_KEY)"
 # sender_name = "Admin"
 
 [storage]
-enabled = false
+enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
