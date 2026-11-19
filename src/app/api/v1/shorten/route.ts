@@ -32,6 +32,7 @@ import { logger } from "@/lib/logger";
 import { getRateLimitGeo } from "@/lib/utils/geolocation";
 import { executeIfProduction } from "@/lib/utils/enviroment";
 import { rateLimiters } from "@/lib/rate-limit/rate-limiter";
+import { getTeamRepository } from "@/infra/db/team.repository";
 
 dayjs.extend(utc);
 
@@ -113,7 +114,15 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   const { destination, utm: utmParams } = buildDestination(target, utm, toDestinationPlan(access.planKey, access.anonymous));
 
-  const teamId = access.teams.size > 0 ? Array.from(access.teams.keys())[0] : null;
+  let teamId = access.anonymous ? null : access.default_team_id;
+  if (userId) {
+    const result = await getTeamRepository(supabase).ensurePersonalTeam();
+    if (result.error || !result.data) {
+      log.error(result.error, 'failed to initialize personal team');
+      throw new ApiError(ERROR.INTERNAL_ERROR, 'Unable to initialize personal team', { status: 500 });
+    }
+    teamId ??= result.data;
+  }
   const input: Omit<CreateShortLinkInput, 'slug'> = {
     teamId,
     hostId: null,

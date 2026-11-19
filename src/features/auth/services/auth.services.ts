@@ -92,7 +92,8 @@ export async function handleRegister(request: NextRequest) {
   const { name, email, password } = body.data;
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signUp({ email, password, options: {
+  const { data, error } = await supabase.auth.signUp({ email, password, options: {
+      emailRedirectTo: new URL('/auth/callback?next=/auth/setup', process.env.NEXT_PUBLIC_SITE_URL ?? 'https://iny.one').toString(),
       data: {
         name: name,
         display_name: name,
@@ -104,7 +105,7 @@ export async function handleRegister(request: NextRequest) {
     throw new ProviderAuthenticationError();
   }
 
-  return successResponse({});
+  return successResponse({ hasSession: !!data.session });
 }
 
 export async function handleConfirm(request: NextRequest) {

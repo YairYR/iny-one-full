@@ -11,8 +11,10 @@ const isSafeDomain = jest.fn();
 const countLinksByIpInLastMonth = jest.fn();
 const countLinksByUserInLastMonth = jest.fn();
 const getCurrentUser = jest.fn();
+const ensurePersonalTeam = jest.fn();
+const getMetric = jest.fn();
 const bloomHas = jest.fn();
-let mockAccess: { entitlements: Map<string, unknown>; planKey: string | null; anonymous: boolean };
+let mockAccess: { entitlements: Map<string, unknown>; planKey: string | null; anonymous: boolean; default_team_id?: string | null };
 const accesoAnonimo = () => ({ entitlements: new Map<string, unknown>(), planKey: null, anonymous: true });
 
 jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
@@ -28,6 +30,12 @@ jest.mock('@/infra/db/shorter.repository', () => ({
 }));
 jest.mock('@/infra/db/user.repository', () => ({
   getUserRepository: () => ({ getCurrentUser }),
+}));
+jest.mock('@/infra/db/team.repository', () => ({
+  getTeamRepository: () => ({ ensurePersonalTeam }),
+}));
+jest.mock('@/infra/db/usage_counter.repository', () => ({
+  getUsageCounterRepository: () => ({ getMetric }),
 }));
 // `getAccessContext` resuelve sesión, roles, plan y entitlements contra la base:
 // se mockea en la frontera, como el resto. Sin entitlements la cuota cae a la del
@@ -68,11 +76,13 @@ describe('POST /api/v1/shorten', () => {
     countLinksByIpInLastMonth.mockResolvedValue({ count: 0, error: null });
     countLinksByUserInLastMonth.mockResolvedValue({ count: 0, error: null });
     getCurrentUser.mockResolvedValue({ data: { user: null, role: null, plan: null } });
+    ensurePersonalTeam.mockResolvedValue({ data: 'personal-team', error: null });
+    getMetric.mockResolvedValue({ data: { used: 0 }, error: null });
     mockAccess = accesoAnonimo();
   });
 
   it('creates a short link and returns its url', async () => {
-    const response = await POST(request({ url: 'https://example.com' }), undefined);
+    const response = await POST(request({ url: 'https://github.com' }), undefined);
     const payload = await response.json();
 
     expect(response.status).toBe(200);
@@ -269,6 +279,9 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
     countLinksByIpInLastMonth.mockResolvedValue({ count: 0, error: null });
     countLinksByUserInLastMonth.mockResolvedValue({ count: 0, error: null });
     getCurrentUser.mockResolvedValue(authenticated);
+    mockAccess = accesoAnonimo();
+    ensurePersonalTeam.mockResolvedValue({ data: 'personal-team', error: null });
+    getMetric.mockResolvedValue({ data: { used: 0 }, error: null });
   });
 
   it('uses the slug the user chose', async () => {
@@ -278,6 +291,27 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
     expect(response.status).toBe(200);
     expect(payload.data.short).toBe('https://iny.one/promo-julio');
     expect(create.mock.calls[0][0].slug).toBe('promo-julio');
+  });
+
+  it('creates a personal team on the first link and assigns the link to it', async () => {
+    const response = await POST(request({ url: 'https://github.com' }), undefined);
+    expect(response.status).toBe(200);
+    expect(ensurePersonalTeam).toHaveBeenCalledTimes(1);
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ teamId: 'personal-team' }));
+  });
+
+  it('fails explicitly when personal team initialization fails', async () => {
+    ensurePersonalTeam.mockResolvedValue({ data: null, error: { message: 'database unavailable' } });
+    const response = await POST(request({ url: 'https://github.com' }), undefined);
+    expect(response.status).toBe(500);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it('keeps the existing default team when creating a link', async () => {
+    mockAccess = { entitlements: new Map(), planKey: 'free', anonymous: false, default_team_id: 'default-team' };
+    const response = await POST(request({ url: 'https://github.com' }), undefined);
+    expect(response.status).toBe(200);
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ teamId: 'default-team' }));
   });
 
   it('normalises the chosen slug to lowercase', async () => {

@@ -42,5 +42,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${SITE_URL}/auth/login?error=oauth_callback`);
   }
 
-  return NextResponse.redirect(`${SITE_URL}${next}`);
+  const setup = new URL('/auth/setup', SITE_URL);
+  setup.searchParams.set('next', next);
+  return NextResponse.redirect(setup);
 }

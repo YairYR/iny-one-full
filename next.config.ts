@@ -323,6 +323,10 @@ const nextConfig: NextConfig = {
         destination: "/ui/auth/register",
       },
       {
+        source: "/auth/setup",
+        destination: "/ui/auth/setup",
+      },
+      {
         source: "/auth/logout",
         destination: "/ui/auth/logout",
       },

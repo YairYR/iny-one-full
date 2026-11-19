@@ -37,27 +37,20 @@ values ('00000000-0000-0000-0000-0000000000a1', 'handle-new-user@test.local');
 
 select is(
   (select count(*)::int from public.teams where created_by = '00000000-0000-0000-0000-0000000000a1' and name = 'Personal'),
-  1,
-  'crea el equipo personal'
+  0,
+  'no crea un equipo durante el registro'
+);
+
+select ok(
+  exists (select 1 from public.users_profiles where id = '00000000-0000-0000-0000-0000000000a1'),
+  'crea el perfil'
 );
 
 select is(
-  (select r.key
-     from public.team_members tm
-     join public.roles r on r.id = tm.role_id
-     join public.teams t on t.id = tm.team_id
-    where tm.user_id = '00000000-0000-0000-0000-0000000000a1'
-      and t.created_by = tm.user_id),
-  'team_owner',
-  'agrega al usuario como team_owner de su equipo'
-);
-
-select is(
-  (select up.default_team_id
-     from public.users_profiles up
-    where up.id = '00000000-0000-0000-0000-0000000000a1'),
-  (select t.id from public.teams t where t.created_by = '00000000-0000-0000-0000-0000000000a1'),
-  'crea el perfil con el equipo personal como default_team_id'
+  (select default_team_id from public.users_profiles
+    where id = '00000000-0000-0000-0000-0000000000a1'),
+  null::uuid,
+  'el perfil no tiene equipo predeterminado hasta la configuración'
 );
 
 select * from finish();

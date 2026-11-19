@@ -2,6 +2,19 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Setup": {
+    "title": "Set up your account",
+    "description": "Choose your profile details and personal team name.",
+    "fullName": "Full name",
+    "teamName": "Team name",
+    "defaultTeamName": "{name}'s Team",
+    "country": "Country",
+    "timezone": "Time zone",
+    "continue": "Continue",
+    "skip": "Skip for now",
+    "saveError": "Unable to save your setup. Please try again.",
+    "networkError": "Unable to reach the server. Please try again."
+  },
   "404": {
     "metaTitle": "404 – Page Not Found | iny.one",
     "metaDescription": "The page you are looking for does not exist. Check the URL or return to the homepage.",

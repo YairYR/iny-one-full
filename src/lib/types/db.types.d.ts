@@ -385,14 +385,14 @@ isOneToOne: false
                   ]
                 },"teams": {
                   Row: {
-                    "created_at": string,"created_by": string,"id": string,"name": string,"updated_at": string
+                    "created_at": string,"created_by": string,"id": string,"name": string,"team_kind": string,"updated_at": string
                   }
                   ComputedFields: never
                   Insert: {
-                    "created_at"?: string,"created_by": string,"id"?: string,"name": string,"updated_at"?: string
+                    "created_at"?: string,"created_by": string,"id"?: string,"name": string,"team_kind"?: string,"updated_at"?: string
                   }
                   Update: {
-                    "created_at"?: string,"created_by"?: string,"id"?: string,"name"?: string,"updated_at"?: string
+                    "created_at"?: string,"created_by"?: string,"id"?: string,"name"?: string,"team_kind"?: string,"updated_at"?: string
                   }
                   Relationships: [
                     
@@ -505,10 +505,19 @@ isOneToOne: true
 "custom_access_token_hook":
 { Args: { "event": Json }; Returns: Json
                            },
+"complete_personal_setup":
+{ Args: { "p_team_name": string,"p_full_name": string,"p_country"?: string | null,"p_timezone"?: string | null }; Returns: string
+                           },
+"ensure_personal_team":
+{ Args: { "p_name"?: string }; Returns: string
+                           },
 "fn_verify_shortlink_expired":
 { Args: Record<PropertyKey, never>; Returns: undefined
                            },
 "get_access_context":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"get_personal_setup":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
 "get_dashboard_stats_summary":

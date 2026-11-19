@@ -2,6 +2,23 @@ import { DbInstance } from "@/infra/db/supabase_service";
 
 export function getTeamRepository(db: DbInstance) {
   return {
+    async getPersonalSetup() {
+      return db.rpc('get_personal_setup');
+    },
+
+    async completePersonalSetup(input: { teamName: string; fullName: string; country: string | null; timezone: string | null }) {
+      return db.rpc('complete_personal_setup', {
+        p_team_name: input.teamName,
+        p_full_name: input.fullName,
+        p_country: input.country,
+        p_timezone: input.timezone,
+      });
+    },
+
+    async ensurePersonalTeam(name?: string) {
+      return db.rpc('ensure_personal_team', name === undefined ? {} : { p_name: name });
+    },
+
     async getLinkById(linkId: string) {
       return db.from('short_links')
         .select('link_id, team_id, slug, name, destination, clicks, created_at')

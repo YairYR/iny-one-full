@@ -25,6 +25,10 @@ begin
     (owner_id, 'test-' || owner_id::text || '@example.invalid'),
     (viewer_id, 'test-' || viewer_id::text || '@example.invalid'),
     (other_id, 'test-' || other_id::text || '@example.invalid');
+  perform set_config('request.jwt.claim.sub', owner_id::text, true);
+  perform public.ensure_personal_team();
+  perform set_config('request.jwt.claim.sub', other_id::text, true);
+  perform public.ensure_personal_team();
   select default_team_id into strict owner_team from public.users_profiles where id = owner_id;
   select default_team_id into strict other_team from public.users_profiles where id = other_id;
   insert into public.team_members(team_id, user_id, role_id, status)

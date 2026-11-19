@@ -1,4 +1,17 @@
 {
+  "Setup": {
+    "title": "Configura tu cuenta",
+    "description": "Elige los datos de tu perfil y el nombre de tu equipo personal.",
+    "fullName": "Nombre completo",
+    "teamName": "Nombre del equipo",
+    "defaultTeamName": "Equipo de {name}",
+    "country": "País",
+    "timezone": "Zona horaria",
+    "continue": "Continuar",
+    "skip": "Omitir por ahora",
+    "saveError": "No se pudo guardar la configuración. Inténtalo de nuevo.",
+    "networkError": "No se pudo conectar con el servidor. Inténtalo de nuevo."
+  },
   "404": {
     "metaTitle": "404 – Página no encontrada | iny.one",
     "metaDescription": "La página que buscas no existe. Revisa la URL o vuelve al inicio.",
