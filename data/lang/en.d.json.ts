@@ -152,6 +152,7 @@ declare const messages: {
     "title": "Subscription Plans"
   },
   "DashboardPage": {
+    "loadError": "Some dashboard data could not be refreshed. Please try again.",
     "title": "Control Panel",
     "subtitle": "Overview and statistics of your short links",
     "button": {

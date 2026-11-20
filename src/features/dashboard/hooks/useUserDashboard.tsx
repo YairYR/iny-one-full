@@ -3,7 +3,8 @@ import { useStatsCommon } from "@/features/dashboard/hooks/useStatsCommon";
 import { ILinkDetails } from "@/features/dashboard/components";
 import { useTranslations } from "next-intl";
 import { UserUrl } from "@/features/dashboard/types/types";
-import { calcUserStats } from "@/features/dashboard/helpers/stats";
+import { calcRefererStats, fillDays, NO_DATA } from "@/features/dashboard/helpers/stats";
+import dayjs from "dayjs";
 
 /**
  * Opciones comunes de los gráficos de clics. Los clics son enteros no negativos:
@@ -35,18 +36,33 @@ export const useUserDashboard = () => {
   });
 
   const [page, setPage] = useState(1);
-  const { data } = useStatsCommon(page);
+  const { kpis, insights, links } = useStatsCommon(page);
 
-  const stats = useMemo(() => (data ? calcUserStats(data) : null), [data]);
+  const stats = useMemo(() => ({
+    general: {
+      totalLinks: kpis.data?.totalLinks,
+      totalClicks: kpis.data?.all_time.clicks,
+      clicksLast24h: kpis.data ? kpis.data.summary.clicks_last_24h || NO_DATA : undefined,
+      topCountry: kpis.data?.all_time.top_countries?.[0]?.name ?? NO_DATA,
+    },
+    links: links.data?.urls ?? [],
+    pagination: links.data?.pagination,
+    topLinks: insights.data?.topLinks ?? [],
+    traffic: insights.data ? calcRefererStats(insights.data.refererStats) : {},
+    week: kpis.data ? fillDays(kpis.data.summary.stats, {
+      startDate: dayjs(kpis.data.summary.date_start).utc(),
+      endDate: dayjs(kpis.data.summary.date_end).utc(),
+    }) : undefined,
+  }), [kpis.data, insights.data, links.data]);
 
   const traffic = Object.values(stats?.traffic ?? {});
 
   const clicks_week = {
-    labels: stats?.week.daysKey.map((key) => t(key as never)),
+    labels: stats.week?.daysKey.map((key) => t(key as never)),
     datasets: [
       {
         label: "Clicks",
-        data: stats?.week.clicks,
+        data: stats.week?.clicks,
         fill: true,
       },
     ],
@@ -109,6 +125,7 @@ export const useUserDashboard = () => {
   return {
     t,
     stats,
+    hasError: Boolean(kpis.error || insights.error || links.error),
     countChartOptions,
     page,
     totalPages,

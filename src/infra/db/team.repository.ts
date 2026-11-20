@@ -47,14 +47,22 @@ export function getTeamRepository(db: DbInstance) {
         .range(offset, offset + limit - 1);
     },
 
+    async getLinksCount(teamId: string) {
+      return db.from('short_links')
+        .select('link_id', { count: 'exact', head: true })
+        .eq('team_id', teamId);
+    },
+
     /**
      * Todos los link_id del team. Los KPI y las series agregadas se calculan
      * sobre el total, no sobre la página que se esté mostrando.
      */
-    async getLinksId(teamId: string) {
+    async getLinksId(teamId: string, offset = 0, limit = 500) {
       return db.from('short_links')
-        .select('link_id')
-        .eq('team_id', teamId);
+        .select('link_id', { count: 'exact' })
+        .eq('team_id', teamId)
+        .order('link_id')
+        .range(offset, offset + limit - 1);
     },
 
     /** Links más visitados del team, para el KPI y el gráfico de rendimiento. */

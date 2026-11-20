@@ -61,7 +61,7 @@ export function dayToName(key: number) {
   return 'week.sunday';
 }
 
-function fillDays(stats: UserDashboardStats['summary']['stats'], {
+export function fillDays(stats: UserDashboardStats['summary']['stats'], {
   startDate = null,
   endDate = null,
 }: { startDate?: dayjs.Dayjs|null; endDate?: dayjs.Dayjs|null } = {}) {
@@ -92,7 +92,7 @@ function fillDays(stats: UserDashboardStats['summary']['stats'], {
   return data;
 }
 
-function calcRefererStats(stats: IRefererStat[]) {
+export function calcRefererStats(stats: IRefererStat[]) {
   const referersCount: Record<string, { name: string; count: number, value: number }> = {};
 
   let total = 0;

@@ -29,6 +29,7 @@ export function UserDashboard() {
   const {
     t,
     stats,
+    hasError,
     countChartOptions,
     page,
     totalPages,
@@ -72,6 +73,8 @@ export function UserDashboard() {
           </div>
         </header>
 
+        {hasError && <p role="alert" className="mb-4 text-red-700">{t('loadError')}</p>}
+
         <main className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left / Main column */}
           <section className="lg:col-span-2 space-y-6">
@@ -114,7 +117,7 @@ export function UserDashboard() {
             {/* Links table */}
             <LinksTable
               links={links ?? []}
-              total={general?.totalLinks ?? 0}
+              total={stats?.pagination?.total ?? 0}
               page={page}
               totalPages={totalPages}
               onPageChange={setPage}

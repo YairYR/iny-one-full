@@ -149,6 +149,7 @@
     "title": "Planes de Suscripción"
   },
   "DashboardPage": {
+    "loadError": "No se pudieron actualizar algunos datos del panel. Inténtalo de nuevo.",
     "title": "Panel de Control",
     "subtitle": "Resumen y estadísticas de tus short links",
     "button": {
