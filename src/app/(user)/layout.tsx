@@ -5,7 +5,7 @@ import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import type { Metadata } from "next";
 
 // El dashboard vive bajo el grupo (user), asi que su cadena de layouts es
-// app -> ui -> (user). Declarar el noindex aqui es lo unico que lo aplica de
+// app -> (user). Declarar el noindex aqui es lo unico que lo aplica de
 // verdad al area privada.
 export const metadata: Metadata = {
   robots: { index: false, follow: false },
