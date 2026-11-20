@@ -155,6 +155,17 @@
     "title": "Planes de Suscripción"
   },
   "DashboardPage": {
+    "example": {
+      "title": "Vista de ejemplo",
+      "label": "Datos de ejemplo, no son reales",
+      "visitor": "Explora cómo se verán tus estadísticas. Todos los datos de esta vista son ficticios. Crea una cuenta gratis para gestionar tus enlaces.",
+      "empty": "Todavía no tienes enlaces. Estos datos son ficticios y solo muestran cómo se verá tu panel.",
+      "setup": "Estos datos son ficticios. Configura tu cuenta para empezar a usar tu panel.",
+      "register": "Crear cuenta gratis",
+      "setupAction": "Configurar cuenta",
+      "noActivity": "No hay clics en este período.",
+      "noLinkActivity": "Tus enlaces todavía no tienen clics."
+    },
     "loadError": "No se pudieron actualizar algunos datos del panel. Inténtalo de nuevo.",
     "loading": "Cargando datos…",
     "sectionError": "No se pudieron cargar estos datos.",

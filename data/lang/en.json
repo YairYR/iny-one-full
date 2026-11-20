@@ -155,6 +155,17 @@
     "title": "Subscription Plans"
   },
   "DashboardPage": {
+    "example": {
+      "title": "Example dashboard",
+      "label": "Example data, not real",
+      "visitor": "Explore how your statistics will look. All data in this view is fictional. Create a free account to manage your links.",
+      "empty": "You don't have any links yet. This fictional data shows what your dashboard will look like.",
+      "setup": "This data is fictional. Set up your account to start using your dashboard.",
+      "register": "Create a free account",
+      "setupAction": "Set up account",
+      "noActivity": "There are no clicks in this period.",
+      "noLinkActivity": "Your links don't have any clicks yet."
+    },
     "loadError": "Some dashboard data could not be refreshed. Please try again.",
     "loading": "Loading data…",
     "sectionError": "Could not load this data.",

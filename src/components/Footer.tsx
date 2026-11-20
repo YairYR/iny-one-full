@@ -44,7 +44,7 @@ export default function Footer() {
   const t = labels[locale] ?? labels.en;
 
   // Prefija /es solo en rutas que existen en ambos idiomas.
-  // (PISCOLAS es solo-ES en su URL histórica y DASHBOARD es app privada.)
+  // (PISCOLAS es solo-ES en su URL histórica y DASHBOARD no tiene ruta /es.)
   const p = (path: string) =>
     locale === "es" ? (path === "/" ? "/es" : `/es${path}`) : path;
 

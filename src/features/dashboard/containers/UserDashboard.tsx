@@ -8,6 +8,7 @@ import { ROUTES } from "@/lib/routes";
 import InfoPopover from "@/components/Popover/InfoPopover";
 import { useUserDashboard } from "@/features/dashboard/hooks/useUserDashboard";
 import { useFormatter } from "next-intl";
+import { DashboardExample, ExampleChart } from "@/features/dashboard/components/DashboardExample";
 
 const ChartSkeleton = () => (
   <div className="h-full w-full animate-pulse rounded-lg bg-gray-100" aria-hidden="true" />
@@ -25,6 +26,8 @@ export function UserDashboard() {
   const format = useFormatter();
   const number = (value: number | undefined) => value === undefined ? t('noData') : format.number(value);
   const trafficName = (name: string) => name === 'Direct' ? t('traffic.direct') : name === 'Others' ? t('traffic.other') : name;
+  const isEmpty = linksRequest.data?.pagination.total === 0 && kpis.data && insights.data
+    && !linksRequest.error && !kpis.error && !insights.error;
 
   const status = (request: { error: unknown; isLoading: boolean; data: unknown; mutate: () => Promise<unknown> }) => (
     <>
@@ -36,6 +39,8 @@ export function UserDashboard() {
       ) : request.isLoading && !request.data ? <p role="status" className="p-4 text-sm text-gray-500">{t('loading')}</p> : null}
     </>
   );
+
+  if (isEmpty) return <DashboardExample audience="empty" />;
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
@@ -72,7 +77,10 @@ export function UserDashboard() {
                   </h2>
                   <span className="text-sm text-gray-500">{t("panel.weekActivity.subtitle")}</span>
                 </div>
-                {kpis.data ? <>
+                {kpis.data && !kpis.error && stats.week?.clicks.every((clicks) => clicks === 0) ? <>
+                  <p className="mb-3 text-sm text-gray-500">{t('example.noActivity')}</p>
+                  <ExampleChart kind="week" />
+                </> : kpis.data ? <>
                   <div className="h-52 w-full"><Line data={clicks_week} options={countChartOptions} aria-hidden="true" /></div>
                   <ul className="sr-only">{stats.week?.days.map((day, i) => <li key={day}>{day}: {number(stats.week?.clicks[i])}</li>)}</ul>
                 </> : <p className="text-sm text-gray-500">{kpis.error ? t('sectionError') : t('loading')}</p>}
@@ -84,11 +92,14 @@ export function UserDashboard() {
                   <span className="text-sm text-gray-500">{t("panel.performancePerLink.subtitle", { top: top_by_clicks })}</span>
                 </div>
                 {status(insights)}
-                {insights.data && (stats.topLinks.length ? <>
+                {insights.data && (!insights.error && stats.topLinks.every((link) => link.clicks === 0) ? <>
+                  <p className="mb-3 text-sm text-gray-500">{stats.topLinks.length ? t('example.noLinkActivity') : t('noLinksChart')}</p>
+                  <ExampleChart kind="performance" />
+                </> : stats.topLinks.length ? <>
                   <div className="h-52 w-full"><Bar data={clicks_top} options={countChartOptions} aria-hidden="true" /></div>
                   <ul className="sr-only">{stats.topLinks.slice(0, top_by_clicks).map((link) => <li key={link.slug}>{link.slug}: {number(link.clicks)}</li>)}</ul>
                   <p className="mt-3 text-xs text-gray-500">{t('table.links.clicksNote')}</p>
-                </> : <p className="text-sm text-gray-500">{t('noLinksChart')}</p>)}
+                </> : null)}
               </section>
             </div>
 
@@ -109,7 +120,10 @@ export function UserDashboard() {
                 <ul className="mt-3 space-y-1 text-sm text-gray-600">
                   {traffic.map((item) => <li key={item.name} className="flex justify-between gap-2"><span>{trafficName(item.name)}</span><span>{format.number(item.value)}%</span></li>)}
                 </ul>
-              </> : <p className="text-sm text-gray-500">{t('noTraffic')}</p>)}
+              </> : !insights.error && <>
+                <p className="mb-3 text-sm text-gray-500">{t('noTraffic')}</p>
+                <ExampleChart kind="traffic" />
+              </>)}
             </section>
           </aside>
         </div>
