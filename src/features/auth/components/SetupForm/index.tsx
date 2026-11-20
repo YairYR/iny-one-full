@@ -8,6 +8,7 @@ import { getCountryOptions, getTimeZoneOptions, isTimeZone } from "@/features/au
 
 type Props = {
   next: string;
+  mode?: 'setup' | 'settings';
   initialFullName: string;
   initialTeamName: string | null;
   initialCountry: string;
@@ -17,13 +18,14 @@ type Props = {
 type Option = { value: string; label: string };
 
 function SearchableSelect({
-  id, label, value, options, onChange,
+  id, label, value, options, onChange, disabled,
 }: {
   id: string;
   label: string;
   value: string;
   options: Option[];
   onChange: (value: string) => void;
+  disabled: boolean;
 }) {
   const [query, setQuery] = useState('');
   const filtered = query.trim()
@@ -32,7 +34,7 @@ function SearchableSelect({
   return (
     <div className="relative">
       <label htmlFor={id} className="block text-sm font-medium mb-2">{label}</label>
-      <Combobox value={value} onChange={(selected: string | null) => onChange(selected ?? '')} onClose={() => setQuery('')}>
+      <Combobox value={value} disabled={disabled} onChange={(selected: string | null) => onChange(selected ?? '')} onClose={() => setQuery('')}>
         <ComboboxInput id={id} className="w-full border border-gray-300 rounded-lg p-3"
           displayValue={(selected: string) => options.find((option) => option.value === selected)?.label ?? ''}
           onChange={(event) => {
@@ -51,7 +53,7 @@ function SearchableSelect({
   );
 }
 
-export default function SetupForm({ next, initialFullName, initialTeamName, initialCountry, initialTimezone }: Props) {
+export default function SetupForm({ next, mode = 'setup', initialFullName, initialTeamName, initialCountry, initialTimezone }: Props) {
   const router = useRouter();
   const t = useTranslations('Setup');
   const locale = useLocale();
@@ -62,20 +64,23 @@ export default function SetupForm({ next, initialFullName, initialTeamName, init
   const [timezone, setTimezone] = useState(initialTimezone);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [saved, setSaved] = useState(false);
+  const [hasTeam, setHasTeam] = useState(initialTeamName !== null);
   const countries = useMemo(() => getCountryOptions(locale), [locale]);
   const timezones = useMemo(() => getTimeZoneOptions(timezone), [timezone]);
 
   useEffect(() => {
-    if (!initialTimezone) {
+    if (mode === 'setup' && !initialTimezone) {
       const detected = Intl.DateTimeFormat().resolvedOptions().timeZone;
       if (detected && isTimeZone(detected)) setTimezone(detected);
     }
-  }, [initialTimezone]);
+  }, [initialTimezone, mode]);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setLoading(true);
     setError('');
+    setSaved(false);
     try {
       const response = await fetch('/api/v1/teams/personal', {
         method: 'POST',
@@ -86,7 +91,13 @@ export default function SetupForm({ next, initialFullName, initialTeamName, init
         setError(t('saveError'));
         return;
       }
-      router.push(next);
+      if (mode === 'settings') {
+        setHasTeam(true);
+        setTeamNameEdited(true);
+        setSaved(true);
+      } else {
+        router.push(next);
+      }
       router.refresh();
     } catch {
       setError(t('networkError'));
@@ -97,9 +108,10 @@ export default function SetupForm({ next, initialFullName, initialTeamName, init
 
   return (
     <div className="flex flex-col w-full md:w-1/2 mx-auto p-8 bg-white rounded-2xl shadow-xl">
-      <h1 className="text-3xl font-bold text-gray-600">{t('title')}</h1>
-      <p className="mt-3 text-gray-600">{t('description')}</p>
-      <form className="flex flex-col gap-4 mt-6" onSubmit={submit}>
+      <h1 className="text-3xl font-bold text-gray-600">{t(mode === 'settings' ? 'settingsTitle' : 'title')}</h1>
+      <p className="mt-3 text-gray-600">{t(mode === 'settings' ? 'settingsDescription' : 'description')}</p>
+      {mode === 'settings' && !hasTeam && <p className="mt-3 text-gray-600">{t('teamWillBeCreated')}</p>}
+      <form className="flex flex-col gap-4 mt-6" onSubmit={submit} onChange={() => setSaved(false)}>
         <label htmlFor="full-name" className="text-sm font-medium">{t('fullName')}</label>
         <input id="full-name" value={fullName} onChange={(event) => {
           const value = event.target.value;
@@ -113,12 +125,13 @@ export default function SetupForm({ next, initialFullName, initialTeamName, init
           setName(event.target.value);
         }} required maxLength={100} disabled={loading}
           className="border border-gray-300 rounded-lg p-3" />
-        <SearchableSelect id="country" label={t('country')} value={country} options={countries} onChange={setCountry} />
-        <SearchableSelect id="timezone" label={t('timezone')} value={timezone} options={timezones} onChange={setTimezone} />
+        <SearchableSelect id="country" label={t('country')} value={country} options={countries} disabled={loading} onChange={(value) => { setCountry(value); setSaved(false); }} />
+        <SearchableSelect id="timezone" label={t('timezone')} value={timezone} options={timezones} disabled={loading} onChange={(value) => { setTimezone(value); setSaved(false); }} />
         {error && <p role="alert" className="text-red-700">{error}</p>}
-        <button type="submit" disabled={loading} className="rounded-lg bg-indigo-600 p-3 text-white">{t('continue')}</button>
-        <button type="button" disabled={loading} onClick={() => router.push(next)}
-          className="text-indigo-600">{t('skip')}</button>
+        {saved && <p role="status" className="text-green-700">{t('saved')}</p>}
+        <button type="submit" disabled={loading} className="rounded-lg bg-indigo-600 p-3 text-white">{t(mode === 'settings' ? 'save' : 'continue')}</button>
+        {mode === 'setup' && <button type="button" disabled={loading} onClick={() => router.push(next)}
+          className="text-indigo-600">{t('skip')}</button>}
       </form>
     </div>
   );

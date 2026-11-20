@@ -81,3 +81,42 @@ it('filters and selects a country and a time zone', async () => {
   fireEvent.keyDown(screen.getByLabelText('Time zone'), { key: 'Enter' });
   await waitFor(() => expect(screen.getByLabelText('Time zone')).toHaveValue('America/Buenos_Aires'));
 });
+
+it('saves account settings without leaving the page', async () => {
+  mockLocale = 'en';
+  fetchMock.mockResolvedValue({ ok: true });
+  render(<SetupForm mode="settings" next="/dashboard" initialFullName="Jane" initialTeamName="Studio" initialCountry="US" initialTimezone="America/New_York" />);
+  expect(screen.getByRole('heading', { name: 'Account settings' })).toBeInTheDocument();
+  expect(screen.queryByRole('button', { name: 'Skip for now' })).not.toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('Team name'), { target: { value: 'New Studio' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+  expect(await screen.findByRole('status')).toHaveTextContent('Your changes have been saved.');
+  expect(fetchMock).toHaveBeenCalledWith('/api/v1/teams/personal', expect.objectContaining({
+    body: JSON.stringify({ name: 'New Studio', fullName: 'Jane', country: 'US', timezone: 'America/New_York' }),
+  }));
+  expect(push).not.toHaveBeenCalled();
+  fireEvent.change(screen.getByLabelText('Full name'), { target: { value: 'Janet' } });
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
+  expect(screen.getByLabelText('Team name')).toHaveValue('New Studio');
+});
+
+it('explains that saving settings creates or recovers a missing personal team', async () => {
+  mockLocale = 'es';
+  fetchMock.mockResolvedValue({ ok: true });
+  render(<SetupForm mode="settings" next="/dashboard" initialFullName="Ana" initialTeamName={null} initialCountry="" initialTimezone="UTC" />);
+  expect(screen.getByText(/Al guardar se creará o recuperará tu equipo personal/)).toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Guardar cambios' }));
+  await screen.findByRole('status');
+  expect(screen.queryByText(/Al guardar se creará o recuperará tu equipo personal/)).not.toBeInTheDocument();
+  fireEvent.change(screen.getByLabelText('Nombre completo'), { target: { value: 'Ana María' } });
+  expect(screen.getByLabelText('Nombre del equipo')).toHaveValue('Equipo de Ana');
+});
+
+it('shows save failures on the settings page', async () => {
+  mockLocale = 'en';
+  fetchMock.mockResolvedValue({ ok: false });
+  render(<SetupForm mode="settings" next="/dashboard" initialFullName="Jane" initialTeamName="Studio" initialCountry="US" initialTimezone="UTC" />);
+  fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
+  expect(await screen.findByRole('alert')).toHaveTextContent('Unable to save');
+  expect(screen.queryByRole('status')).not.toBeInTheDocument();
+});

@@ -226,6 +226,11 @@ const nextConfig: NextConfig = {
         destination: "/dashboard",
         permanent: true,
       },
+      {
+        source: "/ui/account/settings",
+        destination: "/account/settings",
+        permanent: true,
+      },
 
       {
         source: "/bloom.bin",
@@ -342,6 +347,10 @@ const nextConfig: NextConfig = {
       {
         source: "/dashboard",
         destination: "/ui/dashboard",
+      },
+      {
+        source: "/account/settings",
+        destination: "/ui/account/settings",
       },
     ];
   },

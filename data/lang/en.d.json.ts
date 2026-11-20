@@ -13,7 +13,16 @@ declare const messages: {
     "continue": "Continue",
     "skip": "Skip for now",
     "saveError": "Unable to save your setup. Please try again.",
-    "networkError": "Unable to reach the server. Please try again."
+    "networkError": "Unable to reach the server. Please try again.",
+    "settingsTitle": "Account settings",
+    "settingsDescription": "Update your profile and personal team name.",
+    "teamWillBeCreated": "Saving will create or recover your personal team if you don't have one yet.",
+    "save": "Save changes",
+    "saved": "Your changes have been saved."
+  },
+  "UserMenu": {
+    "settings": "Account settings",
+    "signOut": "Sign out"
   },
   "404": {
     "metaTitle": "404 – Page Not Found | iny.one",

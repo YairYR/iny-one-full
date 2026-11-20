@@ -4,6 +4,7 @@ import React from "react";
 import { CurrentUserAvatar } from "@/features/auth/components/OAuth/CurrentUserAvatar";
 import { ROUTES } from "@/lib/routes";
 import { usePathname, useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 
 interface Props {
   picture: string | null;
@@ -13,10 +14,11 @@ interface Props {
 export default function UserProfileMenu({ picture, fullname }: Readonly<Props>) {
   const router = useRouter();
   const pathname = usePathname();
+  const t = useTranslations('UserMenu');
 
   const onClickLoggOut = async () => {
     await fetch(ROUTES.LOGOUT);
-    if(pathname.includes('dashboard')) {
+    if(pathname.includes('dashboard') || pathname.startsWith('/account/')) {
       router.push(ROUTES.HOME);
     } else {
       router.refresh();
@@ -43,14 +45,12 @@ export default function UserProfileMenu({ picture, fullname }: Readonly<Props>) 
         {/*    Your profile*/}
         {/*  </Link>*/}
         {/*</MenuItem>*/}
-        {/*<MenuItem>*/}
-        {/*  <Link*/}
-        {/*    href="#"*/}
-        {/*    className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"*/}
-        {/*  >*/}
-        {/*    Settings*/}
-        {/*  </Link>*/}
-        {/*</MenuItem>*/}
+        <MenuItem>
+          <Link prefetch={false} href={ROUTES.ACCOUNT_SETTINGS}
+            className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden">
+            {t('settings')}
+          </Link>
+        </MenuItem>
         <MenuItem>
           <Link
             prefetch={false}
@@ -58,7 +58,7 @@ export default function UserProfileMenu({ picture, fullname }: Readonly<Props>) 
             onClick={onClickLoggOut}
             className="block px-4 py-2 text-sm text-gray-700 data-focus:bg-gray-100 data-focus:outline-hidden"
           >
-            Sign out
+            {t('signOut')}
           </Link>
         </MenuItem>
       </MenuItems>

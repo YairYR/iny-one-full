@@ -10,7 +10,16 @@
     "continue": "Continuar",
     "skip": "Omitir por ahora",
     "saveError": "No se pudo guardar la configuración. Inténtalo de nuevo.",
-    "networkError": "No se pudo conectar con el servidor. Inténtalo de nuevo."
+    "networkError": "No se pudo conectar con el servidor. Inténtalo de nuevo.",
+    "settingsTitle": "Configuración de la cuenta",
+    "settingsDescription": "Actualiza tu perfil y el nombre de tu equipo personal.",
+    "teamWillBeCreated": "Al guardar se creará o recuperará tu equipo personal si todavía no tienes uno.",
+    "save": "Guardar cambios",
+    "saved": "Los cambios se han guardado."
+  },
+  "UserMenu": {
+    "settings": "Cuenta",
+    "signOut": "Cerrar sesión"
   },
   "404": {
     "metaTitle": "404 – Página no encontrada | iny.one",

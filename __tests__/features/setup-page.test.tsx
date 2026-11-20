@@ -13,8 +13,11 @@ jest.mock('@/features/auth/components/SetupForm', () => () => null);
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const SetupPage = (require('@/app/ui/(main)/auth/setup/page') as typeof import('@/app/ui/(main)/auth/setup/page')).default;
+// eslint-disable-next-line @typescript-eslint/no-require-imports
+const { loadPersonalSetup } = require('@/features/auth/load-personal-setup') as typeof import('@/features/auth/load-personal-setup');
 
 beforeEach(() => {
+  jest.clearAllMocks();
   getCurrentUserDTO.mockResolvedValue({ id: 'user-1', name: 'Google Name' });
   headers.mockResolvedValue(new Headers({
     'x-vercel-ip-country': 'AR',
@@ -47,4 +50,10 @@ it('prefers saved profile values over detected values', async () => {
 it('does not silently ignore database errors', async () => {
   getPersonalSetup.mockResolvedValue({ data: null, error: { message: 'unavailable' } });
   await expect(SetupPage({ searchParams: Promise.resolve({}) })).rejects.toThrow('Unable to load account setup');
+});
+
+it('does not fill missing saved location from headers when editing settings', async () => {
+  const result = await loadPersonalSetup('Google Name', false);
+  expect(result).toMatchObject({ initialCountry: '', initialTimezone: '' });
+  expect(headers).not.toHaveBeenCalled();
 });
