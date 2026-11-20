@@ -8,6 +8,12 @@ import {
 } from '@/lib/utils/rate-limits';
 import type { ShorterRepository } from '@/infra/db/shorter.repository';
 
+jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
+const getMetric = jest.fn().mockResolvedValue({ data: { used: 0 }, error: null });
+jest.mock('@/infra/db/usage_counter.repository', () => ({
+  getUsageCounterRepository: () => ({ getMetric }),
+}));
+
 type CountResult = { count: number | null; error: unknown };
 
 function repoStub(overrides: Partial<Record<'byUser' | 'byIp', CountResult>> = {}) {
@@ -63,10 +69,12 @@ describe('checkRateLimit', () => {
 
   beforeEach(() => {
     store = new MemoryUsageStore();
+    getMetric.mockResolvedValue({ data: { used: 0 }, error: null });
   });
 
   it('allows a request below the limit', async () => {
-    const { repo } = repoStub({ byUser: { count: 3, error: null } });
+    getMetric.mockResolvedValue({ data: { used: 3 }, error: null });
+    const { repo } = repoStub();
 
     const result = await checkRateLimit({ userId: 'user-1', plan: 'free', ip: null, repo, store });
 
@@ -84,7 +92,8 @@ describe('checkRateLimit', () => {
    * respaldo. Se inyecta ya resuelta porque leerla exige sesión y base de datos.
    */
   it('el entitlement manda sobre el límite del plan', async () => {
-    const { repo } = repoStub({ byUser: { count: 0, error: null } });
+    getMetric.mockResolvedValue({ data: { used: 0 }, error: null });
+    const { repo } = repoStub();
 
     const result = await checkRateLimit({ userId: 'user-1', plan: 'free', ip: null, repo, store, limit: 7 });
 
@@ -96,7 +105,8 @@ describe('checkRateLimit', () => {
    * anónima: un fallo transitorio no puede dejar a un usuario de pago en 5 enlaces.
    */
   it('sin entitlement aplica el límite del plan, no el anónimo', async () => {
-    const { repo } = repoStub({ byUser: { count: 0, error: null } });
+    getMetric.mockResolvedValue({ data: { used: 0 }, error: null });
+    const { repo } = repoStub();
 
     const result = await checkRateLimit({ userId: 'user-1', plan: 'pro', ip: null, repo, store, limit: null });
 
@@ -142,7 +152,8 @@ describe('checkRateLimit', () => {
 
     await checkRateLimit({ userId: 'user-1', plan: 'basic', ip: '1.2.3.4', repo, store });
 
-    expect(countLinksByUserInLastMonth).toHaveBeenCalledWith('user-1');
+    expect(getMetric).toHaveBeenCalledWith('user', 'user-1', 'links.created', expect.any(Date));
+    expect(countLinksByUserInLastMonth).not.toHaveBeenCalled();
     expect(countLinksByIpInLastMonth).not.toHaveBeenCalled();
   });
 

@@ -2,79 +2,82 @@
  * @jest-environment node
  */
 import { NextRequest } from 'next/server';
-import { ERROR } from '@/lib/api/error-codes';
 
-const getCurrentUserDTO = jest.fn();
-const isOwner = jest.fn();
-const getDayStatsBetweenDates = jest.fn();
+const isLoggedIn = jest.fn();
+const hasTeamPermission = jest.fn();
+const getLinkById = jest.fn();
+const getClicksBetweenDates = jest.fn();
+const getClicksToday = jest.fn();
+const getLinkBreakdown = jest.fn();
 
 jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
 jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
-jest.mock('@/data/dto/user-dto', () => ({ getCurrentUserDTO }));
-jest.mock('@/infra/db/user.repository', () => ({ getUserRepository: () => ({ isOwner }) }));
+jest.mock('@/data/dto/user-dto', () => ({ isLoggedIn }));
+jest.mock('@/features/authorization/helpers/access', () => ({ hasTeamPermission }));
+jest.mock('@/infra/db/team.repository', () => ({ getTeamRepository: () => ({ getLinkById }) }));
 jest.mock('@/infra/db/stats.repository', () => ({
-  getStatsRepository: () => ({ getDayStatsBetweenDates }),
+  getStatsRepository: () => ({ getClicksBetweenDates, getClicksToday, getLinkBreakdown }),
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { GET } = require('@/app/api/dashboard/stats/[slug]/route') as typeof import('@/app/api/dashboard/stats/[slug]/route');
+const { GET } = require('@/app/api/v1/dashboard/links/[link_id]/route') as typeof import('@/app/api/v1/dashboard/links/[link_id]/route');
 
-const call = (slug: string) =>
-  GET(new NextRequest(`https://iny.one/api/dashboard/stats/${slug}`), {
-    params: Promise.resolve({ slug }),
+const linkId = 'c0a80123-4567-4890-8123-456789abcdef';
+const call = (id = linkId) =>
+  GET(new NextRequest(`https://iny.one/api/v1/dashboard/links/${id}`), {
+    params: Promise.resolve({ link_id: id }),
   });
 
-describe('GET /api/dashboard/stats/[slug]', () => {
+describe('GET /api/v1/dashboard/links/[link_id]', () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    getCurrentUserDTO.mockResolvedValue({ id: 'user-1' });
-    isOwner.mockResolvedValue({ data: { slug: 'abc1234' }, error: null });
-    getDayStatsBetweenDates.mockResolvedValue({ data: [{ slug: 'abc1234', date: '2026-01-01' }] });
+    isLoggedIn.mockResolvedValue(true);
+    getLinkById.mockResolvedValue({ data: { team_id: 'team-1' }, error: null });
+    hasTeamPermission.mockResolvedValue(true);
+    getClicksBetweenDates.mockResolvedValue({ data: [{ date: '2026-01-01', total_clicks: 1 }] });
+    getClicksToday.mockResolvedValue({ count: 2 });
+    getLinkBreakdown.mockResolvedValue({ data: {} });
   });
 
   it('returns the daily stats to the owner of the link', async () => {
-    const response = await call('abc1234');
+    const response = await call();
     const payload = await response.json();
 
     expect(response.status).toBe(200);
-    expect(payload.data).toEqual([{ slug: 'abc1234', date: '2026-01-01' }]);
+    expect(payload.data.link_id).toBe(linkId);
+    expect(payload.data.stats).toEqual([
+      { date: '2026-01-01', total_clicks: 1 },
+      expect.objectContaining({ total_clicks: 2 }),
+    ]);
   });
 
-  // Regresión: la ruta leía con el service role (que salta RLS) y no comprobaba
-  // ni sesión ni pertenencia, así que cualquiera que conociera un slug podía
-  // consultar la analítica de un link ajeno.
   it('rejects an anonymous request', async () => {
-    getCurrentUserDTO.mockResolvedValue(null);
+    isLoggedIn.mockResolvedValue(false);
 
-    const response = await call('abc1234');
-    const payload = await response.json();
+    const response = await call();
 
     expect(response.status).toBe(401);
-    expect(payload.error.code).toBe(ERROR.SESSION_NOT_FOUND);
-    expect(getDayStatsBetweenDates).not.toHaveBeenCalled();
+    expect(getClicksBetweenDates).not.toHaveBeenCalled();
   });
 
-  it('rejects a link that belongs to someone else', async () => {
-    isOwner.mockResolvedValue({ data: null, error: { code: 'PGRST116' } });
+  it('rejects a link the current user cannot read', async () => {
+    hasTeamPermission.mockResolvedValue(false);
 
-    const response = await call('abc1234');
-    const payload = await response.json();
+    const response = await call();
 
     expect(response.status).toBe(404);
-    expect(payload.error.code).toBe(ERROR.RESOURCE_NOT_FOUND);
-    expect(getDayStatsBetweenDates).not.toHaveBeenCalled();
+    expect(getClicksBetweenDates).not.toHaveBeenCalled();
   });
 
-  it('checks ownership against the session user, not the request', async () => {
-    await call('abc1234');
-
-    expect(isOwner).toHaveBeenCalledWith('user-1', 'abc1234');
+  it('checks permission for the team that owns the link', async () => {
+    await call();
+    expect(hasTeamPermission).toHaveBeenCalledWith('team-1', 'links.read');
   });
 
-  it('rejects an empty slug', async () => {
-    const response = await call('');
+  it('rejects an invalid link id', async () => {
+    const response = await call('not-a-uuid');
 
     expect(response.status).toBe(422);
-    expect(isOwner).not.toHaveBeenCalled();
+    expect(isLoggedIn).not.toHaveBeenCalled();
   });
 });

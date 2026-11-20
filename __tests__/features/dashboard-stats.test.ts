@@ -45,6 +45,7 @@ describe('calcUserStats', () => {
   it('takes the link count from the pagination total, not from the visible page', () => {
     const stats = calcUserStats(build({
       urls: new Array(20).fill(null).map((_, index) => ({
+        link_id: `link-${index}`,
         slug: `slug${index}`,
         alias: null,
         destination: 'https://example.com',

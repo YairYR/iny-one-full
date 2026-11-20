@@ -35,7 +35,7 @@ afterAll(() => {
 it('links to account settings from the user menu', () => {
   render(<UserProfileMenu picture={null} />);
   fireEvent.click(screen.getByRole('button', { name: 'Open user menu' }));
-  expect(screen.getByRole('menuitem', { name: 'Configuración de la cuenta' })).toHaveAttribute('href', '/account/settings');
+  expect(screen.getByRole('menuitem', { name: 'Cuenta' })).toHaveAttribute('href', '/account/settings');
 });
 
 it('leaves the protected account page after signing out', async () => {

@@ -20,10 +20,10 @@ const accesoAnonimo = () => ({ entitlements: new Map<string, unknown>(), planKey
 jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
 jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
 jest.mock('@/lib/utils/check_domain', () => ({ loadBloom: () => ({ has: bloomHas }) }));
+jest.mock('@/lib/turso/createTursoClient', () => ({ isSafeDomain }));
 jest.mock('@/infra/db/shorter.repository', () => ({
   getShorterRepository: () => ({
     create,
-    isSafeDomain,
     countLinksByIpInLastMonth,
     countLinksByUserInLastMonth,
   }),
@@ -73,7 +73,7 @@ describe('POST /api/v1/shorten', () => {
 
     bloomHas.mockReturnValue(false);
     create.mockResolvedValue({ error: null });
-    isSafeDomain.mockResolvedValue({ data: true, error: null });
+    isSafeDomain.mockResolvedValue(true);
     countLinksByIpInLastMonth.mockResolvedValue({ count: 0, error: null });
     countLinksByUserInLastMonth.mockResolvedValue({ count: 0, error: null });
     getCurrentUser.mockResolvedValue({ data: { user: null, role: null, plan: null } });
@@ -88,7 +88,7 @@ describe('POST /api/v1/shorten', () => {
 
     expect(response.status).toBe(200);
     expect(payload.ok).toBe(true);
-    expect(payload.data.short).toMatch(/^https:\/\/iny\.one\/[a-z0-9_-]{7}$/i);
+    expect(payload.data.short).toMatch(/^https:\/\/iny\.one\/[a-z0-9_-]{7,8}$/i);
     expect(create).toHaveBeenCalledTimes(1);
   });
 
@@ -110,7 +110,7 @@ describe('POST /api/v1/shorten', () => {
 
   it('rejects a domain flagged as unsafe', async () => {
     bloomHas.mockReturnValue(true);
-    isSafeDomain.mockResolvedValue({ data: false, error: null });
+    isSafeDomain.mockResolvedValue(false);
 
     const response = await POST(request({ url: 'https://malware.example' }), undefined);
 
@@ -119,7 +119,7 @@ describe('POST /api/v1/shorten', () => {
   });
 
   it('skips the database check when the bloom filter clears the domain', async () => {
-    await POST(request({ url: 'https://example.com' }), undefined);
+    await POST(request({ url: 'https://github.com' }), undefined);
 
     expect(isSafeDomain).not.toHaveBeenCalled();
   });
@@ -130,7 +130,7 @@ describe('POST /api/v1/shorten', () => {
       .mockResolvedValueOnce({ error: { code: PG_ERROR.UNIQUE_VIOLATION } })
       .mockResolvedValueOnce({ error: null });
 
-    const response = await POST(request({ url: 'https://example.com' }), undefined);
+    const response = await POST(request({ url: 'https://github.com' }), undefined);
 
     expect(response.status).toBe(200);
     expect(create).toHaveBeenCalledTimes(2);
@@ -142,7 +142,7 @@ describe('POST /api/v1/shorten', () => {
   it('gives up after exhausting the slug attempts', async () => {
     create.mockResolvedValue({ error: { code: PG_ERROR.UNIQUE_VIOLATION } });
 
-    const response = await POST(request({ url: 'https://example.com' }), undefined);
+    const response = await POST(request({ url: 'https://github.com' }), undefined);
 
     expect(response.status).toBe(500);
     expect(create).toHaveBeenCalledTimes(5);
@@ -151,7 +151,7 @@ describe('POST /api/v1/shorten', () => {
   it('does not retry on an error that is not a collision', async () => {
     create.mockResolvedValue({ error: { code: '42P01', message: 'relation does not exist' } });
 
-    const response = await POST(request({ url: 'https://example.com' }), undefined);
+    const response = await POST(request({ url: 'https://github.com' }), undefined);
 
     expect(response.status).toBe(500);
     expect(create).toHaveBeenCalledTimes(1);
@@ -163,7 +163,7 @@ describe('POST /api/v1/shorten', () => {
       error: null,
     });
 
-    const response = await POST(request({ url: 'https://example.com' }, anonymous), undefined);
+    const response = await POST(request({ url: 'https://github.com' }, anonymous), undefined);
     const payload = await response.json();
 
     expect(response.status).toBe(429);
@@ -177,10 +177,10 @@ describe('POST /api/v1/shorten', () => {
       error: null,
     });
 
-    const first = await POST(request({ url: 'https://example.com' }, anonymous), undefined);
+    const first = await POST(request({ url: 'https://github.com' }, anonymous), undefined);
     expect(first.status).toBe(200);
 
-    const second = await POST(request({ url: 'https://example.org' }, anonymous), undefined);
+    const second = await POST(request({ url: 'https://github.com/orgs' }, anonymous), undefined);
     expect(second.status).toBe(429);
 
     // La segunda petición se resuelve desde la caché, sin volver a contar en base de datos.
@@ -191,9 +191,9 @@ describe('POST /api/v1/shorten', () => {
   // ninguna comprobación de cuota.
   it('applies the free quota to an authenticated user with no plan', async () => {
     getCurrentUser.mockResolvedValue({ data: { user: { id: 'user-1' }, role: null, plan: null } });
-    countLinksByUserInLastMonth.mockResolvedValue({ count: RATE_LIMITS.free, error: null });
+    getMetric.mockResolvedValue({ data: { used: RATE_LIMITS.free }, error: null });
 
-    const response = await POST(request({ url: 'https://example.com' }), undefined);
+    const response = await POST(request({ url: 'https://github.com' }), undefined);
 
     expect(response.status).toBe(429);
     expect(create).not.toHaveBeenCalled();
@@ -211,7 +211,7 @@ describe('POST /api/v1/shorten', () => {
    * no ofrece los otros dos.
    */
   const destinoConUtmExtra =
-    'https://example.com/?utm_source=instagram&utm_content=boton&utm_term=zapatillas';
+    'https://github.com/?utm_source=instagram&utm_content=boton&utm_term=zapatillas';
 
   it('un suscriptor de pago conserva utm_content y utm_term', async () => {
     getCurrentUser.mockResolvedValue({ data: { user: { id: 'user-1' }, role: null, plan: null } });
@@ -239,7 +239,7 @@ describe('POST /api/v1/shorten', () => {
   it('keeps the destination query parameters intact', async () => {
     await POST(
       request({
-        url: 'https://example.com/search?q=zapatillas&page=3',
+        url: 'https://github.com/search?q=zapatillas&page=3',
         utm: { source: 'instagram', medium: 'social', campaign: 'verano' },
       }),
       undefined,
@@ -252,7 +252,7 @@ describe('POST /api/v1/shorten', () => {
   });
 
   it('stores an expiry only for anonymous links', async () => {
-    await POST(request({ url: 'https://example.com' }), undefined);
+    await POST(request({ url: 'https://github.com' }), undefined);
     expect(create.mock.calls[0][0].expires).toMatchObject({ expires_in_days: 180 });
 
     jest.clearAllMocks();
@@ -262,7 +262,7 @@ describe('POST /api/v1/shorten', () => {
     countLinksByUserInLastMonth.mockResolvedValue({ count: 0, error: null });
     getCurrentUser.mockResolvedValue({ data: { user: { id: 'user-1' }, role: null, plan: 'pro' } });
 
-    await POST(request({ url: 'https://example.com' }), undefined);
+    await POST(request({ url: 'https://github.com' }), undefined);
     expect(create.mock.calls[0][0].expires).toBeUndefined();
   });
 });
@@ -286,7 +286,7 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
   });
 
   it('uses the slug the user chose', async () => {
-    const response = await POST(request({ url: 'https://example.com', slug: 'promo-julio' }), undefined);
+    const response = await POST(request({ url: 'https://github.com', slug: 'promo-julio' }), undefined);
     const payload = await response.json();
 
     expect(response.status).toBe(200);
@@ -336,7 +336,7 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
   });
 
   it('normalises the chosen slug to lowercase', async () => {
-    await POST(request({ url: 'https://example.com', slug: 'Promo-Julio' }), undefined);
+    await POST(request({ url: 'https://github.com', slug: 'Promo-Julio' }), undefined);
 
     expect(create.mock.calls[0][0].slug).toBe('promo-julio');
   });
@@ -346,7 +346,7 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
     getCurrentUser.mockResolvedValue({ data: { user: null, role: null, plan: null } });
 
     const response = await POST(
-      request({ url: 'https://example.com', slug: 'promo-julio' }, anonymous),
+      request({ url: 'https://github.com', slug: 'promo-julio' }, anonymous),
       undefined,
     );
     const payload = await response.json();
@@ -357,7 +357,7 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
   });
 
   it('rejects a slug that collides with a reserved route', async () => {
-    const response = await POST(request({ url: 'https://example.com', slug: 'dashboard' }), undefined);
+    const response = await POST(request({ url: 'https://github.com', slug: 'dashboard' }), undefined);
 
     expect(response.status).toBe(422);
     expect(create).not.toHaveBeenCalled();
@@ -366,7 +366,7 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
   it.each(['ab', 'a'.repeat(33), '-promo', 'promo-', 'pro mo', 'promo.json'])(
     'rejects the malformed slug %p',
     async (slug) => {
-      const response = await POST(request({ url: 'https://example.com', slug }), undefined);
+      const response = await POST(request({ url: 'https://github.com', slug }), undefined);
 
       expect(response.status).toBe(422);
       expect(create).not.toHaveBeenCalled();
@@ -378,7 +378,7 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
   it('returns 409 and does not retry when the chosen slug is taken', async () => {
     create.mockResolvedValue({ error: { code: PG_ERROR.UNIQUE_VIOLATION } });
 
-    const response = await POST(request({ url: 'https://example.com', slug: 'promo-julio' }), undefined);
+    const response = await POST(request({ url: 'https://github.com', slug: 'promo-julio' }), undefined);
     const payload = await response.json();
 
     expect(response.status).toBe(409);
@@ -387,18 +387,18 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
   });
 
   it('falls back to a random slug when none is chosen', async () => {
-    const response = await POST(request({ url: 'https://example.com' }), undefined);
+    const response = await POST(request({ url: 'https://github.com' }), undefined);
     const payload = await response.json();
 
     expect(response.status).toBe(200);
-    expect(payload.data.short).toMatch(/^https:\/\/iny\.one\/[a-z0-9_-]{7}$/i);
+    expect(payload.data.short).toMatch(/^https:\/\/iny\.one\/[a-z0-9_-]{7,8}$/i);
   });
 
   // Un slug vacío es "no elegí nombre", no "quiero uno": no debe exigir sesión.
   it('treats an empty slug as no slug at all', async () => {
     getCurrentUser.mockResolvedValue({ data: { user: null, role: null, plan: null } });
 
-    const response = await POST(request({ url: 'https://example.com', slug: '  ' }, anonymous), undefined);
+    const response = await POST(request({ url: 'https://github.com', slug: '  ' }, anonymous), undefined);
 
     expect(response.status).toBe(200);
     expect(create).toHaveBeenCalledTimes(1);
@@ -407,7 +407,7 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
   it('does not spend quota on a slug it is going to reject', async () => {
     getCurrentUser.mockResolvedValue({ data: { user: null, role: null, plan: null } });
 
-    await POST(request({ url: 'https://example.com', slug: 'promo-julio' }, anonymous), undefined);
+    await POST(request({ url: 'https://github.com', slug: 'promo-julio' }, anonymous), undefined);
 
     expect(countLinksByIpInLastMonth).not.toHaveBeenCalled();
   });

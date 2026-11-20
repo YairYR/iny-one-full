@@ -5,7 +5,7 @@ const NOW = new Date('2026-08-09T12:00:00.000Z');
 const link = (overrides: Partial<LinkRow> = {}): LinkRow => ({
   destination: 'https://example.com',
   expires_at: null,
-  status: true,
+  status: 'active',
   ...overrides,
 });
 
@@ -37,14 +37,14 @@ describe('resolveLinkState', () => {
   // Tras la primera visita el resolver escribe status = false. La fila sigue
   // ahí, y hay que reconocerla como caducada en vez de como inexistente.
   it('keeps recognising an already deactivated expired link', () => {
-    const deactivated = link({ expires_at: '2026-08-01T00:00:00.000Z', status: false });
+    const deactivated = link({ expires_at: '2026-08-01T00:00:00.000Z', status: 'disabled' });
     expect(resolveLinkState(deactivated, NOW)).toBe('expired');
   });
 
   // Sin fecha de caducidad no sabemos por qué se desactivó, así que no procede
   // insinuar que el slug existió.
   it('hides a deactivated link that never had an expiry', () => {
-    expect(resolveLinkState(link({ status: false }), NOW)).toBe('not-found');
+    expect(resolveLinkState(link({ status: 'disabled' }), NOW)).toBe('not-found');
   });
 
   it('ignores an unparseable expiry instead of throwing', () => {

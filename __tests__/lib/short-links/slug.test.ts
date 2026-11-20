@@ -3,14 +3,17 @@ import {
   isValidCustomSlug,
   normalizeCustomSlug,
   MAX_SLUG_GENERATION_ATTEMPTS,
-  SLUG_SIZE,
+  SLUG_SIZE_MIN,
+  SLUG_SIZE_MAX,
   SlugGenerationError,
 } from '@/lib/short-links/slug';
 import { isReservedSlug } from '@/lib/reserved-slugs';
 
 describe('generateSlug', () => {
   it('produces a slug of the requested length', () => {
-    expect(generateSlug()).toHaveLength(SLUG_SIZE);
+    const slug = generateSlug();
+    expect(slug.length).toBeGreaterThanOrEqual(SLUG_SIZE_MIN);
+    expect(slug.length).toBeLessThanOrEqual(SLUG_SIZE_MAX);
     expect(generateSlug(10)).toHaveLength(10);
   });
 
@@ -26,18 +29,18 @@ describe('generateSlug', () => {
       .mockReturnValueOnce('login')
       .mockReturnValueOnce('abc1234');
 
-    expect(generateSlug(SLUG_SIZE, generate)).toBe('abc1234');
+    expect(generateSlug(SLUG_SIZE_MIN, generate)).toBe('abc1234');
     expect(generate).toHaveBeenCalledTimes(3);
   });
 
   it('lowercases the generated candidate', () => {
-    expect(generateSlug(SLUG_SIZE, () => 'AbCdEfG')).toBe('abcdefg');
+    expect(generateSlug(SLUG_SIZE_MIN, () => 'AbCdEfG')).toBe('abcdefg');
   });
 
   it('throws once the attempts are exhausted', () => {
     const generate = jest.fn().mockReturnValue('admin');
 
-    expect(() => generateSlug(SLUG_SIZE, generate)).toThrow(SlugGenerationError);
+    expect(() => generateSlug(SLUG_SIZE_MIN, generate)).toThrow(SlugGenerationError);
     expect(generate).toHaveBeenCalledTimes(MAX_SLUG_GENERATION_ATTEMPTS);
   });
 });
