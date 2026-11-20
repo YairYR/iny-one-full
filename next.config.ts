@@ -199,6 +199,11 @@ const nextConfig: NextConfig = {
         destination: "/plans",
         permanent: true,
       },
+      {
+        source: "/ui/features/dashboard",
+        destination: "/features/dashboard",
+        permanent: true,
+      },
 
       {
         source: "/ui/auth/login",
@@ -269,6 +274,10 @@ const nextConfig: NextConfig = {
       {
         source: "/plans",
         destination: "/ui/plans",
+      },
+      {
+        source: "/features/dashboard",
+        destination: "/ui/features/dashboard",
       },
       {
         source: "/utm-builder",

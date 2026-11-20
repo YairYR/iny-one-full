@@ -119,7 +119,7 @@ Rutas públicas canónicas:
 ```txt
 /  ·  /about  ·  /plans  ·  /piscolas  ·  /cart
 /utm-builder  ·  /qr-code-generator  ·  /bitly-alternative  ·  /url-shortener-api
-/auth/login  ·  /auth/register  ·  /auth/callback  ·  /dashboard
+/auth/login  ·  /auth/register  ·  /auth/callback  ·  /dashboard  ·  /features/dashboard
 ```
 
 La versión en español vive bajo `/es/*` con URLs propias. El middleware inyecta la cabecera `x-iny-locale` (y borra la que llegue del cliente, para que no sea inyectable) y las mismas páginas de `/ui` renderizan contenido y metadata en español.
@@ -141,7 +141,7 @@ La versión en español vive bajo `/es/*` con URLs propias. El middleware inyect
 
 ## Notas técnicas
 
-**Dashboard.** `/dashboard` muestra una vista con datos ficticios a visitantes y cuentas sin enlaces; las secciones sin actividad también muestran ejemplos identificados como tales. Las API de estadísticas siguen requiriendo sesión y autorización. `/api/v1/dashboard/summary` acepta `kpi` (lista separada por comas: `total_links`, `total_clicks`, `top_country`, `last_clicks`, `week`, `traffic`, `performance`), `links=true` y `page`. Sin filtros mantiene la respuesta completa. El panel solicita KPI y actividad cada minuto, tráfico y ranking cada cinco minutos y enlaces por página; editar un enlace invalida sólo las páginas de enlaces. La búsqueda filtra únicamente la página visible. El contador de cada enlace puede incluir bots, a diferencia de las estadísticas agregadas. Las respuestas son privadas y no se cachean en HTTP.
+**Dashboard.** `/features/dashboard` es la demostración pública indexable; `/dashboard` redirige allí a visitantes y muestra el panel privado a usuarios registrados. Las cuentas sin enlaces y las secciones sin actividad muestran ejemplos identificados como ficticios. Las API de estadísticas siguen requiriendo sesión y autorización. `/api/v1/dashboard/summary` acepta `kpi` (lista separada por comas: `total_links`, `total_clicks`, `top_country`, `last_clicks`, `week`, `traffic`, `performance`), `links=true` y `page`. Sin filtros mantiene la respuesta completa. El panel solicita KPI y actividad cada minuto, tráfico y ranking cada cinco minutos y enlaces por página; editar un enlace invalida sólo las páginas de enlaces. La búsqueda filtra únicamente la página visible. El contador de cada enlace puede incluir bots, a diferencia de las estadísticas agregadas. Las respuestas son privadas y no se cachean en HTTP.
 
 **Creación de short links.** El slug se genera con `nanoid` y se inserta de forma optimista: si Postgres devuelve una violación de índice único (`23505`), se genera un slug nuevo y se reintenta. Comprobar antes si el slug existe no eliminaría la condición de carrera y añadiría una consulta a cada creación.
 

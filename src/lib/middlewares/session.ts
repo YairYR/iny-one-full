@@ -24,7 +24,7 @@ const PUBLIC_EXACT_PATHS = new Set([
   ROUTES.API_DOCS,
   ROUTES.LOGIN,
   ROUTES.REGISTER,
-  ROUTES.DASHBOARD,
+  ROUTES.DASHBOARD_DEMO,
 ]);
 
 const PUBLIC_PREFIXES = [
@@ -94,8 +94,10 @@ export async function updateSession(request: NextRequest) {
 
   if (!user && !isPublicPath(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = '/auth/login';
-    return NextResponse.redirect(url);
+    url.pathname = pathname === ROUTES.DASHBOARD ? ROUTES.DASHBOARD_DEMO : ROUTES.LOGIN;
+    const response = NextResponse.redirect(url);
+    if (pathname === ROUTES.DASHBOARD) response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return response;
   }
 
   if (pathname.startsWith('/cart/')) {

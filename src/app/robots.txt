@@ -1,9 +1,6 @@
 User-agent: *
 Allow: /
 Disallow: /studio
-Disallow: /dashboard
-Disallow: /u/dashboard
-Disallow: /ui/dashboard
 Disallow: /api
 Disallow: /cart
 Disallow: /auth
@@ -13,12 +10,28 @@ Sitemap: https://iny.one/sitemap.xml
 # AI / answer engine crawlers — explicitly allowed for GEO visibility
 User-agent: GPTBot
 Allow: /
+Disallow: /studio
+Disallow: /api
+Disallow: /cart
+Disallow: /auth
 
 User-agent: ClaudeBot
 Allow: /
+Disallow: /studio
+Disallow: /api
+Disallow: /cart
+Disallow: /auth
 
 User-agent: PerplexityBot
 Allow: /
+Disallow: /studio
+Disallow: /api
+Disallow: /cart
+Disallow: /auth
 
 User-agent: Google-Extended
 Allow: /
+Disallow: /studio
+Disallow: /api
+Disallow: /cart
+Disallow: /auth

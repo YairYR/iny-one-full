@@ -42,7 +42,8 @@ export default function NavbarMain({ user }: Readonly<Props>) {
   const isEs = pathname === '/es' || pathname.startsWith('/es/');
 
   const tabs = navigation.map((item) => {
-    const href = item.href === ROUTES.HOME && isEs ? '/es' : item.href;
+    const href = item.href === ROUTES.HOME && isEs ? '/es'
+      : item.href === ROUTES.DASHBOARD && !user ? ROUTES.DASHBOARD_DEMO : item.href;
     return {
       ...item,
       href,

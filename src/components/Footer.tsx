@@ -39,7 +39,7 @@ const labels = {
  * Cuando el locale es "es", los enlaces bilingües apuntan a sus URLs /es/...
  * para que el crawler descubra la versión en español desde cualquier página.
  */
-export default function Footer() {
+export default function Footer({ signedIn = false }: Readonly<{ signedIn?: boolean }>) {
   const locale = useLocale() as "es" | "en";
   const t = labels[locale] ?? labels.en;
 
@@ -70,7 +70,7 @@ export default function Footer() {
               <li><Link prefetch={false} href={p(ROUTES.ABOUT)} className={linkCls}>{t.about}</Link></li>
               <li><Link prefetch={false} href={p(ROUTES.PLANS)} className={linkCls}>{t.plans}</Link></li>
               <li><Link prefetch={false} href={p(ROUTES.BITLY_ALTERNATIVE)} className={linkCls}>{t.bitly}</Link></li>
-              <li><Link prefetch={false} href={ROUTES.DASHBOARD} className={linkCls}>{t.dashboard}</Link></li>
+              <li><Link prefetch={false} href={signedIn ? ROUTES.DASHBOARD : ROUTES.DASHBOARD_DEMO} className={linkCls}>{t.dashboard}</Link></li>
             </ul>
           </nav>
         </div>

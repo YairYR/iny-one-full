@@ -16,7 +16,7 @@ const LayoutMain: React.FC<Props> = async ({ children }) => {
       <main className="container mx-auto px-4 py-8 flex-grow">
         {children}
       </main>
-      <Footer/>
+      <Footer signedIn={Boolean(user)}/>
     </div>
   );
 }

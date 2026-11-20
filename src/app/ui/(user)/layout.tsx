@@ -24,7 +24,7 @@ export default async function UserLayout({ children }: Readonly<Props>) {
       <main>
         { children }
       </main>
-      <Footer />
+      <Footer signedIn={Boolean(user)} />
     </div>
   )
 }
