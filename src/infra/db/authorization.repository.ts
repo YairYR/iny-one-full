@@ -185,6 +185,28 @@ export class AuthorizationRepository {
         return data ?? null;
     }
 
+    async getLinkCreationAccess() {
+        const supabase = await createClient();
+        const { data, error } = await supabase.rpc('get_link_creation_access');
+        if (error) {
+            throw new Error(`Failed to load link creation access: ${error.message}`);
+        }
+        return data;
+    }
+
+    async getDefaultTeamAccess(permission?: Permission) {
+        const supabase = await createClient();
+        const { data, error } = await supabase.rpc('get_default_team_access',
+            permission ? { p_permission: permission } : {});
+        if (error) {
+            throw new Error(`Failed to load default team access: ${error.message}`);
+        }
+        if (!data || data.length !== 1) {
+            throw new Error('Invalid default team access response');
+        }
+        return data[0];
+    }
+
     async getEffectiveService() {
         const supabase = await createClient();
         const { data, error } = await supabase

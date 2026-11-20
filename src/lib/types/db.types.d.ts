@@ -517,6 +517,12 @@ isOneToOne: true
 "get_access_context":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
+"get_link_creation_access":
+{ Args: Record<PropertyKey, never>; Returns: Json
+                           },
+"get_default_team_access":
+{ Args: { "p_permission"?: string }; Returns: { "team_id": string | null,"permitted": boolean }[]
+                           },
 "get_personal_setup":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },

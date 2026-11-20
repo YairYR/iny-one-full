@@ -23,10 +23,8 @@ jest.mock('@/infra/db/shorter.repository', () => ({
 jest.mock('@/lib/short-links/validate-destination', () => ({
   validateDestination: (...args: unknown[]) => validateDestination(...args),
 }));
-// El plan efectivo sale del contexto de acceso, que consulta la base: se mockea
-// en la frontera, como el resto de repositorios.
 jest.mock('@/features/authorization/helpers/access', () => ({
-  getAccessContext: () => Promise.resolve(mockAccess),
+  getEffectiveService: () => Promise.resolve([{ plan_key: mockAccess.planKey, anonymous: mockAccess.anonymous }]),
 }));
 
 // Se importa después de registrar los mocks para que la acción reciba los dobles.
@@ -35,7 +33,8 @@ const { updateLinkAction } = require('@/features/dashboard/actions/edit_link.act
 
 const SLUG = 'promo-julio';
 
-const state = { slug: SLUG, alias: 'Promo', destination: 'https://old.example/' };
+const LINK_ID = 'link-1';
+const state = { link_id: LINK_ID, slug: SLUG, alias: 'Promo', destination: 'https://old.example/' };
 
 function form(fields: Record<string, string>) {
   const data = new FormData();
@@ -55,13 +54,16 @@ describe('updateLinkAction', () => {
     logDestinationChange.mockResolvedValue({ error: null });
     getLinkForEdit.mockResolvedValue({
       data: {
+        link_id: LINK_ID,
         destination: 'https://old.example/?utm_source=instagram&utm_medium=social&utm_campaign=verano',
-        utm_source: 'instagram',
-        utm_medium: 'social',
-        utm_campaign: 'verano',
-        utm_term: null,
-        utm_content: null,
-        utm_id: null,
+        utms: {
+          utm_source: 'instagram',
+          utm_medium: 'social',
+          utm_campaign: 'verano',
+          utm_term: null,
+          utm_content: null,
+          utm_id: null,
+        },
       },
       error: null,
     });
@@ -96,13 +98,16 @@ describe('updateLinkAction', () => {
   function enlaceConUtmContent() {
     getLinkForEdit.mockResolvedValue({
       data: {
+        link_id: LINK_ID,
         destination: 'https://old.example/?utm_source=instagram&utm_content=boton',
-        utm_source: 'instagram',
-        utm_medium: null,
-        utm_campaign: null,
-        utm_term: null,
-        utm_content: 'boton',
-        utm_id: null,
+        utms: {
+          utm_source: 'instagram',
+          utm_medium: null,
+          utm_campaign: null,
+          utm_term: null,
+          utm_content: 'boton',
+          utm_id: null,
+        },
       },
       error: null,
     });
@@ -185,7 +190,7 @@ describe('updateLinkAction', () => {
 
     expect(logDestinationChange).toHaveBeenCalledTimes(1);
     expect(logDestinationChange.mock.calls[0][0]).toMatchObject({
-      slug: SLUG,
+      link_id: LINK_ID,
       oldDestination: 'https://old.example/?utm_source=instagram&utm_medium=social&utm_campaign=verano',
       changedBy: 'user-1',
     });
@@ -205,7 +210,7 @@ describe('updateLinkAction', () => {
     const result = await updateLinkAction(state, form({ alias: 'Campaña de julio' }));
 
     expect(result.success).toBe(true);
-    expect(changeAlias).toHaveBeenCalledWith(SLUG, 'Campaña de julio');
+    expect(changeAlias).toHaveBeenCalledWith(LINK_ID, 'Campaña de julio');
     expect(changeDestination).not.toHaveBeenCalled();
     expect(validateDestination).not.toHaveBeenCalled();
   });

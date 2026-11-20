@@ -10,8 +10,7 @@ import utc from "dayjs/plugin/utc";
 import { createClient } from "@/lib/supabase/server";
 import { ERROR } from "@/lib/api/error-codes";
 import { logger } from "@/lib/logger";
-import { getAccessContext } from "@/features/authorization/helpers/access";
-import { AuthorizationService } from "@/features/authorization/services/authorization.service";
+import { getDefaultTeamAccess } from "@/features/authorization/helpers/access";
 import { getTeamRepository } from "@/infra/db/team.repository";
 import { isLoggedIn } from "@/data/dto/user-dto";
 import { DashboardStatsSummary } from "@/lib/types";
@@ -59,23 +58,21 @@ export const GET = withErrorHandling(async (request: NextRequest) => {
 
   log.info(params, 'dashboard summary request params');
 
-  // Primero validamos con `isLoggedIn` para no hacer consultas a la base de datos si el usuario no tiene sesión. `getAccessContext` hace varias consultas a la base de datos, así que es mejor abortar antes si no hay sesión.
   const loggedIn = await isLoggedIn();
   if (!loggedIn) {
     throw new SessionNotFoundError();
   }
 
-  const access = await getAccessContext();
-  if (access.anonymous || !access.default_team_id) {
+  const access = await getDefaultTeamAccess('stats.view');
+  if (!access.team_id) {
     throw new SessionNotFoundError();
   }
 
-  const authorization = new AuthorizationService();
-  if (! authorization.hasTeamPermission(access, access.default_team_id, 'stats.view')) {
+  if (!access.permitted) {
     throw new InsufficientPermissionsError();
   }
 
-  const teamId = access.default_team_id;
+  const teamId = access.team_id;
   const page = Math.max(1, Number(request.nextUrl.searchParams.get('page')) || 1);
 
   const supabase = await createClient();

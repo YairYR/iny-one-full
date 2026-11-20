@@ -2,7 +2,7 @@ import { UserDashboard } from "@/features/dashboard/containers/UserDashboard";
 import { redirect } from "next/navigation";
 import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import { ROUTES } from "@/lib/routes";
-import { getAccessContext } from "@/features/authorization/helpers/access";
+import { getDefaultTeamAccess } from "@/features/authorization/helpers/access";
 import Link from "next/link";
 
 export default async function DashboardPage() {
@@ -11,8 +11,8 @@ export default async function DashboardPage() {
     return redirect(ROUTES.LOGIN);
   }
 
-  const access = await getAccessContext();
-  if (!access.anonymous && !access.default_team_id) {
+  const access = await getDefaultTeamAccess();
+  if (!access.team_id) {
     return (
       <div className="p-8">
         <h1 className="text-2xl font-bold">Your team is not set up yet</h1>

@@ -15,8 +15,7 @@ import { createClient } from "@/lib/supabase/server";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { checkRateLimit, recordRateLimitUsage } from "@/lib/utils/rate-limits";
-import { getAccessContext } from "@/features/authorization/helpers/access";
-import { EntitlementService } from "@/features/authorization/services/entitlement.service";
+import { getLinkCreationAccess } from "@/features/authorization/helpers/access";
 import { ERROR } from "@/lib/api/error-codes";
 import {
   generateSlug,
@@ -94,15 +93,14 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
 
   // La cuota vive en los entitlements del servicio contratado. Se resuelve aquí,
   // donde ya hay sesión, y se inyecta: `checkRateLimit` sólo cuenta.
-  const access = await getAccessContext();
-  const entitlementLimit = new EntitlementService().getNumber(access, "links.max_per_month");
+  const access = await getLinkCreationAccess();
 
   const rateLimit = await checkRateLimit({
     userId,
-    plan: access.planKey as PlanName | null,
+    plan: access.plan_key as PlanName | null,
     ip,
     repo: shorterRepo,
-    limit: entitlementLimit,
+    limit: access.monthly_limit,
   });
   if (!rateLimit.allowed) {
     throw new ApiError(
@@ -112,7 +110,7 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
     );
   }
 
-  const { destination, utm: utmParams } = buildDestination(target, utm, toDestinationPlan(access.planKey, access.anonymous));
+  const { destination, utm: utmParams } = buildDestination(target, utm, toDestinationPlan(access.plan_key, access.anonymous));
 
   let teamId = access.anonymous ? null : access.default_team_id;
   if (userId) {

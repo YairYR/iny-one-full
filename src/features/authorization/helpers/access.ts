@@ -8,10 +8,29 @@ import { Permission, PermissionScope } from "@/features/authorization/types/perm
 import { cache } from "react";
 import { SessionNotFoundError } from "@/lib/api/errors";
 import { AccessContext } from "@/features/authorization/types/access-context";
+import * as z from "zod";
 
+/** @deprecated Usar consultas específicas; se conserva para el contrato de exportación. */
 export const getAccessContext = cache(async function getAccessContext(): Promise<AccessContext> {
     const service = await getAccessService();
     return service.resolve();
+});
+
+const linkCreationAccessSchema = z.object({
+    anonymous: z.boolean(),
+    plan_key: z.string().nullable(),
+    default_team_id: z.uuid().nullable(),
+    monthly_limit: z.number().nullable(),
+});
+
+export const getLinkCreationAccess = cache(async function getLinkCreationAccess() {
+    const repository = new AuthorizationRepository();
+    return linkCreationAccessSchema.parse(await repository.getLinkCreationAccess());
+});
+
+export const getDefaultTeamAccess = cache(async function getDefaultTeamAccess(permission?: Permission) {
+    const repository = new AuthorizationRepository();
+    return repository.getDefaultTeamAccess(permission);
 });
 
 export const getEffectiveService = cache(async function getEffectiveService() {
@@ -32,6 +51,7 @@ const getAccessService = cache(async function getAccessService() {
     return new AccessService(repository);
 });
 
+/** @deprecated Devuelve el contexto completo para compatibilidad. */
 export async function requirePermission(
     permission: Permission,
     scope?: PermissionScope,
@@ -52,6 +72,7 @@ export async function requirePermission(
     return context;
 }
 
+/** @deprecated Devuelve el contexto completo para compatibilidad. */
 export async function requireFeature(
     key: string,
 ) {

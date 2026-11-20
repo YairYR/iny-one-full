@@ -18,3 +18,11 @@ crea un enlace, se recupera el equipo histórico «Personal» más antiguo con
 membresía activa de propietario. Los duplicados restantes y sus enlaces no se
 eliminan ni se trasladan: deben revisarse antes de cualquier consolidación.
 Aplicar la migración en producción antes de desplegar la aplicación.
+
+## Acceso acotado
+
+La creación de enlaces consulta únicamente plan, cuota y equipo predeterminado
+mediante `get_link_creation_access`. El dashboard usa `get_default_team_access`
+para consultar el equipo y, cuando corresponde, comprobar un permiso concreto.
+Estas funciones dependen de la identidad de la sesión. Aplicar la migración
+`narrow_access_queries` antes de desplegar la aplicación.

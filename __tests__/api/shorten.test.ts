@@ -37,12 +37,13 @@ jest.mock('@/infra/db/team.repository', () => ({
 jest.mock('@/infra/db/usage_counter.repository', () => ({
   getUsageCounterRepository: () => ({ getMetric }),
 }));
-// `getAccessContext` resuelve sesión, roles, plan y entitlements contra la base:
-// se mockea en la frontera, como el resto. Sin entitlements la cuota cae a la del
-// plan, que es lo que asertan estas pruebas; el caso con entitlement se cubre
-// como unidad en `__tests__/lib/rate-limits.test.ts`.
 jest.mock('@/features/authorization/helpers/access', () => ({
-  getAccessContext: () => Promise.resolve(mockAccess),
+  getLinkCreationAccess: () => Promise.resolve({
+    anonymous: mockAccess.anonymous,
+    plan_key: mockAccess.planKey,
+    default_team_id: mockAccess.default_team_id ?? null,
+    monthly_limit: mockAccess.entitlements.get('links.max_per_month') ?? null,
+  }),
 }));
 
 // Se importa después de registrar los mocks para que la ruta reciba los dobles.
@@ -305,6 +306,26 @@ describe('POST /api/v1/shorten · nombre elegido por el usuario', () => {
     const response = await POST(request({ url: 'https://github.com' }), undefined);
     expect(response.status).toBe(500);
     expect(create).not.toHaveBeenCalled();
+  });
+
+  it('applies the quota returned by the narrow creation-access query', async () => {
+    mockAccess = {
+      entitlements: new Map([['links.max_per_month', 1]]),
+      planKey: 'basic', anonymous: false,
+    };
+    getMetric.mockResolvedValue({ data: { used: 1 }, error: null });
+    const response = await POST(request({ url: 'https://github.com' }), undefined);
+    expect(response.status).toBe(429);
+    expect(create).not.toHaveBeenCalled();
+  });
+
+  it('uses the effective paid plan to preserve allowed UTM fields', async () => {
+    mockAccess = { entitlements: new Map(), planKey: 'basic', anonymous: false };
+    const response = await POST(request({ url: 'https://github.com/?utm_content=button&utm_term=shoes' }), undefined);
+    expect(response.status).toBe(200);
+    const destination = new URL(create.mock.calls[0][0].destination);
+    expect(destination.searchParams.get('utm_content')).toBe('button');
+    expect(destination.searchParams.get('utm_term')).toBe('shoes');
   });
 
   it('keeps the existing default team when creating a link', async () => {
