@@ -5,12 +5,14 @@ import { type ReactNode } from "react";
 interface Props {
   children: ReactNode;
   anchor?: PopoverPanelProps['anchor'];
+  label: string;
 }
 
-export default function InfoPopover({ children, anchor }: Readonly<Props>) {
+export default function InfoPopover({ children, anchor, label }: Readonly<Props>) {
   return (
     <Popover className="relative inline-block">
       <PopoverButton
+        aria-label={label}
         className="p-1 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-700
                                  focus:outline-none focus:ring-2 focus:ring-indigo-500 transition">
         <InfoIcon size={14} strokeWidth={2} />

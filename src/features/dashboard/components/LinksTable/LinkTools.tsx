@@ -3,6 +3,7 @@ import { SettingsIcon } from "lucide-react";
 import clsx from "clsx";
 import React from "react";
 import { autoUpdate, flip, offset, shift, useFloating, } from '@floating-ui/react';
+import { useTranslations } from "next-intl";
 
 export type ITool<T> = {
   key: string;
@@ -19,6 +20,7 @@ interface Props<T = never> {
 }
 
 export function LinkTools<T>({ tools, link }: Readonly<Props<T>>) {
+  const t = useTranslations('DashboardPage');
   const {
     x,
     y,
@@ -41,7 +43,7 @@ export function LinkTools<T>({ tools, link }: Readonly<Props<T>>) {
         ref={refs.setReference}
         className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 cursor-pointer text-gray-400">
         <span className="absolute -inset-1.5"/>
-        <span className="sr-only">Open link menu</span>
+        <span className="sr-only">{t('tools.openMenu')}</span>
         <SettingsIcon/>
       </MenuButton>
 
@@ -58,8 +60,7 @@ export function LinkTools<T>({ tools, link }: Readonly<Props<T>>) {
           className={
             "absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5 " +
             "transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 " +
-            "data-enter:ease-out data-leave:duration-75 data-leave:ease-in" +
-            "w-(--button-width)"
+            "data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
           }
         >
           {tools.map((tool) => (

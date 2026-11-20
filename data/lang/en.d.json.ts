@@ -24,6 +24,12 @@ declare const messages: {
     "settings": "Account settings",
     "signOut": "Sign out"
   },
+  "Navigation": {
+    "home": "Home",
+    "dashboard": "Dashboard",
+    "openMenu": "Open main menu",
+    "login": "Sign in"
+  },
   "404": {
     "metaTitle": "404 – Page Not Found | iny.one",
     "metaDescription": "The page you are looking for does not exist. Check the URL or return to the homepage.",
@@ -153,6 +159,14 @@ declare const messages: {
   },
   "DashboardPage": {
     "loadError": "Some dashboard data could not be refreshed. Please try again.",
+    "loading": "Loading data…",
+    "sectionError": "Could not load this data.",
+    "refreshError": "Could not refresh this data; showing the last available results.",
+    "retry": "Retry",
+    "noData": "No data",
+    "noLinksChart": "You don't have any links to show yet.",
+    "noTraffic": "There is no traffic source data yet.",
+    "traffic": { "direct": "Direct", "other": "Other" },
     "title": "Control Panel",
     "subtitle": "Overview and statistics of your short links",
     "button": {
@@ -226,12 +240,16 @@ declare const messages: {
       "links": {
         "title": "Your Short Links",
         "subtitle": "Total: {value, number}",
+        "search": "Search this page",
+        "empty": "You haven't created any links yet. Create your first link to get started.",
+        "noResults": "No matches on this page.",
+        "clicksNote": "Link click counts may include bots; aggregate statistics use a different measurement.",
         "headers": {
           "alias": "Alias",
           "destination": "Destination",
           "clicks": "Clicks",
           "ctr": "CTR",
-          "created": "Created",
+          "created": "Created (UTC)",
           "actions": "Actions",
           "name": "Name",
           "short": "Short link"
@@ -248,9 +266,13 @@ declare const messages: {
       "copy": "Copy",
       "edit": "Edit",
       "stats": "Show Stats",
-      "qr": "QR Code"
+      "qr": "QR Code",
+      "openMenu": "Open link actions",
+      "copied": "Link copied.",
+      "copyError": "Could not copy the link. Please try again."
     },
     "popover": {
+      "utcLabel": "Time zone information",
       "info": {
         "utc": {
           "0": "Times are in UTC (Universal Time).",

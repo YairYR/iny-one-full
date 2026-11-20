@@ -3,7 +3,7 @@ import { useStatsCommon } from "@/features/dashboard/hooks/useStatsCommon";
 import { ILinkDetails } from "@/features/dashboard/components";
 import { useTranslations } from "next-intl";
 import { UserUrl } from "@/features/dashboard/types/types";
-import { calcRefererStats, fillDays, NO_DATA } from "@/features/dashboard/helpers/stats";
+import { calcRefererStats, fillDays } from "@/features/dashboard/helpers/stats";
 import dayjs from "dayjs";
 
 /**
@@ -42,8 +42,8 @@ export const useUserDashboard = () => {
     general: {
       totalLinks: kpis.data?.totalLinks,
       totalClicks: kpis.data?.all_time.clicks,
-      clicksLast24h: kpis.data ? kpis.data.summary.clicks_last_24h || NO_DATA : undefined,
-      topCountry: kpis.data?.all_time.top_countries?.[0]?.name ?? NO_DATA,
+      clicksLast24h: kpis.data?.summary.clicks_last_24h,
+      topCountry: kpis.data?.all_time.top_countries?.[0]?.name ?? t('noData'),
     },
     links: links.data?.urls ?? [],
     pagination: links.data?.pagination,
@@ -53,7 +53,7 @@ export const useUserDashboard = () => {
       startDate: dayjs(kpis.data.summary.date_start).utc(),
       endDate: dayjs(kpis.data.summary.date_end).utc(),
     }) : undefined,
-  }), [kpis.data, insights.data, links.data]);
+  }), [kpis.data, insights.data, links.data, t]);
 
   const traffic = Object.values(stats?.traffic ?? {});
 
@@ -61,9 +61,11 @@ export const useUserDashboard = () => {
     labels: stats.week?.daysKey.map((key) => t(key as never)),
     datasets: [
       {
-        label: "Clicks",
+        label: t('table.links.headers.clicks'),
         data: stats.week?.clicks,
         fill: true,
+        borderColor: '#4F46E5',
+        backgroundColor: 'rgba(79, 70, 229, 0.12)',
       },
     ],
   };
@@ -72,7 +74,7 @@ export const useUserDashboard = () => {
   const sortedByClicks = stats?.topLinks.slice(0, top_by_clicks) ?? [];
   const clicks_top = {
     labels: sortedByClicks.map(l => l.slug),
-    datasets: [{ label: 'Clicks', data: sortedByClicks.map(l => l.clicks) }]
+    datasets: [{ label: t('table.links.headers.clicks'), data: sortedByClicks.map(l => l.clicks), backgroundColor: '#4F46E5' }]
   };
 
   const pagination = stats?.pagination;
@@ -80,7 +82,7 @@ export const useUserDashboard = () => {
 
   const graffic_traffic = traffic.length > 0 && {
     labels: traffic.map((item) => item.name),
-    datasets: [ { label: '%', data: traffic.map((item) => item.value) }]
+    datasets: [ { label: '%', data: traffic.map((item) => item.value), backgroundColor: ['#4F46E5', '#0891B2', '#059669', '#D97706', '#E11D48', '#7C3AED'] }]
   };
 
   const onClickEdit = (link: UserUrl) => {
@@ -126,6 +128,9 @@ export const useUserDashboard = () => {
     t,
     stats,
     hasError: Boolean(kpis.error || insights.error || links.error),
+    kpis,
+    insights,
+    linksRequest: links,
     countChartOptions,
     page,
     totalPages,

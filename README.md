@@ -141,7 +141,7 @@ La versión en español vive bajo `/es/*` con URLs propias. El middleware inyect
 
 ## Notas técnicas
 
-**Dashboard.** `/api/v1/dashboard/summary` acepta `kpi` (lista separada por comas: `total_links`, `total_clicks`, `top_country`, `last_clicks`, `week`, `traffic`, `performance`), `links=true` y `page`. Sin filtros mantiene la respuesta completa. El panel solicita KPI y actividad cada minuto, tráfico y ranking cada cinco minutos y enlaces por página; editar un enlace invalida sólo las páginas de enlaces. Las respuestas son privadas y no se cachean en HTTP.
+**Dashboard.** `/api/v1/dashboard/summary` acepta `kpi` (lista separada por comas: `total_links`, `total_clicks`, `top_country`, `last_clicks`, `week`, `traffic`, `performance`), `links=true` y `page`. Sin filtros mantiene la respuesta completa. El panel solicita KPI y actividad cada minuto, tráfico y ranking cada cinco minutos y enlaces por página; editar un enlace invalida sólo las páginas de enlaces. La búsqueda filtra únicamente la página visible. El contador de cada enlace puede incluir bots, a diferencia de las estadísticas agregadas. Las respuestas son privadas y no se cachean en HTTP.
 
 **Creación de short links.** El slug se genera con `nanoid` y se inserta de forma optimista: si Postgres devuelve una violación de índice único (`23505`), se genera un slug nuevo y se reintenta. Comprobar antes si el slug existe no eliminaría la condición de carrera y añadiría una consulta a cada creación.
 

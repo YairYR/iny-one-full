@@ -26,15 +26,15 @@ interface Props {
 }
 
 export default function ShowStats({ link, t }: Readonly<Props>) {
-  const { data, isLoading } = useLinkStatsCommon(link.link_id);
+  const { data, isLoading, error, mutate } = useLinkStatsCommon(link.link_id);
 
-  const countryTop = data?.breakdown.by_country[0]?.country_code ?? 'N/A';
-  const deviceTop = data?.breakdown.by_device[0]?.device_type ?? 'N/A';
+  const countryTop = data?.breakdown?.by_country?.[0]?.country_code ?? t('noData');
+  const deviceTop = data?.breakdown?.by_device?.[0]?.device_type ?? t('noData');
 
   const clicks = useMemo(() => {
     const values = {
       labels: [] as string[],
-      datasets:[{ label: 'Clicks', data: [] as number[] }],
+      datasets:[{ label: t('table.links.headers.clicks'), data: [] as number[], backgroundColor: '#4F46E5' }],
     };
 
     if (!data) {
@@ -52,50 +52,43 @@ export default function ShowStats({ link, t }: Readonly<Props>) {
     }
 
     return values;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data]);
+  }, [data, t]);
 
   return (
     <>
+      {error && (
+        <div role="alert" className="mt-4 rounded-lg bg-red-50 p-3 text-sm text-red-600">
+          <p>{t('sectionError')}</p>
+          <button type="button" className="mt-2 underline focus-visible:outline-2 focus-visible:outline-indigo-600" onClick={() => void mutate()}>{t('retry')}</button>
+        </div>
+      )}
       <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-3">
           <div className="text-sm text-gray-500">{t("modal.stats.destination")}</div>
-          <div className="font-medium truncate">{link.destination}</div>
+          <div className="font-medium break-all">{link.destination}</div>
 
-          <div className="text-sm text-gray-500 mt-2">{t("modal.stats.countries")}</div>
-          <div className="font-medium">{countryTop}</div>
+          {data && <>
+            <div className="text-sm text-gray-500 mt-2">{t("modal.stats.countries")}</div>
+            <div className="font-medium">{countryTop}</div>
 
-          <div className="text-sm text-gray-500 mt-2">{t("modal.stats.devices")}</div>
-          <div className="font-medium">{deviceTop}</div>
+            <div className="text-sm text-gray-500 mt-2">{t("modal.stats.devices")}</div>
+            <div className="font-medium">{deviceTop}</div>
+          </>}
         </div>
 
         <div>
           <div className="h-44 w-full">
             {isLoading
                 ? <SkeletonRectangle />
-                : <Bar
+                : data && <Bar
                         data={clicks}
-                        options={{ maintainAspectRatio: false }}
+                        options={{ maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }}
+                        aria-hidden="true"
                     />}
           </div>
-        </div>
-      </div>
-
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="bg-gray-50 p-3 rounded">
-          <div className="text-sm text-gray-500">UTM</div>
-          <div className="text-sm text-gray-700">
-            {link.utm_source && <p>utm_source={link.utm_source}</p>}
-            {link.utm_campaign && <p>utm_campaign={link.utm_campaign}</p>}
-            {link.utm_medium && <p>utm_medium={link.utm_medium}</p>}
-          </div>
-        </div>
-
-        <div className="bg-gray-50 p-3 rounded">
-          <div className="text-sm text-gray-500">Referrers top</div>
-          <ul className="text-sm text-gray-700 list-disc list-inside">
-            <li>Direct</li>
-          </ul>
+          {data && <ul className="sr-only">
+            {clicks.labels.map((label, index) => <li key={label}>{label}: {clicks.datasets[0].data[index]}</li>)}
+          </ul>}
         </div>
       </div>
     </>

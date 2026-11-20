@@ -35,7 +35,12 @@ export const getDashboardLinks = (page: number) =>
 
 export async function getLinkStatsCommon([link_id]: [link_id: string]): Promise<ILinkStatsSummary | null> {
   if (!link_id) return null;
-  return fetchData<ILinkStatsSummary>(`/api/v1/dashboard/links/${link_id}`);
+  const response = await fetch(`/api/v1/dashboard/links/${link_id}`, { cache: 'no-store' });
+  const payload: ApiResponse<ILinkStatsSummary> = await response.json();
+  if (!response.ok || !payload.ok || !payload.data?.breakdown) {
+    throw new Error('Unable to fetch link statistics');
+  }
+  return payload.data;
 }
 
 export async function getUserLinksSummary() {

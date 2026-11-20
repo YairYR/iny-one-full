@@ -27,12 +27,12 @@ export function LinkDetailModal({ modal, onClose }: Readonly<Props>) {
 
   return (
     <Dialog open={modal.open} onClose={onClose} transition className="relative z-40">
-      <div className="fixed inset-0 w-screen flex items-center justify-center">
+      <div className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4">
         <div className="absolute inset-0 bg-black/40 w-full" />
-        <DialogPanel className="z-50 max-w-3xl bg-white rounded-xl p-4 shadow-lg">
+        <DialogPanel className="z-50 max-h-full w-full max-w-3xl overflow-y-auto bg-white rounded-xl p-4 shadow-lg">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-semibold">{modal.title}</DialogTitle>
-            <button onClick={onClose} className="text-gray-500 cursor-pointer"><XIcon /></button>
+            <button type="button" onClick={onClose} aria-label={t('modal.stats.close')} className="rounded p-2 text-gray-500 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-indigo-600 cursor-pointer"><XIcon aria-hidden="true" /></button>
           </div>
 
           {modal.mode === 'edit' && <EditLink link={link} t={t} onClose={onClose} />}
@@ -43,4 +43,3 @@ export function LinkDetailModal({ modal, onClose }: Readonly<Props>) {
     </Dialog>
   );
 }
-

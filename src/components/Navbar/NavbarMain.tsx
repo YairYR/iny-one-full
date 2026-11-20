@@ -8,16 +8,17 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserClient } from "@/lib/types";
 import { ROUTES } from "@/lib/routes";
+import { useTranslations } from "next-intl";
 
 interface Tab {
-  name: string;
+  name: 'home' | 'dashboard';
   href: string;
   current: boolean;
 }
 
 const navigation: Tab[] = [
-  { name: 'Home', href: ROUTES.HOME, current: true },
-  { name: 'Dashboard', href: ROUTES.DASHBOARD, current: false },
+  { name: 'home', href: ROUTES.HOME, current: true },
+  { name: 'dashboard', href: ROUTES.DASHBOARD, current: false },
   // { name: 'Team', href: '#', current: false },
 ];
 
@@ -31,6 +32,7 @@ interface Props {
 
 export default function NavbarMain({ user }: Readonly<Props>) {
   const pathname = usePathname();
+  const t = useTranslations('Navigation');
 
   const fullname = user?.name ?? null;
   const picture = user?.picture ?? null;
@@ -57,7 +59,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
             <DisclosureButton
               className="group relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
               <span className="absolute -inset-0.5"/>
-              <span className="sr-only">Open main menu</span>
+              <span className="sr-only">{t('openMenu')}</span>
               <MenuIcon aria-hidden="true" className="block size-6 group-data-open:hidden"/>
               <XIcon aria-hidden="true" className="hidden size-6 group-data-open:block"/>
             </DisclosureButton>
@@ -76,7 +78,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
                       'rounded-md px-3 py-2 text-sm font-medium',
                     )}
                   >
-                    {item.name}
+                    {t(item.name)}
                   </Link>
                 ))}
               </div>
@@ -105,7 +107,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
               className="relative rounded-full p-1 text-gray-400 focus:outline-2 focus:outline-offset-2 focus:outline-indigo-500 cursor-pointer"
             >
               <span className="absolute -inset-1.5"/>
-              <span className="sr-only">Login</span>
+              <span className="sr-only">{t('login')}</span>
               <LogInIcon aria-hidden="true" className="size-6"/>
             </Link>)}
           </div>
@@ -114,7 +116,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
 
       <DisclosurePanel className="sm:hidden">
         <div className="space-y-1 px-2 pt-2 pb-3">
-          {navigation.map((item) => (
+          {tabs.map((item) => (
             <DisclosureButton
               key={item.name}
               as="a"
@@ -125,7 +127,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
                 'block rounded-md px-3 py-2 text-base font-medium',
               )}
             >
-              {item.name}
+              {t(item.name)}
             </DisclosureButton>
           ))}
         </div>

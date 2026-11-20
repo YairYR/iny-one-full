@@ -21,6 +21,12 @@
     "settings": "Cuenta",
     "signOut": "Cerrar sesión"
   },
+  "Navigation": {
+    "home": "Inicio",
+    "dashboard": "Panel",
+    "openMenu": "Abrir menú principal",
+    "login": "Iniciar sesión"
+  },
   "404": {
     "metaTitle": "404 – Página no encontrada | iny.one",
     "metaDescription": "La página que buscas no existe. Revisa la URL o vuelve al inicio.",
@@ -150,6 +156,14 @@
   },
   "DashboardPage": {
     "loadError": "No se pudieron actualizar algunos datos del panel. Inténtalo de nuevo.",
+    "loading": "Cargando datos…",
+    "sectionError": "No se pudieron cargar estos datos.",
+    "refreshError": "No se pudieron actualizar estos datos; se muestran los últimos disponibles.",
+    "retry": "Reintentar",
+    "noData": "Sin datos",
+    "noLinksChart": "Aún no tienes enlaces para mostrar.",
+    "noTraffic": "Todavía no hay datos de fuentes de tráfico.",
+    "traffic": { "direct": "Directo", "other": "Otros" },
     "title": "Panel de Control",
     "subtitle": "Resumen y estadísticas de tus short links",
     "button": {
@@ -178,7 +192,7 @@
         "subtitle": "Top {top, number}"
       },
       "sourceTraffic": {
-        "title": "Fuentes de Trafico"
+        "title": "Fuentes de tráfico"
       }
     },
     "modal": {
@@ -221,14 +235,18 @@
     },
     "table": {
       "links": {
-        "title": "Your Short Links",
+        "title": "Tus enlaces cortos",
         "subtitle": "Total: {value, number}",
+        "search": "Buscar en esta página",
+        "empty": "Todavía no has creado enlaces. Crea el primero para comenzar.",
+        "noResults": "No hay coincidencias en esta página.",
+        "clicksNote": "Los clics de cada enlace pueden incluir bots; las estadísticas agregadas usan otra medición.",
         "headers": {
           "alias": "Alias",
           "destination": "Destino",
           "clicks": "Clicks",
           "ctr": "CTR",
-          "created": "Creado",
+          "created": "Creado (UTC)",
           "actions": "Acciones",
           "name": "Nombre",
           "short": "Enlace corto"
@@ -245,9 +263,13 @@
       "copy": "Copiar",
       "edit": "Editar",
       "stats": "Estadísticas",
-      "qr": "Código QR"
+      "qr": "Código QR",
+      "openMenu": "Abrir acciones del enlace",
+      "copied": "Enlace copiado.",
+      "copyError": "No se pudo copiar el enlace. Inténtalo de nuevo."
     },
     "popover": {
+      "utcLabel": "Información sobre la zona horaria",
       "info": {
         "utc": {
           "0": "Los horarios están en UTC (hora universal).",
@@ -258,10 +280,10 @@
     "week": {
       "monday": "Lunes",
       "tuesday": "Martes",
-      "wednesday": "Miercoles",
+      "wednesday": "Miércoles",
       "thursday": "Jueves",
       "friday": "Viernes",
-      "saturday": "Sabado",
+      "saturday": "Sábado",
       "sunday": "Domingo"
     }
   },
