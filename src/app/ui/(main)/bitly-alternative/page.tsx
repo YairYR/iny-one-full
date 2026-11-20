@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
 import { useLocale } from "next-intl";
-import Link from "next/link";
+import Link from "@/components/LocalizedLink";
 import { ROUTES } from "@/lib/routes";
 import { buildPageMetadata, normalizeLocale } from "@/lib/seo/metadata";
 
@@ -186,13 +186,20 @@ const content = {
 export default function BitlyAlternativePage() {
   const locale = useLocale() as "es" | "en";
   const t = content[locale] ?? content.en;
+  const localizedStructuredData = {
+    "@context": "https://schema.org",
+    "@graph": [
+      { "@type": "WebPage", "@id": "https://iny.one/es/bitly-alternative", url: "https://iny.one/es/bitly-alternative", name: t.h1, description: t.intro, inLanguage: "es", isPartOf: { "@id": "https://iny.one/#website" } },
+      { "@type": "FAQPage", mainEntity: t.faqs.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })) },
+    ],
+  };
 
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+          __html: JSON.stringify(locale === "es" ? localizedStructuredData : structuredData).replace(/</g, "\\u003c"),
         }}
       />
 

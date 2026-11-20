@@ -1,7 +1,7 @@
 'use client';
 
 import dynamic from "next/dynamic";
-import Link from "next/link";
+import Link from "@/components/LocalizedLink";
 import { useFormatter, useTranslations } from "next-intl";
 import { Kpi } from "@/features/dashboard/components/Kpi";
 import { ROUTES } from "@/lib/routes";

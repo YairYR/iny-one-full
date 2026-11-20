@@ -122,7 +122,7 @@ Rutas públicas canónicas:
 /auth/login  ·  /auth/register  ·  /auth/callback  ·  /dashboard  ·  /features/dashboard
 ```
 
-La versión en español vive bajo `/es/*` con URLs propias. El middleware inyecta la cabecera `x-iny-locale` (y borra la que llegue del cliente, para que no sea inyectable) y las mismas páginas de `/ui` renderizan contenido y metadata en español.
+Las páginas bilingües usan URLs inglesas sin prefijo y españolas bajo `/es/*`; el idioma de cada URL es independiente de `Accept-Language`. El middleware inyecta `x-iny-locale` (eliminando el valor recibido del cliente), y recuerda la elección para rutas técnicas como autenticación. La calculadora `/piscolas` conserva su URL histórica y solo existe en español. Las rutas cortas siguen en la raíz y `es` está reservado.
 
 ### SEO
 
@@ -141,7 +141,7 @@ La versión en español vive bajo `/es/*` con URLs propias. El middleware inyect
 
 ## Notas técnicas
 
-**Dashboard.** `/features/dashboard` es la demostración pública indexable; `/dashboard` redirige allí a visitantes y muestra el panel privado a usuarios registrados. Las cuentas sin enlaces y las secciones sin actividad muestran ejemplos identificados como ficticios. Las API de estadísticas siguen requiriendo sesión y autorización. `/api/v1/dashboard/summary` acepta `kpi` (lista separada por comas: `total_links`, `total_clicks`, `top_country`, `last_clicks`, `week`, `traffic`, `performance`), `links=true` y `page`. Sin filtros mantiene la respuesta completa. El panel solicita KPI y actividad cada minuto, tráfico y ranking cada cinco minutos y enlaces por página; editar un enlace invalida sólo las páginas de enlaces. La búsqueda filtra únicamente la página visible. El contador de cada enlace puede incluir bots, a diferencia de las estadísticas agregadas. Las respuestas son privadas y no se cachean en HTTP.
+**Dashboard.** `/features/dashboard` y `/es/features/dashboard` son las demostraciones públicas indexables; `/dashboard` y `/es/dashboard` redirigen allí a visitantes y muestran el panel privado a usuarios registrados. Las cuentas sin enlaces y las secciones sin actividad muestran ejemplos identificados como ficticios. Las API de estadísticas siguen requiriendo sesión y autorización. `/api/v1/dashboard/summary` acepta `kpi` (lista separada por comas: `total_links`, `total_clicks`, `top_country`, `last_clicks`, `week`, `traffic`, `performance`), `links=true` y `page`. Sin filtros mantiene la respuesta completa. El panel solicita KPI y actividad cada minuto, tráfico y ranking cada cinco minutos y enlaces por página; editar un enlace invalida sólo las páginas de enlaces. La búsqueda filtra únicamente la página visible. El contador de cada enlace puede incluir bots, a diferencia de las estadísticas agregadas. Las respuestas son privadas y no se cachean en HTTP.
 
 **Creación de short links.** El slug se genera con `nanoid` y se inserta de forma optimista: si Postgres devuelve una violación de índice único (`23505`), se genera un slug nuevo y se reintenta. Comprobar antes si el slug existe no eliminaría la condición de carrera y añadiría una consulta a cada creación.
 

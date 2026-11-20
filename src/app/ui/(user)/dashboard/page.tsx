@@ -5,6 +5,8 @@ import { getDefaultTeamAccess } from "@/features/authorization/helpers/access";
 import { redirect } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
 import type { Metadata } from "next";
+import { getLocale } from "next-intl/server";
+import { localizedPath } from "@/i18n/routes";
 
 export const metadata: Metadata = {
   title: "Dashboard | iny.one",
@@ -19,7 +21,7 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const user = await getCurrentUserDTO();
   if (!user) {
-    return redirect(ROUTES.DASHBOARD_DEMO);
+    return redirect(localizedPath(ROUTES.DASHBOARD_DEMO, await getLocale()));
   }
 
   const access = await getDefaultTeamAccess();

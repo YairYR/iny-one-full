@@ -8,9 +8,11 @@ import { Mail, SquareAsterisk, SquareUserRound } from "lucide-react";
 import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
 import Link from "next/link";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 export default function RegisterForm() {
   const router = useRouter();
+  const t = useTranslations('Auth');
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -28,16 +30,16 @@ export default function RegisterForm() {
         body: JSON.stringify({ name, email, password })
       }).then(res => res.json());
       if (response.error) {
-        setMessage('Unable to create your account. Please try again.');
+        setMessage(t('registerError'));
         return;
       }
       if (!response.data.hasSession) {
-        setMessage('Check your email to confirm your account.');
+        setMessage(t('confirmEmail'));
         return;
       }
       router.push('/auth/setup');
     } catch {
-      setMessage('Unable to reach the server. Please try again.');
+      setMessage(t('networkError'));
     } finally {
       setLoading(false);
     }
@@ -88,30 +90,30 @@ export default function RegisterForm() {
       <form>
         <div className="flex flex-row gap-2 justify-center">
           <GoogleButton onClick={onClickGoogle}>
-            Sign in with Google
+            {t('google')}
           </GoogleButton>
         </div>
       </form>
       <div className="relative flex py-8 items-center">
         <div className="grow border-t border-[1px] border-gray-200"></div>
-        <span className="shrink mx-4 font-medium text-gray-500">OR</span>
+        <span className="shrink mx-4 font-medium text-gray-500">{t('or')}</span>
         <div className="grow border-t border-[1px] border-gray-200"></div>
       </div>
       <form className="flex flex-col" onSubmit={onSubmit}>
         {message && <p role="status" className="mb-4 text-sm text-gray-700">{message}</p>}
         <div className="pb-2">
-          <label htmlFor="email" className="block mb-2 text-sm font-medium text-[#111827]">Name</label>
+          <label htmlFor="name" className="block mb-2 text-sm font-medium text-[#111827]">{t('name')}</label>
           <div className="relative text-gray-400">
             <span className="absolute inset-y-0 left-0 flex items-center p-1 pl-3">
               <SquareUserRound />
             </span>
             <input type="text" name="name" id="name" value={name} onChange={onChangeName}
                    className="pl-12 mb-2 bg-gray-50 text-gray-600 border focus:border-transparent border-gray-300 sm:text-sm rounded-lg ring-3 ring-transparent focus:ring-1 focus:outline-hidden focus:ring-gray-400 block w-full p-2.5 rounded-l-lg py-3 px-4"
-                   placeholder="Your Name" autoComplete="off"/>
+                   placeholder={t('namePlaceholder')} autoComplete="off"/>
           </div>
         </div>
         <div className="pb-2">
-          <label htmlFor="email" className="block mb-2 text-sm font-medium text-[#111827]">Email</label>
+          <label htmlFor="email" className="block mb-2 text-sm font-medium text-[#111827]">{t('email')}</label>
           <div className="relative text-gray-400">
             <span className="absolute inset-y-0 left-0 flex items-center p-1 pl-3">
               <Mail />
@@ -122,7 +124,7 @@ export default function RegisterForm() {
           </div>
         </div>
         <div className="pb-6">
-          <label htmlFor="password" className="block mb-2 text-sm font-medium text-[#111827]">Password</label>
+          <label htmlFor="password" className="block mb-2 text-sm font-medium text-[#111827]">{t('password')}</label>
           <div className="relative text-gray-400">
             <span className="absolute inset-y-0 left-0 flex items-center p-1 pl-3">
               <SquareAsterisk />
@@ -133,11 +135,10 @@ export default function RegisterForm() {
           </div>
         </div>
         <button type="submit" disabled={loading}
-                className="w-full text-[#FFFFFF] bg-[#4F46E5] focus:ring-4 focus:outline-hidden focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-6">Sign
-          Up
+                className="w-full text-[#FFFFFF] bg-[#4F46E5] focus:ring-4 focus:outline-hidden focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-6">{t('register')}
         </button>
         <div className="text-sm font-light text-[#6B7280] ">
-          Already have an account? <Link href="/auth/login" className="font-medium text-[#4F46E5] hover:underline">Login</Link>
+          {t('hasAccount')} <Link href="/auth/login" className="font-medium text-[#4F46E5] hover:underline">{t('login')}</Link>
         </div>
       </form>
     </div>

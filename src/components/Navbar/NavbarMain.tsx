@@ -8,7 +8,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { UserClient } from "@/lib/types";
 import { ROUTES } from "@/lib/routes";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { localizedPath } from "@/i18n/routes";
 
 interface Tab {
   name: 'home' | 'dashboard';
@@ -33,17 +34,13 @@ interface Props {
 export default function NavbarMain({ user }: Readonly<Props>) {
   const pathname = usePathname();
   const t = useTranslations('Navigation');
+  const locale = useLocale();
 
   const fullname = user?.name ?? null;
   const picture = user?.picture ?? null;
 
-  // En la versión en español (/es/*), Home apunta a /es para no sacar
-  // al visitante (ni al crawler) del árbol de URLs en español.
-  const isEs = pathname === '/es' || pathname.startsWith('/es/');
-
   const tabs = navigation.map((item) => {
-    const href = item.href === ROUTES.HOME && isEs ? '/es'
-      : item.href === ROUTES.DASHBOARD && !user ? ROUTES.DASHBOARD_DEMO : item.href;
+    const href = localizedPath(item.href === ROUTES.DASHBOARD && !user ? ROUTES.DASHBOARD_DEMO : item.href, locale);
     return {
       ...item,
       href,

@@ -2,16 +2,19 @@ import { MiddlewareConfig, type NextRequest, NextResponse } from 'next/server'
 import { updateSession } from "@/lib/middlewares/session";
 import { ROUTES } from "@/lib/routes";
 import { checkRequestRateLimit } from "@/lib/middlewares/rate_limit";
+import { isLocalizedPath } from "@/i18n/routes";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
-  // i18n por URL: /es/* fuerza la versión en español (indexable por Google).
-  // El header lo consume src/i18n/request.ts. Se borra el valor entrante para
-  // que un cliente no pueda inyectarlo directamente.
   request.headers.delete('x-iny-locale');
-  if (path === '/es' || path.startsWith('/es/')) {
+  if (isLocalizedPath(path)) {
+    request.headers.set('x-iny-locale', path === '/es' || path.startsWith('/es/') ? 'es' : 'en');
+  } else if (path === '/piscolas') {
     request.headers.set('x-iny-locale', 'es');
+  } else if (path.startsWith('/auth/') || path === '/cart') {
+    const locale = request.nextUrl.searchParams.get('lang');
+    if (locale === 'en' || locale === 'es') request.headers.set('x-iny-locale', locale);
   }
 
   /* INACTIVO — este guard nunca llegó a ejecutarse (rev. 2026-08-23).
@@ -39,7 +42,12 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  return updateSession(request);
+  const response = await updateSession(request);
+  const locale = request.headers.get('x-iny-locale');
+  if (locale && request.cookies.get('iny-locale')?.value !== locale) {
+    response.cookies.set('iny-locale', locale, { path: '/', sameSite: 'lax', maxAge: 60 * 60 * 24 * 365 });
+  }
+  return response;
 }
 
 const UPDATABLE_SESSION = [
@@ -60,7 +68,7 @@ const UPDATABLE_SESSION = [
 ] as const;
 
 function isShortRoute(path: string) {
-  if (path === '/' || path === '/es' || path === '/en' || UPDATABLE_SESSION.includes(path as never)) {
+  if (isLocalizedPath(path) || path === '/en' || UPDATABLE_SESSION.includes(path as never)) {
     return false;
   }
 

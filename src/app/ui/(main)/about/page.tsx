@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale, getTranslations } from "next-intl/server";
 import { useLocale, useTranslations } from "next-intl";
-import Link from "next/link";
+import Link from "@/components/LocalizedLink";
 import { ArrowLeft } from "lucide-react";
 import { ROUTES } from "@/lib/routes";
 import { buildPageMetadata, normalizeLocale } from "@/lib/seo/metadata";

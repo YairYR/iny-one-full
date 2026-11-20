@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 
 import { GoogleButton } from "@/features/auth/components/OAuth/GoogleButton";
 import clsx from "clsx";
+import { useTranslations } from "next-intl";
 
 export default function LoginForm() {
   const router = useRouter();
+  const t = useTranslations('Auth');
 
   const [loading, setLoading] = useState(false);
 
@@ -42,7 +44,7 @@ export default function LoginForm() {
       <form>
         <div className="flex flex-row gap-2 justify-center">
           <GoogleButton onClick={onClickGoogle} disabled={loading}>
-            Sign in with Google
+            {t('google')}
           </GoogleButton>
         </div>
       </form>

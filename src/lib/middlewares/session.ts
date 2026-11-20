@@ -2,6 +2,7 @@ import { createServerClient } from '@supabase/ssr'
 import { type NextRequest, NextResponse } from 'next/server'
 import { CART_COOKIE_NAME, REDIRECT_TO_COOKIE_NAME } from "@/constants";
 import { ROUTES } from "@/lib/routes";
+import { localizedPath, unlocalizedPath } from "@/i18n/routes";
 
 const PUBLIC_EXACT_PATHS = new Set([
   '/',
@@ -33,22 +34,10 @@ const PUBLIC_PREFIXES = [
   '/ui/auth',
   '/auth/',
   '/cart/',
-  '/es',
-  '/en',
 ];
 
 function normalizePathname(pathname: string) {
-  if (pathname === '/es' || pathname === '/en') return '/';
-
-  if (pathname.startsWith('/es/')) {
-    return pathname.replace(/^\/es/, '');
-  }
-
-  if (pathname.startsWith('/en/')) {
-    return pathname.replace(/^\/en/, '');
-  }
-
-  return pathname;
+  return unlocalizedPath(pathname);
 }
 
 const isPublicPath = (pathname: string) => {
@@ -58,7 +47,7 @@ const isPublicPath = (pathname: string) => {
     return true;
   }
 
-  return PUBLIC_PREFIXES.some((prefix) => pathname.startsWith(prefix));
+  return PUBLIC_PREFIXES.some((prefix) => normalized.startsWith(prefix));
 };
 
 export async function updateSession(request: NextRequest) {
@@ -91,12 +80,14 @@ export async function updateSession(request: NextRequest) {
   const user = data?.claims;
 
   const pathname = request.nextUrl.pathname;
+  const normalized = normalizePathname(pathname);
+  const locale = pathname === '/es' || pathname.startsWith('/es/') ? 'es' : 'en';
 
   if (!user && !isPublicPath(pathname)) {
     const url = request.nextUrl.clone();
-    url.pathname = pathname === ROUTES.DASHBOARD ? ROUTES.DASHBOARD_DEMO : ROUTES.LOGIN;
+    url.pathname = normalized === ROUTES.DASHBOARD ? localizedPath(ROUTES.DASHBOARD_DEMO, locale) : ROUTES.LOGIN;
     const response = NextResponse.redirect(url);
-    if (pathname === ROUTES.DASHBOARD) response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    if (normalized === ROUTES.DASHBOARD) response.headers.set('X-Robots-Tag', 'noindex, nofollow');
     return response;
   }
 

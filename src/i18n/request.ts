@@ -1,5 +1,6 @@
 import { getRequestConfig } from 'next-intl/server';
 import { headers } from "next/headers";
+import { cookies } from "next/headers";
 import { match } from '@formatjs/intl-localematcher';
 import Negotiator from 'negotiator';
 import { type Formats } from 'next-intl';
@@ -17,7 +18,12 @@ export default getRequestConfig(async () => {
   let locale: string | undefined =
     forced && availableLocales.includes(forced) ? forced : undefined;
 
-  // 2) Fallback: negociación por Accept-Language (URLs sin prefijo de idioma).
+  // Las rutas técnicas recuerdan la elección sin variar las páginas indexables.
+  if (!locale) {
+    const preference = (await cookies()).get('iny-locale')?.value;
+    if (preference && availableLocales.includes(preference)) locale = preference;
+  }
+
   if (!locale) {
     const acceptLanguage = headerList.get('accept-language');
     if (acceptLanguage) {

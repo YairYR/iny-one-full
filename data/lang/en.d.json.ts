@@ -2,6 +2,33 @@
 // See: https://next-intl.dev/docs/workflows/typescript#messages-arguments
 
 declare const messages: {
+  "Auth": {
+    "google": "Sign in with Google",
+    "or": "OR",
+    "name": "Name",
+    "namePlaceholder": "Your name",
+    "email": "Email",
+    "password": "Password",
+    "register": "Sign up",
+    "hasAccount": "Already have an account?",
+    "login": "Sign in",
+    "registerError": "Unable to create your account. Please try again.",
+    "confirmEmail": "Check your email to confirm your account.",
+    "networkError": "Unable to reach the server. Please try again."
+  },
+  "Footer": {
+    "tools": "Tools",
+    "shortener": "URL shortener",
+    "utm": "UTM builder",
+    "qr": "QR code generator",
+    "api": "URL shortener API",
+    "piscolas": "Piscola calculator",
+    "company": "iny.one",
+    "about": "About",
+    "plans": "Plans",
+    "bitly": "Bitly alternative",
+    "dashboard": "Dashboard"
+  },
   "Setup": {
     "title": "Set up your account",
     "description": "Choose your profile details and personal team name.",
@@ -21,6 +48,7 @@ declare const messages: {
     "saved": "Your changes have been saved."
   },
   "UserMenu": {
+    "open": "Open user menu",
     "settings": "Account settings",
     "signOut": "Sign out"
   },

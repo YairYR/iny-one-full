@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from "@headlessui/react";
 import { getCountryOptions, getTimeZoneOptions, isTimeZone } from "@/features/auth/setup-options";
+import { localizedPath } from "@/i18n/routes";
 
 type Props = {
   next: string;
@@ -96,7 +97,7 @@ export default function SetupForm({ next, mode = 'setup', initialFullName, initi
         setTeamNameEdited(true);
         setSaved(true);
       } else {
-        router.push(next);
+        router.push(localizedPath(next, locale));
       }
       router.refresh();
     } catch {
@@ -130,7 +131,7 @@ export default function SetupForm({ next, mode = 'setup', initialFullName, initi
         {error && <p role="alert" className="text-red-700">{error}</p>}
         {saved && <p role="status" className="text-green-700">{t('saved')}</p>}
         <button type="submit" disabled={loading} className="rounded-lg bg-indigo-600 p-3 text-white">{t(mode === 'settings' ? 'save' : 'continue')}</button>
-        {mode === 'setup' && <button type="button" disabled={loading} onClick={() => router.push(next)}
+        {mode === 'setup' && <button type="button" disabled={loading} onClick={() => router.push(localizedPath(next, locale))}
           className="text-indigo-600">{t('skip')}</button>}
       </form>
     </div>

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
 import { useLocale } from "next-intl";
-import Link from "next/link";
+import Link from "@/components/LocalizedLink";
 import QrGenerator from "@/features/qr/components/QrGenerator";
 import { ROUTES } from "@/lib/routes";
 import { buildPageMetadata, normalizeLocale } from "@/lib/seo/metadata";
@@ -169,7 +169,17 @@ export default function QrCodeGeneratorPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+          __html: JSON.stringify(locale === "es" ? {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "@id": "https://iny.one/qr-code-generator#tool",
+            name: t.h1,
+            description: t.intro,
+            applicationCategory: "UtilitiesApplication",
+            operatingSystem: "Web",
+            url: "https://iny.one/es/qr-code-generator",
+            offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+          } : structuredData).replace(/</g, "\\u003c"),
         }}
       />
 

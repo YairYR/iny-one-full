@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { getLocale } from "next-intl/server";
-import Link from "next/link";
+import Link from "@/components/LocalizedLink";
 import UrlShortForm from "@/features/short_links/components/UrlShortForm";
 import { isLoggedIn } from "@/data/dto/user-dto";
 import { ROUTES } from "@/lib/routes";
@@ -161,7 +161,17 @@ export default async function UtmBuilderPage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(structuredData).replace(/</g, "\\u003c"),
+          __html: JSON.stringify(locale === "es" ? {
+            "@context": "https://schema.org",
+            "@type": "SoftwareApplication",
+            "@id": "https://iny.one/utm-builder#tool",
+            name: t.h1,
+            description: t.intro,
+            applicationCategory: "UtilitiesApplication",
+            operatingSystem: "Web",
+            url: "https://iny.one/es/utm-builder",
+            offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+          } : structuredData).replace(/</g, "\\u003c"),
         }}
       />
 

@@ -2,20 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-
-/**
- * Rutas que existen en ambos idiomas (la versión ES vive bajo /es/...).
- * Mantener en sync con los rewrites de next.config.ts.
- */
-const LOCALIZABLE = new Set([
-  '/',
-  '/about',
-  '/plans',
-  '/utm-builder',
-  '/qr-code-generator',
-  '/bitly-alternative',
-  '/url-shortener-api',
-]);
+import { useLocale } from 'next-intl';
+import { isLocalizedPath, localizedPath } from '@/i18n/routes';
 
 /**
  * Selector de idioma con enlaces <a> reales (crawleables), no un dropdown JS.
@@ -24,13 +12,11 @@ const LOCALIZABLE = new Set([
  */
 export default function LanguageSwitcher() {
   const pathname = usePathname() || '/';
-
-  const isEs = pathname === '/es' || pathname.startsWith('/es/');
-  const basePath = isEs ? (pathname === '/es' ? '/' : pathname.slice(3)) : pathname;
-  const canLocalize = LOCALIZABLE.has(basePath);
-
-  const enHref = canLocalize ? basePath : '/';
-  const esHref = canLocalize ? (basePath === '/' ? '/es' : `/es${basePath}`) : '/es';
+  const isEs = useLocale() === 'es';
+  const canLocalize = isLocalizedPath(pathname);
+  const technical = pathname.startsWith('/auth/') || pathname === '/cart';
+  const enHref = canLocalize ? localizedPath(pathname, 'en') : technical ? `${pathname}?lang=en` : '/';
+  const esHref = canLocalize ? localizedPath(pathname, 'es') : technical ? `${pathname}?lang=es` : '/es';
 
   const activeCls = 'font-semibold text-gray-700';
   const idleCls = 'text-gray-400 hover:text-indigo-600 transition-colors';

@@ -4,7 +4,7 @@ import { UserUrl } from "@/features/dashboard/types/types";
 import { LinkIcon } from "lucide-react";
 import { ITool, LinkTools } from "@/features/dashboard/components/LinksTable/LinkTools";
 import { useFormatter, useTranslations } from "next-intl";
-import Link from "next/link";
+import Link from "@/components/LocalizedLink";
 import { ROUTES } from "@/lib/routes";
 
 interface Props {

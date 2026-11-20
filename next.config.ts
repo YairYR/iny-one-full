@@ -327,6 +327,18 @@ const nextConfig: NextConfig = {
         source: "/es/url-shortener-api",
         destination: "/ui/url-shortener-api",
       },
+      {
+        source: "/es/features/dashboard",
+        destination: "/ui/features/dashboard",
+      },
+      {
+        source: "/es/dashboard",
+        destination: "/ui/dashboard",
+      },
+      {
+        source: "/es/account/settings",
+        destination: "/ui/account/settings",
+      },
 
       {
         source: "/auth/login",

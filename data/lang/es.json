@@ -1,4 +1,31 @@
 {
+  "Auth": {
+    "google": "Continuar con Google",
+    "or": "O",
+    "name": "Nombre",
+    "namePlaceholder": "Tu nombre",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "register": "Crear cuenta",
+    "hasAccount": "¿Ya tienes una cuenta?",
+    "login": "Iniciar sesión",
+    "registerError": "No se pudo crear tu cuenta. Inténtalo de nuevo.",
+    "confirmEmail": "Revisa tu correo para confirmar tu cuenta.",
+    "networkError": "No se pudo conectar con el servidor. Inténtalo de nuevo."
+  },
+  "Footer": {
+    "tools": "Herramientas",
+    "shortener": "Acortador de URLs",
+    "utm": "Generador UTM",
+    "qr": "Generador de códigos QR",
+    "api": "API del acortador",
+    "piscolas": "Calculadora de piscolas",
+    "company": "iny.one",
+    "about": "Acerca de",
+    "plans": "Planes",
+    "bitly": "Alternativa a Bitly",
+    "dashboard": "Panel"
+  },
   "Setup": {
     "title": "Configura tu cuenta",
     "description": "Elige los datos de tu perfil y el nombre de tu equipo personal.",
@@ -18,6 +45,7 @@
     "saved": "Los cambios se han guardado."
   },
   "UserMenu": {
+    "open": "Abrir menú de usuario",
     "settings": "Cuenta",
     "signOut": "Cerrar sesión"
   },

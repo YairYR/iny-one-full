@@ -27,6 +27,8 @@ export default async function HomePage() {
   // El formulario lo necesita para mostrar el campo de nombre propio activo o
   // bloqueado con su motivo, y para saber qué mensaje dar al topar con el límite.
   const isAuthenticated = await isLoggedIn();
+  const locale = normalizeLocale(await getLocale());
+  const t = await getTranslations("Head");
   const hasPlan = true;
 
   const jsonLd = {
@@ -142,7 +144,14 @@ export default async function HomePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+          __html: JSON.stringify(locale === "es" ? {
+            "@context": "https://schema.org",
+            "@graph": [
+              { "@type": "WebSite", "@id": "https://iny.one/#website", url: "https://iny.one", name: "iny.one", description: t("metaDescription"), inLanguage: ["en", "es"] },
+              jsonLd["@graph"][1],
+              { "@type": "SoftwareApplication", "@id": "https://iny.one/#software", name: "iny.one", applicationCategory: "UtilitiesApplication", operatingSystem: "Web", url: "https://iny.one/es", description: t("metaDescription"), offers: { "@type": "Offer", price: "0", priceCurrency: "USD" }, publisher: { "@id": "https://iny.one/#organization" } },
+            ],
+          } : jsonLd).replace(/</g, "\\u003c"),
         }}
       />
       <div className="max-w-2xl mx-auto">

@@ -27,6 +27,7 @@ const BILINGUAL_PAGES: BilingualEntry[] = [
   { path: '/url-shortener-api', lastModified: '2026-07-21', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/plans', lastModified: '2026-07-21', changeFrequency: 'monthly', priority: 0.8 },
   { path: '/about', lastModified: '2026-07-21', changeFrequency: 'monthly', priority: 0.6 },
+  { path: '/features/dashboard', lastModified: '2026-11-20', changeFrequency: 'monthly', priority: 0.6 },
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
@@ -47,12 +48,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...bilingual,
-    {
-      url: `${BASE_URL}/features/dashboard`,
-      lastModified: new Date('2026-11-20'),
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
     // Página solo en español (canonical sin prefijo, se mantiene su URL histórica)
     {
       url: `${BASE_URL}/piscolas`,
