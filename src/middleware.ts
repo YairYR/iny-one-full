@@ -6,12 +6,32 @@ import { isLocalizedPath } from "@/i18n/routes";
 
 export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
+  const preference = request.cookies.get('iny-locale')?.value;
+
+  if (path === '/') {
+    const explicitLocale = request.nextUrl.searchParams.get('lang');
+    if (explicitLocale === 'en') {
+      const url = request.nextUrl.clone();
+      url.searchParams.delete('lang');
+      const response = NextResponse.redirect(url);
+      response.cookies.set('iny-locale', 'en', { path: '/', sameSite: 'lax', maxAge: 60 * 60 * 24 * 365 });
+      response.headers.set('Cache-Control', 'private, no-store');
+      response.headers.set('Vary', 'Cookie');
+      return response;
+    }
+    if (preference === 'es') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/es';
+      const response = NextResponse.redirect(url);
+      response.headers.set('Cache-Control', 'private, no-store');
+      response.headers.set('Vary', 'Cookie');
+      return response;
+    }
+  }
 
   request.headers.delete('x-iny-locale');
   if (isLocalizedPath(path)) {
-    request.headers.set('x-iny-locale', path === '/es' || path.startsWith('/es/') ? 'es' : 'en');
-  } else if (path === '/piscolas') {
-    request.headers.set('x-iny-locale', 'es');
+    request.headers.set('x-iny-locale', path === '/piscolas' || path === '/es' || path.startsWith('/es/') ? 'es' : 'en');
   } else if (path.startsWith('/auth/') || path === '/cart') {
     const locale = request.nextUrl.searchParams.get('lang');
     if (locale === 'en' || locale === 'es') request.headers.set('x-iny-locale', locale);
@@ -39,12 +59,12 @@ export async function middleware(request: NextRequest) {
       return rateLimitResponse;
     }
 
-    return NextResponse.next();
+    return NextResponse.next({ request: { headers: request.headers } });
   }
 
   const response = await updateSession(request);
   const locale = request.headers.get('x-iny-locale');
-  if (locale && request.cookies.get('iny-locale')?.value !== locale) {
+  if (locale && preference !== locale) {
     response.cookies.set('iny-locale', locale, { path: '/', sameSite: 'lax', maxAge: 60 * 60 * 24 * 365 });
   }
   return response;

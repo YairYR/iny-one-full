@@ -48,12 +48,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   return [
     ...bilingual,
-    // Página solo en español (canonical sin prefijo, se mantiene su URL histórica)
-    {
-      url: `${BASE_URL}/piscolas`,
-      lastModified: new Date('2026-07-21'),
+    ...(['/piscolas', '/en/piscolas'] as const).map((path) => ({
+      url: `${BASE_URL}${path}`,
+      lastModified: new Date('2026-11-20'),
       changeFrequency: 'monthly',
       priority: 0.5,
-    },
+      alternates: { languages: { es: `${BASE_URL}/piscolas`, en: `${BASE_URL}/en/piscolas` } },
+    } satisfies MetadataRoute.Sitemap[number])),
   ];
 }

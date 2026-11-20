@@ -122,7 +122,7 @@ Rutas públicas canónicas:
 /auth/login  ·  /auth/register  ·  /auth/callback  ·  /dashboard  ·  /features/dashboard
 ```
 
-Las páginas bilingües usan URLs inglesas sin prefijo y españolas bajo `/es/*`; el idioma de cada URL es independiente de `Accept-Language`. El middleware inyecta `x-iny-locale` (eliminando el valor recibido del cliente), y recuerda la elección para rutas técnicas como autenticación. La calculadora `/piscolas` conserva su URL histórica y solo existe en español. Las rutas cortas siguen en la raíz y `es` está reservado.
+Las páginas bilingües usan URLs inglesas sin prefijo y españolas bajo `/es/*`; el idioma de cada URL es independiente de `Accept-Language`. La portada `/` redirige temporalmente a `/es` si hay una preferencia española guardada; el selector permite volver explícitamente al inglés. El middleware inyecta `x-iny-locale` (eliminando el valor recibido del cliente), y recuerda la elección para rutas técnicas como autenticación. La calculadora conserva `/piscolas` en español y usa `/en/piscolas` en inglés. Las rutas cortas siguen en la raíz y `es` y `en` están reservados.
 
 ### SEO
 

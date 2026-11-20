@@ -3,27 +3,21 @@
 import { useMemo, useState } from 'react';
 import { useNumberField } from '@/features/piscolas/hooks/useNumberField';
 import { BottleWine, Calculator, Coins, RefreshCcw, ShoppingCart, Users } from 'lucide-react';
+import { useFormatter, useLocale, useTranslations } from 'next-intl';
 
 const colaBottleOptions = [1, 1.5, 2, 2.5, 3] as const;
 const piscoBottleOptions = [0.7, 0.75, 1, 1.5] as const;
-
-function formatLiters(value: number): string {
-  return `${value.toFixed(value % 1 === 0 ? 0 : 2)} L`;
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('es-CL', {
-    style: 'currency',
-    currency: 'CLP',
-    maximumFractionDigits: 0,
-  }).format(value);
-}
 
 function ceilBottles(totalLiters: number, bottleSizeLiters: number): number {
   return Math.ceil(totalLiters / bottleSizeLiters);
 }
 
 export default function PiscolaCalculator() {
+  const t = useTranslations('Piscolas');
+  const format = useFormatter();
+  const locale = useLocale();
+  const formatLiters = (value: number) => `${format.number(value, { maximumFractionDigits: 2 })} L`;
+  const formatCurrency = (value: number) => new Intl.NumberFormat(locale, { style: 'currency', currency: 'CLP', maximumFractionDigits: 0 }).format(value);
   const people = useNumberField(10, 1);
   const piscolasPerPerson = useNumberField(3, 1);
   const piscoPerDrinkMl = useNumberField(60, 30);
@@ -115,9 +109,9 @@ export default function PiscolaCalculator() {
             <Calculator className="h-4 w-4" />
             
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">Calculadora de Piscolas</h1>
+          <h1 className="text-4xl font-bold tracking-tight text-gray-900">{t('title')}</h1>
           <p className="mt-3 max-w-3xl text-base text-gray-600">
-            Calcula cuántas botellas de Coca-Cola y pisco necesitas para una junta.
+            {t('intro')}
           </p>
         </div>
 
@@ -127,14 +121,14 @@ export default function PiscolaCalculator() {
           className="inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-3 font-medium text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-gray-50 cursor-pointer"
         >
           <RefreshCcw className="h-4 w-4" />
-          Restablecer
+          {t('reset')}
         </button>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
         <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm md:p-8">
   <div className="mb-6">
-    <span className="mb-2 block text-sm font-medium text-gray-700">¿Cómo la quieres?</span>
+    <span className="mb-2 block text-sm font-medium text-gray-700">{t('presetLabel')}</span>
 
     <div className="flex flex-wrap gap-3">
       <button
@@ -142,7 +136,7 @@ export default function PiscolaCalculator() {
         onClick={() => applyPreset('suave')}
         className={getPresetButtonClass('suave')}
       >
-        Suave
+        {t('mild')}
       </button>
 
       <button
@@ -150,7 +144,7 @@ export default function PiscolaCalculator() {
         onClick={() => applyPreset('tipica')}
         className={getPresetButtonClass('tipica')}
       >
-        Precisa
+        {t('typical')}
       </button>
 
       <button
@@ -158,18 +152,18 @@ export default function PiscolaCalculator() {
         onClick={() => applyPreset('cargada')}
         className={getPresetButtonClass('cargada')}
       >
-        Cargada
+        {t('strong')}
       </button>
 
       {selectedPreset === 'personalizada' && (
         <span className="inline-flex items-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
-          Receta personalizada
+          {t('custom')}
         </span>
       )}
     </div>
 
     <p className="mt-3 text-sm text-gray-500">
-      Esto ajusta automáticamente la proporción base de pisco y Coca-Cola.
+      {t('presetHelp')}
     </p>
   </div>
 
@@ -177,7 +171,7 @@ export default function PiscolaCalculator() {
             <label className="block">
               <span className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
                 <Users className="h-4 w-4" />
-                Cantidad de personas
+                {t('people')}
               </span>
               <input
                 type="number"
@@ -188,7 +182,7 @@ export default function PiscolaCalculator() {
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-medium text-gray-700">Piscolas por persona</span>
+              <span className="mb-2 block text-sm font-medium text-gray-700">{t('perPerson')}</span>
               <input
                 type="number"
                 min={1}
@@ -198,7 +192,7 @@ export default function PiscolaCalculator() {
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-medium text-gray-700">Pisco por vaso (ml)</span>
+              <span className="mb-2 block text-sm font-medium text-gray-700">{t('piscoPerDrink')}</span>
               <input
                 type="number"
                 min={30}
@@ -213,7 +207,7 @@ export default function PiscolaCalculator() {
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-medium text-gray-700">Coca-Cola por vaso (ml)</span>
+              <span className="mb-2 block text-sm font-medium text-gray-700">{t('colaPerDrink')}</span>
               <input
                 type="number"
                 min={90}
@@ -228,7 +222,7 @@ export default function PiscolaCalculator() {
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-medium text-gray-700">Tamaño botella Coca-Cola</span>
+              <span className="mb-2 block text-sm font-medium text-gray-700">{t('colaSize')}</span>
               <select
                 value={colaBottleSize}
                 onChange={(e) => setColaBottleSize(Number(e.target.value))}
@@ -241,7 +235,7 @@ export default function PiscolaCalculator() {
             </label>
 
             <label className="block">
-              <span className="mb-2 block text-sm font-medium text-gray-700">Tamaño botella pisco</span>
+              <span className="mb-2 block text-sm font-medium text-gray-700">{t('piscoSize')}</span>
               <select
                 value={piscoBottleSize}
                 onChange={(e) => setPiscoBottleSize(Number(e.target.value))}
@@ -256,7 +250,7 @@ export default function PiscolaCalculator() {
             <label className="block">
               <span className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
                 <Coins className="h-4 w-4" />
-                Precio botella Coca-Cola (CLP)
+                {t('colaPrice')}
               </span>
               <input
                 type="number"
@@ -270,7 +264,7 @@ export default function PiscolaCalculator() {
             <label className="block">
               <span className="mb-2 flex items-center gap-2 text-sm font-medium text-gray-700">
                 <Coins className="h-4 w-4" />
-                Precio botella pisco (CLP)
+                {t('piscoPrice')}
               </span>
               <input
                 type="number"
@@ -284,11 +278,12 @@ export default function PiscolaCalculator() {
 
              <div className="mt-6 rounded-2xl bg-gray-50 p-4">
             <div className="mb-2 flex items-center justify-between gap-4">
-              <span className="text-sm font-medium text-gray-700">Margen extra por hielo, derrame o consumo adicional</span>
+              <label htmlFor="extra-margin" className="text-sm font-medium text-gray-700">{t('margin')}</label>
               <span className="text-sm font-semibold text-indigo-700">{extraMargin}%</span>
             </div>
             <input
               type="range"
+              id="extra-margin"
               min={0}
               max={30}
               step={5}
@@ -303,57 +298,57 @@ export default function PiscolaCalculator() {
           <section className="rounded-3xl bg-gray-900 p-6 text-white shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div>
-                <p className="text-sm text-gray-300">Presupuesto total estimado</p>
+                <p className="text-sm text-gray-300">{t('budget')}</p>
                 <p className="mt-2 text-4xl font-bold">{formatCurrency(calculations.totalBudget)}</p>
               </div>
               <ShoppingCart className="h-8 w-8 text-gray-300" />
             </div>
             <div className="mt-6 grid gap-3 text-sm">
               <div className="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3">
-                <span>Costo por persona</span>
+                <span>{t('costPerson')}</span>
                 <span className="font-semibold">{formatCurrency(calculations.costPerPerson)}</span>
               </div>
               <div className="flex items-center justify-between rounded-2xl bg-white/10 px-4 py-3">
-                <span>Costo por piscola</span>
+                <span>{t('costDrink')}</span>
                 <span className="font-semibold">{formatCurrency(calculations.costPerDrink)}</span>
               </div>
             </div>
           </section>
 
           <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900">Compra sugerida</h2>
+            <h2 className="text-xl font-semibold text-gray-900">{t('shopping')}</h2>
             <div className="mt-5 space-y-4">
               <div className="rounded-2xl bg-indigo-50 p-4">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm text-indigo-700">Botellas de pisco</p>
+                    <p className="text-sm text-indigo-700">{t('piscoBottles')}</p>
                     <p className="mt-1 text-3xl font-bold text-gray-900">{calculations.piscoBottles}</p>
                   </div>
                   <BottleWine className="h-8 w-8 text-indigo-700" />
                 </div>
-                <p className="mt-3 text-sm text-gray-600">{formatLiters(piscoBottleSize)} c/u · {formatCurrency(calculations.piscoTotal)} total</p>
+                <p className="mt-3 text-sm text-gray-600">{t('bottleSummary', { size: formatLiters(piscoBottleSize), total: formatCurrency(calculations.piscoTotal) })}</p>
               </div>
 
               <div className="rounded-2xl bg-gray-50 p-4">
                 <div className="flex items-center justify-between gap-4">
                   <div>
-                    <p className="text-sm text-gray-600">Botellas de Coca-Cola</p>
+                    <p className="text-sm text-gray-600">{t('colaBottles')}</p>
                     <p className="mt-1 text-3xl font-bold text-gray-900">{calculations.colaBottles}</p>
                   </div>
                   <ShoppingCart className="h-8 w-8 text-gray-500" />
                 </div>
-                <p className="mt-3 text-sm text-gray-600">{formatLiters(colaBottleSize)} c/u · {formatCurrency(calculations.colaTotal)} total</p>
+                <p className="mt-3 text-sm text-gray-600">{t('bottleSummary', { size: formatLiters(colaBottleSize), total: formatCurrency(calculations.colaTotal) })}</p>
               </div>
             </div>
           </section>
 
           <section className="rounded-3xl border border-gray-200 bg-white p-6 shadow-sm">
-            <h2 className="text-xl font-semibold text-gray-900">Detalle</h2>
+            <h2 className="text-xl font-semibold text-gray-900">{t('details')}</h2>
             <div className="mt-5 space-y-3 text-sm">
-              <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3"><span className="text-gray-600">Total de piscolas</span><span className="font-semibold text-gray-900">{calculations.totalDrinks}</span></div>
-              <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3"><span className="text-gray-600">Pisco total</span><span className="font-semibold text-gray-900">{calculations.totalPiscoLiters.toFixed(2)} L</span></div>
-              <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3"><span className="text-gray-600">Coca-Cola total</span><span className="font-semibold text-gray-900">{calculations.totalColaLiters.toFixed(2)} L</span></div>
-              <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3"><span className="text-gray-600">Proporción</span><span className="font-semibold text-gray-900">{calculations.ratio}</span></div>
+              <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3"><span className="text-gray-600">{t('totalDrinks')}</span><span className="font-semibold text-gray-900">{format.number(calculations.totalDrinks)}</span></div>
+              <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3"><span className="text-gray-600">{t('totalPisco')}</span><span className="font-semibold text-gray-900">{formatLiters(calculations.totalPiscoLiters)}</span></div>
+              <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3"><span className="text-gray-600">{t('totalCola')}</span><span className="font-semibold text-gray-900">{formatLiters(calculations.totalColaLiters)}</span></div>
+              <div className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3"><span className="text-gray-600">{t('ratio')}</span><span className="font-semibold text-gray-900">{calculations.ratio}</span></div>
             </div>
           </section>
         </aside>

@@ -30,7 +30,7 @@ export default function Footer({ signedIn = false }: Readonly<{ signedIn?: boole
               <li><Link prefetch={false} href={p(ROUTES.UTM_BUILDER)} className={linkCls}>{t('utm')}</Link></li>
               <li><Link prefetch={false} href={p(ROUTES.QR_GENERATOR)} className={linkCls}>{t('qr')}</Link></li>
               <li><Link prefetch={false} href={p(ROUTES.API_DOCS)} className={linkCls}>{t('api')}</Link></li>
-              <li><Link prefetch={false} href={ROUTES.PISCOLAS} className={linkCls}>{t('piscolas')}</Link></li>
+              <li><Link prefetch={false} href={p(ROUTES.PISCOLAS)} className={linkCls}>{t('piscolas')}</Link></li>
             </ul>
           </nav>
           <nav aria-label={t('company')}>

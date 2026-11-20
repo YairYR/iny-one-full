@@ -9,6 +9,7 @@ export const BILINGUAL_PUBLIC_PATHS = [
   ROUTES.BITLY_ALTERNATIVE,
   ROUTES.API_DOCS,
   ROUTES.DASHBOARD_DEMO,
+  ROUTES.PISCOLAS,
 ] as const;
 
 const LOCALIZED_PATHS: readonly string[] = [
@@ -18,6 +19,7 @@ const LOCALIZED_PATHS: readonly string[] = [
 ];
 
 export function unlocalizedPath(path: string): string {
+  if (path === "/en/piscolas") return ROUTES.PISCOLAS;
   if (path === "/es") return "/";
   return path.startsWith("/es/") ? path.slice(3) : path;
 }
@@ -29,5 +31,6 @@ export function isLocalizedPath(path: string): boolean {
 export function localizedPath(path: string, locale: string): string {
   const base = unlocalizedPath(path);
   if (!LOCALIZED_PATHS.includes(base)) return path;
+  if (base === ROUTES.PISCOLAS) return locale === "en" ? "/en/piscolas" : ROUTES.PISCOLAS;
   return locale === "es" ? (base === "/" ? "/es" : `/es${base}`) : base;
 }

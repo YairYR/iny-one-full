@@ -268,6 +268,10 @@ const nextConfig: NextConfig = {
         destination: "/ui/piscolas",
       },
       {
+        source: "/en/piscolas",
+        destination: "/ui/piscolas",
+      },
+      {
         source: "/cart",
         destination: "/ui/cart",
       },
