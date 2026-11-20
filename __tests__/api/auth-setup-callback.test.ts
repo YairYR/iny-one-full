@@ -9,7 +9,7 @@ jest.mock('@/lib/supabase/server', () => ({
 }));
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const { GET } = require('@/app/ui/(main)/auth/callback/route') as typeof import('@/app/ui/(main)/auth/callback/route');
+const { GET } = require('@/app/(main)/auth/callback/route') as typeof import('@/app/(main)/auth/callback/route');
 
 it('continues through setup while preserving the original destination', async () => {
   exchangeCodeForSession.mockResolvedValue({ error: null });

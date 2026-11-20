@@ -13,7 +13,7 @@ jest.mock('@/features/dashboard/containers/UserDashboard', () => ({ UserDashboar
 jest.mock('@/features/dashboard/components/DashboardExample', () => ({ DashboardExample: () => null }));
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const DashboardPage = (require('@/app/ui/(user)/dashboard/page') as typeof import('@/app/ui/(user)/dashboard/page')).default;
+const DashboardPage = (require('@/app/(user)/dashboard/page') as typeof import('@/app/(user)/dashboard/page')).default;
 
 beforeEach(() => {
   jest.clearAllMocks();

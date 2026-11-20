@@ -112,7 +112,7 @@ __tests__/                       # Tests unitarios y de rutas
 
 ## Modelo de rutas
 
-Las URLs públicas se exponen limpias y `next.config.ts` las reescribe hacia `/ui/*`, que es la implementación interna. El acceso directo a `/ui/*` se corrige con un redirect permanente hacia la ruta pública.
+Las rutas públicas viven en los grupos `app/(main)` y `app/(user)`, que no añaden segmentos a las URLs. Los redirects históricos de `/ui/*` mantienen la compatibilidad; los rewrites de `next.config.ts` se usan para las versiones localizadas y la API heredada.
 
 Rutas públicas canónicas:
 
@@ -183,18 +183,18 @@ Nada se borra: lo que no está referenciado se conserva marcado, por si retoma u
 
 **Anotado con `/** INACTIVO */` pero activo** cuando es un export suelto dentro de un módulo en uso, donde comentarlo sólo añadiría ruido: las variantes `SkeletonCircle`, `SkeletonTable`, `SkeletonTriangle` y `SkeletonUser`; `addToSessionStorage`, `getCart` y `clearCart` en `lib/utils/localstorage.ts`; `getPlans` en `services.repository.ts`; los tipos `ILink`, `OrderPay` y `UserRepository`; y `formats` en `i18n/request.ts`.
 
-También quedan marcados los barrels vacíos `features/users/index.ts` y `features/payments/index.ts`, y `app/ui/dashboard/layout.tsx`, que está fuera de la cadena de renderizado (el `noindex` del área privada vive en `app/ui/(user)/layout.tsx`).
+También quedan marcados los barrels vacíos `features/users/index.ts` y `features/payments/index.ts`; el `noindex` del área privada vive en `app/(user)/layout.tsx`.
 
 `package.json` no admite comentarios, así que se deja constancia aquí: **`node-fetch` y `simple-statistics` no se usan en ninguna parte del código**. Node 22 ya trae `fetch` global. Se conservan instaladas; si se decide prescindir de ellas, `yarn remove node-fetch simple-statistics`.
 
-Para recalcular el inventario, buscar `INACTIVO` en `src/`. Un detalle al hacerlo con herramientas propias: las rutas con segmentos entre corchetes como `app/ui/(main)/cart/[[...checkout]]/` se escapan de los patrones glob, que interpretan los corchetes como clase de caracteres, y pueden dar un falso «sin referencias».
+Para recalcular el inventario, buscar `INACTIVO` en `src/`. Un detalle al hacerlo con herramientas propias: las rutas con segmentos entre corchetes se escapan de los patrones glob, que interpretan los corchetes como clase de caracteres, y pueden dar un falso «sin referencias».
 
 ---
 
 ## Convenciones
 
 - `page.tsx` para vistas, `layout.tsx` para composición y metadata compartida, `route.ts` para handlers HTTP.
-- `/ui/*` es implementación interna: no promocionar esas URLs ni tratarlas como canónicas.
+- Las URLs históricas `/ui/*` no son canónicas; sus redirects se mantienen por compatibilidad.
 - Centralizar las rutas en `lib/routes.ts` y los slugs reservados en `lib/reserved-slugs.ts`.
 - Nada de `console.*` en código de servidor: usar `logger`.
 - El acceso a datos pasa siempre por un repositorio de `infra/`.

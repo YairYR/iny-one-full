@@ -256,126 +256,52 @@ const nextConfig: NextConfig = {
         destination: "/api/v1/shorten",
       },
       {
-        source: "/",
-        destination: "/ui",
-      },
-      {
-        source: "/about",
-        destination: "/ui/about",
-      },
-      {
-        source: "/piscolas",
-        destination: "/ui/piscolas",
-      },
-      {
         source: "/en/piscolas",
-        destination: "/ui/piscolas",
-      },
-      {
-        source: "/cart",
-        destination: "/ui/cart",
-      },
-      {
-        source: "/plans",
-        destination: "/ui/plans",
-      },
-      {
-        source: "/features/dashboard",
-        destination: "/ui/features/dashboard",
-      },
-      {
-        source: "/utm-builder",
-        destination: "/ui/utm-builder",
-      },
-      {
-        source: "/qr-code-generator",
-        destination: "/ui/qr-code-generator",
-      },
-      {
-        source: "/bitly-alternative",
-        destination: "/ui/bitly-alternative",
-      },
-      {
-        source: "/url-shortener-api",
-        destination: "/ui/url-shortener-api",
+        destination: "/piscolas",
       },
 
       // Versión en español con URLs propias (/es/*).
-      // El middleware inyecta x-iny-locale=es y las mismas páginas de /ui
+      // El middleware inyecta x-iny-locale=es y las mismas páginas
       // renderizan contenido y metadata en español con canonical /es/...
       {
         source: "/es",
-        destination: "/ui",
+        destination: "/",
       },
       {
         source: "/es/about",
-        destination: "/ui/about",
+        destination: "/about",
       },
       {
         source: "/es/plans",
-        destination: "/ui/plans",
+        destination: "/plans",
       },
       {
         source: "/es/utm-builder",
-        destination: "/ui/utm-builder",
+        destination: "/utm-builder",
       },
       {
         source: "/es/qr-code-generator",
-        destination: "/ui/qr-code-generator",
+        destination: "/qr-code-generator",
       },
       {
         source: "/es/bitly-alternative",
-        destination: "/ui/bitly-alternative",
+        destination: "/bitly-alternative",
       },
       {
         source: "/es/url-shortener-api",
-        destination: "/ui/url-shortener-api",
+        destination: "/url-shortener-api",
       },
       {
         source: "/es/features/dashboard",
-        destination: "/ui/features/dashboard",
+        destination: "/features/dashboard",
       },
       {
         source: "/es/dashboard",
-        destination: "/ui/dashboard",
+        destination: "/dashboard",
       },
       {
         source: "/es/account/settings",
-        destination: "/ui/account/settings",
-      },
-
-      {
-        source: "/auth/login",
-        destination: "/ui/auth/login",
-      },
-      {
-        source: "/auth/register",
-        destination: "/ui/auth/register",
-      },
-      {
-        source: "/auth/setup",
-        destination: "/ui/auth/setup",
-      },
-      {
-        source: "/auth/logout",
-        destination: "/ui/auth/logout",
-      },
-      {
-        source: "/auth/callback",
-        destination: "/ui/auth/callback",
-      },
-
-      {
-        source: "/dashboard/:path*",
-        destination: "/ui/dashboard/:path*",
-      },
-      {
-        source: "/dashboard",
-        destination: "/ui/dashboard",
-      },
-      {
-        source: "/account/settings",
-        destination: "/ui/account/settings",
+        destination: "/account/settings",
       },
     ];
   },

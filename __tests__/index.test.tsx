@@ -1,4 +1,4 @@
-import { generateMetadata } from '@/app/ui/(main)/page';
+import { generateMetadata } from '@/app/(main)/page';
 
 jest.mock('next/navigation');
 

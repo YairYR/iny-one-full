@@ -12,7 +12,7 @@ jest.mock('next/navigation', () => ({ redirect }));
 jest.mock('@/features/auth/components/SetupForm', () => () => null);
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const AccountSettingsPage = (require('@/app/ui/(user)/account/settings/page') as typeof import('@/app/ui/(user)/account/settings/page')).default;
+const AccountSettingsPage = (require('@/app/(user)/account/settings/page') as typeof import('@/app/(user)/account/settings/page')).default;
 
 beforeEach(() => {
   jest.clearAllMocks();

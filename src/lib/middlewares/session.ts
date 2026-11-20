@@ -31,7 +31,6 @@ const PUBLIC_EXACT_PATHS = new Set([
 const PUBLIC_PREFIXES = [
   '/api',
   '/error',
-  '/ui/auth',
   '/auth/',
   '/cart/',
 ];

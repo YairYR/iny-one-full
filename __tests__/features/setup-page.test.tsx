@@ -12,7 +12,7 @@ jest.mock('next/navigation', () => ({ redirect: jest.fn() }));
 jest.mock('@/features/auth/components/SetupForm', () => () => null);
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
-const SetupPage = (require('@/app/ui/(main)/auth/setup/page') as typeof import('@/app/ui/(main)/auth/setup/page')).default;
+const SetupPage = (require('@/app/(main)/auth/setup/page') as typeof import('@/app/(main)/auth/setup/page')).default;
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const { loadPersonalSetup } = require('@/features/auth/load-personal-setup') as typeof import('@/features/auth/load-personal-setup');
 
