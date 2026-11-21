@@ -17,9 +17,11 @@ export type ITool<T> = {
 interface Props<T = never> {
   tools: ITool<T>[];
   link: T;
+  buttonRef?: React.RefObject<HTMLButtonElement | null>;
+  linkLabel?: string;
 }
 
-export function LinkTools<T>({ tools, link }: Readonly<Props<T>>) {
+export function LinkTools<T>({ tools, link, buttonRef, linkLabel }: Readonly<Props<T>>) {
   const t = useTranslations('DashboardPage');
   const {
     x,
@@ -36,15 +38,19 @@ export function LinkTools<T>({ tools, link }: Readonly<Props<T>>) {
     ],
     whileElementsMounted: autoUpdate,
   });
+  const setReference = refs.setReference;
+  const setButtonRef = React.useCallback((element: HTMLButtonElement | null) => {
+    setReference(element);
+    if (buttonRef) buttonRef.current = element;
+  }, [setReference, buttonRef]);
 
   return (
-    <Menu as="div" className="relative ml-3">
+    <Menu as="div" className="relative shrink-0">
       <MenuButton
-        ref={refs.setReference}
-        className="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 cursor-pointer text-gray-400">
-        <span className="absolute -inset-1.5"/>
-        <span className="sr-only">{t('tools.openMenu')}</span>
-        <SettingsIcon/>
+        ref={setButtonRef}
+        className="flex min-h-11 min-w-11 items-center justify-center rounded-md text-gray-600 hover:bg-gray-100 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500 cursor-pointer">
+        <span className="sr-only">{t('tools.openMenu')}{linkLabel ? `: ${linkLabel}` : ''}</span>
+        <SettingsIcon aria-hidden="true"/>
       </MenuButton>
 
       <Portal>
@@ -58,7 +64,7 @@ export function LinkTools<T>({ tools, link }: Readonly<Props<T>>) {
           }}
           transition
           className={
-            "absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5 " +
+            "absolute right-0 z-50 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5 " +
             "transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 " +
             "data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
           }

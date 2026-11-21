@@ -1,11 +1,17 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useRef, useState } from "react";
 import { Button } from "@headlessui/react";
-import { UserUrl } from "@/features/dashboard/types/types";
-import { LinkIcon } from "lucide-react";
-import { ITool, LinkTools } from "@/features/dashboard/components/LinksTable/LinkTools";
-import { useFormatter, useTranslations } from "next-intl";
+import {
+  type ColumnDef, type ColumnSizingState, type Row, type SortingState,
+  flexRender, getCoreRowModel, getSortedRowModel, useReactTable,
+} from "@tanstack/react-table";
+import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { useFormatter, useLocale, useTranslations } from "next-intl";
 import Link from "@/components/LocalizedLink";
+import { ITool, LinkTools } from "@/features/dashboard/components/LinksTable/LinkTools";
+import { UserUrl } from "@/features/dashboard/types/types";
 import { ROUTES } from "@/lib/routes";
+
+type SearchField = 'all' | 'short' | 'name' | 'destination';
 
 interface Props {
   links: UserUrl[];
@@ -18,10 +24,48 @@ interface Props {
   onQr?: (link: UserUrl) => void;
 }
 
+function LinkRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: ITool<UserUrl>[] }>) {
+  const menuRef = useRef<HTMLButtonElement>(null);
+
+  return (
+    <tr className="group" onContextMenu={(event) => {
+      if (!menuRef.current) return;
+      event.preventDefault();
+      if (menuRef.current.getAttribute('aria-expanded') !== 'true') menuRef.current.click();
+      menuRef.current.focus();
+    }}>
+      {row.getVisibleCells().map((cell) => {
+        const isFirst = cell.column.id === 'short';
+        const Cell = isFirst ? 'th' : 'td';
+        return (
+          <Cell key={cell.id} scope={isFirst ? 'row' : undefined} className={`${isFirst ? 'sticky left-0 z-10 bg-white group-hover:bg-gray-50' : 'bg-white group-hover:bg-gray-50'} border-b border-gray-200 p-3 text-left`}>
+            {isFirst ? (
+              <div className="flex items-center justify-between gap-1">
+                <span className="min-w-0 truncate font-medium" title={`iny.one/${row.original.slug}`}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </span>
+                <LinkTools tools={tools} link={row.original} buttonRef={menuRef} linkLabel={row.original.slug} />
+              </div>
+            ) : (
+              <div className="truncate" title={cell.column.id === 'destination' ? row.original.destination : undefined}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </div>
+            )}
+          </Cell>
+        );
+      })}
+    </tr>
+  );
+}
+
 export function LinksTable({ links, total, page, totalPages, onPageChange, onOpen, onEdit, onQr }: Readonly<Props>) {
   const t = useTranslations('DashboardPage');
   const format = useFormatter();
+  const locale = useLocale();
   const [query, setQuery] = useState('');
+  const [searchField, setSearchField] = useState<SearchField>('all');
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});
   const [copyStatus, setCopyStatus] = useState<'success' | 'error' | null>(null);
 
   const onClickCopy = useCallback(async (link: UserUrl) => {
@@ -40,29 +84,91 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
     { key: 'qr', text: t('tools.qr'), onClick: (_e, link) => onQr?.(link) },
   ], [t, onClickCopy, onEdit, onOpen, onQr]);
 
-  const normalizedQuery = query.trim().toLocaleLowerCase();
-  const visibleLinks = links.filter((link) =>
-    [link.slug, link.alias ?? '', link.destination].some((value) => value.toLocaleLowerCase().includes(normalizedQuery)),
-  );
-  const date = (value: string) => format.dateTime(new Date(value), {
-    year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'UTC',
+  const collator = useMemo(() => new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }), [locale]);
+  const columns = useMemo<ColumnDef<UserUrl>[]>(() => [
+    {
+      id: 'short', accessorFn: (link) => link.slug, header: t('table.links.headers.short'),
+      cell: ({ getValue }) => `iny.one/${getValue<string>()}`,
+      size: 220, minSize: 160, maxSize: 340,
+      sortingFn: (a, b, id) => collator.compare(a.getValue(id), b.getValue(id)),
+    },
+    {
+      id: 'name', accessorFn: (link) => link.alias ?? undefined, header: t('table.links.headers.name'),
+      cell: ({ getValue }) => getValue<string | undefined>() ?? '—', size: 160, minSize: 100, maxSize: 400,
+      sortUndefined: 'last', sortingFn: (a, b, id) => collator.compare(a.getValue(id), b.getValue(id)),
+    },
+    {
+      id: 'destination', accessorKey: 'destination', header: t('table.links.headers.destination'),
+      size: 300, minSize: 120, maxSize: 600,
+      sortingFn: (a, b, id) => collator.compare(a.getValue(id), b.getValue(id)),
+    },
+    {
+      id: 'clicks', accessorFn: (link) => link.clicks ?? undefined, header: t('table.links.headers.clicks'),
+      cell: ({ getValue }) => {
+        const value = getValue<number | undefined>();
+        return value === undefined ? t('noData') : format.number(value);
+      },
+      size: 110, minSize: 90, maxSize: 220, sortUndefined: 'last', sortingFn: 'basic',
+    },
+    {
+      id: 'created', accessorFn: (link) => Date.parse(link.created_at), header: t('table.links.headers.created'),
+      cell: ({ getValue }) => format.dateTime(new Date(getValue<number>()), {
+        year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit', timeZone: 'UTC',
+      }),
+      size: 190, minSize: 140, maxSize: 300,
+    },
+  ], [collator, format, t]);
+
+  const visibleLinks = useMemo(() => {
+    const normalizedQuery = query.trim().toLocaleLowerCase(locale);
+    return links.filter((link) => {
+      const fields = { short: link.slug, name: link.alias ?? '', destination: link.destination };
+      return (searchField === 'all' ? Object.values(fields) : [fields[searchField]])
+        .some((value) => value.toLocaleLowerCase(locale).includes(normalizedQuery));
+    });
+  }, [links, locale, query, searchField]);
+
+  const table = useReactTable({
+    data: visibleLinks, columns, state: { sorting, columnSizing },
+    onSortingChange: setSorting, onColumnSizingChange: setColumnSizing,
+    getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel(),
+    getRowId: (link) => link.link_id, enableMultiSort: false, columnResizeMode: 'onChange',
   });
-  const clicks = (link: UserUrl) => link.clicks == null ? t('noData') : format.number(link.clicks);
 
   return (
-    <section className="bg-white rounded-xl shadow-sm overflow-hidden" aria-labelledby="links-title">
-      <div className="p-4 border-b border-gray-200">
+    <section className="overflow-hidden rounded-xl bg-white shadow-sm" aria-labelledby="links-title">
+      <div className="border-b border-gray-200 p-4">
         <div className="flex items-center justify-between gap-4">
-          <h2 id="links-title" className="text-lg font-semibold">{t("table.links.title")}</h2>
-          <div className="text-sm text-gray-500">{t("table.links.subtitle", { value: total })}</div>
+          <h2 id="links-title" className="text-lg font-semibold">{t('table.links.title')}</h2>
+          <div className="text-sm text-gray-500">{t('table.links.subtitle', { value: total })}</div>
         </div>
-        {total > 0 && (
-          <div className="mt-4">
-            <label htmlFor="links-search" className="block text-sm font-medium text-gray-700">{t('table.links.search')}</label>
-            <input id="links-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)}
-              className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600" />
+        {total > 0 && <>
+          <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+            <div>
+              <label htmlFor="links-search" className="block text-sm font-medium text-gray-700">{t('table.links.search')}</label>
+              <input id="links-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)}
+                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600" />
+            </div>
+            <div>
+              <label htmlFor="links-search-field" className="block text-sm font-medium text-gray-700">{t('table.links.searchField')}</label>
+              <select id="links-search-field" value={searchField} onChange={(event) => {
+                const value = event.target.value;
+                if (value === 'all' || value === 'short' || value === 'name' || value === 'destination') setSearchField(value);
+              }}
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                <option value="all">{t('table.links.searchAll')}</option>
+                <option value="short">{t('table.links.headers.short')}</option>
+                <option value="name">{t('table.links.headers.name')}</option>
+                <option value="destination">{t('table.links.headers.destination')}</option>
+              </select>
+            </div>
           </div>
-        )}
+          <p className="mt-2 text-sm text-gray-600">{t('table.links.pageOnly')}</p>
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
+            <span>{t('table.links.resizeHelp')}</span>
+            <button type="button" onClick={() => table.resetColumnSizing()} className="font-medium text-indigo-700 underline focus-visible:outline-2 focus-visible:outline-indigo-600">{t('table.links.resetWidths')}</button>
+          </div>
+        </>}
         <p className="mt-2 text-sm text-gray-500">{t('table.links.clicksNote')}</p>
         <p role="status" className={`mt-2 text-sm ${copyStatus === 'error' ? 'text-red-600' : 'text-green-600'}`}>
           {copyStatus && t(copyStatus === 'success' ? 'tools.copied' : 'tools.copyError')}
@@ -75,62 +181,54 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
           {total === 0 && <Link href={ROUTES.HOME} className="mt-3 inline-block font-medium text-indigo-600 underline">{t('button.newLink')}</Link>}
         </div>
       ) : (
-        <>
-          <ul className="divide-y divide-gray-200 md:hidden">
-            {visibleLinks.map((link) => (
-              <li key={link.link_id} className="p-4 text-sm">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="font-medium break-all">iny.one/{link.slug}</p>
-                    {link.alias && <p className="mt-1 text-gray-600 break-words">{link.alias}</p>}
-                  </div>
-                  <LinkTools tools={tools} link={link} />
-                </div>
-                <p className="mt-3 break-all text-gray-600"><span className="font-medium">{t('table.links.headers.destination')}:</span> {link.destination}</p>
-                <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-gray-600">
-                  <span>{t('table.links.headers.clicks')}: {clicks(link)}</span>
-                  <span>{t('table.links.headers.created')}: {date(link.created_at)}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-          <div className="hidden overflow-x-auto md:block">
-            <table className="min-w-full text-left text-sm">
-              <thead className="bg-gray-50"><tr>
-                {(['short', 'name', 'destination', 'clicks', 'created', 'actions'] as const).map((header) => (
-                  <th key={header} scope="col" className="p-3">{t(`table.links.headers.${header}`)}</th>
-                ))}
-              </tr></thead>
-              <tbody>
-                {visibleLinks.map((link) => (
-                  <tr key={link.link_id} className="border-b border-gray-200 hover:bg-gray-50">
-                    <td className="p-3 font-medium whitespace-nowrap">iny.one/{link.slug}</td>
-                    <td className="p-3 text-gray-600">{link.alias ?? '—'}</td>
-                    <td className="p-3 truncate max-w-md" title={link.destination}>{link.destination}</td>
-                    <td className="p-3">{clicks(link)}</td>
-                    <td className="p-3 whitespace-nowrap">{date(link.created_at)}</td>
-                    <td className="p-3"><div className="flex items-center gap-2">
-                      <Button type="button" onClick={() => void onClickCopy(link)} aria-label={t('tools.copy')} title={t('tools.copy')}
-                        className="rounded p-2 text-gray-500 hover:text-indigo-600 focus-visible:outline-2 focus-visible:outline-indigo-600 cursor-pointer">
-                        <LinkIcon aria-hidden="true" />
-                      </Button>
-                      <LinkTools tools={tools} link={link} />
-                    </div></td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </>
+        <div role="region" aria-labelledby="links-title" tabIndex={0} className="max-h-[32rem] overflow-auto focus-visible:outline-2 focus-visible:outline-indigo-600">
+          <table className="table-fixed border-separate border-spacing-0 text-left text-sm" style={{ width: table.getTotalSize() }}>
+            <colgroup>{table.getVisibleLeafColumns().map((column) => <col key={column.id} style={{ width: column.getSize() }} />)}</colgroup>
+            <thead>
+              {table.getHeaderGroups().map((group) => (
+                <tr key={group.id}>
+                  {group.headers.map((header) => {
+                    const column = header.column;
+                    const direction = column.getIsSorted();
+                    const label = String(column.columnDef.header);
+                    return (
+                      <th key={header.id} scope="col" aria-sort={direction === 'asc' ? 'ascending' : direction === 'desc' ? 'descending' : 'none'}
+                        className={`${column.id === 'short' ? 'left-0 z-30' : 'z-20'} sticky top-0 border-b border-gray-200 bg-gray-50 p-3 pr-6`}>
+                        <button type="button" onClick={column.getToggleSortingHandler()} className="flex items-center gap-1 text-left font-semibold hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-600">
+                          {flexRender(column.columnDef.header, header.getContext())}
+                          {direction === 'asc' ? <ArrowUp size={16} aria-hidden="true" /> : direction === 'desc' ? <ArrowDown size={16} aria-hidden="true" /> : <ArrowUpDown size={16} aria-hidden="true" />}
+                        </button>
+                        <div role="separator" aria-orientation="vertical" aria-label={t('table.links.resize', { column: label })}
+                          aria-valuemin={column.columnDef.minSize} aria-valuemax={column.columnDef.maxSize} aria-valuenow={column.getSize()} tabIndex={0}
+                          aria-valuetext={`${column.getSize()} px`}
+                          onMouseDown={header.getResizeHandler()} onTouchStart={header.getResizeHandler()}
+                          onKeyDown={(event) => {
+                            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+                            event.preventDefault();
+                            const min = column.columnDef.minSize ?? 20;
+                            const max = column.columnDef.maxSize ?? Number.MAX_SAFE_INTEGER;
+                            const size = Math.max(min, Math.min(max, column.getSize() + (event.key === 'ArrowRight' ? 10 : -10)));
+                            setColumnSizing((current) => ({ ...current, [column.id]: size }));
+                          }}
+                          className="absolute inset-y-0 right-0 w-4 cursor-col-resize touch-none border-r-2 border-transparent hover:border-indigo-600 focus-visible:border-indigo-600 focus-visible:outline-none" />
+                      </th>
+                    );
+                  })}
+                </tr>
+              ))}
+            </thead>
+            <tbody>{table.getRowModel().rows.map((row) => <LinkRow key={row.id} row={row} tools={tools} />)}</tbody>
+          </table>
+        </div>
       )}
       {totalPages > 1 && (
-        <nav className="flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 p-3 text-sm" aria-label={t("table.links.pagination.label")}>
-          <span className="text-gray-500">{t("table.links.pagination.status", { page, pages: totalPages })}</span>
+        <nav className="flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 p-3 text-sm" aria-label={t('table.links.pagination.label')}>
+          <span className="text-gray-500">{t('table.links.pagination.status', { page, pages: totalPages })}</span>
           <div className="flex gap-2">
             <Button type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}
-              className="rounded border px-3 py-2 enabled:cursor-pointer enabled:hover:bg-gray-50 disabled:opacity-40">{t("table.links.pagination.previous")}</Button>
+              className="rounded border px-3 py-2 enabled:cursor-pointer enabled:hover:bg-gray-50 disabled:opacity-40">{t('table.links.pagination.previous')}</Button>
             <Button type="button" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}
-              className="rounded border px-3 py-2 enabled:cursor-pointer enabled:hover:bg-gray-50 disabled:opacity-40">{t("table.links.pagination.next")}</Button>
+              className="rounded border px-3 py-2 enabled:cursor-pointer enabled:hover:bg-gray-50 disabled:opacity-40">{t('table.links.pagination.next')}</Button>
           </div>
         </nav>
       )}
