@@ -88,8 +88,8 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
   const columns = useMemo<ColumnDef<UserUrl>[]>(() => [
     {
       id: 'short', accessorFn: (link) => link.slug, header: t('table.links.headers.short'),
-      cell: ({ getValue }) => `iny.one/${getValue<string>()}`,
-      size: 220, minSize: 160, maxSize: 340,
+      cell: ({ getValue }) => <SpanShortLink hostname={'iny.one'} slug={getValue<string>()} />,
+      size: 160, minSize: 150, maxSize: 340,
       sortingFn: (a, b, id) => collator.compare(a.getValue(id), b.getValue(id)),
     },
     {
@@ -234,4 +234,8 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
       )}
     </section>
   );
+}
+
+function SpanShortLink({ hostname, slug }: Readonly<{ hostname: string, slug: string }>) {
+  return <p className="text-sm text-gray-900"><span className="text-xs text-gray-500">{hostname}/</span>{slug}</p>;
 }
