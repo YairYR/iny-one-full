@@ -1,6 +1,10 @@
 # 📚 Estándares de API - Índice
 
-Documentación completa de estándares para requests y responses de tu API, alineados con best practices REST y tu arquitectura actual.
+> **Referencia histórica, no estándar vigente.** Esta guía contiene ejemplos
+> genéricos y utilidades no adoptadas por las rutas actuales. Para el diagnóstico
+> y la propuesta actual, consulta [API: diagnóstico y propuesta](api/README.md).
+
+Índice histórico de guías y ejemplos genéricos de requests y responses.
 
 ---
 

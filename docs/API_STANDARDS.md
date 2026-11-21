@@ -1,6 +1,11 @@
 # Estándares de Request API
 
-Guía completa de convenciones y best practices para construir requests a la API. Alineado con la estructura de responses definida en `/src/lib/api/responses.ts`.
+> **Referencia histórica, no contrato vigente.** Las convenciones y ejemplos
+> siguientes no están adoptados íntegramente. Consulta la
+> [propuesta actual](api/estandar/contrato-y-seguridad.md) y el
+> [estado del dashboard](api/dashboard/estado-actual.md).
+
+Guía histórica de convenciones y ejemplos de requests y responses.
 
 ---
 

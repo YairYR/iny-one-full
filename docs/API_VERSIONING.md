@@ -1,5 +1,9 @@
 # Estrategia de Versionamiento API
 
+> **Referencia histórica, no política adoptada.** Los ejemplos de este documento
+> no garantizan funcionalidad existente. Para compatibilidad y transición,
+> consulta el [plan propuesto](api/estandar/adopcion.md).
+
 Guía completa para mantener múltiples versiones de la API, deprecar endpoints y migrar clientes de forma segura.
 
 ---

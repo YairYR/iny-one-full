@@ -1,5 +1,9 @@
 # EJEMPLO: Endpoints CRUD para Usuarios
 
+> **Ejemplos históricos ilustrativos, no código de producción.** No representan
+> rutas existentes ni deben copiarse como guía de autorización o arquitectura.
+> Consulta la [propuesta actual](api/estandar/contrato-y-seguridad.md).
+
 Demuestra implementación siguiendo los estándares definidos en:
 - docs/API_STANDARDS.md
 - src/lib/api/request-standards.ts

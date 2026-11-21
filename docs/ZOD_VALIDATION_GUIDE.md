@@ -1,5 +1,9 @@
 # Guía de Validación con Zod
 
+> **Referencia histórica de ejemplos genéricos.** No describe necesariamente
+> las versiones ni los contratos actuales del proyecto. Consulta el
+> [estándar propuesto](api/estandar/contrato-y-seguridad.md) y el código vigente.
+
 Patrones y mejores prácticas para validar requests en endpoints Next.js usando Zod, alineado con tu estructura de error responses.
 
 ---
