@@ -328,6 +328,7 @@
         "resize": "Ajustar ancho de {column}",
         "resetWidths": "Restablecer anchos",
         "resizeHelp": "Arrastra el borde de una columna o usa las flechas del teclado para ajustar su ancho.",
+        "rowSize": "Filas",
         "empty": "Todavía no has creado enlaces. Crea el primero para comenzar.",
         "noResults": "No hay coincidencias en esta página.",
         "clicksNote": "Los clics de cada enlace pueden incluir bots; las estadísticas agregadas usan otra medición.",

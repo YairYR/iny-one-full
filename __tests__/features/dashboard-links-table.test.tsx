@@ -38,7 +38,7 @@ function slugs() {
 
 it('filters the selected field only within the loaded page and retains pagination', () => {
   const { onPageChange } = renderTable();
-  expect(screen.getByText('table.links.pageOnly')).toBeInTheDocument();
+  expect(screen.getByText(/table\.links\.pageOnly/)).toBeInTheDocument();
   fireEvent.change(screen.getByLabelText('table.links.searchField'), { target: { value: 'name' } });
   fireEvent.change(screen.getByLabelText('table.links.search'), { target: { value: 'zulu' } });
   expect(slugs()).toHaveLength(1);
@@ -88,6 +88,14 @@ it('resizes columns with keyboard or mouse and resets their widths', () => {
   expect(resize).toHaveAttribute('aria-valuenow', '200');
   fireEvent.click(screen.getByRole('button', { name: 'table.links.resetWidths' }));
   expect(resize).toHaveAttribute('aria-valuenow', '160');
+});
+
+it('limits the number of visible rows using the loaded page', () => {
+  renderTable();
+  fireEvent.change(screen.getByLabelText('table.links.rowSize'), { target: { value: '5' } });
+  expect(slugs()).toHaveLength(3);
+  fireEvent.change(screen.getByLabelText('table.links.rowSize'), { target: { value: '10' } });
+  expect(slugs()).toHaveLength(3);
 });
 
 it('opens the same row actions using right click or the visible button', async () => {

@@ -4,7 +4,7 @@ import {
   type ColumnDef, type ColumnSizingState, type Row, type SortingState,
   flexRender, getCoreRowModel, getSortedRowModel, useReactTable,
 } from "@tanstack/react-table";
-import { ArrowDown, ArrowUp, ArrowUpDown } from "lucide-react";
+import { ArrowDown, ArrowUp, ArrowUpDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useFormatter, useLocale, useTranslations } from "next-intl";
 import Link from "@/components/LocalizedLink";
 import { ITool, LinkTools } from "@/features/dashboard/components/LinksTable/LinkTools";
@@ -36,14 +36,16 @@ function LinkRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: ITool<User
     }}>
       {row.getVisibleCells().map((cell) => {
         const isFirst = cell.column.id === 'short';
+        const isActions = cell.column.id === 'actions';
         const Cell = isFirst ? 'th' : 'td';
         return (
-          <Cell key={cell.id} scope={isFirst ? 'row' : undefined} className={`${isFirst ? 'sticky left-0 z-10 bg-white group-hover:bg-gray-50' : 'bg-white group-hover:bg-gray-50'} border-b border-gray-200 p-3 text-left`}>
+          <Cell key={cell.id} scope={isFirst ? 'row' : undefined} className={`${isFirst ? 'sticky left-0 z-10 shadow-[2px_0_0_rgba(229,231,235,0.8)]' : isActions ? 'sticky right-0 z-10 shadow-[-2px_0_0_rgba(229,231,235,0.8)]' : ''} border-b border-gray-200 bg-white px-3 py-2.5 text-left group-hover:bg-gray-50`}>
             {isFirst ? (
-              <div className="flex items-center justify-between gap-1">
-                <span className="min-w-0 truncate font-medium" title={`iny.one/${row.original.slug}`}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </span>
+              <span className="block min-w-0 truncate font-medium" title={`iny.one/${row.original.slug}`}>
+                {flexRender(cell.column.columnDef.cell, cell.getContext())}
+              </span>
+            ) : isActions ? (
+              <div className="flex justify-center">
                 <LinkTools tools={tools} link={row.original} buttonRef={menuRef} linkLabel={row.original.slug} />
               </div>
             ) : (
@@ -66,6 +68,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
   const [searchField, setSearchField] = useState<SearchField>('all');
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});
+  const [rowSize, setRowSize] = useState(20);
   const [copyStatus, setCopyStatus] = useState<'success' | 'error' | null>(null);
 
   const onClickCopy = useCallback(async (link: UserUrl) => {
@@ -117,6 +120,10 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
       }),
       size: 190, minSize: 140, maxSize: 300,
     },
+    {
+      id: 'actions', header: t('table.links.headers.actions'),
+      cell: () => null, size: 64, minSize: 64, maxSize: 64, enableSorting: false, enableResizing: false,
+    },
   ], [collator, format, t]);
 
   const visibleLinks = useMemo(() => {
@@ -129,7 +136,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
   }, [links, locale, query, searchField]);
 
   const table = useReactTable({
-    data: visibleLinks, columns, state: { sorting, columnSizing },
+    data: visibleLinks.slice(0, rowSize), columns, state: { sorting, columnSizing },
     onSortingChange: setSorting, onColumnSizingChange: setColumnSizing,
     getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel(),
     getRowId: (link) => link.link_id, enableMultiSort: false, columnResizeMode: 'onChange',
@@ -143,7 +150,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
           <div className="text-sm text-gray-500">{t('table.links.subtitle', { value: total })}</div>
         </div>
         {total > 0 && <>
-          <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_auto]">
+          <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(220px,1fr)_minmax(150px,180px)_92px]">
             <div>
               <label htmlFor="links-search" className="block text-sm font-medium text-gray-700">{t('table.links.search')}</label>
               <input id="links-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)}
@@ -162,10 +169,16 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
                 <option value="destination">{t('table.links.headers.destination')}</option>
               </select>
             </div>
+            <div>
+              <label htmlFor="links-row-size" className="block text-sm font-medium text-gray-700">{t('table.links.rowSize')}</label>
+              <select id="links-row-size" value={rowSize} onChange={(event) => setRowSize(Number(event.target.value))}
+                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                {[5, 10, 20].map((size) => <option key={size} value={size}>{size}</option>)}
+              </select>
+            </div>
           </div>
-          <p className="mt-2 text-sm text-gray-600">{t('table.links.pageOnly')}</p>
-          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-gray-600">
-            <span>{t('table.links.resizeHelp')}</span>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
+            <span>{t('table.links.pageOnly')} {t('table.links.resizeHelp')}</span>
             <button type="button" onClick={() => table.resetColumnSizing()} className="font-medium text-indigo-700 underline focus-visible:outline-2 focus-visible:outline-indigo-600">{t('table.links.resetWidths')}</button>
           </div>
         </>}
@@ -181,7 +194,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
           {total === 0 && <Link href={ROUTES.HOME} className="mt-3 inline-block font-medium text-indigo-600 underline">{t('button.newLink')}</Link>}
         </div>
       ) : (
-        <div role="region" aria-labelledby="links-title" tabIndex={0} className="max-h-[32rem] overflow-auto focus-visible:outline-2 focus-visible:outline-indigo-600">
+        <div role="region" aria-labelledby="links-title" tabIndex={0} className="max-h-[28rem] overflow-auto focus-visible:outline-2 focus-visible:outline-indigo-600">
           <table className="table-fixed border-separate border-spacing-0 text-left text-sm" style={{ width: table.getTotalSize() }}>
             <colgroup>{table.getVisibleLeafColumns().map((column) => <col key={column.id} style={{ width: column.getSize() }} />)}</colgroup>
             <thead>
@@ -193,24 +206,28 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
                     const label = String(column.columnDef.header);
                     return (
                       <th key={header.id} scope="col" aria-sort={direction === 'asc' ? 'ascending' : direction === 'desc' ? 'descending' : 'none'}
-                        className={`${column.id === 'short' ? 'left-0 z-30' : 'z-20'} sticky top-0 border-b border-gray-200 bg-gray-50 p-3 pr-6`}>
-                        <button type="button" onClick={column.getToggleSortingHandler()} className="flex items-center gap-1 text-left font-semibold hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-600">
-                          {flexRender(column.columnDef.header, header.getContext())}
-                          {direction === 'asc' ? <ArrowUp size={16} aria-hidden="true" /> : direction === 'desc' ? <ArrowDown size={16} aria-hidden="true" /> : <ArrowUpDown size={16} aria-hidden="true" />}
-                        </button>
-                        <div role="separator" aria-orientation="vertical" aria-label={t('table.links.resize', { column: label })}
-                          aria-valuemin={column.columnDef.minSize} aria-valuemax={column.columnDef.maxSize} aria-valuenow={column.getSize()} tabIndex={0}
-                          aria-valuetext={`${column.getSize()} px`}
-                          onMouseDown={header.getResizeHandler()} onTouchStart={header.getResizeHandler()}
-                          onKeyDown={(event) => {
-                            if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
-                            event.preventDefault();
-                            const min = column.columnDef.minSize ?? 20;
-                            const max = column.columnDef.maxSize ?? Number.MAX_SAFE_INTEGER;
-                            const size = Math.max(min, Math.min(max, column.getSize() + (event.key === 'ArrowRight' ? 10 : -10)));
-                            setColumnSizing((current) => ({ ...current, [column.id]: size }));
-                          }}
-                          className="absolute inset-y-0 right-0 w-4 cursor-col-resize touch-none border-r-2 border-transparent hover:border-indigo-600 focus-visible:border-indigo-600 focus-visible:outline-none" />
+                        className={`${column.id === 'short' ? 'left-0 z-40 shadow-[2px_0_0_rgba(229,231,235,0.8)]' : column.id === 'actions' ? 'right-0 z-40 shadow-[-2px_0_0_rgba(229,231,235,0.8)]' : 'z-30'} sticky top-0 border-b border-gray-200 bg-gray-50 px-3 py-2 text-left ${column.id !== 'actions' ? 'pr-6' : 'text-center'}`}>
+                        {column.id === 'actions' ? (
+                          <span className="sr-only">{flexRender(column.columnDef.header, header.getContext())}</span>
+                        ) : (
+                          <button type="button" onClick={column.getToggleSortingHandler()} className="flex items-center gap-1 whitespace-nowrap text-left font-semibold hover:text-indigo-700 focus-visible:outline-2 focus-visible:outline-indigo-600">
+                            {flexRender(column.columnDef.header, header.getContext())}
+                            {direction === 'asc' ? <ArrowUp size={15} aria-hidden="true" /> : direction === 'desc' ? <ArrowDown size={15} aria-hidden="true" /> : <ArrowUpDown size={15} className="text-gray-400" aria-hidden="true" />}
+                          </button>
+                        )}
+                        {column.id !== 'actions' && <div role="separator" aria-orientation="vertical" aria-label={t('table.links.resize', { column: label })}
+                            aria-valuemin={column.columnDef.minSize} aria-valuemax={column.columnDef.maxSize} aria-valuenow={column.getSize()} tabIndex={0}
+                            aria-valuetext={`${column.getSize()} px`}
+                            onMouseDown={header.getResizeHandler()} onTouchStart={header.getResizeHandler()}
+                            onKeyDown={(event) => {
+                              if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+                              event.preventDefault();
+                              const min = column.columnDef.minSize ?? 20;
+                              const max = column.columnDef.maxSize ?? Number.MAX_SAFE_INTEGER;
+                              const size = Math.max(min, Math.min(max, column.getSize() + (event.key === 'ArrowRight' ? 10 : -10)));
+                              setColumnSizing((current) => ({ ...current, [column.id]: size }));
+                            }}
+                            className="absolute inset-y-0 right-0 w-3 cursor-col-resize touch-none border-r-2 border-transparent hover:border-indigo-600 focus-visible:border-indigo-600 focus-visible:outline-none" />}
                       </th>
                     );
                   })}
@@ -222,13 +239,19 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
         </div>
       )}
       {totalPages > 1 && (
-        <nav className="flex flex-wrap items-center justify-between gap-4 border-t border-gray-200 p-3 text-sm" aria-label={t('table.links.pagination.label')}>
+        <nav className="flex items-center justify-between gap-3 border-t border-gray-200 px-4 py-3 text-sm" aria-label={t('table.links.pagination.label')}>
           <span className="text-gray-500">{t('table.links.pagination.status', { page, pages: totalPages })}</span>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1.5">
             <Button type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}
-              className="rounded border px-3 py-2 enabled:cursor-pointer enabled:hover:bg-gray-50 disabled:opacity-40">{t('table.links.pagination.previous')}</Button>
+              aria-label={t('table.links.pagination.previous')}
+              className="inline-flex h-9 items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 text-gray-700 enabled:cursor-pointer enabled:hover:border-indigo-300 enabled:hover:bg-indigo-50 enabled:hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">
+              <ChevronLeft size={16} aria-hidden="true" /><span className="hidden sm:inline">{t('table.links.pagination.previous')}</span>
+            </Button>
             <Button type="button" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}
-              className="rounded border px-3 py-2 enabled:cursor-pointer enabled:hover:bg-gray-50 disabled:opacity-40">{t('table.links.pagination.next')}</Button>
+              aria-label={t('table.links.pagination.next')}
+              className="inline-flex h-9 items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 text-gray-700 enabled:cursor-pointer enabled:hover:border-indigo-300 enabled:hover:bg-indigo-50 enabled:hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">
+              <span className="hidden sm:inline">{t('table.links.pagination.next')}</span><ChevronRight size={16} aria-hidden="true" />
+            </Button>
           </div>
         </nav>
       )}

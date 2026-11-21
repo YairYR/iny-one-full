@@ -4,17 +4,17 @@
 import { ValidationError } from '@/lib/api/errors';
 
 const getCurrentUser = jest.fn();
-const isOwner = jest.fn();
 const updateLink = jest.fn();
 const getLinkForEdit = jest.fn();
 const logDestinationChange = jest.fn();
 const validateDestination = jest.fn();
+const getDefaultTeamAccess = jest.fn();
 let mockAccess: { entitlements: Map<string, unknown>; planKey: string | null; anonymous: boolean };
 
 jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
 jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
 jest.mock('@/infra/db/user.repository', () => ({
-  getUserRepository: () => ({ getCurrentUser, isOwner, updateLink, getLinkForEdit }),
+  getUserRepository: () => ({ getCurrentUser, updateLink, getLinkForEdit }),
 }));
 jest.mock('@/infra/db/shorter.repository', () => ({
   getShorterRepository: () => ({ logDestinationChange }),
@@ -23,6 +23,7 @@ jest.mock('@/lib/short-links/validate-destination', () => ({
   validateDestination: (...args: unknown[]) => validateDestination(...args),
 }));
 jest.mock('@/features/authorization/helpers/access', () => ({
+  getDefaultTeamAccess: (...args: unknown[]) => getDefaultTeamAccess(...args),
   getEffectiveService: () => Promise.resolve([{ plan_key: mockAccess.planKey, anonymous: mockAccess.anonymous }]),
 }));
 
@@ -47,7 +48,7 @@ describe('updateLinkAction', () => {
 
     getCurrentUser.mockResolvedValue({ data: { user: { id: 'user-1' }, role: null, plan: 'free' } });
     mockAccess = { entitlements: new Map(), planKey: 'free', anonymous: false };
-    isOwner.mockResolvedValue({ data: { slug: SLUG } });
+    getDefaultTeamAccess.mockResolvedValue({ team_id: 'team-1', permitted: true });
     updateLink.mockResolvedValue({ data: [{ link_id: LINK_ID }], error: null });
     logDestinationChange.mockResolvedValue({ error: null });
     getLinkForEdit.mockResolvedValue({
@@ -149,7 +150,7 @@ describe('updateLinkAction', () => {
   });
 
   it('refuses an edit from someone who does not own the link', async () => {
-    isOwner.mockResolvedValue({ data: null });
+    getDefaultTeamAccess.mockResolvedValue({ team_id: 'team-1', permitted: false });
 
     const result = await updateLinkAction(state, form({ destination: 'https://new.example/landing' }));
 
@@ -160,7 +161,7 @@ describe('updateLinkAction', () => {
 
   it('checks the slug and link id together', async () => {
     await updateLinkAction(state, form({ alias: 'Otro' }));
-    expect(isOwner).toHaveBeenCalledWith('user-1', SLUG, LINK_ID);
+    expect(getDefaultTeamAccess).toHaveBeenCalledWith('links.update');
   });
 
   it('rejects invalid aliases before changing the destination', async () => {

@@ -331,6 +331,7 @@ declare const messages: {
         "resize": "Resize {column}",
         "resetWidths": "Reset column widths",
         "resizeHelp": "Drag a column edge or use arrow keys to adjust its width.",
+        "rowSize": "Rows",
         "empty": "You haven't created any links yet. Create your first link to get started.",
         "noResults": "No matches on this page.",
         "clicksNote": "Link click counts may include bots; aggregate statistics use a different measurement.",
