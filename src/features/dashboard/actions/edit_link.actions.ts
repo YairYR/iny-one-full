@@ -5,7 +5,7 @@ import { getShorterRepository } from "@/infra/db/shorter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { createClient } from "@/lib/supabase/server";
 import { buildDestination, toDestinationPlan, type DestinationPlan } from "@/lib/short-links/destination";
-import { getEffectiveService } from "@/features/authorization/helpers/access";
+import {getDefaultTeamAccess, getEffectiveService} from "@/features/authorization/helpers/access";
 import { validateDestination } from "@/lib/short-links/validate-destination";
 import { isValidAlias, normalizeAlias } from "@/lib/short-links/alias";
 import { ApiError } from "@/lib/api/errors";
@@ -52,14 +52,15 @@ export async function updateLinkAction(
     return fail(initialState, 'forbidden');
   }
 
-  const { data: isOwner, error: ownerError } = await userRepo.isOwner(user.id, slug, link_id);
-  if (ownerError) {
-    log.error(ownerError, 'failed to verify link owner');
+  try {
+    const access = await getDefaultTeamAccess('links.update');
+    if (!access.team_id || !access.permitted) {
+      log.warn({ link_id, userId: user.id }, 'rejected edit from non-owner');
+      return fail(initialState, 'forbidden');
+    }
+  } catch (e) {
+    log.error(e, 'failed to verify link owner');
     return fail(initialState, 'unknown');
-  }
-  if (!isOwner) {
-    log.warn({ link_id, userId: user.id }, 'rejected edit from non-owner');
-    return fail(initialState, 'forbidden');
   }
 
   const next: LinkEditState = { ...initialState };

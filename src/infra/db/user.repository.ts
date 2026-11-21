@@ -68,7 +68,10 @@ export function getUserRepository(db: DbInstance) {
         .limit(limit);
     },
 
-    /** Comprueba que slug e identificador pertenecen al mismo enlace del usuario. */
+    /**
+     * @deprecated este método ya no funciona porque user_id no es parte de la tabla short_links, se debe usar el sistema de teams.
+     * Comprueba que slug e identificador pertenecen al mismo enlace del usuario.
+     **/
     async isOwner(user_id: string, slug: string, link_id: string) {
       return db
         .from('short_links')

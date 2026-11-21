@@ -22,7 +22,7 @@ export type CreateShortLinkInput = {
 export function getShorterRepository(db: DbInstance) {
   return {
     async create(data: CreateShortLinkInput) {
-      const teamId = (typeof data.teamId === 'string' ? data.teamId : undefined) as string;
+      const teamId = (typeof data.teamId === 'string' ? data.teamId : null) as string;
       const hostId = (typeof data.hostId === 'string' ? data.hostId : null) as string;
       const slug = data.slug;
       const destination = data.destination;
