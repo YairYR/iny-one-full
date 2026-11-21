@@ -44,6 +44,7 @@ export function getTeamRepository(db: DbInstance) {
         `, { count: 'exact' })
         .eq('team_id', teamId)
         .order('created_at', { ascending: false })
+        .order('link_id', { ascending: false })
         .range(offset, offset + limit - 1);
     },
 

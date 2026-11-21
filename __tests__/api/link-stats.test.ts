@@ -72,6 +72,42 @@ describe('GET /api/v1/dashboard/links/[link_id]', () => {
   it('checks permission for the team that owns the link', async () => {
     await call();
     expect(hasTeamPermission).toHaveBeenCalledWith('team-1', 'links.read');
+    expect(hasTeamPermission).toHaveBeenCalledWith('team-1', 'stats.view');
+  });
+
+  it('requires statistics permission even if the link is readable', async () => {
+    hasTeamPermission.mockImplementation((_team, permission) => Promise.resolve(permission === 'links.read'));
+    expect((await call()).status).toBe(404);
+    expect(getClicksBetweenDates).not.toHaveBeenCalled();
+  });
+
+  it('distinguishes a failed link lookup from a missing link', async () => {
+    getLinkById.mockResolvedValue({ data: null, error: { message: 'unavailable' } });
+    const response = await call();
+    expect(response.status).toBe(500);
+    expect(response.headers.get('cache-control')).toBe('private, no-store');
+    expect(hasTeamPermission).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    ['week', getClicksBetweenDates, { data: null, error: { message: 'unavailable' } }],
+    ['today', getClicksToday, { count: null, error: { message: 'unavailable' } }],
+    ['breakdown', getLinkBreakdown, { data: null, error: { message: 'unavailable' } }],
+  ])('returns an error when %s statistics fail', async (_label, mock, result) => {
+    mock.mockResolvedValue(result);
+    expect((await call()).status).toBe(500);
+  });
+
+  it('returns an error when successful queries omit required data', async () => {
+    getClicksToday.mockResolvedValue({ count: null, error: null });
+    expect((await call()).status).toBe(500);
+  });
+
+  it('returns zero for an explicitly empty current day', async () => {
+    getClicksToday.mockResolvedValue({ count: 0, error: null });
+    const response = await call();
+    expect(response.status).toBe(200);
+    expect((await response.json()).data.stats.at(-1).total_clicks).toBe(0);
   });
 
   it('rejects an invalid link id', async () => {

@@ -21,8 +21,8 @@ export function getStatsRepository(db: DbInstance)  {
         .from('short_links_daily_stats')
         .select('date, total_clicks')
         .in('link_id', linkIds)
-        .gte('created_at', startDate.toISOString())
-        .lte('created_at', endDate.toISOString())
+        .gte('date', startDate.toISOString().split('T')[0])
+        .lte('date', endDate.toISOString().split('T')[0])
         .order('date', { ascending: true });
     },
 

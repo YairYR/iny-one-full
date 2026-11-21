@@ -68,27 +68,29 @@ export function getUserRepository(db: DbInstance) {
         .limit(limit);
     },
 
-    /**
-     * TODO: Eliminar este método y usar los métodos de la base de datos
-     * TODO: corregir, este método ya no funciona porque user_id no es parte de la tabla short_links, se debe usar el sistema de teams.
-     * @param user_id
-     * @param slug
-     */
-    async isOwner(user_id: string, slug: string) {
+    /** Comprueba que slug e identificador pertenecen al mismo enlace del usuario. */
+    async isOwner(user_id: string, slug: string, link_id: string) {
       return db
         .from('short_links')
         .select('slug')
         .eq('slug', slug)
+        .eq('link_id', link_id)
         .eq('user_id', user_id)
         .limit(1)
-        .single();
+        .maybeSingle();
     },
 
+    /** INACTIVO: la edición conjunta usa updateLink. */
     async changeAlias(link_id: string, newAlias: string|null) {
       return db
         .from('short_links')
         .update({ name: newAlias })
-        .eq('link_id', link_id);
+        .eq('link_id', link_id)
+        .select('link_id');
+    },
+
+    async updateLink(link_id: string, values: { name?: string | null; destination?: string }) {
+      return db.from('short_links').update(values).eq('link_id', link_id).select('link_id');
     },
 
     /**
@@ -104,15 +106,7 @@ export function getUserRepository(db: DbInstance) {
         .maybeSingle();
     },
 
-    /**
-     * Repunta un enlace ya publicado.
-     *
-     * Escribe con la sesión del usuario, así que depende de la política
-     * `short_links_update_own`. Si esa política faltara, PostgREST devolvería
-     * cero filas **sin error** y el cambio se perdería en silencio —que es
-     * exactamente lo que le pasó a `changeAlias` durante meses—. Por eso pide
-     * las filas afectadas de vuelta: quien llama comprueba que no vengan vacías.
-     */
+    /** INACTIVO: la edición conjunta usa updateLink. */
     async changeDestination(link_id: string, destination: string) {
       return db
         .from('short_links')

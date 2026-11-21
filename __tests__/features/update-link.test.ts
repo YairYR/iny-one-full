@@ -5,8 +5,7 @@ import { ValidationError } from '@/lib/api/errors';
 
 const getCurrentUser = jest.fn();
 const isOwner = jest.fn();
-const changeAlias = jest.fn();
-const changeDestination = jest.fn();
+const updateLink = jest.fn();
 const getLinkForEdit = jest.fn();
 const logDestinationChange = jest.fn();
 const validateDestination = jest.fn();
@@ -15,7 +14,7 @@ let mockAccess: { entitlements: Map<string, unknown>; planKey: string | null; an
 jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
 jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
 jest.mock('@/infra/db/user.repository', () => ({
-  getUserRepository: () => ({ getCurrentUser, isOwner, changeAlias, changeDestination, getLinkForEdit }),
+  getUserRepository: () => ({ getCurrentUser, isOwner, updateLink, getLinkForEdit }),
 }));
 jest.mock('@/infra/db/shorter.repository', () => ({
   getShorterRepository: () => ({ logDestinationChange }),
@@ -49,8 +48,7 @@ describe('updateLinkAction', () => {
     getCurrentUser.mockResolvedValue({ data: { user: { id: 'user-1' }, role: null, plan: 'free' } });
     mockAccess = { entitlements: new Map(), planKey: 'free', anonymous: false };
     isOwner.mockResolvedValue({ data: { slug: SLUG } });
-    changeAlias.mockResolvedValue({ error: null });
-    changeDestination.mockResolvedValue({ data: [{ slug: SLUG }], error: null });
+    updateLink.mockResolvedValue({ data: [{ link_id: LINK_ID }], error: null });
     logDestinationChange.mockResolvedValue({ error: null });
     getLinkForEdit.mockResolvedValue({
       data: {
@@ -74,8 +72,8 @@ describe('updateLinkAction', () => {
     const result = await updateLinkAction(state, form({ destination: 'https://new.example/landing' }));
 
     expect(result.success).toBe(true);
-    expect(changeDestination).toHaveBeenCalledTimes(1);
-    expect(changeDestination.mock.calls[0][1]).toContain('new.example/landing');
+    expect(updateLink).toHaveBeenCalledTimes(1);
+    expect(updateLink.mock.calls[0][1].destination).toContain('new.example/landing');
   });
 
   // El destino guardado es la URL ya compuesta: sin recomponer, cambiarlo
@@ -83,7 +81,7 @@ describe('updateLinkAction', () => {
   it('keeps the utm parameters when the destination changes', async () => {
     await updateLinkAction(state, form({ destination: 'https://new.example/landing' }));
 
-    const written = new URL(changeDestination.mock.calls[0][1]);
+    const written = new URL(updateLink.mock.calls[0][1].destination);
     expect(written.searchParams.get('utm_source')).toBe('instagram');
     expect(written.searchParams.get('utm_medium')).toBe('social');
     expect(written.searchParams.get('utm_campaign')).toBe('verano');
@@ -119,7 +117,7 @@ describe('updateLinkAction', () => {
 
     await updateLinkAction(state, form({ destination: 'https://new.example/landing' }));
 
-    const written = new URL(changeDestination.mock.calls[0][1]);
+    const written = new URL(updateLink.mock.calls[0][1].destination);
     expect(written.searchParams.get('utm_content')).toBe('boton');
   });
 
@@ -128,7 +126,7 @@ describe('updateLinkAction', () => {
 
     await updateLinkAction(state, form({ destination: 'https://new.example/landing' }));
 
-    const written = new URL(changeDestination.mock.calls[0][1]);
+    const written = new URL(updateLink.mock.calls[0][1].destination);
     expect(written.searchParams.get('utm_content')).toBeNull();
   });
 
@@ -140,7 +138,7 @@ describe('updateLinkAction', () => {
 
     expect(result.success).toBe(false);
     expect(result.reason).toBe('destination');
-    expect(changeDestination).not.toHaveBeenCalled();
+    expect(updateLink).not.toHaveBeenCalled();
   });
 
   it('always runs the new destination through the shared validation', async () => {
@@ -157,7 +155,32 @@ describe('updateLinkAction', () => {
 
     expect(result.success).toBe(false);
     expect(result.reason).toBe('forbidden');
-    expect(changeDestination).not.toHaveBeenCalled();
+    expect(updateLink).not.toHaveBeenCalled();
+  });
+
+  it('checks the slug and link id together', async () => {
+    await updateLinkAction(state, form({ alias: 'Otro' }));
+    expect(isOwner).toHaveBeenCalledWith('user-1', SLUG, LINK_ID);
+  });
+
+  it('rejects invalid aliases before changing the destination', async () => {
+    const result = await updateLinkAction(state, form({ alias: '<invalid>', destination: 'https://new.example/' }));
+    expect(result.reason).toBe('alias');
+    expect(updateLink).not.toHaveBeenCalled();
+  });
+
+  it('does not update the alias when destination validation fails', async () => {
+    validateDestination.mockRejectedValue(new ValidationError());
+    const result = await updateLinkAction(state, form({ alias: 'Valid', destination: 'https://bad.example' }));
+    expect(result.reason).toBe('destination');
+    expect(updateLink).not.toHaveBeenCalled();
+  });
+
+  it('rejects an alias update affecting no rows', async () => {
+    updateLink.mockResolvedValue({ data: [], error: null });
+    const result = await updateLinkAction(state, form({ alias: 'Otro' }));
+    expect(result.success).toBe(false);
+    expect(result.reason).toBe('alias');
   });
 
   it('refuses an edit without a session', async () => {
@@ -167,7 +190,7 @@ describe('updateLinkAction', () => {
 
     expect(result.success).toBe(false);
     expect(result.reason).toBe('forbidden');
-    expect(changeAlias).not.toHaveBeenCalled();
+    expect(updateLink).not.toHaveBeenCalled();
   });
 
   /**
@@ -176,7 +199,7 @@ describe('updateLinkAction', () => {
    * `changeAlias` roto durante meses sin que nadie lo notara.
    */
   it('treats an update that affected no rows as a failure', async () => {
-    changeDestination.mockResolvedValue({ data: [], error: null });
+    updateLink.mockResolvedValue({ data: [], error: null });
 
     const result = await updateLinkAction(state, form({ destination: 'https://new.example/landing' }));
 
@@ -202,7 +225,7 @@ describe('updateLinkAction', () => {
     const result = await updateLinkAction(state, form({ destination: 'https://old.example/' }));
 
     expect(result.success).toBe(true);
-    expect(changeDestination).not.toHaveBeenCalled();
+    expect(updateLink).not.toHaveBeenCalled();
     expect(logDestinationChange).not.toHaveBeenCalled();
   });
 
@@ -210,8 +233,7 @@ describe('updateLinkAction', () => {
     const result = await updateLinkAction(state, form({ alias: 'Campaña de julio' }));
 
     expect(result.success).toBe(true);
-    expect(changeAlias).toHaveBeenCalledWith(LINK_ID, 'Campaña de julio');
-    expect(changeDestination).not.toHaveBeenCalled();
+    expect(updateLink).toHaveBeenCalledWith(LINK_ID, { name: 'Campaña de julio' });
     expect(validateDestination).not.toHaveBeenCalled();
   });
 
@@ -220,7 +242,7 @@ describe('updateLinkAction', () => {
 
     expect(result.success).toBe(false);
     expect(result.reason).toBe('alias');
-    expect(changeAlias).not.toHaveBeenCalled();
+    expect(updateLink).not.toHaveBeenCalled();
   });
 
   it('applies both fields when both are submitted', async () => {
@@ -230,7 +252,9 @@ describe('updateLinkAction', () => {
     );
 
     expect(result.success).toBe(true);
-    expect(changeAlias).toHaveBeenCalledTimes(1);
-    expect(changeDestination).toHaveBeenCalledTimes(1);
+    expect(updateLink).toHaveBeenCalledTimes(1);
+    expect(updateLink).toHaveBeenCalledWith(LINK_ID, {
+      name: 'Julio', destination: expect.stringContaining('new.example/landing'),
+    });
   });
 });

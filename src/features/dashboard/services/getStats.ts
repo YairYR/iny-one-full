@@ -15,8 +15,8 @@ export type DashboardKpis = {
 export type DashboardInsights = Pick<UserDashboardStats, 'topLinks' | 'refererStats'>;
 export type DashboardLinks = Pick<UserDashboardStats, 'urls' | 'pagination'>;
 
-async function fetchDashboardData<T>(query: string): Promise<T> {
-  const response = await fetch(`/api/v1/dashboard/summary?${query}`, { cache: 'no-store' });
+async function fetchDashboardData<T>(url: string): Promise<T> {
+  const response = await fetch(url, { cache: 'no-store' });
   const payload: ApiResponse<T> = await response.json();
   if (!response.ok || !payload.ok) {
     throw new Error('Unable to fetch dashboard data');
@@ -25,13 +25,13 @@ async function fetchDashboardData<T>(query: string): Promise<T> {
 }
 
 export const getDashboardKpis = () =>
-  fetchDashboardData<DashboardKpis>('kpi=total_links,total_clicks,top_country,last_clicks,week');
+  fetchDashboardData<DashboardKpis>('/api/v1/dashboard/summary?kpi=total_links,total_clicks,top_country,last_clicks,week');
 
 export const getDashboardInsights = () =>
-  fetchDashboardData<DashboardInsights>('kpi=traffic,performance');
+  fetchDashboardData<DashboardInsights>('/api/v1/dashboard/summary?kpi=traffic,performance');
 
 export const getDashboardLinks = (page: number) =>
-  fetchDashboardData<DashboardLinks>(`links=true&page=${page}`);
+  fetchDashboardData<DashboardLinks>(`/api/v1/teams/default/links?page=${page}`);
 
 export async function getLinkStatsCommon([link_id]: [link_id: string]): Promise<ILinkStatsSummary | null> {
   if (!link_id) return null;

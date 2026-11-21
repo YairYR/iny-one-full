@@ -56,7 +56,7 @@ it('submits the chosen name before continuing', async () => {
   fireEvent.change(screen.getByLabelText('Team name'), { target: { value: 'Studio' } });
   fireEvent.click(screen.getByRole('button', { name: 'Continue' }));
   await waitFor(() => expect(push).toHaveBeenCalledWith('/dashboard'));
-  expect(fetchMock).toHaveBeenCalledWith('/api/v1/teams/personal', expect.objectContaining({
+  expect(fetchMock).toHaveBeenCalledWith('/api/v1/account/personal-setup', expect.objectContaining({
     method: 'POST',
     body: JSON.stringify({ name: 'Studio', fullName: 'Jane', country: 'US', timezone: 'America/New_York' }),
   }));
@@ -91,7 +91,7 @@ it('saves account settings without leaving the page', async () => {
   fireEvent.change(screen.getByLabelText('Team name'), { target: { value: 'New Studio' } });
   fireEvent.click(screen.getByRole('button', { name: 'Save changes' }));
   expect(await screen.findByRole('status')).toHaveTextContent('Your changes have been saved.');
-  expect(fetchMock).toHaveBeenCalledWith('/api/v1/teams/personal', expect.objectContaining({
+  expect(fetchMock).toHaveBeenCalledWith('/api/v1/account/personal-setup', expect.objectContaining({
     body: JSON.stringify({ name: 'New Studio', fullName: 'Jane', country: 'US', timezone: 'America/New_York' }),
   }));
   expect(push).not.toHaveBeenCalled();

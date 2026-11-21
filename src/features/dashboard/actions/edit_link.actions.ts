@@ -52,13 +52,24 @@ export async function updateLinkAction(
     return fail(initialState, 'forbidden');
   }
 
-  const { data: isOwner } = await userRepo.isOwner(user.id, slug);
+  const { data: isOwner, error: ownerError } = await userRepo.isOwner(user.id, slug, link_id);
+  if (ownerError) {
+    log.error(ownerError, 'failed to verify link owner');
+    return fail(initialState, 'unknown');
+  }
   if (!isOwner) {
     log.warn({ link_id, userId: user.id }, 'rejected edit from non-owner');
     return fail(initialState, 'forbidden');
   }
 
   const next: LinkEditState = { ...initialState };
+  const values: { name?: string | null; destination?: string } = {};
+  let oldDestination: string | undefined;
+
+  if (alias !== null && !isValidAlias(alias)) {
+    log.info({ link_id }, 'rejected alias');
+    return fail(initialState, 'alias');
+  }
 
   if (destination !== null) {
     // El plan sale del servicio efectivo, no del JWT: editar un enlace reescribe
@@ -71,33 +82,44 @@ export async function updateLinkAction(
     }
     const access = services[0];
 
-    const updated = await applyDestination({
+    const updated = await prepareDestination({
       link_id,
       slug,
       rawDestination: destination,
-      userId: user.id,
       plan: toDestinationPlan(access.plan_key, access.anonymous),
       userRepo,
     });
 
     if (!updated.ok) return fail(initialState, 'destination');
-    if (updated.destination) next.destination = updated.destination;
+    if (updated.destination) {
+      values.destination = updated.destination;
+      oldDestination = updated.oldDestination;
+      next.destination = updated.destination;
+    }
   }
 
   if (alias !== null) {
-    if (!isValidAlias(alias)) {
-      log.info({ link_id }, 'rejected alias');
-      return fail(initialState, 'alias');
-    }
-
-    const { error } = await userRepo.changeAlias(link_id, normalizeAlias(alias));
-
-    if (error) {
-      log.error(error, 'failed to change alias for %s', link_id);
-      return fail(initialState, 'alias');
-    }
-
+    values.name = normalizeAlias(alias);
     next.alias = alias;
+  }
+
+  if (Object.keys(values).length) {
+    const { data, error } = await userRepo.updateLink(link_id, values);
+    if (error || !data?.length) {
+      log.error(error, 'failed to update link for %s', link_id);
+      return fail(initialState, destination !== null ? 'destination' : 'alias');
+    }
+  }
+
+  if (values.destination && oldDestination) {
+    const shorterRepo = getShorterRepository(supabase_service);
+    const { error } = await shorterRepo.logDestinationChange({
+      link_id,
+      oldDestination,
+      newDestination: values.destination,
+      changedBy: user.id,
+    });
+    if (error) log.error(error, 'failed to write destination audit row for %s', link_id);
   }
 
   log.info({
@@ -113,24 +135,21 @@ type ApplyDestinationInput = {
   link_id: string;
   slug: string;
   rawDestination: string;
-  userId: string;
   plan: DestinationPlan;
   userRepo: ReturnType<typeof getUserRepository>;
 };
 
 /**
- * Valida, recompone y escribe el destino nuevo, y deja rastro del cambio.
+ * Valida y recompone el destino antes de realizar cualquier escritura.
  *
  * El destino pasa por `validateDestination`, la misma puerta que usa la
  * creación: sin eso, el blocklist de dominios sería evitable creando un enlace
  * hacia un destino limpio y repuntándolo después.
  */
-async function applyDestination(
-  { link_id, slug, rawDestination, userId, plan, userRepo }: ApplyDestinationInput,
-): Promise<{ ok: boolean; destination?: string }> {
+async function prepareDestination(
+  { link_id, slug, rawDestination, plan, userRepo }: ApplyDestinationInput,
+): Promise<{ ok: boolean; destination?: string; oldDestination?: string }> {
   if (!rawDestination.trim()) return { ok: false };
-
-  const shorterRepo = getShorterRepository(supabase_service);
 
   const { data: current, error: readError } = await userRepo.getLinkForEdit(link_id);
 
@@ -165,30 +184,7 @@ async function applyDestination(
 
   if (destination === currentDestination) return { ok: true };
 
-  const { data: updated, error } = await userRepo.changeDestination(link_id, destination);
-
-  if (error) {
-    log.error(error, 'failed to change destination for %s', link_id);
-    return { ok: false };
-  }
-
-  // Cero filas sin error es el fallo característico de PostgREST cuando RLS
-  // deniega. Se trata como fallo explícito en lugar de darlo por bueno.
-  if (!updated || updated.length === 0) {
-    log.error(null, 'destination update affected no rows for %s and user %s', link_id, userId);
-    return { ok: false };
-  }
-
-  const { error: auditError } = await shorterRepo.logDestinationChange({
-    link_id: current.link_id,
-    oldDestination: currentDestination,
-    newDestination: destination,
-    changedBy: userId,
-  });
-
-  if (auditError) log.error(auditError, 'failed to write destination audit row for %s', link_id);
-
-  return { ok: true, destination };
+  return { ok: true, destination, oldDestination: currentDestination };
 }
 
 /** `null` cuando el campo no viene en el formulario: esa columna no se toca. */

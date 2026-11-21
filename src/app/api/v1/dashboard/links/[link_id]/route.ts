@@ -1,4 +1,4 @@
-import { withErrorHandling } from "@/lib/api/http";
+import { withPrivateErrorHandling } from "@/lib/api/http";
 import { NextRequest } from "next/server";
 import { getStatsRepository } from "@/infra/db/stats.repository";
 import dayjs from "dayjs";
@@ -7,7 +7,8 @@ import { successResponse } from "@/lib/api/responses";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { createClient } from "@/lib/supabase/server";
 import { isLoggedIn } from "@/data/dto/user-dto";
-import { ResourceNotFoundError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
+import { ApiError, ResourceNotFoundError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
+import { ERROR } from "@/lib/api/error-codes";
 import logger from "@/lib/logger";
 import { hasTeamPermission } from "@/features/authorization/helpers/access";
 import { getTeamRepository } from "@/infra/db/team.repository";
@@ -21,7 +22,7 @@ const STATS_WINDOW_DAYS = 7;
 
 const log = logger.child({ route: 'api/v1/dashboard/links/[link_id]' });
 
-export const GET = withErrorHandling(async (_request: NextRequest, ctx: RouteContext<'/api/v1/dashboard/links/[link_id]'>) => {
+export const GET = withPrivateErrorHandling(async (_request: NextRequest, ctx: RouteContext<'/api/v1/dashboard/links/[link_id]'>) => {
   const { link_id } = await ctx.params;
   const validated = isUuid.safeParse(link_id);
   if (!link_id || !validated.success) {
@@ -37,40 +38,53 @@ export const GET = withErrorHandling(async (_request: NextRequest, ctx: RouteCon
 
   const supabase = await createClient();
   const teamRepo = getTeamRepository(supabase);
-  const { data: linkTeam } = await teamRepo.getLinkById(link_id);
+  const { data: linkTeam, error: linkError } = await teamRepo.getLinkById(link_id);
+  if (linkError) {
+    log.error(linkError, 'failed to fetch link');
+    throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching link statistics', { status: 500 });
+  }
+  if (!linkTeam?.team_id) throw new ResourceNotFoundError();
 
-  const canReadLinks = await hasTeamPermission(linkTeam?.team_id ?? null, 'links.read');
-  if (!canReadLinks) {
+  const [canReadLinks, canViewStats] = await Promise.all([
+    hasTeamPermission(linkTeam.team_id, 'links.read'),
+    hasTeamPermission(linkTeam.team_id, 'stats.view'),
+  ]);
+  if (!canReadLinks || !canViewStats) {
     throw new ResourceNotFoundError();
   }
 
   const statsRepo = getStatsRepository(supabase_service);
 
   const today = dayjs().utc();
-  const { data: clicksWeek } = await statsRepo.getClicksBetweenDates(
-    [link_id],
-    today.subtract(6, 'day').toDate(),
-    today.subtract(1, 'day').toDate(),
-  );
-  const { count: clicksToday } = await statsRepo.getClicksToday([link_id]);
+  const [week, todayClicks, linkBreakdown] = await Promise.all([
+    statsRepo.getClicksBetweenDates(
+      [link_id],
+      today.subtract(6, 'day').toDate(),
+      today.subtract(1, 'day').toDate(),
+    ),
+    statsRepo.getClicksToday([link_id]),
+    statsRepo.getLinkBreakdown(
+      link_id,
+      today.subtract(STATS_WINDOW_DAYS, 'day').toDate(),
+      today.toDate(),
+    ),
+  ]);
+  if (week.error || todayClicks.error || linkBreakdown.error ||
+      !week.data || todayClicks.count == null || !linkBreakdown.data) {
+    log.error({ week: week.error, today: todayClicks.error, breakdown: linkBreakdown.error }, 'failed to fetch link statistics');
+    throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching link statistics', { status: 500 });
+  }
 
-  const stats = (clicksWeek ?? []);
+  const stats = [...week.data];
   stats.push({
     date: today.toISOString().split('T')[0],
-    total_clicks: clicksToday ?? 0,
+    total_clicks: todayClicks.count,
   });
-
-  const linkBreakdown = await statsRepo.getLinkBreakdown(
-    link_id,
-    today.subtract(STATS_WINDOW_DAYS, 'day').toDate(),
-    today.toDate(),
-  );
-
-  log.info({ link_id, stats, linkBreakdown: linkBreakdown.data }, 'Fetched stats for link_id');
-
-  return successResponse({
+  const response = successResponse({
     link_id,
     stats,
     breakdown: linkBreakdown.data,
   });
+  response.headers.set('Cache-Control', 'private, no-store');
+  return response;
 });

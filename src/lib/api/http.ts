@@ -17,3 +17,12 @@ export function withErrorHandling(handler: CallableFunction) {
     }
   }
 }
+
+export function withPrivateErrorHandling(handler: CallableFunction) {
+  const wrapped = withErrorHandling(handler);
+  return async (...args: unknown[]) => {
+    const response = await wrapped(...args);
+    response.headers.set('Cache-Control', 'private, no-store');
+    return response;
+  };
+}

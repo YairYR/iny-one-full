@@ -6,12 +6,12 @@ consumidos; los detalles están en el [estándar](contrato-y-seguridad.md).
 
 ## 1. Corregir el comportamiento actual
 
-- Acordar permisos para estadísticas por enlace y equipo; probar denegación y
-  aislamiento entre equipos, especialmente antes de usar `service_role`.
-- Tratar explícitamente errores del listado y detalle, y distinguir consultas
-  fallidas de ausencia de actividad. Comprobar filas afectadas al editar.
-- Resolver autorización y escritura de edición sobre el mismo enlace; validar
-  el parche completo y decidir la atomicidad de sus cambios y auditoría.
+- El detalle exige `links.read` y `stats.view`; el listado del equipo por
+  defecto exige `links.read`. Mantener pruebas de denegación y aislamiento.
+- El listado y detalle propagan fallos; la edición verifica propiedad y filas
+  afectadas, valida ambos campos y los actualiza en una sola escritura.
+- Pendiente: hacer transaccional el registro de auditoría con el cambio de
+  destino y decidir control de concurrencia y permisos de edición por equipo.
 - Documentar definiciones de métricas, ventanas y diferencias de bots antes de
   prometer equivalencia entre contadores.
 
@@ -19,9 +19,9 @@ consumidos; los detalles están en el [estándar](contrato-y-seguridad.md).
 
 - Extraer reglas comunes a servicios de aplicación reutilizables desde las
   rutas y Server Actions; mantener acceso a datos en repositorios.
-- Separar conceptualmente listados de enlaces, estadísticas por recurso y
-  consultas compuestas de dashboard. Mantener grupos y refrescos separados donde
-  aporten eficiencia y tolerancia a fallos.
+- El panel ya usa un listado separado y mantiene grupos de estadísticas y
+  refrescos independientes; el resumen y el listado anteriores se conservan
+  por compatibilidad.
 - Medir el coste de tráfico por equipo y decidir si compensa agregar en base.
   Verificar equivalencia, autorización y comportamiento concurrente antes de
   sustituir la consulta actual.

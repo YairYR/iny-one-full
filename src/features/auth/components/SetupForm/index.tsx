@@ -83,7 +83,7 @@ export default function SetupForm({ next, mode = 'setup', initialFullName, initi
     setError('');
     setSaved(false);
     try {
-      const response = await fetch('/api/v1/teams/personal', {
+      const response = await fetch('/api/v1/account/personal-setup', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ name, fullName, country: country || null, timezone: timezone || null }),

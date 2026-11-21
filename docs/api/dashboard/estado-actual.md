@@ -1,6 +1,6 @@
 # API del dashboard: estado actual
 
-**Alcance:** análisis estático del código revisado el 21 de noviembre de 2026.
+**Alcance:** código actualizado tras el análisis del 21 de noviembre de 2026.
 Describe lo implementado y las mejoras propuestas, no una auditoría exhaustiva
 ni una medición de rendimiento. Las rutas de pagos y webhooks quedan fuera de alcance.
 
@@ -10,22 +10,25 @@ ni una medición de rendimiento. Las rutas de pagos y webhooks quedan fuera de a
 |---|---|---|
 | `GET /api/v1/dashboard/summary?kpi=total_links,total_clicks,top_country,last_clicks,week` | KPI y actividad | SWR solicita el grupo cada 60 segundos. |
 | `GET /api/v1/dashboard/summary?kpi=traffic,performance` | Tráfico y ranking | Se solicita cada 300 segundos, sin revalidación al enfocar. |
-| `GET /api/v1/dashboard/summary?links=true&page=N` | Tabla de enlaces | Página de 20; tras una edición se invalidan las páginas de enlaces. La búsqueda de la UI filtra solo la página visible. |
+| `GET /api/v1/teams/default/links?page=N` | Tabla de enlaces | Equipo por defecto, permiso `links.read` y páginas de 20; tras editar se invalidan las páginas. La búsqueda filtra solo la página visible. |
 | `GET /api/v1/dashboard/links/{link_id}` | Modal de estadísticas | Se solicita al abrir el detalle de un enlace. |
-| `GET /api/v1/dashboard/links` | Listado por usuario | Ruta existente; no es la que alimenta la tabla del dashboard actual. |
+| `GET /api/v1/dashboard/links` | Listado heredado por usuario | Conservado por compatibilidad; no alimenta la tabla actual. |
+| `POST /api/v1/account/personal-setup` | Configuración personal | Guarda perfil y equipo en una operación atómica. `/api/v1/teams/personal` conserva el mismo contrato como alias de compatibilidad. |
 | `updateLinkAction` | Edición de alias y destino | Server Action, no endpoint HTTP de producto. |
 
 El resumen sin filtros mantiene una respuesta completa de compatibilidad. La
 selección de grupos evita pedir todas las métricas en cada refresco, y sus
 consultas independientes se ejecutan en paralelo. Las respuestas exitosas del
-resumen llevan `Cache-Control: private, no-store`; los consumidores activos
-del dashboard usan `fetch` con `cache: 'no-store'`.
+resumen y las demás rutas privadas aquí descritas, incluidos errores, llevan
+`Cache-Control: private, no-store`; el dashboard también solicita
+`cache: 'no-store'`.
 
 Referencias: [hook de SWR](../../../src/features/dashboard/hooks/useStatsCommon.ts),
 [servicios del dashboard](../../../src/features/dashboard/services/getStats.ts),
 [resumen](../../../src/app/api/v1/dashboard/summary/route.ts),
 [detalle](../../../src/app/api/v1/dashboard/links/%5Blink_id%5D/route.ts),
-[listado](../../../src/app/api/v1/dashboard/links/route.ts) y
+[listado por equipo](../../../src/app/api/v1/teams/default/links/route.ts),
+[configuración personal](../../../src/app/api/v1/account/personal-setup/route.ts) y
 [edición](../../../src/features/dashboard/actions/edit_link.actions.ts).
 
 ## Hallazgos
@@ -41,6 +44,8 @@ filtros incluye además valores de compatibilidad como `summary.clicks: 0` y
 **Propuesta:** mantener consultas compuestas internas para la pantalla, pero
 definir recursos y contratos independientes para la API de producto. No dividir
 cada tarjeta en una petición: agrupar lo que se consume y refresca junto.
+El panel ya usa el listado de equipo separado; la variante con `links` del
+resumen se conserva para compatibilidad.
 
 ### 2. El tráfico escala con el número de enlaces
 
@@ -54,46 +59,31 @@ coste, evaluar una agregación por equipo en la base. Cualquier consulta con
 `service_role` debe autorizar previamente el equipo y mantener un ámbito
 explícito. No asumir que cambiar la consulta preservará resultados sin pruebas.
 
-### 3. Listados y autorizaciones no expresan el mismo alcance
+### 3. Listados y permisos
 
-El resumen usa el equipo por defecto y exige `stats.view`. El listado
-`/dashboard/links` consulta enlaces por usuario y no comprueba el error del
-repositorio: ante datos nulos responde con una lista vacía. El detalle primero
-busca el equipo del enlace y exige `links.read`, aunque devuelve estadísticas.
-No se ha establecido aquí si esa diferencia de permisos es intencional.
+El resumen usa el equipo por defecto y exige `stats.view`. El nuevo listado usa
+ese equipo y exige `links.read`; el listado heredado conserva su ámbito de
+usuario. Ambos devuelven un error cuando falla la consulta. El detalle comprueba
+`links.read` y `stats.view` para el equipo del enlace antes de consultar con
+`service_role`; una denegación responde 404.
 
-**Propuesta:** decidir explícitamente si `stats.view` también protege el detalle,
-además de los permisos de acceso al enlace que se requieran. Definir los listados
-por equipo y distinguir errores de datos vacíos. Antes de cualquier lectura con
-`service_role`, comprobar sesión, pertenencia y permiso sobre el recurso exacto.
+### 4. Errores de estadísticas
 
-### 4. El detalle puede ocultar fallos
-
-El detalle no revisa los errores de la búsqueda del enlace ni de las tres
-consultas de estadísticas. Según la consulta que falle, puede responder como
-si no hubiera clics, devolver un desglose nulo o convertir un fallo de lectura
-en un 404. El cliente sí muestra error cuando falta el desglose, pero no puede
-detectar todos los ceros fabricados por el servidor.
-
-**Propuesta:** registrar y propagar los fallos como errores explícitos; devolver
-cero únicamente cuando la consulta exitosa indique ausencia de actividad.
-Cubrir tanto la denegación de acceso como los fallos de cada consulta.
+El detalle comprueba errores y datos requeridos de las consultas; un fallo
+produce 500, mientras que un conteo válido de cero sigue siendo cero. Las tres
+consultas se ejecutan en paralelo después de autorizar. La serie histórica
+filtra por la fecha de la estadística y no por la fecha de creación de su fila.
 
 ### 5. La edición necesita un contrato coherente
 
-La Server Action comprueba propiedad usando `slug`, pero las escrituras usan
-`link_id`; ambos valores llegan en el estado de la acción. La autorización y
-la escritura deben referirse al mismo recurso. Además, el destino se actualiza
-antes de validar y escribir el alias, por lo que un parche con ambos campos
-puede fallar después de aplicar solo el destino. El registro de auditoría del
-destino se intenta después de la escritura y su fallo se registra sin revertirla.
-La edición de alias tampoco comprueba filas afectadas.
+La acción comprueba conjuntamente usuario, `slug` y `link_id`, valida ambos
+campos antes de escribir y aplica alias y destino mediante un solo `UPDATE`.
+Comprueba las filas afectadas y conserva la validación del destino y las UTM.
 
-**Propuesta:** resolver el enlace por un único identificador autorizado, validar
-el parche completo antes de escribir y definir una garantía transaccional para
-los cambios y la auditoría. Conservar `validateDestination`, la recomposición
-de UTM y la comprobación de filas afectadas. No asumir que la autorización
-actual por propietario equivale a permisos de equipo.
+**Pendiente:** la auditoría del destino sigue siendo una escritura separada y
+su fallo se registra sin revertir el cambio. La comprobación sigue siendo por
+propietario, no una autorización general de edición por equipo; la lectura
+previa y la escritura tampoco proporcionan control de concurrencia optimista.
 
 ### 6. Las métricas y los contratos necesitan definición
 

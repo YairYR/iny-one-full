@@ -1,4 +1,4 @@
-import { withErrorHandling } from "@/lib/api/http";
+import { withPrivateErrorHandling } from "@/lib/api/http";
 import { NextRequest } from "next/server";
 import { ApiError, InsufficientPermissionsError, SessionNotFoundError } from "@/lib/api/errors";
 import { supabase_service } from "@/infra/db/supabase_service";
@@ -39,7 +39,7 @@ const summarySchema = z.object({
   top_countries: z.array(z.object({ name: z.string(), value: z.number() })),
 });
 
-export const GET = withErrorHandling(async (request: NextRequest) => {
+export const GET = withPrivateErrorHandling(async (request: NextRequest) => {
   const params = paramsSchema.parse(Object.fromEntries(request.nextUrl.searchParams.entries()));
   const all = params.kpi === undefined && params.links === undefined;
   const requested = new Set(all ? kpiNames : params.kpi ?? []);
