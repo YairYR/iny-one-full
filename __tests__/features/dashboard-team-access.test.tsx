@@ -5,9 +5,10 @@ export {};
 
 const getCurrentUserDTO = jest.fn();
 const getDefaultTeamAccess = jest.fn();
+const hasTeamPermission = jest.fn();
 const redirect = jest.fn(() => { throw new Error('redirect'); });
 jest.mock('@/data/dto/user-dto', () => ({ getCurrentUserDTO }));
-jest.mock('@/features/authorization/helpers/access', () => ({ getDefaultTeamAccess }));
+jest.mock('@/features/authorization/helpers/access', () => ({ getDefaultTeamAccess, hasTeamPermission }));
 jest.mock('next/navigation', () => ({ redirect }));
 jest.mock('@/features/dashboard/containers/UserDashboard', () => ({ UserDashboard: () => null }));
 jest.mock('@/features/dashboard/components/DashboardExample', () => ({ DashboardExample: () => null }));
@@ -18,6 +19,7 @@ const DashboardPage = (require('@/app/(user)/dashboard/page') as typeof import('
 beforeEach(() => {
   jest.clearAllMocks();
   getCurrentUserDTO.mockResolvedValue({ id: 'user-1' });
+  hasTeamPermission.mockResolvedValue(false);
 });
 
 it('redirects visitors to the public preview without querying team data', async () => {

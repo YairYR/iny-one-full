@@ -1,7 +1,7 @@
 import { UserDashboard } from "@/features/dashboard/containers/UserDashboard";
 import { DashboardExample } from "@/features/dashboard/components/DashboardExample";
 import { getCurrentUserDTO } from "@/data/dto/user-dto";
-import { getDefaultTeamAccess } from "@/features/authorization/helpers/access";
+import { getDefaultTeamAccess, hasTeamPermission } from "@/features/authorization/helpers/access";
 import { redirect } from "next/navigation";
 import { ROUTES } from "@/lib/routes";
 import type { Metadata } from "next";
@@ -24,12 +24,13 @@ export default async function DashboardPage() {
     return redirect(localizedPath(ROUTES.DASHBOARD_DEMO, await getLocale()));
   }
 
-  const access = await getDefaultTeamAccess();
+  const access = await getDefaultTeamAccess('stats.view_sensitive');
   if (!access.team_id) {
     return <DashboardExample audience="setup" />;
   }
+  const canViewSensitiveStats = access.permitted;
 
   return (
-    <UserDashboard />
+    <UserDashboard canViewSensitiveStats={canViewSensitiveStats} />
   );
 }

@@ -17,7 +17,7 @@ const Line = dynamic(() => import("@/features/dashboard/components/charts").then
 const Bar = dynamic(() => import("@/features/dashboard/components/charts").then((m) => m.Bar), { ssr: false, loading: ChartSkeleton });
 const Pie = dynamic(() => import("@/features/dashboard/components/charts").then((m) => m.Pie), { ssr: false, loading: ChartSkeleton });
 
-export function UserDashboard() {
+export function UserDashboard({ canViewSensitiveStats = false }: Readonly<{ canViewSensitiveStats?: boolean }>) {
   const {
     t, stats, kpis, insights, linksRequest, countChartOptions, page, totalPages, setPage,
     clicks_week, top_by_clicks, clicks_top, graffic_traffic, traffic, modal,
@@ -128,7 +128,7 @@ export function UserDashboard() {
           </aside>
         </div>
       </div>
-      <LinkDetailModal modal={modal} onClose={onCloseModal} />
+      <LinkDetailModal modal={modal} onClose={onCloseModal} canViewSensitiveStats={canViewSensitiveStats} />
     </div>
   );
 }

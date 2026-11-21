@@ -294,7 +294,11 @@ declare const messages: {
         "countries": "Top Countries",
         "browsers": "Top Browsers",
         "platforms": "Top Platforms",
-        "devices": "Top Devices"
+        "devices": "Top Devices",
+        "rangeLabel": "Date range",
+        "rangeDays": "{days, number} days",
+        "periodClicks": "Clicks in period",
+        "clickTrend": "Click trend"
       },
       "edit": {
         "title": "Edit Link: {alias}",

@@ -135,8 +135,10 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
     });
   }, [links, locale, query, searchField]);
 
+  const listedLinks = useMemo(() => visibleLinks.slice(0, rowSize), [visibleLinks, rowSize]);
+
   const table = useReactTable({
-    data: visibleLinks.slice(0, rowSize), columns, state: { sorting, columnSizing },
+    data: listedLinks, columns, state: { sorting, columnSizing },
     onSortingChange: setSorting, onColumnSizingChange: setColumnSizing,
     getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel(),
     getRowId: (link) => link.link_id, enableMultiSort: false, columnResizeMode: 'onChange',

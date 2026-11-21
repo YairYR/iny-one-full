@@ -23,8 +23,8 @@ jest.mock('@/infra/db/stats.repository', () => ({
 const { GET } = require('@/app/api/v1/dashboard/links/[link_id]/route') as typeof import('@/app/api/v1/dashboard/links/[link_id]/route');
 
 const linkId = 'c0a80123-4567-4890-8123-456789abcdef';
-const call = (id = linkId) =>
-  GET(new NextRequest(`https://iny.one/api/v1/dashboard/links/${id}`), {
+const call = (id = linkId, range = '') =>
+  GET(new NextRequest(`https://iny.one/api/v1/dashboard/links/${id}${range}`), {
     params: Promise.resolve({ link_id: id }),
   });
 
@@ -115,5 +115,26 @@ describe('GET /api/v1/dashboard/links/[link_id]', () => {
 
     expect(response.status).toBe(422);
     expect(isLoggedIn).not.toHaveBeenCalled();
+  });
+
+  it('allows 30-day statistics only with sensitive statistics permission', async () => {
+    hasTeamPermission.mockImplementation((_team, permission) =>
+      Promise.resolve(permission !== 'stats.view_sensitive'));
+    expect((await call(linkId, '?range=30')).status).toBe(403);
+    expect(getClicksBetweenDates).not.toHaveBeenCalled();
+  });
+
+  it('returns 30-day ranges with sensitive statistics permission', async () => {
+    const response = await call(linkId, '?range=30');
+    expect(response.status).toBe(200);
+    expect(getClicksBetweenDates).toHaveBeenCalledWith(
+      [linkId],
+      expect.any(Date),
+      expect.any(Date),
+    );
+  });
+
+  it('rejects unsupported ranges', async () => {
+    expect((await call(linkId, '?range=365')).status).toBe(422);
   });
 });

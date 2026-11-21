@@ -291,7 +291,11 @@
         "countries": "Top Países",
         "browsers": "Top Navegadores",
         "platforms": "Top Plataformas",
-        "devices": "Top Dispositivos"
+        "devices": "Top Dispositivos",
+        "rangeLabel": "Rango de fechas",
+        "rangeDays": "{days, number} días",
+        "periodClicks": "Clicks del período",
+        "clickTrend": "Tendencia de clics"
       },
       "edit": {
         "title": "Editar Link: {alias}",

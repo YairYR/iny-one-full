@@ -7,18 +7,17 @@ import { successResponse } from "@/lib/api/responses";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { createClient } from "@/lib/supabase/server";
 import { isLoggedIn } from "@/data/dto/user-dto";
-import { ApiError, ResourceNotFoundError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
+import { ApiError, InsufficientPermissionsError, ResourceNotFoundError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
 import { ERROR } from "@/lib/api/error-codes";
 import logger from "@/lib/logger";
 import { hasTeamPermission } from "@/features/authorization/helpers/access";
 import { getTeamRepository } from "@/infra/db/team.repository";
-import { uuid } from 'zod';
+import { uuid, z } from 'zod';
 
 dayjs.extend(utc);
 
 const isUuid = uuid();
 
-const STATS_WINDOW_DAYS = 7;
 
 const log = logger.child({ route: 'api/v1/dashboard/links/[link_id]' });
 
@@ -45,46 +44,54 @@ export const GET = withPrivateErrorHandling(async (_request: NextRequest, ctx: R
   }
   if (!linkTeam?.team_id) throw new ResourceNotFoundError();
 
-  const [canReadLinks, canViewStats] = await Promise.all([
+  const rangeParam = _request.nextUrl.searchParams.get('range') ?? '7';
+  const range = z.enum(['7', '30', '90']).safeParse(rangeParam);
+  if (!range.success) throw new ValidationError();
+  const rangeDays = Number(range.data);
+
+  const [canReadLinks, canViewStats, canViewSensitiveStats] = await Promise.all([
     hasTeamPermission(linkTeam.team_id, 'links.read'),
     hasTeamPermission(linkTeam.team_id, 'stats.view'),
+    hasTeamPermission(linkTeam.team_id, 'stats.view_sensitive'),
   ]);
   if (!canReadLinks || !canViewStats) {
     throw new ResourceNotFoundError();
+  }
+  if (rangeDays > 7 && !canViewSensitiveStats) {
+    throw new InsufficientPermissionsError();
   }
 
   const statsRepo = getStatsRepository(supabase_service);
 
   const today = dayjs().utc();
-  const [week, todayClicks, linkBreakdown] = await Promise.all([
+  const startDate = today.subtract(rangeDays - 1, 'day').startOf('day');
+  const [period, todayClicks, linkBreakdown] = await Promise.all([
     statsRepo.getClicksBetweenDates(
       [link_id],
-      today.subtract(6, 'day').toDate(),
+      startDate.toDate(),
       today.subtract(1, 'day').toDate(),
     ),
     statsRepo.getClicksToday([link_id]),
     statsRepo.getLinkBreakdown(
       link_id,
-      today.subtract(STATS_WINDOW_DAYS, 'day').toDate(),
+      startDate.toDate(),
       today.toDate(),
     ),
   ]);
-  if (week.error || todayClicks.error || linkBreakdown.error ||
-      !week.data || todayClicks.count == null || !linkBreakdown.data) {
-    log.error({ week: week.error, today: todayClicks.error, breakdown: linkBreakdown.error }, 'failed to fetch link statistics');
+  if (period.error || todayClicks.error || linkBreakdown.error ||
+      !period.data || todayClicks.count == null || !linkBreakdown.data) {
+    log.error({ period: period.error, today: todayClicks.error, breakdown: linkBreakdown.error }, 'failed to fetch link statistics');
     throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching link statistics', { status: 500 });
   }
 
-  const stats = [...week.data];
+  const stats = [...period.data];
   stats.push({
     date: today.toISOString().split('T')[0],
     total_clicks: todayClicks.count,
   });
-  const response = successResponse({
+  return successResponse({
     link_id,
     stats,
     breakdown: linkBreakdown.data,
   });
-  response.headers.set('Cache-Control', 'private, no-store');
-  return response;
 });

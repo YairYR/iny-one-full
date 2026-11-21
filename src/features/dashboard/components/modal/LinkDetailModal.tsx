@@ -17,9 +17,10 @@ export type ILinkDetails = {
 interface Props {
   modal: ILinkDetails;
   onClose: () => void;
+  canViewSensitiveStats?: boolean;
 }
 
-export function LinkDetailModal({ modal, onClose }: Readonly<Props>) {
+export function LinkDetailModal({ modal, onClose, canViewSensitiveStats = false }: Readonly<Props>) {
   const t = useTranslations('DashboardPage');
   if (!modal.link) return null;
 
@@ -29,14 +30,14 @@ export function LinkDetailModal({ modal, onClose }: Readonly<Props>) {
     <Dialog open={modal.open} onClose={onClose} transition className="relative z-40">
       <div className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4">
         <div className="absolute inset-0 bg-black/40 w-full" />
-        <DialogPanel className="z-50 max-h-full w-full max-w-3xl overflow-y-auto bg-white rounded-xl p-4 shadow-lg">
+        <DialogPanel className="z-50 max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-xl bg-white p-4 shadow-lg sm:p-6">
           <div className="flex items-center justify-between">
             <DialogTitle className="text-xl font-semibold">{modal.title}</DialogTitle>
             <button type="button" onClick={onClose} aria-label={t('modal.stats.close')} className="rounded p-2 text-gray-500 hover:text-gray-900 focus-visible:outline-2 focus-visible:outline-indigo-600 cursor-pointer"><XIcon aria-hidden="true" /></button>
           </div>
 
           {modal.mode === 'edit' && <EditLink link={link} t={t} onClose={onClose} />}
-          {modal.mode === 'stats' && <ShowStats link={link} t={t} onClose={onClose} />}
+          {modal.mode === 'stats' && <ShowStats link={link} t={t} onClose={onClose} canViewSensitiveStats={canViewSensitiveStats} />}
           {modal.mode === 'qr' && <ShowQr link={link} t={t} />}
         </DialogPanel>
       </div>

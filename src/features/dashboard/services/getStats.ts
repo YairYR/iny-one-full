@@ -33,9 +33,9 @@ export const getDashboardInsights = () =>
 export const getDashboardLinks = (page: number) =>
   fetchDashboardData<DashboardLinks>(`/api/v1/teams/default/links?page=${page}`);
 
-export async function getLinkStatsCommon([link_id]: [link_id: string]): Promise<ILinkStatsSummary | null> {
+export async function getLinkStatsCommon([link_id, range = 7]: [link_id: string, range?: number]): Promise<ILinkStatsSummary | null> {
   if (!link_id) return null;
-  const response = await fetch(`/api/v1/dashboard/links/${link_id}`, { cache: 'no-store' });
+  const response = await fetch(`/api/v1/dashboard/links/${link_id}?range=${range}`, { cache: 'no-store' });
   const payload: ApiResponse<ILinkStatsSummary> = await response.json();
   if (!response.ok || !payload.ok || !payload.data?.breakdown) {
     throw new Error('Unable to fetch link statistics');
