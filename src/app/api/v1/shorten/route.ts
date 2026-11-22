@@ -66,13 +66,17 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   const countryCode = geo.country;
 
   const supabase = await createClient();
-  const shorterRepo = getShorterRepository(supabase);
   const { target, domain } = await validateDestination(url);
 
   const userRepo = getUserRepository(supabase);
   const { data: currUser } = await userRepo.getCurrentUser();
 
   const userId = currUser.user?.id ?? null;
+
+  // El anónimo crea y cuenta con service role: `create_link` no es ejecutable por
+  // `anon`, porque con la clave pública se llamaría por RPC saltándose el blocklist,
+  // la cuota y la caducidad, y con una IP elegida por quien llama.
+  const shorterRepo = getShorterRepository(userId ? supabase : supabase_service);
 
   /**
    * Limita la cantidad de requests de creación de enlaces por usuario o IP. Se hace antes de comprobar el slug para que un anónimo no gaste un enlace en una petición que se va a rechazar de todos modos.
@@ -96,15 +100,11 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   // donde ya hay sesión, y se inyecta: `checkRateLimit` sólo cuenta.
   const access = await getLinkCreationAccess();
 
-  const quotaRepo = userId
-    ? shorterRepo
-    : getShorterRepository(supabase_service);
-
   const rateLimit = await checkRateLimit({
     userId,
     plan: access.plan_key as PlanName | null,
     ip,
-    repo: quotaRepo,
+    repo: shorterRepo,
     limit: access.monthly_limit,
   });
   if (!rateLimit.allowed) {

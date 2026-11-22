@@ -2,10 +2,8 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { LinksTable } from '@/features/dashboard/components/LinksTable/LinksTable';
 import type { UserUrl } from '@/features/dashboard/types/types';
 
-const replace = jest.fn();
-jest.mock('next/navigation', () => ({
-  useRouter: () => ({ replace }),
-}));
+const push = jest.fn();
+jest.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 
 jest.mock('next-intl', () => ({
   useLocale: () => 'en',
@@ -30,12 +28,14 @@ beforeAll(() => {
   };
 });
 
-function renderTable() {
+function renderTable(pageSize?: number) {
   const onEdit = jest.fn();
   const onPageChange = jest.fn();
+  const onPageSizeChange = jest.fn();
   render(<LinksTable links={links} total={40} page={1} totalPages={2} onPageChange={onPageChange} onEdit={onEdit}
+    pageSize={pageSize} onPageSizeChange={onPageSizeChange}
     permissions={{ canEdit: true, canViewStats: true }} />);
-  return { onEdit, onPageChange };
+  return { onEdit, onPageChange, onPageSizeChange };
 }
 
 function slugs() {
@@ -96,11 +96,12 @@ it('resizes columns with keyboard or mouse and resets their widths', () => {
   expect(resize).toHaveAttribute('aria-valuenow', '160');
 });
 
-it('limits the number of visible rows using the loaded page', () => {
-  renderTable();
+it('asks the server for the selected page size instead of hiding loaded rows', () => {
+  const { onPageSizeChange } = renderTable(10);
+  expect(screen.getByLabelText('table.links.rowSize')).toHaveValue('10');
   fireEvent.change(screen.getByLabelText('table.links.rowSize'), { target: { value: '5' } });
-  expect(slugs()).toHaveLength(3);
-  fireEvent.change(screen.getByLabelText('table.links.rowSize'), { target: { value: '10' } });
+  expect(onPageSizeChange).toHaveBeenCalledWith(5);
+  // Cada fila recibida se muestra: recortar en cliente dejaba filas inaccesibles.
   expect(slugs()).toHaveLength(3);
 });
 
@@ -113,7 +114,6 @@ it('opens the same row actions using right click or the visible button', async (
   expect(onEdit).toHaveBeenCalledWith(links[0]);
   fireEvent.click(screen.getByRole('button', { name: 'tools.openMenu: apple' }));
   expect(await screen.findByRole('menu')).toBeInTheDocument();
-  replace.mockClear();
   fireEvent.click(within(screen.getByRole('menu')).getByRole('menuitem', { name: /tools.details/ }));
-  expect(replace).toHaveBeenCalledWith('/dashboard/link/details?id=2');
+  expect(push).toHaveBeenCalledWith('/dashboard/link/details?id=2');
 });

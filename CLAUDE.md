@@ -132,6 +132,10 @@ personales cuando basta con consultar el esquema o los agregados.
 
 ## Estado conocido
 
+- **PENDIENTE — cerrar `create_link` a `anon`** (`scripts/sql/2026-11-22-create-link-sin-anon.sql`).
+  Es `SECURITY DEFINER` y `anon` la ejecutaba con la clave pública, saltándose blocklist, cuota
+  (la IP la elige quien llama) y caducidad. El código ya crea los enlaces anónimos con service
+  role; el SQL va en dos pasos alrededor del despliegue. Hasta aplicar el paso 2 sigue abierta.
 - **APLICADO el 2026-08-23 en producción** (vía MCP, registrado en
   `supabase_migrations.schema_migrations`; índice legible en
   `scripts/sql/2026-08-23-aplicado-desde-mcp.md`): cerrado el esquema `security`, revocados los

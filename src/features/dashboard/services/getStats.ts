@@ -30,8 +30,8 @@ export const getDashboardKpis = () =>
 export const getDashboardInsights = () =>
   fetchDashboardData<DashboardInsights>('/api/v1/dashboard/summary?kpi=traffic,performance');
 
-export const getDashboardLinks = (page: number) =>
-  fetchDashboardData<DashboardLinks>(`/api/v1/teams/default/links?page=${page}`);
+export const getDashboardLinks = (page: number, pageSize = 20) =>
+  fetchDashboardData<DashboardLinks>(`/api/v1/teams/default/links?page=${page}&pageSize=${pageSize}`);
 
 export async function getLinkStatsCommon([link_id, range = 7]: [link_id: string, range?: number]): Promise<ILinkStatsSummary | null> {
   if (!link_id) return null;

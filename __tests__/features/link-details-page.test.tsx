@@ -5,16 +5,21 @@ export {};
 
 const getCurrentUserDTO = jest.fn();
 const getLinkById = jest.fn();
-const getLinkForEdit = jest.fn();
-const hasTeamPermission = jest.fn();
+const getUtmsByLinkId = jest.fn();
 const hasTeamPermissions = jest.fn();
+const grant = (...allowed: string[]) => (_team: string, permissions: string[]) =>
+  Promise.resolve(Object.fromEntries(permissions.map((permission) => [permission, allowed.includes(permission)])));
 
 jest.mock('@/data/dto/user-dto', () => ({ getCurrentUserDTO }));
 jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
 jest.mock('@/infra/db/team.repository', () => ({
-  getTeamRepository: () => ({ getLinkById, getLinkForEdit }),
+  getTeamRepository: () => ({ getLinkById }),
 }));
-jest.mock('@/features/authorization/helpers/access', () => ({ hasTeamPermission, hasTeamPermissions }));
+jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
+jest.mock('@/infra/db/shorter.repository', () => ({
+  getShorterRepository: () => ({ getUtmsByLinkId }),
+}));
+jest.mock('@/features/authorization/helpers/access', () => ({ hasTeamPermissions }));
 jest.mock('@/features/dashboard/components/LinkDetailsView', () => ({
   default: ({ link, initialRange, canViewSensitiveStats, canEdit }: {
     link: unknown;
@@ -51,32 +56,37 @@ beforeEach(() => {
     },
     error: null,
   });
-  getLinkForEdit.mockResolvedValue({
-    data: { utms: { utm_source: 'instagram', utm_medium: 'social', utm_campaign: 'enero' } },
+  getUtmsByLinkId.mockResolvedValue({
+    data: { utm_source: 'instagram', utm_medium: 'social', utm_campaign: 'enero' },
     error: null,
   });
-  hasTeamPermissions.mockResolvedValue({
-    'links.read': true,
-    'stats.view': true,
-    'stats.view_sensitive': false,
-    'links.update': false,
-  });
+  hasTeamPermissions.mockImplementation(grant('links.read', 'stats.view'));
 });
 
 it('renders the full details for an authorized link', async () => {
   const result = await LinkDetailsPage({ searchParams: Promise.resolve({ id, range: '30' }) });
   expect(result.props.initialRange).toBe(7);
   expect(result.props.canViewSensitiveStats).toBe(false);
-  expect(result.props.link).toMatchObject({ link_id: id, slug: 'promo', utm_source: 'instagram' });
+  expect(result.props.link).toMatchObject({
+    link_id: id, slug: 'promo', utm_source: 'instagram', utm_medium: 'social', utm_campaign: 'enero',
+  });
+  expect(getUtmsByLinkId).toHaveBeenCalledWith(id);
+});
+
+it('hides links the user cannot read and never reads their UTMs with service role', async () => {
+  hasTeamPermissions.mockImplementation(grant('stats.view'));
+  await expect(LinkDetailsPage({ searchParams: Promise.resolve({ id }) })).rejects.toThrow('not-found');
+  expect(getUtmsByLinkId).not.toHaveBeenCalled();
+});
+
+it('still renders the details when the UTM values cannot be read', async () => {
+  getUtmsByLinkId.mockResolvedValue({ data: null, error: { message: 'boom' } });
+  const result = await LinkDetailsPage({ searchParams: Promise.resolve({ id }) });
+  expect(result.props.link).toMatchObject({ utm_source: null, utm_medium: null, utm_campaign: null });
 });
 
 it('allows 30 and 90 day ranges for sensitive statistics permission', async () => {
-  hasTeamPermissions.mockResolvedValue({
-    'links.read': true,
-    'stats.view': true,
-    'stats.view_sensitive': true,
-    'links.update': true,
-  });
+  hasTeamPermissions.mockImplementation(grant('links.read', 'stats.view', 'stats.view_sensitive', 'links.update'));
   const result = await LinkDetailsPage({ searchParams: Promise.resolve({ id, range: '90' }) });
   expect(result.props.initialRange).toBe(90);
   expect(result.props.canViewSensitiveStats).toBe(true);
