@@ -1,4 +1,5 @@
 import { UserAgent } from "@/lib/utils/ua";
+import {Permission} from "@/features/authorization/types/permission";
 
 export type { ApiResponse } from '@/lib/types/api';
 
@@ -186,3 +187,7 @@ export type DashboardStatsSummary = {
     top_countries: { name: string, value: number }[];
   }
 }
+
+export type HasPermissions<T extends ReadonlyArray<Permission>, V = boolean> = {
+  [K in (T extends ReadonlyArray<infer U> ? U : never)]: V
+};

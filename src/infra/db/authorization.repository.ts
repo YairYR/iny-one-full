@@ -3,6 +3,7 @@ import { ApiError } from "@/lib/api/errors";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { createClient } from "@/lib/supabase/server";
 import { Permission } from "@/features/authorization/types/permission";
+import {HasPermissions} from "@/lib/types";
 
 export class AuthorizationRepository {
     async getUserRoles(userId: string) {
@@ -238,4 +239,30 @@ export class AuthorizationRepository {
 
         return data ?? false;
     }
+
+    async hasTeamPermissions<T extends  Permission[]>(teamId: string | null, permissions: T): Promise<HasPermissions<T>> {
+        if (!teamId) {
+            return getDefaultPermissions(permissions);
+        }
+
+        const supabase = await createClient();
+        const { data, error } = await supabase
+            .rpc('has_team_permissions', { p_team_id: teamId, p_permissions: permissions });
+
+        if (error) {
+            throw new Error(
+                `Failed to check team permission: ${error.message}`
+            );
+        }
+
+        return (data as Record<Permission, boolean>) ?? getDefaultPermissions(permissions);
+    }
+}
+
+function getDefaultPermissions<T extends Permission[]>(permissions: T): HasPermissions<T, false> {
+    return permissions.reduce((acc, curr)=> {
+        // @ts-expect-error Es un string por lo que es correcto
+        acc[curr] = false;
+        return acc;
+    }, {} as HasPermissions<T, false>);
 }

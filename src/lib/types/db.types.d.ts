@@ -564,6 +564,9 @@ isOneToOne: true
 "has_team_permission":
 { Args: { "p_permission": string,"p_team_id": string }; Returns: boolean
                            },
+"has_team_permissions":
+  { Args: { "p_permissions": string[],"p_team_id": string }; Returns: Json
+  },
 "has_usage_capacity":
 { Args: { "p_entitlement": string,"p_increment"?: number,"p_metric": string,"p_period_start": string,"p_scope_id": string,"p_scope_type": string,"p_service_id": string }; Returns: boolean
                            },

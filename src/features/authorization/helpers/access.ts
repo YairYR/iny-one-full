@@ -9,6 +9,7 @@ import { cache } from "react";
 import { SessionNotFoundError } from "@/lib/api/errors";
 import { AccessContext } from "@/features/authorization/types/access-context";
 import * as z from "zod";
+import {HasPermissions} from "@/lib/types";
 
 /** @deprecated Usar consultas específicas; se conserva para el contrato de exportación. */
 export const getAccessContext = cache(async function getAccessContext(): Promise<AccessContext> {
@@ -44,6 +45,14 @@ export const hasTeamPermission = cache(async function hasTeamPermission(
 ): Promise<boolean> {
     const service = await getAccessService();
     return service.hasTeamPermission(teamId, permission);
+});
+
+export const hasTeamPermissions = cache(async function hasTeamPermission<T extends  Permission[]>(
+    teamId: string | null,
+    permissions: T,
+): Promise<HasPermissions<T>> {
+    const service = await getAccessService();
+    return service.hasTeamPermissions(teamId, permissions);
 });
 
 const getAccessService = cache(async function getAccessService() {
