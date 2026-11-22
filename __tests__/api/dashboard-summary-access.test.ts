@@ -113,13 +113,27 @@ it('fetches traffic and ranking without querying links or the summary RPC', asyn
 
 it('fetches just the requested links page and maps its alias', async () => {
   getLinks.mockResolvedValue({
-    data: [{ link_id: 'id-1', slug: 'abc', name: 'Nombre', destination: 'https://github.com', clicks: 1, created_at: '2026-01-01' }],
+    data: [{
+      link_id: 'id-1',
+      slug: 'abc',
+      name: 'Nombre',
+      destination: 'https://github.com',
+      clicks: 1,
+      created_at: '2026-01-01',
+      utms: { utm_source: 'google', utm_medium: 'cpc', utm_campaign: 'enero' },
+    }],
     count: 35, error: null,
   });
   const response = await GET(request('?links=true&page=2'), undefined);
   const payload = await response.json();
   expect(payload.data).toMatchObject({
-    urls: [{ link_id: 'id-1', alias: 'Nombre' }],
+    urls: [{
+      link_id: 'id-1',
+      alias: 'Nombre',
+      utm_source: 'google',
+      utm_medium: 'cpc',
+      utm_campaign: 'enero',
+    }],
     pagination: { page: 2, pageSize: 20, total: 35 },
   });
   expect(getLinks).toHaveBeenCalledWith('team-1', 20, 20);

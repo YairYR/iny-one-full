@@ -40,7 +40,8 @@ export function getTeamRepository(db: DbInstance) {
       return db
         .from('short_links')
         .select(`
-          link_id, slug, name, destination, clicks, created_at
+          link_id, slug, name, destination, clicks, created_at,
+          utms(utm_source, utm_medium, utm_campaign)
         `, { count: 'exact' })
         .eq('team_id', teamId)
         .order('created_at', { ascending: false })

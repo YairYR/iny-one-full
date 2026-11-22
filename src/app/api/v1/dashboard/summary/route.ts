@@ -6,7 +6,6 @@ import { getStatsRepository } from "@/infra/db/stats.repository";
 import { successResponse } from "@/lib/api/responses";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { createClient } from "@/lib/supabase/server";
 import { ERROR } from "@/lib/api/error-codes";
 import { logger } from "@/lib/logger";
 import { getDefaultTeamAccess } from "@/features/authorization/helpers/access";
@@ -54,7 +53,7 @@ export const GET = withPrivateErrorHandling(async (request: NextRequest) => {
   if (!access.permitted) throw new InsufficientPermissionsError();
 
   const teamId = access.team_id;
-  const teamRepo = getTeamRepository(await createClient());
+  const teamRepo = getTeamRepository(supabase_service);
   const statsRepo = getStatsRepository(supabase_service);
   const page = params.page ?? 1;
 
@@ -82,7 +81,13 @@ export const GET = withPrivateErrorHandling(async (request: NextRequest) => {
   const now = dayjs().utc();
   const response = successResponse({
     ...(links && {
-      urls: (links.data ?? []).map(({ name, ...link }) => ({ ...link, alias: name })),
+      urls: (links.data ?? []).map(({ name, utms, ...link }) => ({
+        ...link,
+        alias: name,
+        utm_source: Array.isArray(utms) ? utms[0]?.utm_source ?? null : utms?.utm_source ?? null,
+        utm_medium: Array.isArray(utms) ? utms[0]?.utm_medium ?? null : utms?.utm_medium ?? null,
+        utm_campaign: Array.isArray(utms) ? utms[0]?.utm_campaign ?? null : utms?.utm_campaign ?? null,
+      })),
       pagination: { page, pageSize: PAGE_SIZE, total: links.count ?? 0 },
     }),
     ...(!all && requested.has('total_links') && { totalLinks: links?.count ?? linksCount?.count }),

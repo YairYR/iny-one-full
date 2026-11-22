@@ -10,6 +10,7 @@ const getLinks = jest.fn();
 jest.mock('@/data/dto/user-dto', () => ({ isLoggedIn }));
 jest.mock('@/features/authorization/helpers/access', () => ({ getDefaultTeamAccess }));
 jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
+jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
 jest.mock('@/infra/db/team.repository', () => ({ getTeamRepository: () => ({ getLinks }) }));
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
@@ -20,7 +21,15 @@ beforeEach(() => {
   jest.clearAllMocks();
   isLoggedIn.mockResolvedValue(true);
   getDefaultTeamAccess.mockResolvedValue({ team_id: 'team-1', permitted: true });
-  getLinks.mockResolvedValue({ data: [{ link_id: 'id-1', name: 'Alias' }], count: 21, error: null });
+  getLinks.mockResolvedValue({
+    data: [{
+      link_id: 'id-1',
+      name: 'Alias',
+      utms: { utm_source: 'instagram', utm_medium: 'social', utm_campaign: 'julio' },
+    }],
+    count: 21,
+    error: null,
+  });
 });
 
 it('lists the authorized default team with deterministic pagination metadata', async () => {
@@ -30,7 +39,13 @@ it('lists the authorized default team with deterministic pagination metadata', a
   expect(getDefaultTeamAccess).toHaveBeenCalledWith('links.read');
   expect(getLinks).toHaveBeenCalledWith('team-1', 20, 20);
   expect((await response.json()).data).toEqual({
-    urls: [{ link_id: 'id-1', alias: 'Alias' }],
+    urls: [{
+      link_id: 'id-1',
+      alias: 'Alias',
+      utm_source: 'instagram',
+      utm_medium: 'social',
+      utm_campaign: 'julio',
+    }],
     pagination: { page: 2, pageSize: 20, total: 21 },
   });
 });
