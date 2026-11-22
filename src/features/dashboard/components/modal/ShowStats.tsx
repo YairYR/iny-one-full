@@ -8,6 +8,7 @@ import { useLinkStatsCommon } from "@/features/dashboard/hooks/useLinkStatsCommo
 import { SkeletonRectangle } from "@/components/Skeleton/Skeleton";
 import { localizedPath } from "@/i18n/routes";
 import { ROUTES } from "@/lib/routes";
+import { DASHBOARD_CATEGORY_COLORS, DASHBOARD_CHART_COLORS } from "@/features/dashboard/helpers/chart-palette";
 
 dayjs.extend(utc);
 
@@ -60,15 +61,16 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
     datasets: [{
       label: t('modal.stats.countries'),
       data: data?.breakdown.by_country.slice(0, 6).map((item) => item.clicks) ?? [],
-      backgroundColor: ['#4F46E5', '#0891B2', '#059669', '#D97706', '#E11D48', '#7C3AED'],
+      backgroundColor: [...DASHBOARD_CATEGORY_COLORS],
     }],
   };
+  const deviceChartLabels = data?.breakdown.by_device.slice(0, 6).map((item) => item.device_type) ?? [];
   const deviceChart = {
-    labels: data?.breakdown.by_device.slice(0, 6).map((item) => item.device_type) ?? [],
+    labels: deviceChartLabels,
     datasets: [{
       label: t('modal.stats.devices'),
       data: data?.breakdown.by_device.slice(0, 6).map((item) => item.clicks) ?? [],
-      backgroundColor: '#4F46E5',
+      backgroundColor: deviceChartLabels.map((_, index) => DASHBOARD_CATEGORY_COLORS[(index + 1) % DASHBOARD_CATEGORY_COLORS.length]),
     }],
   };
 
@@ -112,9 +114,9 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <article className="rounded-xl border border-gray-200 p-4">
+        <article className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
           <p className="text-sm text-gray-500">{t('modal.stats.periodClicks')}</p>
-          <p className="mt-1 text-2xl font-semibold">{isLoading ? '—' : format.number(totalPeriod)}</p>
+          <p className="mt-1 text-2xl font-bold text-indigo-700">{isLoading ? '—' : format.number(totalPeriod)}</p>
         </article>
         <article className="rounded-xl border border-gray-200 p-4">
           <p className="text-sm text-gray-500">{t('modal.stats.countries')}</p>
@@ -130,7 +132,7 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
         </article>
       </div>
 
-      <section className="rounded-xl border border-gray-200 p-4">
+      <section className="rounded-xl border border-gray-200 bg-white p-4">
         <h3 className="mb-3 font-semibold">{t('modal.stats.clickTrend')}</h3>
         <div className="h-64">
           {isLoading
@@ -141,8 +143,8 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
                   datasets: [{
                     label: t('table.links.headers.clicks'),
                     data: daily.map((item) => item.clicks),
-                    borderColor: '#4F46E5',
-                    backgroundColor: 'rgba(79, 70, 229, 0.12)',
+                    borderColor: DASHBOARD_CHART_COLORS.indigo,
+                    backgroundColor: DASHBOARD_CHART_COLORS.indigoFill,
                     fill: true,
                     tension: 0.25,
                   }],
@@ -155,13 +157,13 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
 
       {canViewSensitiveStats && data && (
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <section className="rounded-xl border border-gray-200 p-4">
+          <section className="rounded-xl border border-gray-200 bg-gray-50 p-4">
             <h3 className="mb-3 font-semibold">{t('modal.stats.countries')}</h3>
             {countryChart.labels.length
               ? <div className="h-52"><Pie data={countryChart} options={{ maintainAspectRatio: false }} aria-hidden="true" /></div>
               : <p className="text-sm text-gray-500">{t('noData')}</p>}
           </section>
-          <section className="rounded-xl border border-gray-200 p-4">
+          <section className="rounded-xl border border-gray-200 bg-white p-4">
             <h3 className="mb-3 font-semibold">{t('modal.stats.devices')}</h3>
             {deviceChart.labels.length
               ? <div className="h-52"><Bar data={deviceChart} options={{ maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }} aria-hidden="true" /></div>

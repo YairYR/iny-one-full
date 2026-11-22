@@ -103,6 +103,7 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
       <Fieldset className="mt-4 space-y-4" aria-label={t("modal.edit.title", { alias: alias || link.slug })}>
         <Input name="link_id" type="hidden" value={link.link_id} />
 
+        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
         <Field>
           <Label htmlFor="edit_destination" className="block text-sm font-medium text-gray-700">
             {t("modal.edit.destination_label")}
@@ -124,10 +125,14 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
             ? <p id="edit_destination_help" className="mt-2 text-sm text-red-600" role="alert">{destinationError}</p>
             : <p id="edit_destination_help" className="mt-2 text-sm text-gray-500">{t("modal.edit.destination_help")}</p>}
         </Field>
+        </div>
 
+        <div className="rounded-xl border border-gray-200 bg-white p-4">
         <UtmFields utm={utm} onChange={onChangeUtm} />
         {utmError && <p className="text-sm text-red-600" role="alert">{utmError}</p>}
+        </div>
 
+        <div className="rounded-xl border border-gray-200 bg-white p-4">
         <Field>
           <Label htmlFor="edit_alias" className="block text-sm font-medium text-gray-700">
             {t("modal.edit.alias_label")}
@@ -147,6 +152,7 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
             ? <p className="mt-2 text-sm text-red-600" id="alias-error" role="alert">{aliasError}</p>
             : <p className="mt-2 text-sm text-gray-500" id="alias-help">{t("modal.edit.alias_help")}</p>}
         </Field>
+        </div>
 
         {/* El enlace no cambia al editar: el slug es la clave y es inmutable. */}
         <p className="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-600">

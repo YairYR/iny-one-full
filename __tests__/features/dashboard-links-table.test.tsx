@@ -2,6 +2,11 @@ import { fireEvent, render, screen, within } from '@testing-library/react';
 import { LinksTable } from '@/features/dashboard/components/LinksTable/LinksTable';
 import type { UserUrl } from '@/features/dashboard/types/types';
 
+const replace = jest.fn();
+jest.mock('next/navigation', () => ({
+  useRouter: () => ({ replace }),
+}));
+
 jest.mock('next-intl', () => ({
   useLocale: () => 'en',
   useTranslations: () => (key: string, values?: { column?: string }) => values?.column ? `${key}: ${values.column}` : key,
@@ -108,7 +113,7 @@ it('opens the same row actions using right click or the visible button', async (
   expect(onEdit).toHaveBeenCalledWith(links[0]);
   fireEvent.click(screen.getByRole('button', { name: 'tools.openMenu: apple' }));
   expect(await screen.findByRole('menu')).toBeInTheDocument();
-  const open = jest.spyOn(window, 'open').mockImplementation(() => null);
+  replace.mockClear();
   fireEvent.click(within(screen.getByRole('menu')).getByRole('menuitem', { name: /tools.details/ }));
-  expect(open).toHaveBeenCalledWith('/dashboard/link/details?id=2', '_blank', 'noopener,noreferrer');
+  expect(replace).toHaveBeenCalledWith('/dashboard/link/details?id=2');
 });

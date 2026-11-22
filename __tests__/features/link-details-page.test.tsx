@@ -7,13 +7,14 @@ const getCurrentUserDTO = jest.fn();
 const getLinkById = jest.fn();
 const getLinkForEdit = jest.fn();
 const hasTeamPermission = jest.fn();
+const hasTeamPermissions = jest.fn();
 
 jest.mock('@/data/dto/user-dto', () => ({ getCurrentUserDTO }));
 jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
 jest.mock('@/infra/db/team.repository', () => ({
   getTeamRepository: () => ({ getLinkById, getLinkForEdit }),
 }));
-jest.mock('@/features/authorization/helpers/access', () => ({ hasTeamPermission }));
+jest.mock('@/features/authorization/helpers/access', () => ({ hasTeamPermission, hasTeamPermissions }));
 jest.mock('@/features/dashboard/components/LinkDetailsView', () => ({
   default: ({ link, initialRange, canViewSensitiveStats, canEdit }: {
     link: unknown;
@@ -54,9 +55,12 @@ beforeEach(() => {
     data: { utms: { utm_source: 'instagram', utm_medium: 'social', utm_campaign: 'enero' } },
     error: null,
   });
-  hasTeamPermission.mockImplementation((_team, permission) => Promise.resolve(
-    permission === 'links.read' || permission === 'stats.view',
-  ));
+  hasTeamPermissions.mockResolvedValue({
+    'links.read': true,
+    'stats.view': true,
+    'stats.view_sensitive': false,
+    'links.update': false,
+  });
 });
 
 it('renders the full details for an authorized link', async () => {
@@ -67,7 +71,12 @@ it('renders the full details for an authorized link', async () => {
 });
 
 it('allows 30 and 90 day ranges for sensitive statistics permission', async () => {
-  hasTeamPermission.mockResolvedValue(true);
+  hasTeamPermissions.mockResolvedValue({
+    'links.read': true,
+    'stats.view': true,
+    'stats.view_sensitive': true,
+    'links.update': true,
+  });
   const result = await LinkDetailsPage({ searchParams: Promise.resolve({ id, range: '90' }) });
   expect(result.props.initialRange).toBe(90);
   expect(result.props.canViewSensitiveStats).toBe(true);

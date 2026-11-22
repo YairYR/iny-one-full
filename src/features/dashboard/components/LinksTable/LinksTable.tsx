@@ -158,7 +158,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
   });
 
   return (
-    <section className="overflow-hidden rounded-xl bg-white shadow-sm" aria-labelledby="links-title">
+    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white" aria-labelledby="links-title">
       <div className="border-b border-gray-200 p-4">
         <div className="flex items-center justify-between gap-4">
           <h2 id="links-title" className="text-lg font-semibold">{t('table.links.title')}</h2>

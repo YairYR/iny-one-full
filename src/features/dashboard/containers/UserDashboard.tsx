@@ -62,7 +62,7 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
             <div>
               {status(kpis)}
               {kpis.data && <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <Kpi title={t("panel.totalLinks.title")} value={number(stats.general.totalLinks)} />
+                <Kpi emphasized title={t("panel.totalLinks.title")} value={number(stats.general.totalLinks)} />
                 <Kpi title={t("panel.totalClicks.title")} value={number(stats.general.totalClicks)} />
                 <Kpi title={t("panel.clicksLast24h.title")} value={number(stats.general.clicksLast24h)} />
                 <Kpi title={t("panel.topCountry.title")} value={stats.general.topCountry ?? t('noData')} />
@@ -70,7 +70,7 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <section className="bg-white p-4 rounded-xl shadow-sm">
+              <section className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <h2 className="text-lg font-semibold">
                     {t("panel.weekActivity.title")}{" "}
@@ -90,7 +90,7 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
                 </> : <p className="text-sm text-gray-500">{kpis.error ? t('sectionError') : t('loading')}</p>}
               </section>
 
-              <section className="bg-white p-4 rounded-xl shadow-sm">
+              <section className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <h2 className="text-lg font-semibold">{t("panel.performancePerLink.title")}</h2>
                   <span className="text-sm text-gray-500">{t("panel.performancePerLink.subtitle", { top: top_by_clicks })}</span>
@@ -117,7 +117,7 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
           </section>
 
           <aside className="space-y-6">
-            <section className="bg-white p-4 rounded-xl shadow-sm">
+            <section className="rounded-xl border border-gray-200 bg-white p-4">
               <h2 className="text-lg font-semibold mb-3">{t("panel.sourceTraffic.title")}</h2>
               {status(insights)}
               {insights.data && (graffic_traffic ? <>

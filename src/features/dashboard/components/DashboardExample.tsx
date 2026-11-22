@@ -5,6 +5,7 @@ import Link from "@/components/LocalizedLink";
 import { useFormatter, useTranslations } from "next-intl";
 import { Kpi } from "@/features/dashboard/components/Kpi";
 import { ROUTES } from "@/lib/routes";
+import { DASHBOARD_CATEGORY_COLORS, DASHBOARD_CHART_COLORS } from "@/features/dashboard/helpers/chart-palette";
 
 const ChartSkeleton = () => <div className="h-full w-full animate-pulse rounded-lg bg-gray-100" aria-hidden="true" />;
 const Line = dynamic(() => import("@/features/dashboard/components/charts").then((m) => m.Line), { ssr: false, loading: ChartSkeleton });
@@ -29,8 +30,12 @@ export function ExampleChart({ kind }: Readonly<{ kind: ChartKind }>) {
       label: kind === 'traffic' ? '%' : t('table.links.headers.clicks'),
       data: values,
       fill: kind === 'week',
-      borderColor: '#4F46E5',
-      backgroundColor: kind === 'traffic' ? ['#4F46E5', '#0891B2', '#059669'] : kind === 'week' ? 'rgba(79, 70, 229, 0.12)' : '#4F46E5',
+      borderColor: kind === 'performance' ? DASHBOARD_CHART_COLORS.cyan : DASHBOARD_CHART_COLORS.indigo,
+      backgroundColor: kind === 'traffic'
+        ? [...DASHBOARD_CATEGORY_COLORS.slice(0, 3)]
+        : kind === 'week'
+          ? DASHBOARD_CHART_COLORS.indigoFill
+          : DASHBOARD_CHART_COLORS.cyan,
     }],
   };
   const options = { maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } };
@@ -76,23 +81,23 @@ export function DashboardExample({ audience }: Readonly<{ audience: Audience }>)
             <section aria-label={t('example.label')}>
               <p className="mb-2 text-sm font-medium text-indigo-700">{t('example.label')}</p>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-                <Kpi title={t('panel.totalLinks.title')} value={format.number(3)} />
+                <Kpi emphasized title={t('panel.totalLinks.title')} value={format.number(3)} />
                 <Kpi title={t('panel.totalClicks.title')} value={format.number(118)} />
                 <Kpi title={t('panel.clicksLast24h.title')} value={format.number(11)} />
                 <Kpi title={t('panel.topCountry.title')} value="CL" />
               </div>
             </section>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <section className="rounded-xl bg-white p-4 shadow-sm">
+              <section className="rounded-xl border border-gray-200 bg-white p-4">
                 <h2 className="mb-3 text-lg font-semibold">{t('panel.weekActivity.title')}</h2>
                 <ExampleChart kind="week" />
               </section>
-              <section className="rounded-xl bg-white p-4 shadow-sm">
+              <section className="rounded-xl border border-gray-200 bg-gray-50 p-4">
                 <h2 className="mb-3 text-lg font-semibold">{t('panel.performancePerLink.title')}</h2>
                 <ExampleChart kind="performance" />
               </section>
             </div>
-            <section className="overflow-hidden rounded-xl bg-white shadow-sm">
+            <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
               <div className="border-b border-gray-200 p-4">
                 <h2 className="text-lg font-semibold">{t('table.links.title')}</h2>
                 <p className="mt-1 text-sm font-medium text-indigo-700">{t('example.label')}</p>
@@ -108,7 +113,7 @@ export function DashboardExample({ audience }: Readonly<{ audience: Audience }>)
             </section>
           </div>
           <aside>
-            <section className="rounded-xl bg-white p-4 shadow-sm">
+            <section className="rounded-xl border border-gray-200 bg-white p-4">
               <h2 className="mb-3 text-lg font-semibold">{t('panel.sourceTraffic.title')}</h2>
               <ExampleChart kind="traffic" />
             </section>

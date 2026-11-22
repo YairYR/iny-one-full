@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { UserUrl } from "@/features/dashboard/types/types";
 import { calcRefererStats, fillDays } from "@/features/dashboard/helpers/stats";
 import dayjs from "dayjs";
+import { DASHBOARD_CATEGORY_COLORS, DASHBOARD_CHART_COLORS } from "@/features/dashboard/helpers/chart-palette";
 
 /**
  * Opciones comunes de los gráficos de clics. Los clics son enteros no negativos:
@@ -64,8 +65,8 @@ export const useUserDashboard = () => {
         label: t('table.links.headers.clicks'),
         data: stats.week?.clicks,
         fill: true,
-        borderColor: '#4F46E5',
-        backgroundColor: 'rgba(79, 70, 229, 0.12)',
+        borderColor: DASHBOARD_CHART_COLORS.indigo,
+        backgroundColor: DASHBOARD_CHART_COLORS.indigoFill,
       },
     ],
   };
@@ -74,7 +75,7 @@ export const useUserDashboard = () => {
   const sortedByClicks = stats?.topLinks.slice(0, top_by_clicks) ?? [];
   const clicks_top = {
     labels: sortedByClicks.map(l => l.slug),
-    datasets: [{ label: t('table.links.headers.clicks'), data: sortedByClicks.map(l => l.clicks), backgroundColor: '#4F46E5' }]
+    datasets: [{ label: t('table.links.headers.clicks'), data: sortedByClicks.map(l => l.clicks), backgroundColor: sortedByClicks.map((_, index) => DASHBOARD_CATEGORY_COLORS[index % DASHBOARD_CATEGORY_COLORS.length]) }]
   };
 
   const pagination = stats?.pagination;
@@ -82,7 +83,7 @@ export const useUserDashboard = () => {
 
   const graffic_traffic = traffic.length > 0 && {
     labels: traffic.map((item) => item.name),
-    datasets: [ { label: '%', data: traffic.map((item) => item.value), backgroundColor: ['#4F46E5', '#0891B2', '#059669', '#D97706', '#E11D48', '#7C3AED'] }]
+    datasets: [ { label: '%', data: traffic.map((item) => item.value), backgroundColor: traffic.map((_, index) => DASHBOARD_CATEGORY_COLORS[index % DASHBOARD_CATEGORY_COLORS.length]) }]
   };
 
   const onClickEdit = (link: UserUrl) => {
