@@ -11,6 +11,7 @@ import { ITool, LinkTools } from "@/features/dashboard/components/LinksTable/Lin
 import { UserUrl } from "@/features/dashboard/types/types";
 import { ROUTES } from "@/lib/routes";
 import { localizedPath } from "@/i18n/routes";
+import {useRouter} from "next/navigation";
 
 type SearchField = 'all' | 'short' | 'name' | 'destination';
 
@@ -69,6 +70,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
   const t = useTranslations('DashboardPage');
   const format = useFormatter();
   const locale = useLocale();
+  const router = useRouter();
   const [query, setQuery] = useState('');
   const [searchField, setSearchField] = useState<SearchField>('all');
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -85,16 +87,18 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
     }
   }, []);
 
+  const goToLinkDetails = useCallback((_e: React.MouseEvent, link: UserUrl) => {
+    const url = `${localizedPath(ROUTES.DASHBOARD_LINK_DETAILS, locale)}?id=${encodeURIComponent(link.link_id)}`;
+    router.replace(url);
+  }, [locale, router]);
+
   const tools: ITool<UserUrl>[] = useMemo(() => [
     { key: 'copy', text: t('tools.copy'), onClick: (_e, link) => onClickCopy(link) },
     { key: 'edit', text: t('tools.edit'), disabled: !permissions.canEdit, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onEdit(link) },
     { key: 'stats', text: t('tools.stats'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onOpen?.(link) },
-    { key: 'details', text: t('tools.details'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => {
-      const url = `${localizedPath(ROUTES.DASHBOARD_LINK_DETAILS, locale)}?id=${encodeURIComponent(link.link_id)}`;
-      window.open(url, '_blank', 'noopener,noreferrer');
-    } },
+    { key: 'details', text: t('tools.details'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: goToLinkDetails },
     { key: 'qr', text: t('tools.qr'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onQr?.(link) },
-  ], [t, locale, onClickCopy, onEdit, onOpen, onQr, permissions]);
+  ], [t, onClickCopy, onEdit, onOpen, onQr, permissions, goToLinkDetails]);
 
   const collator = useMemo(() => new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }), [locale]);
   const columns = useMemo<ColumnDef<UserUrl>[]>(() => [

@@ -180,63 +180,10 @@ const nextConfig: NextConfig = {
         permanent: true,
       },
       {
-        source: "/ui/about",
-        destination: "/about",
+        source: "/ui/:path*",
+        destination: "/:path*",
         permanent: true,
       },
-      {
-        source: "/ui/piscolas",
-        destination: "/piscolas",
-        permanent: true,
-      },
-      {
-        source: "/ui/cart",
-        destination: "/cart",
-        permanent: true,
-      },
-      {
-        source: "/ui/plans",
-        destination: "/plans",
-        permanent: true,
-      },
-      {
-        source: "/ui/features/dashboard",
-        destination: "/features/dashboard",
-        permanent: true,
-      },
-
-      {
-        source: "/ui/auth/login",
-        destination: "/auth/login",
-        permanent: true,
-      },
-      {
-        source: "/ui/auth/register",
-        destination: "/auth/register",
-        permanent: true,
-      },
-      {
-        source: "/ui/auth/callback",
-        destination: "/auth/callback",
-        permanent: true,
-      },
-
-      {
-        source: "/ui/dashboard/:path*",
-        destination: "/dashboard/:path*",
-        permanent: true,
-      },
-      {
-        source: "/ui/dashboard",
-        destination: "/dashboard",
-        permanent: true,
-      },
-      {
-        source: "/ui/account/settings",
-        destination: "/account/settings",
-        permanent: true,
-      },
-
       {
         source: "/bloom.bin",
         destination: "/favicon.ico",
@@ -247,14 +194,6 @@ const nextConfig: NextConfig = {
 
   async rewrites() {
     return [
-      // Compatibilidad de la API pública. `/api/shorten` estuvo documentado en
-      // la landing indexada `/url-shortener-api` e invitaba a integrarlo «sin
-      // API key»; versionar está bien, romper a quien ya lo usaba no. El
-      // reescrito mantiene vivos esos clientes sin duplicar la ruta.
-      {
-        source: "/api/shorten",
-        destination: "/api/v1/shorten",
-      },
       {
         source: "/en/piscolas",
         destination: "/piscolas",
@@ -268,41 +207,9 @@ const nextConfig: NextConfig = {
         destination: "/",
       },
       {
-        source: "/es/about",
-        destination: "/about",
-      },
-      {
-        source: "/es/plans",
-        destination: "/plans",
-      },
-      {
-        source: "/es/utm-builder",
-        destination: "/utm-builder",
-      },
-      {
-        source: "/es/qr-code-generator",
-        destination: "/qr-code-generator",
-      },
-      {
-        source: "/es/bitly-alternative",
-        destination: "/bitly-alternative",
-      },
-      {
-        source: "/es/url-shortener-api",
-        destination: "/url-shortener-api",
-      },
-      {
-        source: "/es/features/dashboard",
-        destination: "/features/dashboard",
-      },
-      {
-        source: "/es/dashboard",
-        destination: "/dashboard",
-      },
-      {
-        source: "/es/account/settings",
-        destination: "/account/settings",
-      },
+        source: "/es/:path*",
+        destination: "/:path*"
+      }
     ];
   },
 };

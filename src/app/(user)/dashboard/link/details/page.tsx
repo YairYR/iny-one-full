@@ -5,7 +5,7 @@ import { z } from "zod";
 import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import { createClient } from "@/lib/supabase/server";
 import { getTeamRepository } from "@/infra/db/team.repository";
-import { hasTeamPermission } from "@/features/authorization/helpers/access";
+import { hasTeamPermissions } from "@/features/authorization/helpers/access";
 import { localizedPath } from "@/i18n/routes";
 import { ROUTES } from "@/lib/routes";
 import LinkDetailsView from "@/features/dashboard/components/LinkDetailsView";
@@ -33,12 +33,18 @@ export default async function LinkDetailsPage({
   const result = await teamRepository.getLinkById(parsedId.data);
   if (result.error || !result.data?.team_id) notFound();
 
-  const [canRead, canViewStats, canViewSensitive, canEdit] = await Promise.all([
-    hasTeamPermission(result.data.team_id, 'links.read'),
-    hasTeamPermission(result.data.team_id, 'stats.view'),
-    hasTeamPermission(result.data.team_id, 'stats.view_sensitive'),
-    hasTeamPermission(result.data.team_id, 'links.update'),
+  const {
+    "links.read": canRead,
+    "stats.view": canViewStats,
+    "stats.view_sensitive": canViewSensitive,
+    "links.update": canEdit
+  } = await hasTeamPermissions(result.data.team_id, [
+      'links.read',
+      'stats.view',
+      'stats.view_sensitive',
+      'links.update'
   ]);
+
   if (!canRead || !canViewStats) notFound();
 
   const rangeValue = typeof params.range === "string" ? params.range : "7";
