@@ -1,13 +1,13 @@
 begin;
-select plan(10);
+select plan(12);
 
 select ok(
-  not has_function_privilege(
+  has_function_privilege(
     'anon',
     'public.create_link(uuid,uuid,text,text,text,text,inet,text,text,text,text,text,text,text,text,integer)',
     'EXECUTE'
   ),
-  'anon no puede ejecutar create_link'
+  'anon puede ejecutar create_link'
 );
 select ok(
   not has_function_privilege(
@@ -38,13 +38,28 @@ select ok(
   'los roles de la API no pueden usar la sobrecarga con created_by'
 );
 
-set local role authenticated;
-select throws_ok(
-  $$select * from public.create_link(null, null, 'test-auth', 'https://example.com', 'example.com', null::text, null::inet)$$,
-  '42501', 'AUTHENTICATION_REQUIRED',
-  'rechaza una llamada sin identidad'
+set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+select lives_ok(
+  $$select * from public.create_link(null, null, 'test-anon-link', 'https://example.com', 'example.com', null::text, '203.0.113.10'::inet)$$,
+  'anon puede crear un enlace sin equipo'
 );
 reset role;
+
+set local role anon;
+select set_config('request.jwt.claims', '{"role":"anon"}', true);
+select throws_ok(
+  $$select * from public.create_link(gen_random_uuid(), null, 'test-anon-team', 'https://example.com', 'example.com')$$,
+  '42501', 'ANONYMOUS_TEAM_NOT_ALLOWED',
+  'anon no puede crear enlaces dentro de un equipo'
+);
+reset role;
+
+select is(
+  (select created_by from public.short_links where slug = 'test-anon-link' and host_id is null),
+  null::uuid,
+  'anon no asigna un creador'
+);
 
 insert into auth.users (id, email)
 values ('00000000-0000-0000-0000-0000000000a2', 'create-link-test@test.local');

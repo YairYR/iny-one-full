@@ -127,8 +127,8 @@ export function getShorterRepository(db: DbInstance) {
       return db
         .from('short_links')
         .select('slug', { count: 'exact', head: true })
-        .eq('ip_user', ip)
-        .is('user_id', null) // solo usuarios no logueados
+        .eq('created_by_ip', ip)
+        .is('created_by', null)
         .gte('created_at', oneMonthAgo.toISOString());
     },
 

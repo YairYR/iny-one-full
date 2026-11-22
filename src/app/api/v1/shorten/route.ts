@@ -12,6 +12,7 @@ import {
 } from "@/infra/db/shorter.repository";
 import { isUniqueViolation } from "@/infra/db/db-errors";
 import { createClient } from "@/lib/supabase/server";
+import { supabase_service } from "@/infra/db/supabase_service";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { checkRateLimit, recordRateLimitUsage } from "@/lib/utils/rate-limits";
@@ -95,11 +96,15 @@ export const POST = withErrorHandling(async (request: NextRequest) => {
   // donde ya hay sesión, y se inyecta: `checkRateLimit` sólo cuenta.
   const access = await getLinkCreationAccess();
 
+  const quotaRepo = userId
+    ? shorterRepo
+    : getShorterRepository(supabase_service);
+
   const rateLimit = await checkRateLimit({
     userId,
     plan: access.plan_key as PlanName | null,
     ip,
-    repo: shorterRepo,
+    repo: quotaRepo,
     limit: access.monthly_limit,
   });
   if (!rateLimit.allowed) {
