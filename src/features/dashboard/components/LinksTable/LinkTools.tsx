@@ -12,6 +12,7 @@ export type ITool<T> = {
   onClick: (e: React.MouseEvent, link: T) => void|Promise<void>;
   className?: string;
   icon?: React.ReactNode;
+  disabledReason?: string;
 }
 
 interface Props<T = never> {
@@ -80,6 +81,9 @@ export function LinkTools<T>({ tools, link, buttonRef, linkLabel }: Readonly<Pro
                   tool.className)}
               >
                 {tool.text}
+                {tool.disabled && tool.disabledReason && (
+                  <span className="mt-0.5 block text-xs text-gray-400">{tool.disabledReason}</span>
+                )}
               </Button>
             </MenuItem>
           ))}

@@ -295,7 +295,8 @@
         "rangeLabel": "Rango de fechas",
         "rangeDays": "{days, number} días",
         "periodClicks": "Clicks del período",
-        "clickTrend": "Tendencia de clics"
+        "clickTrend": "Tendencia de clics",
+        "openDetails": "Abrir vista detallada"
       },
       "edit": {
         "title": "Editar Link: {alias}",
@@ -320,6 +321,18 @@
         "alt": "Código QR de este enlace corto",
         "hint": "Escanea para abrir el enlace corto"
       }
+    },
+    "details": {
+      "back": "Volver al dashboard",
+      "link": "Enlace",
+      "analytics": "Analítica detallada",
+      "created": "Fecha de creación",
+      "destinationCount": "Datos disponibles",
+      "openShortLink": "Abrir enlace",
+      "utm": "Parámetros UTM",
+      "utmSource": "Fuente",
+      "utmMedium": "Medio",
+      "utmCampaign": "Campaña"
     },
     "table": {
       "links": {
@@ -359,6 +372,8 @@
       "edit": "Editar",
       "stats": "Estadísticas",
       "qr": "Código QR",
+      "details": "Ver detalles completos",
+      "planUnavailable": "No disponible en tu plan",
       "openMenu": "Abrir acciones del enlace",
       "copied": "Enlace copiado.",
       "copyError": "No se pudo copiar el enlace. Inténtalo de nuevo."

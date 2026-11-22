@@ -10,6 +10,7 @@ import Link from "@/components/LocalizedLink";
 import { ITool, LinkTools } from "@/features/dashboard/components/LinksTable/LinkTools";
 import { UserUrl } from "@/features/dashboard/types/types";
 import { ROUTES } from "@/lib/routes";
+import { localizedPath } from "@/i18n/routes";
 
 type SearchField = 'all' | 'short' | 'name' | 'destination';
 
@@ -22,6 +23,10 @@ interface Props {
   onOpen?: (link: UserUrl) => void;
   onEdit: (link: UserUrl) => void;
   onQr?: (link: UserUrl) => void;
+  permissions?: {
+    canEdit: boolean;
+    canViewStats: boolean;
+  };
 }
 
 function LinkRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: ITool<UserUrl>[] }>) {
@@ -60,7 +65,7 @@ function LinkRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: ITool<User
   );
 }
 
-export function LinksTable({ links, total, page, totalPages, onPageChange, onOpen, onEdit, onQr }: Readonly<Props>) {
+export function LinksTable({ links, total, page, totalPages, onPageChange, onOpen, onEdit, onQr, permissions = { canEdit: false, canViewStats: false } }: Readonly<Props>) {
   const t = useTranslations('DashboardPage');
   const format = useFormatter();
   const locale = useLocale();
@@ -82,10 +87,14 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
 
   const tools: ITool<UserUrl>[] = useMemo(() => [
     { key: 'copy', text: t('tools.copy'), onClick: (_e, link) => onClickCopy(link) },
-    { key: 'edit', text: t('tools.edit'), onClick: (_e, link) => onEdit(link) },
-    { key: 'stats', text: t('tools.stats'), onClick: (_e, link) => onOpen?.(link) },
-    { key: 'qr', text: t('tools.qr'), onClick: (_e, link) => onQr?.(link) },
-  ], [t, onClickCopy, onEdit, onOpen, onQr]);
+    { key: 'edit', text: t('tools.edit'), disabled: !permissions.canEdit, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onEdit(link) },
+    { key: 'stats', text: t('tools.stats'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onOpen?.(link) },
+    { key: 'details', text: t('tools.details'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => {
+      const url = `${localizedPath(ROUTES.DASHBOARD_LINK_DETAILS, locale)}?id=${encodeURIComponent(link.link_id)}`;
+      window.open(url, '_blank', 'noopener,noreferrer');
+    } },
+    { key: 'qr', text: t('tools.qr'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onQr?.(link) },
+  ], [t, locale, onClickCopy, onEdit, onOpen, onQr, permissions]);
 
   const collator = useMemo(() => new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }), [locale]);
   const columns = useMemo<ColumnDef<UserUrl>[]>(() => [

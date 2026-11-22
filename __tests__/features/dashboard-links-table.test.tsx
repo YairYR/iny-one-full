@@ -28,7 +28,8 @@ beforeAll(() => {
 function renderTable() {
   const onEdit = jest.fn();
   const onPageChange = jest.fn();
-  render(<LinksTable links={links} total={40} page={1} totalPages={2} onPageChange={onPageChange} onEdit={onEdit} />);
+  render(<LinksTable links={links} total={40} page={1} totalPages={2} onPageChange={onPageChange} onEdit={onEdit}
+    permissions={{ canEdit: true, canViewStats: true }} />);
   return { onEdit, onPageChange };
 }
 
@@ -107,4 +108,7 @@ it('opens the same row actions using right click or the visible button', async (
   expect(onEdit).toHaveBeenCalledWith(links[0]);
   fireEvent.click(screen.getByRole('button', { name: 'tools.openMenu: apple' }));
   expect(await screen.findByRole('menu')).toBeInTheDocument();
+  const open = jest.spyOn(window, 'open').mockImplementation(() => null);
+  fireEvent.click(within(screen.getByRole('menu')).getByRole('menuitem', { name: /tools.details/ }));
+  expect(open).toHaveBeenCalledWith('/dashboard/link/details?id=2', '_blank', 'noopener,noreferrer');
 });

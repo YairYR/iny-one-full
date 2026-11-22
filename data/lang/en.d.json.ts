@@ -298,7 +298,8 @@ declare const messages: {
         "rangeLabel": "Date range",
         "rangeDays": "{days, number} days",
         "periodClicks": "Clicks in period",
-        "clickTrend": "Click trend"
+        "clickTrend": "Click trend",
+        "openDetails": "Open full details"
       },
       "edit": {
         "title": "Edit Link: {alias}",
@@ -323,6 +324,18 @@ declare const messages: {
         "alt": "QR code for this short link",
         "hint": "Scan to open the short link"
       }
+    },
+    "details": {
+      "back": "Back to dashboard",
+      "link": "Link",
+      "analytics": "Detailed analytics",
+      "created": "Created",
+      "destinationCount": "Available breakdowns",
+      "openShortLink": "Open link",
+      "utm": "UTM parameters",
+      "utmSource": "Source",
+      "utmMedium": "Medium",
+      "utmCampaign": "Campaign"
     },
     "table": {
       "links": {
@@ -362,6 +375,8 @@ declare const messages: {
       "edit": "Edit",
       "stats": "Show Stats",
       "qr": "QR Code",
+      "details": "View full details",
+      "planUnavailable": "Unavailable in your plan",
       "openMenu": "Open link actions",
       "copied": "Link copied.",
       "copyError": "Could not copy the link. Please try again."

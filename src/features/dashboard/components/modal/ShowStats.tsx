@@ -2,10 +2,12 @@ import dynamic from "next/dynamic";
 import { useMemo, useState } from "react";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { useFormatter } from "next-intl";
+import { useFormatter, useLocale } from "next-intl";
 import { UserUrlStats } from "@/features/dashboard/types/types";
 import { useLinkStatsCommon } from "@/features/dashboard/hooks/useLinkStatsCommon";
 import { SkeletonRectangle } from "@/components/Skeleton/Skeleton";
+import { localizedPath } from "@/i18n/routes";
+import { ROUTES } from "@/lib/routes";
 
 dayjs.extend(utc);
 
@@ -31,6 +33,7 @@ interface Props {
 
 export default function ShowStats({ link, t, canViewSensitiveStats = false }: Readonly<Props>) {
   const format = useFormatter();
+  const locale = useLocale();
   const [range, setRange] = useState(7);
   const { data, isLoading, error, mutate } = useLinkStatsCommon(link.link_id, range);
   const ranges = canViewSensitiveStats ? [7, 30, 90] : [7];
@@ -85,7 +88,16 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
           <p className="mt-1 truncate font-medium text-gray-900" title={link.destination}>{link.destination}</p>
           <p className="mt-1 break-all text-sm text-indigo-700">iny.one/{link.slug}</p>
         </div>
-        {canViewSensitiveStats && (
+        <div className="flex items-center gap-2">
+          <a
+            href={`${localizedPath(ROUTES.DASHBOARD_LINK_DETAILS, locale)}?id=${encodeURIComponent(link.link_id)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-indigo-600"
+          >
+            {t('modal.stats.openDetails')}
+          </a>
+          {canViewSensitiveStats && (
           <div className="inline-flex rounded-lg border border-gray-200 p-1" aria-label={t('modal.stats.rangeLabel')}>
             {ranges.map((days) => (
               <button key={days} type="button" onClick={() => setRange(days)}
@@ -95,7 +107,8 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
               </button>
             ))}
           </div>
-        )}
+          )}
+        </div>
       </div>
 
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">

@@ -17,7 +17,11 @@ const Line = dynamic(() => import("@/features/dashboard/components/charts").then
 const Bar = dynamic(() => import("@/features/dashboard/components/charts").then((m) => m.Bar), { ssr: false, loading: ChartSkeleton });
 const Pie = dynamic(() => import("@/features/dashboard/components/charts").then((m) => m.Pie), { ssr: false, loading: ChartSkeleton });
 
-export function UserDashboard({ canViewSensitiveStats = false }: Readonly<{ canViewSensitiveStats?: boolean }>) {
+export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = false, canViewStats = false }: Readonly<{
+  canViewSensitiveStats?: boolean;
+  canEditLinks?: boolean;
+  canViewStats?: boolean;
+}>) {
   const {
     t, stats, kpis, insights, linksRequest, countChartOptions, page, totalPages, setPage,
     clicks_week, top_by_clicks, clicks_top, graffic_traffic, traffic, modal,
@@ -107,7 +111,8 @@ export function UserDashboard({ canViewSensitiveStats = false }: Readonly<{ canV
               {status(linksRequest)}
               {linksRequest.data && <LinksTable links={stats.links} total={stats.pagination?.total ?? 0}
                 page={page} totalPages={totalPages} onPageChange={setPage}
-                onOpen={onClickStats} onEdit={onClickEdit} onQr={onClickQr} />}
+                onOpen={onClickStats} onEdit={onClickEdit} onQr={onClickQr}
+                permissions={{ canEdit: canEditLinks, canViewStats }} />}
             </div>
           </section>
 
