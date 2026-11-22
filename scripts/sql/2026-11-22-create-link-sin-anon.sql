@@ -1,7 +1,7 @@
 -- Cierra `public.create_link` a `anon`.
 --
--- PENDIENTE DE APLICAR (SQL Editor de Supabase). Se aplica en dos pasos alrededor
--- del despliegue del código que crea los enlaces anónimos con service role:
+-- APLICADO en producción el 2026-11-22 (SQL Editor de Supabase), en dos pasos
+-- alrededor del despliegue del código que crea los enlaces anónimos con service role:
 --
 --   Paso 1 (antes del despliegue): la función acepta también `service_role` en la
 --          rama sin usuario y exige caducidad. El código actual, que llama como
