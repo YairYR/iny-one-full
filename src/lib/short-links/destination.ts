@@ -31,6 +31,15 @@ export function toDestinationPlan(planKey: string | null, anonymous: boolean): D
 export const UTM_KEYS = ['source', 'medium', 'campaign', 'term', 'content', 'id'] as const;
 
 const UTM_PREFIX = 'utm_';
+export const UTM_MAX_LENGTH = 100;
+const UTM_VALUE_PATTERN = /^[A-Za-z0-9_-]+$/;
+
+export function isValidUtmValue(value: string): boolean {
+  return value.length === 0 || (
+    value.length <= UTM_MAX_LENGTH
+    && UTM_VALUE_PATTERN.test(value)
+  );
+}
 
 /**
  * Normaliza un valor UTM al conjunto de caracteres seguro para una query string.
@@ -83,8 +92,14 @@ export function buildDestination(
 
 function resolveUtm(destination: URL, utm: Partial<UtmValues>): UtmValues {
   return UTM_KEYS.reduce((resolved, key) => {
-    const explicit = sanitizeUtmValue(utm[key]);
-    resolved[key] = explicit ?? sanitizeUtmValue(destination.searchParams.get(`${UTM_PREFIX}${key}`));
+    const explicitlySet = Object.hasOwn(utm, key);
+    if (explicitlySet && utm[key] !== undefined && utm[key] !== null) {
+      resolved[key] = sanitizeUtmValue(utm[key]);
+    } else if (explicitlySet && utm[key] === '') {
+      resolved[key] = null;
+    } else {
+      resolved[key] = sanitizeUtmValue(destination.searchParams.get(`${UTM_PREFIX}${key}`));
+    }
     return resolved;
   }, {} as UtmValues) satisfies Record<keyof UtmParams, string | null>;
 }

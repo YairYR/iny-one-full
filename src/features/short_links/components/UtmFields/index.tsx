@@ -31,6 +31,7 @@ export function UtmFields({ utm, onChange }: Readonly<Props>) {
                         label="utm_source"
                         tooltip={t('utmSource')}
                         placeholder={'google'}
+                        maxLength={100}
                     />
                 </div>
 
@@ -43,6 +44,7 @@ export function UtmFields({ utm, onChange }: Readonly<Props>) {
                         label="utm_medium"
                         tooltip={t('utmMedium')}
                         placeholder={'cpc'}
+                        maxLength={100}
                     />
                 </div>
 
@@ -55,6 +57,7 @@ export function UtmFields({ utm, onChange }: Readonly<Props>) {
                         label="utm_campaign"
                         tooltip={t('utmCampaign')}
                         placeholder={t('utmCampaignPlaceholder')}
+                        maxLength={100}
                     />
                 </div>
             </div>

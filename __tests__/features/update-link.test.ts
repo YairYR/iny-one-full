@@ -8,6 +8,7 @@ const updateLink = jest.fn();
 const getLinkForEdit = jest.fn();
 const logDestinationChange = jest.fn();
 const getUtmsByLinkId = jest.fn();
+const updateUtmsByLinkId = jest.fn();
 const validateDestination = jest.fn();
 const getDefaultTeamAccess = jest.fn();
 let mockAccess: { entitlements: Map<string, unknown>; planKey: string | null; anonymous: boolean };
@@ -18,7 +19,7 @@ jest.mock('@/infra/db/user.repository', () => ({
   getUserRepository: () => ({ getCurrentUser, updateLink, getLinkForEdit }),
 }));
 jest.mock('@/infra/db/shorter.repository', () => ({
-  getShorterRepository: () => ({ logDestinationChange, getUtmsByLinkId }),
+  getShorterRepository: () => ({ logDestinationChange, getUtmsByLinkId, updateUtmsByLinkId }),
 }));
 jest.mock('@/lib/short-links/validate-destination', () => ({
   validateDestination: (...args: unknown[]) => validateDestination(...args),
@@ -35,7 +36,13 @@ const { updateLinkAction } = require('@/features/dashboard/actions/edit_link.act
 const SLUG = 'promo-julio';
 
 const LINK_ID = 'link-1';
-const state = { link_id: LINK_ID, slug: SLUG, alias: 'Promo', destination: 'https://old.example/' };
+const state = {
+  link_id: LINK_ID,
+  slug: SLUG,
+  alias: 'Promo',
+  destination: 'https://old.example/',
+  utm: { source: 'instagram', medium: 'social', campaign: 'verano' },
+};
 
 function form(fields: Record<string, string>) {
   const data = new FormData();
@@ -52,6 +59,7 @@ describe('updateLinkAction', () => {
     getDefaultTeamAccess.mockResolvedValue({ team_id: 'team-1', permitted: true });
     updateLink.mockResolvedValue({ data: [{ link_id: LINK_ID }], error: null });
     logDestinationChange.mockResolvedValue({ error: null });
+    updateUtmsByLinkId.mockResolvedValue({ data: [{ link_id: LINK_ID }], error: null });
     getUtmsByLinkId.mockResolvedValue({
       data: {
         utm_source: 'instagram',
@@ -98,6 +106,53 @@ describe('updateLinkAction', () => {
     expect(written.searchParams.get('utm_source')).toBe('instagram');
     expect(written.searchParams.get('utm_medium')).toBe('social');
     expect(written.searchParams.get('utm_campaign')).toBe('verano');
+  });
+
+  it('captures UTM fields and applies them to destination and utms', async () => {
+    await updateLinkAction(state, form({
+      destination: 'https://new.example/landing',
+      utm_source: 'google',
+      utm_medium: 'cpc',
+      utm_campaign: 'spring',
+    }));
+
+    const destination = updateLink.mock.calls[0][1].destination;
+    const written = new URL(destination);
+    expect(written.searchParams.get('utm_source')).toBe('google');
+    expect(written.searchParams.get('utm_medium')).toBe('cpc');
+    expect(written.searchParams.get('utm_campaign')).toBe('spring');
+    expect(updateUtmsByLinkId).toHaveBeenCalledWith(LINK_ID, {
+      utm_source: 'google',
+      utm_medium: 'cpc',
+      utm_campaign: 'spring',
+    });
+  });
+
+  it('removes UTM values that are submitted empty', async () => {
+    await updateLinkAction(state, form({
+      destination: 'https://new.example/landing',
+      utm_source: '',
+      utm_medium: '',
+      utm_campaign: '',
+    }));
+
+    const written = new URL(updateLink.mock.calls[0][1].destination);
+    expect(written.searchParams.has('utm_source')).toBe(false);
+    expect(written.searchParams.has('utm_medium')).toBe(false);
+    expect(written.searchParams.has('utm_campaign')).toBe(false);
+  });
+
+  it('rejects invalid UTM values before writing', async () => {
+    const result = await updateLinkAction(state, form({
+      destination: 'https://new.example/landing',
+      utm_source: 'google ads',
+      utm_medium: 'cpc',
+      utm_campaign: 'spring',
+    }));
+
+    expect(result.reason).toBe('utm');
+    expect(updateLink).not.toHaveBeenCalled();
+    expect(updateUtmsByLinkId).not.toHaveBeenCalled();
   });
 
   /**

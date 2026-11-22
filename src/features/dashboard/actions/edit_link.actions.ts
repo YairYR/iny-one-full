@@ -4,7 +4,7 @@ import { getUserRepository } from "@/infra/db/user.repository";
 import { getShorterRepository } from "@/infra/db/shorter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { createClient } from "@/lib/supabase/server";
-import { buildDestination, toDestinationPlan, type DestinationPlan } from "@/lib/short-links/destination";
+import { buildDestination, isValidUtmValue, sanitizeUtmValue, toDestinationPlan, type DestinationPlan } from "@/lib/short-links/destination";
 import {getDefaultTeamAccess, getEffectiveService} from "@/features/authorization/helpers/access";
 import { validateDestination } from "@/lib/short-links/validate-destination";
 import { isValidAlias, normalizeAlias } from "@/lib/short-links/alias";
@@ -21,7 +21,7 @@ export type LinkEditState = {
   destination?: string;
   success?: boolean;
   /** Motivo del fallo, para que la interfaz no muestre siempre el mismo texto. */
-  reason?: 'alias' | 'destination' | 'forbidden' | 'unknown';
+  reason?: 'alias' | 'destination' | 'utm' | 'forbidden' | 'unknown';
 };
 
 /**
@@ -39,6 +39,14 @@ export async function updateLinkAction(
   const slug = initialState.slug;
   const alias = readField(formData, 'alias');
   const destination = readField(formData, 'destination');
+  const submittedUtms = {
+    source: readField(formData, 'utm_source'),
+    medium: readField(formData, 'utm_medium'),
+    campaign: readField(formData, 'utm_campaign'),
+  };
+  const hasUtmChanges = submittedUtms.source !== null
+    || submittedUtms.medium !== null
+    || submittedUtms.campaign !== null;
 
   if (!link_id) return fail(initialState, 'unknown');
 
@@ -67,10 +75,22 @@ export async function updateLinkAction(
   const next: LinkEditState = { ...initialState };
   const values: { name?: string | null; destination?: string } = {};
   let oldDestination: string | undefined;
+  let resolvedUtms: {
+    source: string | null;
+    medium: string | null;
+    campaign: string | null;
+  } | undefined;
 
   if (alias !== null && !isValidAlias(alias)) {
     log.info({ link_id }, 'rejected alias');
     return fail(initialState, 'alias');
+  }
+
+  for (const value of [submittedUtms.source, submittedUtms.medium, submittedUtms.campaign]) {
+    if (value !== null && !isValidUtmValue(value)) {
+      log.info({ link_id }, 'rejected utm');
+      return fail(initialState, 'utm');
+    }
   }
 
   if (destination !== null) {
@@ -90,13 +110,22 @@ export async function updateLinkAction(
       rawDestination: destination,
       plan: toDestinationPlan(access.plan_key, access.anonymous),
       userRepo,
+      submittedUtms: hasUtmChanges ? submittedUtms : null,
     });
 
     if (!updated.ok) return fail(initialState, 'destination');
+    resolvedUtms = updated.utm;
     if (updated.destination) {
       values.destination = updated.destination;
       oldDestination = updated.oldDestination;
       next.destination = updated.destination;
+    }
+    if (resolvedUtms) {
+      next.utm = {
+        source: resolvedUtms.source,
+        medium: resolvedUtms.medium,
+        campaign: resolvedUtms.campaign,
+      };
     }
   }
 
@@ -110,6 +139,19 @@ export async function updateLinkAction(
     if (error || !data?.length) {
       log.error(error, 'failed to update link for %s', link_id);
       return fail(initialState, destination !== null ? 'destination' : 'alias');
+    }
+  }
+
+  if (hasUtmChanges && resolvedUtms) {
+    const shorterRepo = getShorterRepository(supabase_service);
+    const { data, error } = await shorterRepo.updateUtmsByLinkId(link_id, {
+      utm_source: resolvedUtms.source,
+      utm_medium: resolvedUtms.medium,
+      utm_campaign: resolvedUtms.campaign,
+    });
+    if (error || !data?.length) {
+      log.error(error, 'failed to update UTM values for %s', link_id);
+      return fail(initialState, 'utm');
     }
   }
 
@@ -139,6 +181,11 @@ type ApplyDestinationInput = {
   rawDestination: string;
   plan: DestinationPlan;
   userRepo: ReturnType<typeof getUserRepository>;
+  submittedUtms: {
+    source: string | null;
+    medium: string | null;
+    campaign: string | null;
+  } | null;
 };
 
 /**
@@ -149,8 +196,12 @@ type ApplyDestinationInput = {
  * hacia un destino limpio y repuntándolo después.
  */
 async function prepareDestination(
-  { link_id, slug, rawDestination, plan, userRepo }: ApplyDestinationInput,
-): Promise<{ ok: boolean; destination?: string; oldDestination?: string }> {
+  { link_id, slug, rawDestination, plan, userRepo, submittedUtms }: ApplyDestinationInput,
+): Promise<{ ok: boolean; destination?: string; oldDestination?: string; utm?: {
+  source: string | null;
+  medium: string | null;
+  campaign: string | null;
+} }> {
   if (!rawDestination.trim()) return { ok: false };
 
   const { data: current, error: readError } = await userRepo.getLinkForEdit(link_id);
@@ -181,18 +232,35 @@ async function prepareDestination(
 
   // `destination` guarda la URL ya compuesta con las UTM, así que hay que
   // recomponerlas con las que ya tenía el enlace o el cambio las perdería.
-  const { destination } = buildDestination(target, {
-    source: utms?.utm_source,
-    medium: utms?.utm_medium,
-    campaign: utms?.utm_campaign,
+  const composedUtms = {
+    source: submittedUtms?.source !== null && submittedUtms?.source !== undefined
+      ? submittedUtms.source === '' ? '' : sanitizeUtmValue(submittedUtms.source)
+      : utms?.utm_source,
+    medium: submittedUtms?.medium !== null && submittedUtms?.medium !== undefined
+      ? submittedUtms.medium === '' ? '' : sanitizeUtmValue(submittedUtms.medium)
+      : utms?.utm_medium,
+    campaign: submittedUtms?.campaign !== null && submittedUtms?.campaign !== undefined
+      ? submittedUtms.campaign === '' ? '' : sanitizeUtmValue(submittedUtms.campaign)
+      : utms?.utm_campaign,
     term: utms?.utm_term,
     content: utms?.utm_content,
     id: utms?.utm_id,
-  }, plan);
+  };
+  const { destination, utm } = buildDestination(target, composedUtms, plan);
 
-  if (destination === currentDestination) return { ok: true };
+  if (destination === currentDestination) {
+    return {
+      ok: true,
+      utm: { source: utm.source, medium: utm.medium, campaign: utm.campaign },
+    };
+  }
 
-  return { ok: true, destination, oldDestination: currentDestination };
+  return {
+    ok: true,
+    destination,
+    oldDestination: currentDestination,
+    utm: { source: utm.source, medium: utm.medium, campaign: utm.campaign },
+  };
 }
 
 /** `null` cuando el campo no viene en el formulario: esa columna no se toca. */

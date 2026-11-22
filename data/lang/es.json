@@ -312,6 +312,7 @@
         "destination_help": "A dónde apunta el enlace. Cámbialo y el enlace corto sigue funcionando, apuntando a la nueva dirección.",
         "destination_label": "URL de destino",
         "error_destination": "No se pudo guardar ese destino. Revisa la dirección e inténtalo de nuevo.",
+        "error_utm_invalid": "Los valores UTM solo pueden contener letras, números, guiones y guiones bajos.",
         "error_forbidden": "No puedes editar este enlace.",
         "error_unknown": "No se pudo guardar el cambio.",
         "short_url": "Enlace corto"

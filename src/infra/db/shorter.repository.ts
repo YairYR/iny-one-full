@@ -173,6 +173,18 @@ export function getShorterRepository(db: DbInstance) {
         .eq('link_id', linkId)
         .maybeSingle();
     },
+
+    async updateUtmsByLinkId(linkId: string, values: {
+      utm_source: string | null;
+      utm_medium: string | null;
+      utm_campaign: string | null;
+    }) {
+      return db
+        .from('utms')
+        .update(values)
+        .eq('link_id', linkId)
+        .select('link_id');
+    },
   }
 }
 

@@ -312,6 +312,7 @@
         "destination_help": "Where the link points. Change it and the short link keeps working, pointing to the new address.",
         "destination_label": "Destination URL",
         "error_destination": "That destination could not be saved. Check the address and try again.",
+        "error_utm_invalid": "UTM values can only contain letters, numbers, hyphens, and underscores.",
         "error_forbidden": "You cannot edit this link.",
         "error_unknown": "The change could not be saved.",
         "short_url": "Short link"

@@ -6,6 +6,7 @@ import { updateLinkAction, type LinkEditState } from "@/features/dashboard/actio
 import { useRefreshStats } from "@/features/dashboard/hooks/useStatsCommon";
 import { ALIAS_MAX_LENGTH, isValidAlias } from "@/lib/short-links/alias";
 import {UtmFields} from "@/features/short_links/components/UtmFields";
+import { isValidUtmValue, sanitizeUtmValue } from "@/lib/short-links/destination";
 
 interface Props {
   link: UserUrlStats;
@@ -30,7 +31,7 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
     }
   };
 
-  const [state, formAction] = useActionState(updateLinkAction, initialState);
+  const [state, formAction, isPending] = useActionState(updateLinkAction, initialState);
 
   const refreshStats = useRefreshStats();
 
@@ -45,8 +46,9 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
 
   const [alias, setAlias] = useState(link.alias ?? '');
   const [destination, setDestination] = useState(link.destination);
-  const [error, setError] = useState<string | undefined>(undefined);
-  const [disabled, setDisabled] = useState(false);
+  const [aliasError, setAliasError] = useState<string | undefined>(undefined);
+  const [destinationError, setDestinationError] = useState<string | undefined>(undefined);
+  const [utmError, setUtmError] = useState<string | undefined>(undefined);
   const [utm, setUtm] = useState({
     source: link.utm_source ?? '',
     medium: link.utm_medium ?? '',
@@ -54,74 +56,96 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
   });
 
   const onChangeUtm = (ev: React.ChangeEvent<HTMLInputElement>) => {
-    const value = ev.target.value.trim();
-    switch (ev.target.id) {
-      case 'input_utm_source':
-        setUtm((prev) => ({...prev, source: value }));
-        return;
-      case 'input_utm_medium':
-        setUtm((prev) => ({...prev, medium: value }));
-        return;
-      case 'input_utm_campaign':
-        setUtm((prev) => ({...prev, campaign: value }));
-        return;
-    }
+    const value = ev.target.value;
+    const nextUtm = {
+      ...utm,
+      ...(ev.target.id === 'input_utm_source' ? { source: value }
+        : ev.target.id === 'input_utm_medium' ? { medium: value }
+        : ev.target.id === 'input_utm_campaign' ? { campaign: value }
+        : {}),
+    };
+
+    setUtm(nextUtm);
+    setUtmError(isValidUtmValue(value) ? undefined : t("modal.edit.error_utm_invalid"));
+    setDestination((current) => composeDestination(current, nextUtm));
   }
 
   const onChangeAlias = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Misma regla que aplica el servidor, importada y no copiada: duplicar
-    // la validación es la vía más corta a que cliente y servidor discrepen.
     const invalid = !isValidAlias(value);
 
-    setError(invalid ? t("modal.edit.error_alias_invalid") : undefined);
-    setDisabled(invalid);
+    setAliasError(invalid ? t("modal.edit.error_alias_invalid") : undefined);
     setAlias(value);
   }
+
+  const onChangeDestination = (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setDestination(value);
+
+    const parsed = readDestinationUtms(value);
+    if (parsed) setUtm(parsed);
+
+    const invalid = value.trim().length === 0;
+    setDestinationError(invalid ? t("modal.edit.error_destination") : undefined);
+  };
 
   const serverError = state?.success === false
     ? t(`modal.edit.error_${state.reason ?? 'unknown'}`)
     : undefined;
 
+  const disabled = isPending
+    || Boolean(aliasError)
+    || Boolean(destinationError)
+    || Boolean(utmError);
+
   return (
     <Form action={formAction}>
-      <Fieldset className="mt-4 space-y-4">
+      <Fieldset className="mt-4 space-y-4" aria-label={t("modal.edit.title", { alias: alias || link.slug })}>
         <Input name="link_id" type="hidden" value={link.link_id} />
 
         <Field>
-          <Label className="block text-sm font-medium text-gray-700">
+          <Label htmlFor="edit_destination" className="block text-sm font-medium text-gray-700">
             {t("modal.edit.destination_label")}
           </Label>
           <Input
+            id="edit_destination"
             name="destination"
-            type="url"
+            type="text"
+            inputMode="url"
             value={destination}
-            onChange={(e) => setDestination(e.target.value)}
+            onChange={onChangeDestination}
             autoFocus
+            autoComplete="url"
+            aria-invalid={Boolean(destinationError)}
+            aria-describedby="edit_destination_help"
             className={INPUT_CLASS}
           />
-          <p className="mt-2 text-sm text-gray-500">{t("modal.edit.destination_help")}</p>
+          {destinationError
+            ? <p id="edit_destination_help" className="mt-2 text-sm text-red-600" role="alert">{destinationError}</p>
+            : <p id="edit_destination_help" className="mt-2 text-sm text-gray-500">{t("modal.edit.destination_help")}</p>}
         </Field>
 
         <UtmFields utm={utm} onChange={onChangeUtm} />
+        {utmError && <p className="text-sm text-red-600" role="alert">{utmError}</p>}
 
         <Field>
-          <Label className="block text-sm font-medium text-gray-700">
+          <Label htmlFor="edit_alias" className="block text-sm font-medium text-gray-700">
             {t("modal.edit.alias_label")}
           </Label>
           <Input
+            id="edit_alias"
             name="alias"
             type="text"
             value={alias}
             onChange={onChangeAlias}
             maxLength={ALIAS_MAX_LENGTH}
-            aria-invalid={Boolean(error)}
-            aria-describedby={error ? "alias-error" : undefined}
+            aria-invalid={Boolean(aliasError)}
+            aria-describedby={aliasError ? "alias-error" : "alias-help"}
             className={INPUT_CLASS}
           />
-          {error
-            ? <p className="mt-2 text-sm text-red-600" id="alias-error">{error}</p>
-            : <p className="mt-2 text-sm text-gray-500">{t("modal.edit.alias_help")}</p>}
+          {aliasError
+            ? <p className="mt-2 text-sm text-red-600" id="alias-error" role="alert">{aliasError}</p>
+            : <p className="mt-2 text-sm text-gray-500" id="alias-help">{t("modal.edit.alias_help")}</p>}
         </Field>
 
         {/* El enlace no cambia al editar: el slug es la clave y es inmutable. */}
@@ -157,4 +181,41 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
       </div>
     </Form>
   );
+}
+
+function readDestinationUtms(destination: string):
+  { source: string; medium: string; campaign: string } | null {
+  try {
+    const url = new URL(destination.trim().match(/^https?:\/\//i) ? destination.trim() : `https://${destination.trim()}`);
+    return {
+      source: sanitizeUtmValue(url.searchParams.get('utm_source')) ?? '',
+      medium: sanitizeUtmValue(url.searchParams.get('utm_medium')) ?? '',
+      campaign: sanitizeUtmValue(url.searchParams.get('utm_campaign')) ?? '',
+    };
+  } catch {
+    return null;
+  }
+}
+
+function composeDestination(
+  destination: string,
+  utm: { source: string; medium: string; campaign: string },
+): string {
+  try {
+    const trimmed = destination.trim();
+    const url = new URL(trimmed.match(/^https?:\/\//i) ? trimmed : `https://${trimmed}`);
+
+    for (const [key, value] of [
+      ['utm_source', utm.source],
+      ['utm_medium', utm.medium],
+      ['utm_campaign', utm.campaign],
+    ] as const) {
+      if (value) url.searchParams.set(key, sanitizeUtmValue(value) ?? '');
+      else url.searchParams.delete(key);
+    }
+
+    return url.toString();
+  } catch {
+    return destination;
+  }
 }

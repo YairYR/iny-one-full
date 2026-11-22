@@ -10,10 +10,11 @@ interface Props {
     placeholder?: string;
     tooltip?: React.ReactNode;
     className?: string;
+    maxLength?: number;
     onChange: (ev: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-export function UtmField({ id, name, label, value, placeholder, tooltip, className, onChange }: Readonly<Props>) {
+export function UtmField({ id, name, label, value, placeholder, tooltip, className, maxLength, onChange }: Readonly<Props>) {
     return <>
         {(label || tooltip) && (
             <div className="flex items-center gap-1 mb-1">
@@ -28,6 +29,8 @@ export function UtmField({ id, name, label, value, placeholder, tooltip, classNa
             placeholder={placeholder}
             value={value}
             onChange={onChange}
+            maxLength={maxLength}
+            autoComplete="off"
             className={className ? className : "px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors w-full"}
         />
     </>;
