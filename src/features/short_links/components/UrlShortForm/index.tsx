@@ -10,6 +10,7 @@ import { useTranslations } from "next-intl";
 import { Tooltip } from "@/components/Tooltip/Tooltip";
 import { ROUTES } from "@/lib/routes";
 import { CUSTOM_SLUG } from "@/lib/short-links/slug";
+import {UtmFields} from "@/features/short_links/components/UtmFields";
 
 interface Props {
   /** Determina si el campo de nombre propio está activo o sólo se muestra. */
@@ -36,6 +37,17 @@ export default function UrlShortForm({ isAuthenticated = false }: Readonly<Props
     handleChangeUtmMedium,
     handleChangeUtmCampaign
   } = useUrlShortForm({ t, isAuthenticated });
+
+  const onChangeUtm = (ev: React.ChangeEvent<HTMLInputElement>) => {
+    switch (ev.target.id) {
+      case 'input_utm_source':
+        return handleChangeUtmSource(ev);
+      case 'input_utm_medium':
+        return handleChangeUtmMedium(ev);
+      case 'input_utm_campaign':
+        return handleChangeUtmCampaign(ev);
+    }
+  }
 
   return (
     <Fieldset className="bg-white rounded-xl shadow-lg p-8 mb-6">
@@ -108,70 +120,7 @@ export default function UrlShortForm({ isAuthenticated = false }: Readonly<Props
       </div>
 
       <div className="mb-6">
-        <Field>
-          <div className="flex items-center gap-2 mb-3">
-            <Label htmlFor="input_utm_source" className="block text-sm font-medium text-gray-700">
-              {t('utmLabel')}
-            </Label>
-            <Tooltip content={t('utmTooltip')} />
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-
-            <div className="relative">
-              <div className="flex items-center gap-1 mb-1">
-                <Label htmlFor="input_utm_source" className="text-xs text-gray-600">
-                  utm_source
-                </Label>
-                <Tooltip content={t('utmSource')} />
-              </div>
-              <Input
-                type="text"
-                name="utm_source"
-                id="input_utm_source"
-                placeholder="google"
-                value={utm.source}
-                onChange={handleChangeUtmSource}
-                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors w-full"
-              />
-            </div>
-
-            <div className="relative">
-              <div className="flex items-center gap-1 mb-1">
-                <Label htmlFor="input_utm_medium" className="text-xs text-gray-600">
-                  utm_medium
-                </Label>
-                <Tooltip content={t('utmMedium')} />
-              </div>
-              <Input
-                type="text"
-                name="utm_medium"
-                id="input_utm_medium"
-                placeholder="cpc"
-                value={utm.medium}
-                onChange={handleChangeUtmMedium}
-                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors w-full"
-              />
-            </div>
-
-            <div className="relative">
-              <div className="flex items-center gap-1 mb-1">
-                <Label htmlFor="input_utm_campaign" className="text-xs text-gray-600">
-                  utm_campaign
-                </Label>
-                <Tooltip content={t('utmCampaign')} />
-              </div>
-              <Input
-                type="text"
-                name="utm_campaign"
-                id="input_utm_campaign"
-                placeholder="promo_verano"
-                value={utm.campaign}
-                onChange={handleChangeUtmCampaign}
-                className="px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors w-full"
-              />
-            </div>
-          </div>
-        </Field>
+        <UtmFields utm={utm} onChange={onChangeUtm} />
       </div>
 
       {error && (
@@ -202,6 +151,7 @@ export default function UrlShortForm({ isAuthenticated = false }: Readonly<Props
         <Button
           onClick={handleShorten}
           disabled={isLoading}
+          type="submit"
           className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
         >
           {isLoading ? (

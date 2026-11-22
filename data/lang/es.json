@@ -131,6 +131,7 @@
     "utmSource": "Identifica de dónde viene el tráfico. Ej: Google, Facebook, newsletter",
     "utmMedium": "Tipo de medio de marketing. Ej: cpc, email, social, banner",
     "utmCampaign": "Nombre de tu campaña. Ej: black_friday_2026, lanzamiento_producto",
+    "utmCampaignPlaceholder": "promo_verano",
     "urlPlaceholder": "https://ejemplo.com",
     "shortenBtn": "Acortar URL",
     "cleanBtn": "Limpiar",

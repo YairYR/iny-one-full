@@ -134,6 +134,7 @@ declare const messages: {
     "utmSource": "Identify where the traffic is coming from. E.g.: Google, Facebook, newsletter",
     "utmMedium": "Identify the medium. E.g.: cpc, email, social",
     "utmCampaign": "Identify the campaign. E.g.: summer_sale, black_friday_2026, product_launch",
+    "utmCampaignPlaceholder": "promo_summer",
     "urlPlaceholder": "https://example.com",
     "shortenBtn": "Shorten URL",
     "cleanBtn": "Clear",

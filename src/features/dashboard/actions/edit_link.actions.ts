@@ -17,6 +17,7 @@ export type LinkEditState = {
   link_id: string;
   slug: string;
   alias: string;
+  utm: { source?: string|null, medium?: string|null, campaign?: string|null };
   destination?: string;
   success?: boolean;
   /** Motivo del fallo, para que la interfaz no muestre siempre el mismo texto. */
