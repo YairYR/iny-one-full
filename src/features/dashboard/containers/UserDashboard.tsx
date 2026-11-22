@@ -23,7 +23,7 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
   canViewStats?: boolean;
 }>) {
   const {
-    t, stats, kpis, insights, linksRequest, countChartOptions, page, totalPages, setPage,
+    t, stats, kpis, insights, linksRequest, countChartOptions, page, pageSize, totalPages, setPage, setPageSize,
     clicks_week, top_by_clicks, clicks_top, graffic_traffic, traffic, modal,
     onClickEdit, onClickStats, onClickQr, onCloseModal,
   } = useUserDashboard();
@@ -111,6 +111,7 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
               {status(linksRequest)}
               {linksRequest.data && <LinksTable links={stats.links} total={stats.pagination?.total ?? 0}
                 page={page} totalPages={totalPages} onPageChange={setPage}
+                pageSize={pageSize} onPageSizeChange={setPageSize}
                 onOpen={onClickStats} onEdit={onClickEdit} onQr={onClickQr}
                 permissions={{ canEdit: canEditLinks, canViewStats }} />}
             </div>

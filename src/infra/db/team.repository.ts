@@ -84,9 +84,9 @@ export function getTeamRepository(db: DbInstance) {
     },
 
     /**
-     * Estado del enlace necesario para editarlo. Las UTM se leen porque
-     * `destination` guarda la URL **ya compuesta** con ellas: cambiar el destino
-     * sin recomponerlas las perdería en silencio.
+     * INACTIVO: sin llamadas. Con la sesión del usuario el embebido de `utms`
+     * llega vacío (RLS sin políticas), así que las UTM salían siempre nulas;
+     * usar `getUtmsByLinkId` con service role tras autorizar.
      */
     async getLinkForEdit(linkId: string) {
       return db

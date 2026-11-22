@@ -5,11 +5,16 @@ import { z } from "zod";
 import { getCurrentUserDTO } from "@/data/dto/user-dto";
 import { createClient } from "@/lib/supabase/server";
 import { getTeamRepository } from "@/infra/db/team.repository";
+import { getShorterRepository } from "@/infra/db/shorter.repository";
+import { supabase_service } from "@/infra/db/supabase_service";
+import logger from "@/lib/logger";
 import { hasTeamPermissions } from "@/features/authorization/helpers/access";
 import { localizedPath } from "@/i18n/routes";
 import { ROUTES } from "@/lib/routes";
 import LinkDetailsView from "@/features/dashboard/components/LinkDetailsView";
 import type { UserUrlStats } from "@/features/dashboard/types/types";
+
+const log = logger.child({ route: 'dashboard/link/details' });
 
 export const metadata: Metadata = {
   title: "Link details | iny.one",
@@ -49,7 +54,11 @@ export default async function LinkDetailsPage({
 
   const rangeValue = typeof params.range === "string" ? params.range : "7";
   const range = canViewSensitive && (rangeValue === "30" || rangeValue === "90") ? Number(rangeValue) : 7;
-  const editData = await teamRepository.getLinkForEdit(parsedId.data);
+  // `utms` tiene RLS sin políticas: con la sesión del usuario el embebido llega
+  // vacío y el panel mostraba siempre «—». Se lee con service role, y sólo
+  // después de comprobar los permisos del equipo del enlace.
+  const utms = await getShorterRepository(supabase_service).getUtmsByLinkId(parsedId.data);
+  if (utms.error) log.error(utms.error, 'failed to read link UTM values for %s', parsedId.data);
 
   const link: UserUrlStats = {
     link_id: result.data.link_id,
@@ -58,9 +67,9 @@ export default async function LinkDetailsPage({
     destination: result.data.destination,
     created_at: result.data.created_at,
     clicks: result.data.clicks,
-    utm_source: editData.data?.utms?.utm_source ?? null,
-    utm_medium: editData.data?.utms?.utm_medium ?? null,
-    utm_campaign: editData.data?.utms?.utm_campaign ?? null,
+    utm_source: utms.data?.utm_source ?? null,
+    utm_medium: utms.data?.utm_medium ?? null,
+    utm_campaign: utms.data?.utm_campaign ?? null,
   };
 
   return (
