@@ -54,3 +54,14 @@ it('surfaces repository failures instead of returning an empty list', async () =
   getLinks.mockResolvedValue({ data: null, count: null, error: { message: 'unavailable' } });
   expect((await call()).status).toBe(500);
 });
+
+it('pages on the server with the selected page size', async () => {
+  const response = await call('?page=3&pageSize=5');
+  expect(getLinks).toHaveBeenCalledWith('team-1', 10, 5);
+  expect((await response.json()).data.pagination).toEqual({ page: 3, pageSize: 5, total: 21 });
+});
+
+it.each(['0', '7', '21', '100', 'abc'])('rejects page size %s', async (pageSize) => {
+  expect((await call(`?pageSize=${pageSize}`)).status).toBe(422);
+  expect(getLinks).not.toHaveBeenCalled();
+});

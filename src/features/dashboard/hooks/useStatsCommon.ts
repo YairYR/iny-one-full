@@ -3,7 +3,7 @@ import useSWR, { useSWRConfig } from "swr";
 
 const STATS_KEY = ['stats', 'dashboard'] as const;
 
-export const useStatsCommon = (page = 1) => {
+export const useStatsCommon = (page = 1, pageSize = 20) => {
   const kpis = useSWR([...STATS_KEY, 'kpis'], getDashboardKpis, {
     refreshInterval: 60_000,
   });
@@ -12,8 +12,8 @@ export const useStatsCommon = (page = 1) => {
     revalidateOnFocus: false,
   });
   const links = useSWR(
-    [...STATS_KEY, 'links', page],
-    ([, , , currentPage]: [string, string, string, number]) => getDashboardLinks(currentPage),
+    [...STATS_KEY, 'links', page, pageSize],
+    ([, , , currentPage, currentSize]: [string, string, string, number, number]) => getDashboardLinks(currentPage, currentSize),
   );
 
   return { kpis, insights, links };

@@ -36,7 +36,13 @@ export const useUserDashboard = () => {
   });
 
   const [page, setPage] = useState(1);
-  const { kpis, insights, links } = useStatsCommon(page);
+  const [pageSize, setPageSizeState] = useState(20);
+  const { kpis, insights, links } = useStatsCommon(page, pageSize);
+  // Al cambiar el tamaño, la página actual deja de corresponder a las mismas filas.
+  const setPageSize = (size: number) => {
+    setPageSizeState(size);
+    setPage(1);
+  };
 
   const stats = useMemo(() => ({
     general: {
@@ -133,8 +139,10 @@ export const useUserDashboard = () => {
     linksRequest: links,
     countChartOptions,
     page,
+    pageSize,
     totalPages,
     setPage,
+    setPageSize,
     traffic,
     clicks_week,
     top_by_clicks,

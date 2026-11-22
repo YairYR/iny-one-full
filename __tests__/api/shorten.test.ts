@@ -17,16 +17,20 @@ const bloomHas = jest.fn();
 let mockAccess: { entitlements: Map<string, unknown>; planKey: string | null; anonymous: boolean; default_team_id?: string | null };
 const accesoAnonimo = () => ({ entitlements: new Map<string, unknown>(), planKey: null, anonymous: true });
 
-jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
-jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
+const mockServiceClient = { client: 'service' };
+const mockSessionClient = { client: 'session' };
+const getShorterRepository = jest.fn();
+
+// Getters: las factorías de jest.mock se elevan por encima de estas constantes.
+jest.mock('@/infra/db/supabase_service', () => ({ get supabase_service() { return mockServiceClient; } }));
+jest.mock('@/lib/supabase/server', () => ({ createClient: () => Promise.resolve(mockSessionClient) }));
 jest.mock('@/lib/utils/check_domain', () => ({ loadBloom: () => ({ has: bloomHas }) }));
 jest.mock('@/lib/turso/createTursoClient', () => ({ isSafeDomain }));
 jest.mock('@/infra/db/shorter.repository', () => ({
-  getShorterRepository: () => ({
-    create,
-    countLinksByIpInLastMonth,
-    countLinksByUserInLastMonth,
-  }),
+  getShorterRepository: (db: unknown) => {
+    getShorterRepository(db);
+    return { create, countLinksByIpInLastMonth, countLinksByUserInLastMonth };
+  },
 }));
 jest.mock('@/infra/db/user.repository', () => ({
   getUserRepository: () => ({ getCurrentUser }),
@@ -90,6 +94,23 @@ describe('POST /api/v1/shorten', () => {
     expect(payload.ok).toBe(true);
     expect(payload.data.short).toMatch(/^https:\/\/iny\.one\/[a-z0-9_-]{7,8}$/i);
     expect(create).toHaveBeenCalledTimes(1);
+  });
+
+  it('creates anonymous links with the service client, never with the public anon role', async () => {
+    await POST(request({ url: 'https://github.com' }, anonymous), undefined);
+
+    expect(getShorterRepository).toHaveBeenCalledWith(mockServiceClient);
+    expect(getShorterRepository).not.toHaveBeenCalledWith(mockSessionClient);
+  });
+
+  it('creates authenticated links with the user session so the database knows the creator', async () => {
+    getCurrentUser.mockResolvedValue({ data: { user: { id: 'user-1' }, role: null, plan: null } });
+    mockAccess = { entitlements: new Map(), planKey: 'free', anonymous: false };
+
+    await POST(request({ url: 'https://github.com' }), undefined);
+
+    expect(getShorterRepository).toHaveBeenCalledWith(mockSessionClient);
+    expect(getShorterRepository).not.toHaveBeenCalledWith(mockServiceClient);
   });
 
   it('rejects a payload that is not a valid url', async () => {

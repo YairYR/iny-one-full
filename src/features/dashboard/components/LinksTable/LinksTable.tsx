@@ -21,6 +21,8 @@ interface Props {
   page: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  pageSize?: number;
+  onPageSizeChange?: (size: number) => void;
   onOpen?: (link: UserUrl) => void;
   onEdit: (link: UserUrl) => void;
   onQr?: (link: UserUrl) => void;
@@ -66,7 +68,7 @@ function LinkRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: ITool<User
   );
 }
 
-export function LinksTable({ links, total, page, totalPages, onPageChange, onOpen, onEdit, onQr, permissions = { canEdit: false, canViewStats: false } }: Readonly<Props>) {
+export function LinksTable({ links, total, page, totalPages, onPageChange, pageSize = 20, onPageSizeChange, onOpen, onEdit, onQr, permissions = { canEdit: false, canViewStats: false } }: Readonly<Props>) {
   const t = useTranslations('DashboardPage');
   const format = useFormatter();
   const locale = useLocale();
@@ -75,7 +77,6 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
   const [searchField, setSearchField] = useState<SearchField>('all');
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnSizing, setColumnSizing] = useState<ColumnSizingState>({});
-  const [rowSize, setRowSize] = useState(20);
   const [copyStatus, setCopyStatus] = useState<'success' | 'error' | null>(null);
 
   const onClickCopy = useCallback(async (link: UserUrl) => {
@@ -89,7 +90,8 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
 
   const goToLinkDetails = useCallback((_e: React.MouseEvent, link: UserUrl) => {
     const url = `${localizedPath(ROUTES.DASHBOARD_LINK_DETAILS, locale)}?id=${encodeURIComponent(link.link_id)}`;
-    router.replace(url);
+    // `push`, no `replace`: con `replace` el botón Atrás salía del panel.
+    router.push(url);
   }, [locale, router]);
 
   const tools: ITool<UserUrl>[] = useMemo(() => [
@@ -148,10 +150,8 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
     });
   }, [links, locale, query, searchField]);
 
-  const listedLinks = useMemo(() => visibleLinks.slice(0, rowSize), [visibleLinks, rowSize]);
-
   const table = useReactTable({
-    data: listedLinks, columns, state: { sorting, columnSizing },
+    data: visibleLinks, columns, state: { sorting, columnSizing },
     onSortingChange: setSorting, onColumnSizingChange: setColumnSizing,
     getCoreRowModel: getCoreRowModel(), getSortedRowModel: getSortedRowModel(),
     getRowId: (link) => link.link_id, enableMultiSort: false, columnResizeMode: 'onChange',
@@ -186,7 +186,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, onOpe
             </div>
             <div>
               <label htmlFor="links-row-size" className="block text-sm font-medium text-gray-700">{t('table.links.rowSize')}</label>
-              <select id="links-row-size" value={rowSize} onChange={(event) => setRowSize(Number(event.target.value))}
+              <select id="links-row-size" value={pageSize} onChange={(event) => onPageSizeChange?.(Number(event.target.value))}
                 className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
                 {[5, 10, 20].map((size) => <option key={size} value={size}>{size}</option>)}
               </select>

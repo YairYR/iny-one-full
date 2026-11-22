@@ -1,21 +1,31 @@
 begin;
-select plan(12);
+select plan(14);
 
+-- Con la clave pública, `anon` llamaría a la RPC saltándose blocklist, cuota y
+-- caducidad. La creación anónima la hace el servidor con service role.
 select ok(
-  has_function_privilege(
+  not has_function_privilege(
     'anon',
     'public.create_link(uuid,uuid,text,text,text,text,inet,text,text,text,text,text,text,text,text,integer)',
     'EXECUTE'
   ),
-  'anon puede ejecutar create_link'
+  'anon no puede ejecutar create_link'
 );
 select ok(
   not has_function_privilege(
+    'public',
+    'public.create_link(uuid,uuid,text,text,text,text,inet,text,text,text,text,text,text,text,text,integer)',
+    'EXECUTE'
+  ),
+  'PUBLIC no puede ejecutar create_link'
+);
+select ok(
+  has_function_privilege(
     'service_role',
     'public.create_link(uuid,uuid,text,text,text,text,inet,text,text,text,text,text,text,text,text,integer)',
     'EXECUTE'
   ),
-  'service_role no puede ejecutar create_link'
+  'service_role puede ejecutar create_link para enlaces anónimos'
 );
 select ok(
   has_function_privilege(
@@ -38,20 +48,21 @@ select ok(
   'los roles de la API no pueden usar la sobrecarga con created_by'
 );
 
-set local role anon;
-select set_config('request.jwt.claims', '{"role":"anon"}', true);
+set local role service_role;
+select set_config('request.jwt.claims', '{"role":"service_role"}', true);
 select lives_ok(
-  $$select * from public.create_link(null, null, 'test-anon-link', 'https://example.com', 'example.com', null::text, '203.0.113.10'::inet)$$,
-  'anon puede crear un enlace sin equipo'
+  $$select * from public.create_link(null, null, 'test-anon-link', 'https://example.com', 'example.com', null::text, '203.0.113.10'::inet, p_expires_in => 7)$$,
+  'el servidor crea un enlace anónimo sin equipo'
 );
-reset role;
-
-set local role anon;
-select set_config('request.jwt.claims', '{"role":"anon"}', true);
 select throws_ok(
-  $$select * from public.create_link(gen_random_uuid(), null, 'test-anon-team', 'https://example.com', 'example.com')$$,
+  $$select * from public.create_link(gen_random_uuid(), null, 'test-anon-team', 'https://example.com', 'example.com', p_expires_in => 7)$$,
   '42501', 'ANONYMOUS_TEAM_NOT_ALLOWED',
-  'anon no puede crear enlaces dentro de un equipo'
+  'un enlace anónimo no puede pertenecer a un equipo'
+);
+select throws_ok(
+  $$select * from public.create_link(null, null, 'test-anon-forever', 'https://example.com', 'example.com')$$,
+  '22023', 'ANONYMOUS_EXPIRY_REQUIRED',
+  'un enlace anónimo siempre caduca'
 );
 reset role;
 

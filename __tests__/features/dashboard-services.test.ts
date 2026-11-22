@@ -20,7 +20,7 @@ it('requests the three independent dashboard groups without HTTP caching', async
     '/api/v1/dashboard/summary?kpi=traffic,performance', { cache: 'no-store' },
   );
   expect(fetchMock).toHaveBeenCalledWith(
-    '/api/v1/teams/default/links?page=3', { cache: 'no-store' },
+    '/api/v1/teams/default/links?page=3&pageSize=20', { cache: 'no-store' },
   );
 });
 
