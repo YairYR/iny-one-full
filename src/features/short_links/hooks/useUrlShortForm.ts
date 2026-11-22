@@ -65,6 +65,8 @@ export function useUrlShortForm({ t, isAuthenticated = false }: Props) {
   };
 
   const handleShorten = async () => {
+    if (isLoading) return;
+
     const url = currentUrl.trim()
       .replace(/^(https?):\/\//, '')
       .replace(/^/, 'https://');

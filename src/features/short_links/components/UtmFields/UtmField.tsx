@@ -17,7 +17,7 @@ export function UtmField({ id, name, label, value, placeholder, tooltip, classNa
     return <>
         {(label || tooltip) && (
             <div className="flex items-center gap-1 mb-1">
-                {label && <Label htmlFor="input_utm_source" className="text-xs text-gray-600">{label}</Label>}
+                {label && <Label htmlFor={id} className="text-xs text-gray-600">{label}</Label>}
                 {tooltip && <Tooltip content={tooltip}/>}
             </div>
         )}
