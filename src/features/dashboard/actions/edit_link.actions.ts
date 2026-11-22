@@ -163,6 +163,12 @@ async function prepareDestination(
   }
 
   const currentDestination = current.destination;
+  const shorterRepo = getShorterRepository(supabase_service);
+  const { data: utms, error: utmsError } = await shorterRepo.getUtmsByLinkId(link_id);
+  if (utmsError) {
+    log.error(utmsError, 'failed to read link UTM values for %s', link_id);
+    return { ok: false };
+  }
 
   let target: string;
   try {
@@ -175,12 +181,12 @@ async function prepareDestination(
   // `destination` guarda la URL ya compuesta con las UTM, así que hay que
   // recomponerlas con las que ya tenía el enlace o el cambio las perdería.
   const { destination } = buildDestination(target, {
-    source: current.utms?.utm_source,
-    medium: current.utms?.utm_medium,
-    campaign: current.utms?.utm_campaign,
-    term: current.utms?.utm_term,
-    content: current.utms?.utm_content,
-    id: current.utms?.utm_id,
+    source: utms?.utm_source,
+    medium: utms?.utm_medium,
+    campaign: utms?.utm_campaign,
+    term: utms?.utm_term,
+    content: utms?.utm_content,
+    id: utms?.utm_id,
   }, plan);
 
   if (destination === currentDestination) return { ok: true };

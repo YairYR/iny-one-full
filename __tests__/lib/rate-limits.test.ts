@@ -152,7 +152,7 @@ describe('checkRateLimit', () => {
 
     await checkRateLimit({ userId: 'user-1', plan: 'basic', ip: '1.2.3.4', repo, store });
 
-    expect(getMetric).toHaveBeenCalledWith('user', 'user-1', 'links.created', expect.any(Date));
+    expect(getMetric).toHaveBeenCalledWith('user', 'user-1', 'links.create', expect.any(Date));
     expect(countLinksByUserInLastMonth).not.toHaveBeenCalled();
     expect(countLinksByIpInLastMonth).not.toHaveBeenCalled();
   });

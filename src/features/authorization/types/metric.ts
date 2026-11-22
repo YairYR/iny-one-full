@@ -1,4 +1,5 @@
 export const METRICS = {
+  LINKS_CREATE: 'links.create',
   LINKS_CREATED: 'links.created',
   DOMAINS_ADDED: 'domains.added',
   TEAM_MEMBERS_INVITED: 'team.members.invited',

@@ -104,7 +104,7 @@ export function getUserRepository(db: DbInstance) {
     async getLinkForEdit(link_id: string) {
       return db
         .from('short_links')
-        .select('link_id, destination, utms(utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_id)')
+        .select('link_id, destination')
         .eq('link_id', link_id)
         .maybeSingle();
     },

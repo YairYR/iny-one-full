@@ -164,7 +164,15 @@ export function getShorterRepository(db: DbInstance) {
           new_destination: entry.newDestination,
           changed_by: entry.changedBy,
         }]);
-    }
+    },
+
+    async getUtmsByLinkId(linkId: string) {
+      return db
+        .from('utms')
+        .select('utm_source, utm_medium, utm_campaign, utm_term, utm_content, utm_id')
+        .eq('link_id', linkId)
+        .maybeSingle();
+    },
   }
 }
 

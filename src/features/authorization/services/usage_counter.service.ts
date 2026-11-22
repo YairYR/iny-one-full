@@ -1,6 +1,7 @@
 import { getUsageCounterRepository } from "@/infra/db/usage_counter.repository";
 import { supabase_service } from "@/infra/db/supabase_service";
 import { ShorterRepository } from "@/infra/db/shorter.repository";
+import { METRICS } from "@/features/authorization/types/metric";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
@@ -17,7 +18,7 @@ export class UsageCounterService {
 
   async checkRateLimitByUser(userId: string) {
     const date = dayjs().utc().date(1);
-    const { data, error } = await this.usageRepo.getMetric('user', userId, 'links.created', date.toDate());
+    const { data, error } = await this.usageRepo.getMetric('user', userId, METRICS.LINKS_CREATE, date.toDate());
 
     if (error) {
       return { count: undefined, error };

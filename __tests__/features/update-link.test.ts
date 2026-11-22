@@ -7,6 +7,7 @@ const getCurrentUser = jest.fn();
 const updateLink = jest.fn();
 const getLinkForEdit = jest.fn();
 const logDestinationChange = jest.fn();
+const getUtmsByLinkId = jest.fn();
 const validateDestination = jest.fn();
 const getDefaultTeamAccess = jest.fn();
 let mockAccess: { entitlements: Map<string, unknown>; planKey: string | null; anonymous: boolean };
@@ -17,7 +18,7 @@ jest.mock('@/infra/db/user.repository', () => ({
   getUserRepository: () => ({ getCurrentUser, updateLink, getLinkForEdit }),
 }));
 jest.mock('@/infra/db/shorter.repository', () => ({
-  getShorterRepository: () => ({ logDestinationChange }),
+  getShorterRepository: () => ({ logDestinationChange, getUtmsByLinkId }),
 }));
 jest.mock('@/lib/short-links/validate-destination', () => ({
   validateDestination: (...args: unknown[]) => validateDestination(...args),
@@ -51,6 +52,17 @@ describe('updateLinkAction', () => {
     getDefaultTeamAccess.mockResolvedValue({ team_id: 'team-1', permitted: true });
     updateLink.mockResolvedValue({ data: [{ link_id: LINK_ID }], error: null });
     logDestinationChange.mockResolvedValue({ error: null });
+    getUtmsByLinkId.mockResolvedValue({
+      data: {
+        utm_source: 'instagram',
+        utm_medium: 'social',
+        utm_campaign: 'verano',
+        utm_term: null,
+        utm_content: null,
+        utm_id: null,
+      },
+      error: null,
+    });
     getLinkForEdit.mockResolvedValue({
       data: {
         link_id: LINK_ID,
@@ -95,6 +107,17 @@ describe('updateLinkAction', () => {
    */
   /** El enlace ya tenía `utm_content` guardado, como lo tendría un suscriptor. */
   function enlaceConUtmContent() {
+    getUtmsByLinkId.mockResolvedValue({
+      data: {
+        utm_source: 'instagram',
+        utm_medium: null,
+        utm_campaign: null,
+        utm_term: null,
+        utm_content: 'boton',
+        utm_id: null,
+      },
+      error: null,
+    });
     getLinkForEdit.mockResolvedValue({
       data: {
         link_id: LINK_ID,
