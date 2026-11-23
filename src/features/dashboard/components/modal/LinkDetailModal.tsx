@@ -27,7 +27,7 @@ export function LinkDetailModal({ modal, onClose, canViewSensitiveStats = false 
   const link = modal.link;
 
   return (
-    <Dialog open={modal.open} onClose={onClose} transition className="relative z-40">
+    <Dialog open={modal.open} onClose={onClose} transition className="relative z-50">
       <div className="fixed inset-0 flex items-center justify-center overflow-y-auto p-4">
         <div className="absolute inset-0 bg-black/40 w-full" />
         <DialogPanel className="z-50 max-h-[92vh] w-full max-w-5xl overflow-y-auto rounded-xl border border-gray-200 bg-surface p-4 shadow-xl sm:p-6">

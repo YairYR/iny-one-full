@@ -209,7 +209,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
           {total === 0 && <Link href={ROUTES.HOME} className="mt-3 inline-block font-medium text-indigo-600 underline">{t('button.newLink')}</Link>}
         </div>
       ) : (
-        <div role="region" aria-labelledby="links-title" tabIndex={0} className="max-h-[28rem] overflow-auto focus-visible:outline-2 focus-visible:outline-indigo-600">
+        <div role="region" aria-labelledby="links-title" tabIndex={0} className="isolate max-h-[28rem] overflow-auto focus-visible:outline-2 focus-visible:outline-indigo-600">
           <table className="table-fixed border-separate border-spacing-0 text-left text-sm" style={{ width: table.getTotalSize() }}>
             <colgroup>{table.getVisibleLeafColumns().map((column) => <col key={column.id} style={{ width: column.getSize() }} />)}</colgroup>
             <thead>
