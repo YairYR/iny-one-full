@@ -232,6 +232,13 @@
   },
   "DashboardPage": {
     "example": {
+      "badge": "Sample",
+      "actionUnavailable": "Not available on sample data",
+      "links": {
+        "launch": "Product launch",
+        "newsletter": "November newsletter",
+        "social": "Social media promo"
+      },
       "title": "Example dashboard",
       "label": "Example data, not real",
       "visitor": "Explore how your statistics will look. All data in this view is fictional. Create a free account to manage your links.",

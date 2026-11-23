@@ -232,6 +232,13 @@
   },
   "DashboardPage": {
     "example": {
+      "badge": "Ejemplo",
+      "actionUnavailable": "No disponible con datos de ejemplo",
+      "links": {
+        "launch": "Lanzamiento de producto",
+        "newsletter": "Newsletter de noviembre",
+        "social": "Promo en redes sociales"
+      },
       "title": "Vista de ejemplo",
       "label": "Datos de ejemplo, no son reales",
       "visitor": "Explora cómo se verán tus estadísticas. Todos los datos de esta vista son ficticios. Crea una cuenta gratis para gestionar tus enlaces.",

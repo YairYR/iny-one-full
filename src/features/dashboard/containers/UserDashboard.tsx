@@ -8,7 +8,8 @@ import { ROUTES } from "@/lib/routes";
 import InfoPopover from "@/components/Popover/InfoPopover";
 import { useUserDashboard } from "@/features/dashboard/hooks/useUserDashboard";
 import { useFormatter } from "next-intl";
-import { DashboardExample, ExampleChart } from "@/features/dashboard/components/DashboardExample";
+import { DashboardExample, ExampleChart, TrafficList } from "@/features/dashboard/components/DashboardExample";
+import { DASHBOARD_CHART_HEIGHT, DashboardCard } from "@/features/dashboard/components/DashboardCard";
 
 const ChartSkeleton = () => (
   <div className="h-full w-full animate-pulse rounded-lg bg-gray-100" aria-hidden="true" />
@@ -28,6 +29,8 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
     onClickEdit, onClickStats, onClickQr, onCloseModal,
   } = useUserDashboard();
   const format = useFormatter();
+  // Una sola serie, ya nombrada por el título de la tarjeta: la leyenda sólo resta alto.
+  const chartOptions = { ...countChartOptions, plugins: { legend: { display: false } } };
   const number = (value: number | undefined) => value === undefined ? t('noData') : format.number(value);
   const trafficName = (name: string) => name === 'Direct' ? t('traffic.direct') : name === 'Others' ? t('traffic.other') : name;
   const isEmpty = linksRequest.data?.pagination.total === 0 && kpis.data && insights.data
@@ -47,9 +50,9 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
   if (isEmpty) return <DashboardExample audience="empty" />;
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
-      <div className="max-w-7xl mx-auto">
-        <header className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div className="min-h-screen bg-gray-50 px-4 py-5 md:px-6 lg:px-8">
+      <div className="mx-auto max-w-7xl space-y-4">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-2xl font-bold">{t('title')}</h1>
             <p className="text-sm text-gray-500">{t('subtitle')}</p>
@@ -57,81 +60,68 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
           <Link prefetch={false} href={ROUTES.HOME} className="inline-flex justify-center rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{t("button.newLink")}</Link>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <section className="lg:col-span-2 space-y-6">
-            <div>
-              {status(kpis)}
-              {kpis.data && <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
-                <Kpi emphasized title={t("panel.totalLinks.title")} value={number(stats.general.totalLinks)} />
-                <Kpi title={t("panel.totalClicks.title")} value={number(stats.general.totalClicks)} />
-                <Kpi title={t("panel.clicksLast24h.title")} value={number(stats.general.clicksLast24h)} />
-                <Kpi title={t("panel.topCountry.title")} value={stats.general.topCountry ?? t('noData')} />
-              </div>}
-            </div>
+        <div>
+          {status(kpis)}
+          {kpis.data && <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <Kpi emphasized title={t("panel.totalLinks.title")} value={number(stats.general.totalLinks)} />
+            <Kpi title={t("panel.totalClicks.title")} value={number(stats.general.totalClicks)} />
+            <Kpi title={t("panel.clicksLast24h.title")} value={number(stats.general.clicksLast24h)} />
+            <Kpi title={t("panel.topCountry.title")} value={stats.general.topCountry ?? t('noData')} />
+          </div>}
+        </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <section className="rounded-xl border border-gray-200 bg-surface p-4">
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <h2 className="text-lg font-semibold">
-                    {t("panel.weekActivity.title")}{" "}
-                    <InfoPopover anchor="bottom start" label={t('popover.utcLabel')}>
-                      <p>{t("popover.info.utc.0")}</p><p>{t("popover.info.utc.1")}</p>
-                      <Link target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time" className="text-indigo-600 underline hover:text-indigo-700">Wikipedia</Link>
-                    </InfoPopover>
-                  </h2>
-                  <span className="text-sm text-gray-500">{t("panel.weekActivity.subtitle")}</span>
-                </div>
-                {kpis.data && !kpis.error && stats.week?.clicks.every((clicks) => clicks === 0) ? <>
-                  <p className="mb-3 text-sm text-gray-500">{t('example.noActivity')}</p>
-                  <ExampleChart kind="week" />
-                </> : kpis.data ? <>
-                  <div className="h-52 w-full"><Line data={clicks_week} options={countChartOptions} aria-hidden="true" /></div>
-                  <ul className="sr-only">{stats.week?.days.map((day, i) => <li key={day}>{day}: {number(stats.week?.clicks[i])}</li>)}</ul>
-                </> : <p className="text-sm text-gray-500">{kpis.error ? t('sectionError') : t('loading')}</p>}
-              </section>
+        {/* Tres gráficos en una fila en escritorio; la tabla va a todo el ancho para mostrar más columnas. */}
+        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 xl:grid-cols-3">
+          <DashboardCard
+            title={<>
+              {t("panel.weekActivity.title")}{" "}
+              <InfoPopover anchor="bottom start" label={t('popover.utcLabel')}>
+                <p>{t("popover.info.utc.0")}</p><p>{t("popover.info.utc.1")}</p>
+                <Link target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time" className="text-indigo-600 underline hover:text-indigo-700">Wikipedia</Link>
+              </InfoPopover>
+            </>}
+            subtitle={t("panel.weekActivity.subtitle")}>
+            {kpis.data && !kpis.error && stats.week?.clicks.every((clicks) => clicks === 0) ? <>
+              <p className="mb-2 text-sm text-gray-500">{t('example.noActivity')}</p>
+              <ExampleChart kind="week" />
+            </> : kpis.data ? <>
+              <div className={`${DASHBOARD_CHART_HEIGHT} w-full`}><Line data={clicks_week} options={chartOptions} aria-hidden="true" /></div>
+              <ul className="sr-only">{stats.week?.days.map((day, i) => <li key={day}>{day}: {number(stats.week?.clicks[i])}</li>)}</ul>
+            </> : <p className="text-sm text-gray-500">{kpis.error ? t('sectionError') : t('loading')}</p>}
+          </DashboardCard>
 
-              <section className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <h2 className="text-lg font-semibold">{t("panel.performancePerLink.title")}</h2>
-                  <span className="text-sm text-gray-500">{t("panel.performancePerLink.subtitle", { top: top_by_clicks })}</span>
-                </div>
-                {status(insights)}
-                {insights.data && (!insights.error && stats.topLinks.every((link) => link.clicks === 0) ? <>
-                  <p className="mb-3 text-sm text-gray-500">{stats.topLinks.length ? t('example.noLinkActivity') : t('noLinksChart')}</p>
-                  <ExampleChart kind="performance" />
-                </> : stats.topLinks.length ? <>
-                  <div className="h-52 w-full"><Bar data={clicks_top} options={countChartOptions} aria-hidden="true" /></div>
-                  <ul className="sr-only">{stats.topLinks.slice(0, top_by_clicks).map((link) => <li key={link.slug}>{link.slug}: {number(link.clicks)}</li>)}</ul>
-                  <p className="mt-3 text-xs text-gray-500">{t('table.links.clicksNote')}</p>
-                </> : null)}
-              </section>
-            </div>
+          <DashboardCard tone="subtle" title={t("panel.performancePerLink.title")} subtitle={t("panel.performancePerLink.subtitle", { top: top_by_clicks })}>
+            {status(insights)}
+            {insights.data && (!insights.error && stats.topLinks.every((link) => link.clicks === 0) ? <>
+              <p className="mb-2 text-sm text-gray-500">{stats.topLinks.length ? t('example.noLinkActivity') : t('noLinksChart')}</p>
+              <ExampleChart kind="performance" />
+            </> : stats.topLinks.length ? <>
+              <div className={`${DASHBOARD_CHART_HEIGHT} w-full`}><Bar data={clicks_top} options={chartOptions} aria-hidden="true" /></div>
+              <ul className="sr-only">{stats.topLinks.slice(0, top_by_clicks).map((link) => <li key={link.slug}>{link.slug}: {number(link.clicks)}</li>)}</ul>
+            </> : null)}
+          </DashboardCard>
 
-            <div>
-              {status(linksRequest)}
-              {linksRequest.data && <LinksTable links={stats.links} total={stats.pagination?.total ?? 0}
-                page={page} totalPages={totalPages} onPageChange={setPage}
-                pageSize={pageSize} onPageSizeChange={setPageSize}
-                onOpen={onClickStats} onEdit={onClickEdit} onQr={onClickQr}
-                permissions={{ canEdit: canEditLinks, canViewStats }} />}
-            </div>
-          </section>
+          <DashboardCard title={t("panel.sourceTraffic.title")} className="md:col-span-2 xl:col-span-1">
+            {status(insights)}
+            {insights.data && (graffic_traffic ? (
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center xl:flex-col xl:items-stretch">
+                <div className="h-40 sm:w-1/2 xl:w-full lg:h-[clamp(8rem,17dvh,11rem)]"><Pie data={{ ...graffic_traffic, labels: traffic.map((item) => trafficName(item.name)) }} options={{ maintainAspectRatio: false, plugins: { legend: { display: false } } }} aria-hidden="true" /></div>
+                <TrafficList items={traffic.map((item) => ({ label: trafficName(item.name), value: item.value }))} format={format.number} />
+              </div>
+            ) : !insights.error && <>
+              <p className="mb-2 text-sm text-gray-500">{t('noTraffic')}</p>
+              <ExampleChart kind="traffic" />
+            </>)}
+          </DashboardCard>
+        </div>
 
-          <aside className="space-y-6">
-            <section className="rounded-xl border border-gray-200 bg-surface p-4">
-              <h2 className="text-lg font-semibold mb-3">{t("panel.sourceTraffic.title")}</h2>
-              {status(insights)}
-              {insights.data && (graffic_traffic ? <>
-                <div className="h-44 w-full"><Pie data={{ ...graffic_traffic, labels: traffic.map((item) => trafficName(item.name)) }} options={{ maintainAspectRatio: false }} aria-hidden="true" /></div>
-                <ul className="mt-3 space-y-1 text-sm text-gray-600">
-                  {traffic.map((item) => <li key={item.name} className="flex justify-between gap-2"><span>{trafficName(item.name)}</span><span>{format.number(item.value)}%</span></li>)}
-                </ul>
-              </> : !insights.error && <>
-                <p className="mb-3 text-sm text-gray-500">{t('noTraffic')}</p>
-                <ExampleChart kind="traffic" />
-              </>)}
-            </section>
-          </aside>
+        <div>
+          {status(linksRequest)}
+          {linksRequest.data && <LinksTable links={stats.links} total={stats.pagination?.total ?? 0}
+            page={page} totalPages={totalPages} onPageChange={setPage}
+            pageSize={pageSize} onPageSizeChange={setPageSize}
+            onOpen={onClickStats} onEdit={onClickEdit} onQr={onClickQr}
+            permissions={{ canEdit: canEditLinks, canViewStats }} />}
         </div>
       </div>
       <LinkDetailModal modal={modal} onClose={onCloseModal} canViewSensitiveStats={canViewSensitiveStats} />

@@ -156,6 +156,36 @@ Rules:
   through an indigo-soft notice or explicit label. Do not use decorative color
   to imply real activity or a successful metric.
 
+### Dashboard Page Density
+- Page container: `px-4 py-5 md:px-6 lg:px-8`, `max-w-7xl`, `space-y-4`
+  between sections and `gap-3` inside grids. Card padding is `p-4`; KPI tiles
+  use `px-4 py-3`.
+- Order: compact header with the primary action → KPI row
+  (`grid-cols-2 lg:grid-cols-4`) → charts row
+  (`md:grid-cols-2 xl:grid-cols-3`) → full-width table. Tables get the full
+  width so more columns fit without horizontal scrolling.
+- Build sections with the shared `DashboardCard` and `Kpi` components. Do not
+  restyle cards locally.
+- Chart heights follow the viewport: `DASHBOARD_CHART_HEIGHT`
+  (`h-48 lg:h-[clamp(11rem,24dvh,15rem)]`) on dashboards; the main trend of a
+  detail page may use `clamp(18rem,50dvh,28rem)` with the breakdowns stacked
+  beside it (`lg:grid-cols-[2fr_1fr]`). Avoid fixed `h-64`/`h-72` blocks.
+- Hide the legend of single-series charts; the card title already names it.
+- Table scroll areas use `max-h-[clamp(18rem,62dvh,44rem)]` so the toolbar and
+  pagination stay reachable.
+
+### Example Data
+- Example (demo, empty, setup) dashboards mirror the real layout exactly:
+  same components, order, grids and table. Only the data and the markers
+  differ, so what users learn transfers to their real dashboard.
+- Mark example data at three levels: a dashed indigo notice with the CTA at
+  the top, `border-dashed` on every example card and KPI, and the
+  `ExampleBadge` («Ejemplo» / «Sample») on cards and the table title.
+- Example data must be internally consistent (per-link clicks add up to the
+  total; chart labels match table slugs) and use `example.com` destinations.
+- Actions on example rows are visible but disabled with an explicit reason
+  (`readOnlyReason`), never silently missing.
+
 ### Dashboard Color Usage
 - Indigo is the default for primary actions, the dominant chart series,
   active controls and selected states.

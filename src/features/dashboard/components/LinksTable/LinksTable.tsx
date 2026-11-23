@@ -30,6 +30,9 @@ interface Props {
     canEdit: boolean;
     canViewStats: boolean;
   };
+  /** Datos ficticios: todas las acciones quedan visibles pero deshabilitadas con este motivo. */
+  readOnlyReason?: string;
+  badge?: React.ReactNode;
 }
 
 function LinkRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: ITool<UserUrl>[] }>) {
@@ -68,7 +71,7 @@ function LinkRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: ITool<User
   );
 }
 
-export function LinksTable({ links, total, page, totalPages, onPageChange, pageSize = 20, onPageSizeChange, onOpen, onEdit, onQr, permissions = { canEdit: false, canViewStats: false } }: Readonly<Props>) {
+export function LinksTable({ links, total, page, totalPages, onPageChange, pageSize = 20, onPageSizeChange, onOpen, onEdit, onQr, permissions = { canEdit: false, canViewStats: false }, readOnlyReason, badge }: Readonly<Props>) {
   const t = useTranslations('DashboardPage');
   const format = useFormatter();
   const locale = useLocale();
@@ -94,13 +97,16 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
     router.push(url);
   }, [locale, router]);
 
-  const tools: ITool<UserUrl>[] = useMemo(() => [
-    { key: 'copy', text: t('tools.copy'), onClick: (_e, link) => onClickCopy(link) },
-    { key: 'edit', text: t('tools.edit'), disabled: !permissions.canEdit, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onEdit(link) },
-    { key: 'stats', text: t('tools.stats'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onOpen?.(link) },
-    { key: 'details', text: t('tools.details'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: goToLinkDetails },
-    { key: 'qr', text: t('tools.qr'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onQr?.(link) },
-  ], [t, onClickCopy, onEdit, onOpen, onQr, permissions, goToLinkDetails]);
+  const tools: ITool<UserUrl>[] = useMemo(() => {
+    const list: ITool<UserUrl>[] = [
+      { key: 'copy', text: t('tools.copy'), onClick: (_e, link) => onClickCopy(link) },
+      { key: 'edit', text: t('tools.edit'), disabled: !permissions.canEdit, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onEdit(link) },
+      { key: 'stats', text: t('tools.stats'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onOpen?.(link) },
+      { key: 'details', text: t('tools.details'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: goToLinkDetails },
+      { key: 'qr', text: t('tools.qr'), disabled: !permissions.canViewStats, disabledReason: t('tools.planUnavailable'), onClick: (_e, link) => onQr?.(link) },
+    ];
+    return readOnlyReason ? list.map((tool) => ({ ...tool, disabled: true, disabledReason: readOnlyReason })) : list;
+  }, [t, onClickCopy, onEdit, onOpen, onQr, permissions, goToLinkDetails, readOnlyReason]);
 
   const collator = useMemo(() => new Intl.Collator(locale, { numeric: true, sensitivity: 'base' }), [locale]);
   const columns = useMemo<ColumnDef<UserUrl>[]>(() => [
@@ -159,46 +165,48 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
 
   return (
     <section className="overflow-hidden rounded-xl border border-gray-200 bg-surface" aria-labelledby="links-title">
-      <div className="border-b border-gray-200 p-4">
-        <div className="flex items-center justify-between gap-4">
-          <h2 id="links-title" className="text-lg font-semibold">{t('table.links.title')}</h2>
-          <div className="text-sm text-gray-500">{t('table.links.subtitle', { value: total })}</div>
+      <div className="border-b border-gray-200 px-4 py-3">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
+        <div className="flex min-w-0 items-center gap-2">
+          <h2 id="links-title" className="text-base font-semibold">{t('table.links.title')}</h2>
+          <span className="text-sm text-gray-500">· {t('table.links.subtitle', { value: total })}</span>
+          {badge}
         </div>
-        {total > 0 && <>
-          <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(220px,1fr)_minmax(150px,180px)_92px]">
+        {total > 0 && (
+          <div className={`grid gap-2 lg:w-[36rem] ${onPageSizeChange ? 'sm:grid-cols-[minmax(200px,1fr)_minmax(140px,170px)_88px]' : 'sm:grid-cols-[minmax(200px,1fr)_minmax(140px,170px)]'}`}>
             <div>
-              <label htmlFor="links-search" className="block text-sm font-medium text-gray-700">{t('table.links.search')}</label>
+              <label htmlFor="links-search" className="block text-xs font-medium text-gray-600">{t('table.links.search')}</label>
               <input id="links-search" type="search" value={query} onChange={(event) => setQuery(event.target.value)}
-                className="mt-1 w-full rounded-md border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600" />
+                className="mt-1 w-full rounded-md border border-gray-300 bg-surface px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600" />
             </div>
             <div>
-              <label htmlFor="links-search-field" className="block text-sm font-medium text-gray-700">{t('table.links.searchField')}</label>
+              <label htmlFor="links-search-field" className="block text-xs font-medium text-gray-600">{t('table.links.searchField')}</label>
               <select id="links-search-field" value={searchField} onChange={(event) => {
                 const value = event.target.value;
                 if (value === 'all' || value === 'short' || value === 'name' || value === 'destination') setSearchField(value);
               }}
-                className="mt-1 w-full rounded-md border border-gray-300 bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                className="mt-1 w-full rounded-md border border-gray-300 bg-surface px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
                 <option value="all">{t('table.links.searchAll')}</option>
                 <option value="short">{t('table.links.headers.short')}</option>
                 <option value="name">{t('table.links.headers.name')}</option>
                 <option value="destination">{t('table.links.headers.destination')}</option>
               </select>
             </div>
-            <div>
-              <label htmlFor="links-row-size" className="block text-sm font-medium text-gray-700">{t('table.links.rowSize')}</label>
+            {onPageSizeChange && <div>
+              <label htmlFor="links-row-size" className="block text-xs font-medium text-gray-600">{t('table.links.rowSize')}</label>
               <select id="links-row-size" value={pageSize} onChange={(event) => onPageSizeChange?.(Number(event.target.value))}
-                className="mt-1 w-full rounded-md border border-gray-300 bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                className="mt-1 w-full rounded-md border border-gray-300 bg-surface px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
                 {[5, 10, 20].map((size) => <option key={size} value={size}>{size}</option>)}
               </select>
-            </div>
+            </div>}
           </div>
-          <div className="mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-gray-500">
-            <span>{t('table.links.pageOnly')} {t('table.links.resizeHelp')}</span>
-            <button type="button" onClick={() => table.resetColumnSizing()} className="font-medium text-indigo-700 underline focus-visible:outline-2 focus-visible:outline-indigo-600">{t('table.links.resetWidths')}</button>
-          </div>
-        </>}
-        <p className="mt-2 text-sm text-gray-500">{t('table.links.clicksNote')}</p>
-        <p role="status" className={`mt-2 text-sm ${copyStatus === 'error' ? 'text-red-600' : 'text-green-600'}`}>
+        )}
+        </div>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-gray-500">
+          <span>{t('table.links.clicksNote')}{total > 0 && <> {t('table.links.pageOnly')} {t('table.links.resizeHelp')}</>}</span>
+          {total > 0 && <button type="button" onClick={() => table.resetColumnSizing()} className="font-medium text-indigo-700 underline focus-visible:outline-2 focus-visible:outline-indigo-600">{t('table.links.resetWidths')}</button>}
+        </div>
+        <p role="status" className={copyStatus ? `mt-2 text-sm ${copyStatus === 'error' ? 'text-red-600' : 'text-green-600'}` : 'sr-only'}>
           {copyStatus && t(copyStatus === 'success' ? 'tools.copied' : 'tools.copyError')}
         </p>
       </div>
@@ -209,7 +217,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
           {total === 0 && <Link href={ROUTES.HOME} className="mt-3 inline-block font-medium text-indigo-600 underline">{t('button.newLink')}</Link>}
         </div>
       ) : (
-        <div role="region" aria-labelledby="links-title" tabIndex={0} className="isolate max-h-[28rem] overflow-auto focus-visible:outline-2 focus-visible:outline-indigo-600">
+        <div role="region" aria-labelledby="links-title" tabIndex={0} className="isolate max-h-[clamp(18rem,62dvh,44rem)] overflow-auto focus-visible:outline-2 focus-visible:outline-indigo-600">
           <table className="table-fixed border-separate border-spacing-0 text-left text-sm" style={{ width: table.getTotalSize() }}>
             <colgroup>{table.getVisibleLeafColumns().map((column) => <col key={column.id} style={{ width: column.getSize() }} />)}</colgroup>
             <thead>
