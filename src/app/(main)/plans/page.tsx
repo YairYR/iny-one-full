@@ -198,7 +198,7 @@ export default async function PlansPage() {
             <h2 className="text-2xl font-semibold text-gray-800 mb-3">{t.limitsTitle}</h2>
             <dl className="space-y-3">
               {t.limits.map(({ name, desc }) => (
-                <div key={name} className="bg-white rounded-lg p-4 shadow-sm">
+                <div key={name} className="bg-surface rounded-lg p-4 shadow-sm">
                   <dt className="font-semibold text-indigo-600">{name}</dt>
                   <dd className="text-sm mt-1 leading-relaxed">{desc}</dd>
                 </div>

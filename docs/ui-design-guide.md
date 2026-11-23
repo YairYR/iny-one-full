@@ -33,17 +33,26 @@ Use these colors as the canonical design tokens:
 
 | Token | Hex | Tailwind |
 |---|---|---|
-| Primary | #4F46E5 | indigo-600 |
-| Primary Hover | #4338CA | indigo-700 |
+| Primary | #4F46E5 | `primary` (filled buttons, active segments) |
+| Primary Hover | #4338CA | `primary-hover` |
+| Primary Text | #4F46E5 | indigo-600 (links, icons, accents) |
 | Primary Soft | #EEF2FF | indigo-50 |
 | Primary Border | #C7D2FE | indigo-200 |
+
+Filled primary controls use `bg-primary` / `hover:bg-primary-hover`, not
+`bg-indigo-600`: the `indigo-*` scale is remapped in dark mode for text and
+tints, while `primary` keeps white text at AA contrast in both themes.
+
+Indigo is reserved for actions, links, focus and the primary data series.
+Do not use it (or blue) for page backgrounds, decorative gradients or plan
+cards: page backgrounds are `gray-50`, content sits on `surface`.
 
 ## 4. Neutral Colors
 
 | Token | Hex | Tailwind |
 |---|---|---|
 | Background | #F9FAFB | gray-50 |
-| Surface | #FFFFFF | white |
+| Surface | #FFFFFF | `surface` (never `bg-white`) |
 | Border | #E5E7EB | gray-200 |
 | Text Primary | #111827 | gray-900 |
 | Text Secondary | #4B5563 | gray-600 |
@@ -63,6 +72,46 @@ Use semantic colors consistently:
 - Info Background: #EFF6FF (blue-50)
 
 Never use semantic colors for purely decorative purposes.
+
+- Use `amber`, never `yellow`, for warnings.
+- Info (`blue`) is only for informational notices, never for brand actions:
+  brand actions are always `primary`.
+
+## 5.1 Dark Mode
+
+Dark mode is class-based (`.dark` on `<html>`, `dark:` variant available).
+An inline script in `app/layout.tsx` applies it before first paint: the stored
+choice (`localStorage.theme`) wins, otherwise the system preference is followed
+live. The toggle lives in the navbar.
+
+The palette is remapped by role in `src/styles/globals.css`, so components keep
+semantic classes (`text-gray-900`, `bg-gray-50`, `border-gray-200`,
+`bg-indigo-50`) and must not add parallel `dark:` classes for them.
+
+| Role | Light | Dark |
+|---|---|---|
+| Background (gray-50) | #F9FAFB | #0B1120 |
+| Surface (`surface`) | #FFFFFF | #111827 |
+| Subtle fill (gray-100) | #F3F4F6 | #182133 |
+| Border (gray-200) | #E5E7EB | #263145 |
+| Text Primary (gray-900) | #111827 | #F1F5F9 |
+| Text Secondary (gray-600) | #4B5563 | #AAB6C6 |
+| Text Muted (gray-500) | #6B7280 | #94A3B8 |
+| Primary Soft (indigo-50) | #EEF2FF | #1C1A48 |
+| Primary Text (indigo-600) | #4F46E5 | #8B93F8 |
+| Primary (`primary`) | #4F46E5 | #4F46E5 |
+
+Semantic tints (50–200) become dark tinted backgrounds and their text tones
+(600–800) are lightened to keep AA contrast.
+
+Rules:
+- Use `dark:` only for what the remap cannot express (outlines on
+  `black/5`, third-party brand assets such as the Google button).
+- Always-dark elements (navbar, tooltips, code blocks) carry `.theme-static`
+  so they keep their original palette; descendants that must follow the theme
+  (dropdowns rendered inside the navbar) carry `.theme-follow`.
+- Content that must stay white to work (QR previews) keeps `bg-white`.
+- Never rely on shadows for separation in dark mode; use borders.
 
 ## 6. Component Guidelines
 
@@ -166,6 +215,13 @@ Rules:
 - Avoid unnecessary legends.
 - Always provide responsive chart containers.
 - Use maintainAspectRatio: false when the container controls chart dimensions.
+- Import charts from `features/dashboard/components/charts`, never from
+  `react-chartjs-2` directly: the wrapper adapts axis, grid and series colors
+  to the active theme.
+
+Dark mode series use the 400 tone of each family (Indigo #818CF8,
+Cyan #22D3EE, Emerald #34D399, Amber #FBBF24, Rose #FB7185, Violet #A78BFA),
+mapped automatically from `DASHBOARD_CHART_COLORS`.
 
 ## 8. Responsive Design
 

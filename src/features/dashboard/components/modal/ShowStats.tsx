@@ -104,7 +104,7 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
             {ranges.map((days) => (
               <button key={days} type="button" onClick={() => setRange(days)}
                 aria-pressed={range === days}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-indigo-600 ${range === days ? 'bg-indigo-600 text-white' : 'text-gray-600 hover:bg-gray-50'}`}>
+                className={`rounded-md px-3 py-1.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-indigo-600 ${range === days ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-50'}`}>
                 {t('modal.stats.rangeDays', { days } as never)}
               </button>
             ))}
@@ -132,7 +132,7 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
         </article>
       </div>
 
-      <section className="rounded-xl border border-gray-200 bg-white p-4">
+      <section className="rounded-xl border border-gray-200 bg-surface p-4">
         <h3 className="mb-3 font-semibold">{t('modal.stats.clickTrend')}</h3>
         <div className="h-64">
           {isLoading
@@ -163,7 +163,7 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
               ? <div className="h-52"><Pie data={countryChart} options={{ maintainAspectRatio: false }} aria-hidden="true" /></div>
               : <p className="text-sm text-gray-500">{t('noData')}</p>}
           </section>
-          <section className="rounded-xl border border-gray-200 bg-white p-4">
+          <section className="rounded-xl border border-gray-200 bg-surface p-4">
             <h3 className="mb-3 font-semibold">{t('modal.stats.devices')}</h3>
             {deviceChart.labels.length
               ? <div className="h-52"><Bar data={deviceChart} options={{ maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }} aria-hidden="true" /></div>

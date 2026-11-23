@@ -19,7 +19,7 @@ export default async function UserLayout({ children }: Readonly<Props>) {
   const user = await getCurrentUserDTO();
 
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen flex flex-col justify-between bg-gray-50">
       <NavbarMain user={user} />
       <main>
         { children }

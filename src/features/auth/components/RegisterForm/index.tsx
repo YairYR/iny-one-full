@@ -77,15 +77,15 @@ export default function RegisterForm() {
 
   return (
     <div
-      className={clsx("flex flex-col w-full md:w-1/2 xl:w-2/5 2xl:w-2/5 3xl:w-1/3 mx-auto p-8 md:p-10 2xl:p-12 3xl:p-14 bg-[#ffffff] rounded-2xl shadow-xl", loading && 'cursor-progress')}>
+      className={clsx("flex flex-col w-full md:w-1/2 xl:w-2/5 2xl:w-2/5 3xl:w-1/3 mx-auto p-8 md:p-10 2xl:p-12 3xl:p-14 bg-surface rounded-2xl shadow-xl", loading && 'cursor-progress')}>
       <div className="flex flex-row gap-3 pb-4">
         <div>
           <Image src="/apple-touch-icon.png" alt="Logo" width="50" height="50" />
         </div>
-        <h1 className="text-3xl font-bold text-[#4B5563] my-auto">Iny.One</h1>
+        <h1 className="text-3xl font-bold text-gray-600 my-auto">Iny.One</h1>
 
       </div>
-      {/*<div className="text-sm font-light text-[#6B7280] pb-8 ">Sign up for an account on Your Company.</div>*/}
+      {/*<div className="text-sm font-light text-gray-500 pb-8 ">Sign up for an account on Your Company.</div>*/}
 
       <form>
         <div className="flex flex-row gap-2 justify-center">
@@ -102,7 +102,7 @@ export default function RegisterForm() {
       <form className="flex flex-col" onSubmit={onSubmit}>
         {message && <p role="status" className="mb-4 text-sm text-gray-700">{message}</p>}
         <div className="pb-2">
-          <label htmlFor="name" className="block mb-2 text-sm font-medium text-[#111827]">{t('name')}</label>
+          <label htmlFor="name" className="block mb-2 text-sm font-medium text-gray-900">{t('name')}</label>
           <div className="relative text-gray-400">
             <span className="absolute inset-y-0 left-0 flex items-center p-1 pl-3">
               <SquareUserRound />
@@ -113,7 +113,7 @@ export default function RegisterForm() {
           </div>
         </div>
         <div className="pb-2">
-          <label htmlFor="email" className="block mb-2 text-sm font-medium text-[#111827]">{t('email')}</label>
+          <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">{t('email')}</label>
           <div className="relative text-gray-400">
             <span className="absolute inset-y-0 left-0 flex items-center p-1 pl-3">
               <Mail />
@@ -124,7 +124,7 @@ export default function RegisterForm() {
           </div>
         </div>
         <div className="pb-6">
-          <label htmlFor="password" className="block mb-2 text-sm font-medium text-[#111827]">{t('password')}</label>
+          <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">{t('password')}</label>
           <div className="relative text-gray-400">
             <span className="absolute inset-y-0 left-0 flex items-center p-1 pl-3">
               <SquareAsterisk />
@@ -135,10 +135,10 @@ export default function RegisterForm() {
           </div>
         </div>
         <button type="submit" disabled={loading}
-                className="w-full text-[#FFFFFF] bg-[#4F46E5] focus:ring-4 focus:outline-hidden focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-6">{t('register')}
+                className="w-full text-white bg-primary hover:bg-primary-hover focus:ring-4 focus:outline-hidden focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-6">{t('register')}
         </button>
-        <div className="text-sm font-light text-[#6B7280] ">
-          {t('hasAccount')} <Link href="/auth/login" className="font-medium text-[#4F46E5] hover:underline">{t('login')}</Link>
+        <div className="text-sm font-light text-gray-500 ">
+          {t('hasAccount')} <Link href="/auth/login" className="font-medium text-indigo-600 hover:underline">{t('login')}</Link>
         </div>
       </form>
     </div>

@@ -103,7 +103,7 @@ export default function AboutPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gray-50">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -139,7 +139,7 @@ export default function AboutPage() {
           <Link
             prefetch={false}
             href={ROUTES.HOME}
-            className="inline-flex items-center justify-center bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors"
+            className="inline-flex items-center justify-center bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-hover transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             {t("backHome")}

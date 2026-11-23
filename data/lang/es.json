@@ -98,7 +98,9 @@
     "home": "Inicio",
     "dashboard": "Panel",
     "openMenu": "Abrir menú principal",
-    "login": "Iniciar sesión"
+    "login": "Iniciar sesión",
+    "themeDark": "Activar modo oscuro",
+    "themeLight": "Activar modo claro"
   },
   "404": {
     "metaTitle": "404 – Página no encontrada | iny.one",

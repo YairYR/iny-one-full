@@ -10,7 +10,7 @@ export function Alerts({ alerts }: Readonly<Props>) {
   return (
     <div className="space-y-2">
       {alerts.map((a) => (
-        <div key={a.id} className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded">
+        <div key={a.id} className="bg-amber-50 border-l-4 border-amber-500 text-gray-900 p-3 rounded">
           <p className="text-sm font-semibold">{a.title}</p>
           <p className="text-sm text-gray-600">{a.message}</p>
         </div>

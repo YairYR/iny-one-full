@@ -37,7 +37,7 @@ export default function UserProfileMenu({ picture, fullname }: Readonly<Props>) 
 
       <MenuItems
         transition
-        className="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg outline outline-black/5 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
+        className="theme-follow absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-surface py-1 shadow-lg outline outline-black/5 dark:outline-white/10 transition data-closed:scale-95 data-closed:transform data-closed:opacity-0 data-enter:duration-100 data-enter:ease-out data-leave:duration-75 data-leave:ease-in"
       >
         <MenuItem>
           <Link prefetch={false} href={localizedPath(ROUTES.ACCOUNT_SETTINGS, locale)}

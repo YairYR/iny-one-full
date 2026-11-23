@@ -33,14 +33,14 @@ export default function LoginForm() {
   }
 
   return (
-    <div className={clsx("flex flex-col w-full md:w-1/2 xl:w-2/5 2xl:w-2/5 3xl:w-1/3 mx-auto p-8 md:p-10 2xl:p-12 3xl:p-14 bg-[#ffffff] rounded-2xl shadow-xl", loading && 'cursor-progress')}>
+    <div className={clsx("flex flex-col w-full md:w-1/2 xl:w-2/5 2xl:w-2/5 3xl:w-1/3 mx-auto p-8 md:p-10 2xl:p-12 3xl:p-14 bg-surface rounded-2xl shadow-xl", loading && 'cursor-progress')}>
       <div className="flex flex-row gap-3 pb-4">
         <div>
           <Image src="/apple-touch-icon.png" alt="Logo" width="50" height="50"/>
         </div>
-        <h1 className="text-3xl font-bold text-[#4B5563] my-auto">Iny.One</h1>
+        <h1 className="text-3xl font-bold text-gray-600 my-auto">Iny.One</h1>
       </div>
-      {/*<div className="text-sm font-light text-[#6B7280] pb-8 ">Login to your account on Your Company.</div>*/}
+      {/*<div className="text-sm font-light text-gray-500 pb-8 ">Login to your account on Your Company.</div>*/}
       <form>
         <div className="flex flex-row gap-2 justify-center">
           <GoogleButton onClick={onClickGoogle} disabled={loading}>
@@ -56,7 +56,7 @@ export default function LoginForm() {
       </div>
       <form className="flex flex-col" onSubmit={onSubmit}>
         <div className="pb-2">
-          <label htmlFor="email" className="block mb-2 text-sm font-medium text-[#111827]">Email</label>
+          <label htmlFor="email" className="block mb-2 text-sm font-medium text-gray-900">Email</label>
           <div className="relative text-gray-400">
             <span className="absolute inset-y-0 left-0 flex items-center p-1 pl-3">
               <Mail/>
@@ -67,7 +67,7 @@ export default function LoginForm() {
           </div>
         </div>
         <div className="pb-6">
-          <label htmlFor="password" className="block mb-2 text-sm font-medium text-[#111827]">Password</label>
+          <label htmlFor="password" className="block mb-2 text-sm font-medium text-gray-900">Password</label>
           <div className="relative text-gray-400">
             <span className="absolute inset-y-0 left-0 flex items-center p-1 pl-3">
               <SquareAsterisk/>
@@ -82,14 +82,14 @@ export default function LoginForm() {
           type="submit"
           disabled={loading}
           className={clsx(
-            "w-full text-[#FFFFFF] bg-[#4F46E5] focus:ring-4 focus:outline-hidden focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-6",
+            "w-full text-white bg-primary hover:bg-primary-hover focus:ring-4 focus:outline-hidden focus:ring-indigo-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mb-6",
             loading ? 'cursor-progress' : 'cursor-pointer',
             loading && 'bg-gray-400'
           )}>Login
         </button>
-        <div className="text-sm font-light text-[#6B7280] ">
+        <div className="text-sm font-light text-gray-500 ">
           Don&#39;t have an account yet?{" "}<Link href="/auth/register"
-            className="font-medium text-[#4F46E5] hover:underline">Sign Up</Link>
+            className="font-medium text-indigo-600 hover:underline">Sign Up</Link>
         </div>
       </form>
       */}

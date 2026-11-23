@@ -83,7 +83,7 @@ export default function QrPanel({ url, filename = "qr-code", downloadLabel, alt,
         type="button"
         onClick={handleDownload}
         disabled={!dataUrl}
-        className="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+        className="inline-flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
       >
         <Download className="h-4 w-4" />
         {downloadLabel}

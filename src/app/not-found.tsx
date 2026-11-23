@@ -15,8 +15,8 @@ export default async function NotFound() {
   const t = await getTranslations("404");
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4 text-center">
-      <div className="bg-white rounded-2xl shadow-md p-8 max-w-md w-full">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 px-4 text-center">
+      <div className="bg-surface rounded-2xl shadow-md p-8 max-w-md w-full">
         <div className="flex items-center justify-center mb-4">
           <LinkIcon className="h-8 w-8 text-indigo-600" aria-hidden="true" />
         </div>
@@ -26,7 +26,7 @@ export default async function NotFound() {
           <Link
             prefetch={false}
             href={ROUTES.HOME}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg transition-colors"
+            className="bg-primary hover:bg-primary-hover text-white font-semibold px-4 py-2 rounded-lg transition-colors"
           >
             {t("goHome")}
           </Link>

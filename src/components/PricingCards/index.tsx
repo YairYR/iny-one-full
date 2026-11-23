@@ -101,7 +101,7 @@ export default function PricingCards({ logged, alreadySubscribed }: Readonly<Pro
       price: "$0",
       period: planInfo[locale].free.period,
       features: planInfo[locale].free.features,
-      color: "border-gray-300 text-gray-700 bg-blue-50 hover:border-gray-400",
+      color: "border-gray-200 text-gray-900 bg-surface hover:border-gray-300",
       disabled: logged,
       button: planInfo[locale].free.button,
       onClick: function() {
@@ -116,7 +116,7 @@ export default function PricingCards({ logged, alreadySubscribed }: Readonly<Pro
       price: "$5",
       period: planInfo[locale].starter.period,
       features: planInfo[locale].starter.features,
-      color: "border-blue-500 text-blue-700 bg-blue-50 hover:bg-blue-100 shadow-md",
+      color: "border-indigo-500 bg-indigo-50 text-gray-900 shadow-md ring-1 ring-indigo-500",
       highlight: true,
       disabled: Boolean(alreadySubscribed),
       onClick: function() {

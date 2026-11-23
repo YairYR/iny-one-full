@@ -42,7 +42,7 @@ function SearchableSelect({
             setQuery(event.target.value);
             if (!event.target.value) onChange('');
           }} />
-        <ComboboxOptions anchor="bottom" className="z-50 max-h-60 w-(--input-width) overflow-auto rounded-lg border border-gray-200 bg-white shadow-lg">
+        <ComboboxOptions anchor="bottom" className="z-50 max-h-60 w-(--input-width) overflow-auto rounded-lg border border-gray-200 bg-surface shadow-lg">
           {filtered.map((option) => (
             <ComboboxOption key={option.value} value={option.value} className="cursor-pointer p-2 data-focus:bg-indigo-100">
               {option.label}
@@ -108,7 +108,7 @@ export default function SetupForm({ next, mode = 'setup', initialFullName, initi
   }
 
   return (
-    <div className="flex flex-col w-full md:w-1/2 mx-auto p-8 bg-white rounded-2xl shadow-xl">
+    <div className="flex flex-col w-full md:w-1/2 mx-auto p-8 bg-surface rounded-2xl shadow-xl">
       <h1 className="text-3xl font-bold text-gray-600">{t(mode === 'settings' ? 'settingsTitle' : 'title')}</h1>
       <p className="mt-3 text-gray-600">{t(mode === 'settings' ? 'settingsDescription' : 'description')}</p>
       {mode === 'settings' && !hasTeam && <p className="mt-3 text-gray-600">{t('teamWillBeCreated')}</p>}
@@ -130,7 +130,7 @@ export default function SetupForm({ next, mode = 'setup', initialFullName, initi
         <SearchableSelect id="timezone" label={t('timezone')} value={timezone} options={timezones} disabled={loading} onChange={(value) => { setTimezone(value); setSaved(false); }} />
         {error && <p role="alert" className="text-red-700">{error}</p>}
         {saved && <p role="status" className="text-green-700">{t('saved')}</p>}
-        <button type="submit" disabled={loading} className="rounded-lg bg-indigo-600 p-3 text-white">{t(mode === 'settings' ? 'save' : 'continue')}</button>
+        <button type="submit" disabled={loading} className="rounded-lg bg-primary p-3 text-white">{t(mode === 'settings' ? 'save' : 'continue')}</button>
         {mode === 'setup' && <button type="button" disabled={loading} onClick={() => router.push(localizedPath(next, locale))}
           className="text-indigo-600">{t('skip')}</button>}
       </form>

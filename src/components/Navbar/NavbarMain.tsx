@@ -10,6 +10,7 @@ import { UserClient } from "@/lib/types";
 import { ROUTES } from "@/lib/routes";
 import { useLocale, useTranslations } from "next-intl";
 import { localizedPath } from "@/i18n/routes";
+import ThemeToggle from "@/components/ThemeToggle";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 interface Tab {
@@ -50,7 +51,7 @@ export default function NavbarMain({ user }: Readonly<Props>) {
   });
 
   return (
-    <Disclosure as="nav" className="relative bg-gray-800">
+    <Disclosure as="nav" className="theme-static relative bg-gray-800 dark:border-b dark:border-white/10">
       <div className="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
         <div className="relative flex h-16 items-center justify-between">
           <div className="absolute inset-y-0 left-0 flex items-center sm:hidden">
@@ -86,6 +87,8 @@ export default function NavbarMain({ user }: Readonly<Props>) {
           <div className="absolute inset-y-0 right-0 flex items-center gap-4 pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
 
             <LanguageSwitcher placement="nav" />
+
+            <ThemeToggle />
 
             {user && (<>
               {/*<button*/}

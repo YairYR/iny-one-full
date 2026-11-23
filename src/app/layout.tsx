@@ -5,6 +5,7 @@ import "@/styles/globals.css";
 import { getLocale } from "next-intl/server";
 import Script from "next/script";
 import { IS_PRODUCTION } from "@/constants";
+import { THEME_INIT_SCRIPT } from "@/lib/theme-script";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://iny.one"),
@@ -65,8 +66,12 @@ export default async function RootLayout({
   const locale = await getLocale();
 
   return (
-    <html lang={locale}>
-      <body>
+    // suppressHydrationWarning: el script de tema añade .dark antes de hidratar.
+    <html lang={locale} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }} />
+      </head>
+      <body className="bg-gray-50 text-gray-900">
         <NextIntlClientProvider>{children}</NextIntlClientProvider>
 
         {IS_PRODUCTION && (

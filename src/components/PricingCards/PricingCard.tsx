@@ -48,8 +48,8 @@ export default function PricingCard({ plan }: Readonly<IPricingCard>) {
                 (!isDisabled) && 'cursor-pointer',
                 isDisabled && 'disabled:opacity-50 disabled:pointer-events-none',
                 plan.highlight
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-gray-800 text-white hover:bg-gray-900"
+                    ? "bg-primary text-white hover:bg-primary-hover"
+                    : "border border-gray-300 bg-surface text-gray-900 hover:bg-gray-50"
             )}
         >
           {plan.button ?? 'Choise plan'}
@@ -72,8 +72,8 @@ export default function PricingCard({ plan }: Readonly<IPricingCard>) {
                 (!isDisabled) && 'cursor-pointer',
                 isDisabled && 'disabled:opacity-50 disabled:pointer-events-none',
                 plan.highlight
-                    ? "bg-blue-600 text-white hover:bg-blue-700"
-                    : "bg-gray-800 text-white hover:bg-gray-900"
+                    ? "bg-primary text-white hover:bg-primary-hover"
+                    : "border border-gray-300 bg-surface text-gray-900 hover:bg-gray-50"
             )}
         >
           {plan.button ?? 'Choise plan'}

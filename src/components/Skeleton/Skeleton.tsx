@@ -2,7 +2,7 @@ import React from "react";
 
 export function SkeletonRectangle() {
   return (
-    <div className="p-4 bg-white rounded-md shadow-md">
+    <div className="p-4 bg-surface rounded-md shadow-md">
       <div className="h-4 bg-gray-300 rounded w-3/4 mb-2 animate-pulse"></div>
       <div className="h-4 bg-gray-300 rounded mb-2 animate-pulse"></div>
       <div className="h-4 bg-gray-300 rounded w-1/2 animate-pulse"></div>
@@ -13,7 +13,7 @@ export function SkeletonRectangle() {
 /** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export function SkeletonCircle() {
   return (
-    <div className="p-4 bg-white rounded-md shadow-md flex items-center space-x-4">
+    <div className="p-4 bg-surface rounded-md shadow-md flex items-center space-x-4">
       <div className="w-12 h-12 bg-gray-300 rounded-full animate-pulse"></div>
       <div className="flex-1">
         <div className="h-4 bg-gray-300 rounded w-3/4 mb-2 animate-pulse"></div>
@@ -26,7 +26,7 @@ export function SkeletonCircle() {
 /** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export function SkeletonTriangle() {
   return (
-    <div className="p-4 bg-white rounded-md shadow-md flex items-center space-x-4">
+    <div className="p-4 bg-surface rounded-md shadow-md flex items-center space-x-4">
       <div className="w-0 h-0 border-l-8 border-l-transparent border-r-8 border-r-transparent border-b-16 border-b-gray-300 animate-pulse"></div>
       <div className="flex-1">
         <div className="h-4 bg-gray-300 rounded w-3/4 mb-2 animate-pulse"></div>
@@ -75,7 +75,7 @@ export function SkeletonTable({ rows = 2 }: Readonly<{ rows?: number }>) {
 
         </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-surface divide-y divide-gray-200">
         {rowArray.map((_, i) => (
           (i % 2 === 0)
             ? (

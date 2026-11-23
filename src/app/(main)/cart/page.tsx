@@ -78,7 +78,7 @@ export default async function CartCheckoutPage() {
   // }
 
   return (
-    <div className="max-w-lg mx-auto p-6 bg-white rounded-2xl shadow-md space-y-6">
+    <div className="max-w-lg mx-auto p-6 bg-surface rounded-2xl shadow-md space-y-6">
 
       {/* Header */}
       <div>
@@ -135,7 +135,7 @@ export default async function CartCheckoutPage() {
       </div>
 
       {/* Checkout */}
-      {/*<button className="w-full bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white font-semibold py-3 rounded-xl transition">*/}
+      {/*<button className="w-full bg-primary hover:bg-primary-hover active:bg-indigo-800 text-white font-semibold py-3 rounded-xl transition">*/}
       {/*  Continuar al pago*/}
       {/*</button>*/}
 

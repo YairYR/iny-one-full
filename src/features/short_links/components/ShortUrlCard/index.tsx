@@ -43,7 +43,7 @@ const ShortUrlCard: React.FC<Props> = ({ shortUrl }) => {
         </h3>
       </div>
 
-      <div className="bg-white border border-green-200 rounded-lg p-4 mb-4">
+      <div className="bg-surface border border-green-200 rounded-lg p-4 mb-4">
         <p className="text-sm text-gray-600 mb-2">{t('copy')}</p>
         <div className="flex items-center justify-between">
           <a

@@ -47,7 +47,7 @@ function LinkRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: ITool<User
         const isActions = cell.column.id === 'actions';
         const Cell = isFirst ? 'th' : 'td';
         return (
-          <Cell key={cell.id} scope={isFirst ? 'row' : undefined} className={`${isFirst ? 'sticky left-0 z-10 shadow-[2px_0_0_rgba(229,231,235,0.8)]' : isActions ? 'sticky right-0 z-10 shadow-[-2px_0_0_rgba(229,231,235,0.8)]' : ''} border-b border-gray-200 bg-white px-3 py-2.5 text-left group-hover:bg-gray-50`}>
+          <Cell key={cell.id} scope={isFirst ? 'row' : undefined} className={`${isFirst ? 'sticky left-0 z-10 shadow-[2px_0_0_rgba(229,231,235,0.8)]' : isActions ? 'sticky right-0 z-10 shadow-[-2px_0_0_rgba(229,231,235,0.8)]' : ''} border-b border-gray-200 bg-surface px-3 py-2.5 text-left group-hover:bg-gray-50`}>
             {isFirst ? (
               <span className="block min-w-0 truncate font-medium" title={`iny.one/${row.original.slug}`}>
                 {flexRender(cell.column.columnDef.cell, cell.getContext())}
@@ -158,7 +158,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
   });
 
   return (
-    <section className="overflow-hidden rounded-xl border border-gray-200 bg-white" aria-labelledby="links-title">
+    <section className="overflow-hidden rounded-xl border border-gray-200 bg-surface" aria-labelledby="links-title">
       <div className="border-b border-gray-200 p-4">
         <div className="flex items-center justify-between gap-4">
           <h2 id="links-title" className="text-lg font-semibold">{t('table.links.title')}</h2>
@@ -177,7 +177,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
                 const value = event.target.value;
                 if (value === 'all' || value === 'short' || value === 'name' || value === 'destination') setSearchField(value);
               }}
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                className="mt-1 w-full rounded-md border border-gray-300 bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
                 <option value="all">{t('table.links.searchAll')}</option>
                 <option value="short">{t('table.links.headers.short')}</option>
                 <option value="name">{t('table.links.headers.name')}</option>
@@ -187,7 +187,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
             <div>
               <label htmlFor="links-row-size" className="block text-sm font-medium text-gray-700">{t('table.links.rowSize')}</label>
               <select id="links-row-size" value={pageSize} onChange={(event) => onPageSizeChange?.(Number(event.target.value))}
-                className="mt-1 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
+                className="mt-1 w-full rounded-md border border-gray-300 bg-surface px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600">
                 {[5, 10, 20].map((size) => <option key={size} value={size}>{size}</option>)}
               </select>
             </div>
@@ -259,12 +259,12 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
           <div className="flex items-center gap-1.5">
             <Button type="button" disabled={page <= 1} onClick={() => onPageChange(page - 1)}
               aria-label={t('table.links.pagination.previous')}
-              className="inline-flex h-9 items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 text-gray-700 enabled:cursor-pointer enabled:hover:border-indigo-300 enabled:hover:bg-indigo-50 enabled:hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">
+              className="inline-flex h-9 items-center gap-1 rounded-md border border-gray-300 bg-surface px-2.5 text-gray-700 enabled:cursor-pointer enabled:hover:border-indigo-300 enabled:hover:bg-indigo-50 enabled:hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">
               <ChevronLeft size={16} aria-hidden="true" /><span className="hidden sm:inline">{t('table.links.pagination.previous')}</span>
             </Button>
             <Button type="button" disabled={page >= totalPages} onClick={() => onPageChange(page + 1)}
               aria-label={t('table.links.pagination.next')}
-              className="inline-flex h-9 items-center gap-1 rounded-md border border-gray-300 bg-white px-2.5 text-gray-700 enabled:cursor-pointer enabled:hover:border-indigo-300 enabled:hover:bg-indigo-50 enabled:hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">
+              className="inline-flex h-9 items-center gap-1 rounded-md border border-gray-300 bg-surface px-2.5 text-gray-700 enabled:cursor-pointer enabled:hover:border-indigo-300 enabled:hover:bg-indigo-50 enabled:hover:text-indigo-700 disabled:cursor-not-allowed disabled:opacity-40">
               <span className="hidden sm:inline">{t('table.links.pagination.next')}</span><ChevronRight size={16} aria-hidden="true" />
             </Button>
           </div>

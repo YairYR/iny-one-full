@@ -21,7 +21,7 @@ export default function InfoPopover({ children, anchor, label }: Readonly<Props>
         transition
         anchor={anchor}
         className="absolute z-50 mt-2
-                     w-max max-w-xs bg-white border shadow-lg rounded-lg p-3
+                     w-max max-w-xs bg-surface border shadow-lg rounded-lg p-3
                      text-sm text-gray-700">
         {children}
       </PopoverPanel>

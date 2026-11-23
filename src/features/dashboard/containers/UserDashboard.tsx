@@ -54,7 +54,7 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
             <h1 className="text-2xl font-bold">{t('title')}</h1>
             <p className="text-sm text-gray-500">{t('subtitle')}</p>
           </div>
-          <Link prefetch={false} href={ROUTES.HOME} className="inline-flex justify-center rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{t("button.newLink")}</Link>
+          <Link prefetch={false} href={ROUTES.HOME} className="inline-flex justify-center rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{t("button.newLink")}</Link>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -70,13 +70,13 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <section className="rounded-xl border border-gray-200 bg-white p-4">
+              <section className="rounded-xl border border-gray-200 bg-surface p-4">
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <h2 className="text-lg font-semibold">
                     {t("panel.weekActivity.title")}{" "}
                     <InfoPopover anchor="bottom start" label={t('popover.utcLabel')}>
                       <p>{t("popover.info.utc.0")}</p><p>{t("popover.info.utc.1")}</p>
-                      <Link target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time" className="text-blue-700 underline">Wikipedia</Link>
+                      <Link target="_blank" rel="noopener noreferrer" href="https://en.wikipedia.org/wiki/Coordinated_Universal_Time" className="text-indigo-600 underline hover:text-indigo-700">Wikipedia</Link>
                     </InfoPopover>
                   </h2>
                   <span className="text-sm text-gray-500">{t("panel.weekActivity.subtitle")}</span>
@@ -118,7 +118,7 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
           </section>
 
           <aside className="space-y-6">
-            <section className="rounded-xl border border-gray-200 bg-white p-4">
+            <section className="rounded-xl border border-gray-200 bg-surface p-4">
               <h2 className="text-lg font-semibold mb-3">{t("panel.sourceTraffic.title")}</h2>
               {status(insights)}
               {insights.data && (graffic_traffic ? <>

@@ -101,7 +101,9 @@ declare const messages: {
     "home": "Home",
     "dashboard": "Dashboard",
     "openMenu": "Open main menu",
-    "login": "Sign in"
+    "login": "Sign in",
+    "themeDark": "Switch to dark mode",
+    "themeLight": "Switch to light mode"
   },
   "404": {
     "metaTitle": "404 – Page Not Found | iny.one",

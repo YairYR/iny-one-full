@@ -56,7 +56,7 @@ export default function UrlShortForm({ isAuthenticated = false }: Readonly<Props
 
   return (
     <form onSubmit={onSubmit}>
-      <Fieldset className="bg-white rounded-xl shadow-lg p-8 mb-6">
+      <Fieldset className="bg-surface rounded-xl shadow-lg p-8 mb-6">
         <div className="mb-6">
           <Field>
             <Label htmlFor="input_url" className="block text-sm font-medium text-gray-700 mb-2">
@@ -158,7 +158,7 @@ export default function UrlShortForm({ isAuthenticated = false }: Readonly<Props
           <Button
             disabled={isLoading}
             type="submit"
-            className="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
+            className="flex-1 bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center"
           >
             {isLoading ? (
               <>

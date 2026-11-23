@@ -65,7 +65,7 @@ export function Tooltip({ content, children }: TooltipProps) {
           ref={refs.setFloating}
           style={floatingStyles}
           {...getFloatingProps()}
-          className="z-50 max-w-xs px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg"
+          className="theme-static z-50 max-w-xs dark:ring-1 dark:ring-white/15 px-3 py-2 text-sm text-white bg-gray-900 rounded-lg shadow-lg"
         >
           <FloatingArrow ref={arrowRef} context={context} fill="#111827" />
           {content}

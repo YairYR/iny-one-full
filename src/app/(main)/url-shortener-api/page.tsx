@@ -143,7 +143,7 @@ function CodeBlock({ code, label }: Readonly<{ code: string; label: string }>) {
   return (
     <div>
       <p className="text-xs font-semibold uppercase tracking-wide text-gray-500 mb-1">{label}</p>
-      <pre className="bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto text-xs leading-relaxed">
+      <pre className="theme-static bg-gray-900 text-gray-100 rounded-lg p-4 overflow-x-auto text-xs leading-relaxed">
         <code>{code}</code>
       </pre>
     </div>
@@ -267,7 +267,7 @@ export default function UrlShortenerApiPage() {
           <div>
             <h2 className="text-2xl font-semibold text-gray-800 mb-3">{t.endpointTitle}</h2>
             <p className="leading-relaxed mb-3">{t.endpointDesc}</p>
-            <p className="bg-white rounded-lg p-4 shadow-sm font-mono text-sm">
+            <p className="bg-surface rounded-lg p-4 shadow-sm font-mono text-sm">
               <span className="font-semibold text-indigo-600">POST</span>{" "}
               https://iny.one/api/v1/shorten
             </p>
@@ -277,7 +277,7 @@ export default function UrlShortenerApiPage() {
             <h2 className="text-2xl font-semibold text-gray-800 mb-3">{t.requestTitle}</h2>
             <dl className="space-y-3 mb-6">
               {t.fields.map(({ name, type, desc }) => (
-                <div key={name} className="bg-white rounded-lg p-4 shadow-sm">
+                <div key={name} className="bg-surface rounded-lg p-4 shadow-sm">
                   <dt className="font-mono text-sm font-semibold text-indigo-600">
                     {name} <span className="text-gray-400 font-normal">— {type}</span>
                   </dt>
@@ -303,7 +303,7 @@ export default function UrlShortenerApiPage() {
           <div>
             <h2 className="text-2xl font-semibold text-gray-800 mb-3">{t.limitsTitle}</h2>
             <div className="overflow-x-auto rounded-lg shadow-sm">
-              <table className="min-w-full bg-white text-sm">
+              <table className="min-w-full bg-surface text-sm">
                 <thead>
                   <tr className="bg-indigo-50 text-left text-gray-800">
                     <th scope="col" className="px-4 py-3 font-semibold">{t.limitsCols.tier}</th>

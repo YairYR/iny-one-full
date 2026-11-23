@@ -39,7 +39,7 @@ export default function HomeContent() {
         <p className="mb-4 leading-relaxed">{t("utmIntro")}</p>
         <dl className="space-y-3">
           {utmParts.map(({ term, desc }) => (
-            <div key={term} className="bg-white rounded-lg p-4 shadow-sm">
+            <div key={term} className="bg-surface rounded-lg p-4 shadow-sm">
               <dt className="font-mono text-sm font-semibold text-indigo-600">{term}</dt>
               <dd className="text-sm mt-1">{desc}</dd>
             </div>

@@ -197,7 +197,7 @@ export default async function UtmBuilderPage() {
             <h2 className="text-2xl font-semibold text-gray-800 mb-3">{t.paramsTitle}</h2>
             <dl className="space-y-3">
               {t.params.map(({ term, desc }) => (
-                <div key={term} className="bg-white rounded-lg p-4 shadow-sm">
+                <div key={term} className="bg-surface rounded-lg p-4 shadow-sm">
                   <dt className="font-mono text-sm font-semibold text-indigo-600">{term}</dt>
                   <dd className="text-sm mt-1">{desc}</dd>
                 </div>

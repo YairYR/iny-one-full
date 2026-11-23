@@ -127,12 +127,12 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
         </Field>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-4">
+        <div className="rounded-xl border border-gray-200 bg-surface p-4">
         <UtmFields utm={utm} onChange={onChangeUtm} />
         {utmError && <p className="text-sm text-red-600" role="alert">{utmError}</p>}
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-white p-4">
+        <div className="rounded-xl border border-gray-200 bg-surface p-4">
         <Field>
           <Label htmlFor="edit_alias" className="block text-sm font-medium text-gray-700">
             {t("modal.edit.alias_label")}
@@ -177,10 +177,10 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
         <Button
           type="submit"
           disabled={disabled}
-          className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white shadow-sm
-                     cursor-pointer hover:bg-indigo-700 focus:outline-none focus-visible:ring-2
+          className="rounded-md bg-primary px-4 py-2 text-sm font-semibold text-white shadow-sm
+                     cursor-pointer hover:bg-primary-hover focus:outline-none focus-visible:ring-2
                      focus-visible:ring-indigo-500 focus-visible:ring-offset-2
-                     disabled:cursor-not-allowed disabled:bg-indigo-300"
+                     disabled:cursor-not-allowed disabled:bg-primary/50"
         >
           {t("modal.edit.save")}
         </Button>

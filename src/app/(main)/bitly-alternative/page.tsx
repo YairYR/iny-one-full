@@ -218,7 +218,7 @@ export default function BitlyAlternativePage() {
           <div>
             <h2 className="text-2xl font-semibold text-gray-800 mb-3">{t.tableTitle}</h2>
             <div className="overflow-x-auto rounded-lg shadow-sm">
-              <table className="min-w-full bg-white text-sm">
+              <table className="min-w-full bg-surface text-sm">
                 <thead>
                   <tr className="bg-indigo-50 text-left text-gray-800">
                     <th scope="col" className="px-4 py-3 font-semibold">{t.cols.service}</th>

@@ -20,7 +20,7 @@ export default function Footer({ signedIn = false }: Readonly<{ signedIn?: boole
   const linkCls = "text-gray-500 hover:text-indigo-600 transition-colors";
 
   return (
-    <footer className="bg-white py-8 text-sm border-t border-gray-100">
+    <footer className="bg-surface py-8 text-sm border-t border-gray-100">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="grid grid-cols-2 sm:grid-cols-2 gap-8">
           <nav aria-label={t('tools')}>

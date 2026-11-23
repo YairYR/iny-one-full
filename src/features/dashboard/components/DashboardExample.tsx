@@ -73,7 +73,7 @@ export function DashboardExample({ audience }: Readonly<{ audience: Audience }>)
         <div className="mb-6 rounded-xl border border-indigo-200 bg-indigo-50 p-4">
           <h2 className="font-semibold text-gray-900">{t('example.title')}</h2>
           <p className="mt-1 text-sm text-gray-700">{t(`example.${audience}`)}</p>
-          <Link href={cta.href} className="mt-4 inline-flex rounded-lg bg-indigo-600 px-4 py-2 font-medium text-white hover:bg-indigo-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{cta.label}</Link>
+          <Link href={cta.href} className="mt-4 inline-flex rounded-lg bg-primary px-4 py-2 font-medium text-white hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">{cta.label}</Link>
           {audience === 'setup' && <Link href={ROUTES.HOME} className="ml-4 inline-flex rounded-lg px-2 py-2 font-medium text-indigo-700 underline focus-visible:outline-2 focus-visible:outline-indigo-600">{t('button.newLink')}</Link>}
         </div>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -88,7 +88,7 @@ export function DashboardExample({ audience }: Readonly<{ audience: Audience }>)
               </div>
             </section>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-              <section className="rounded-xl border border-gray-200 bg-white p-4">
+              <section className="rounded-xl border border-gray-200 bg-surface p-4">
                 <h2 className="mb-3 text-lg font-semibold">{t('panel.weekActivity.title')}</h2>
                 <ExampleChart kind="week" />
               </section>
@@ -97,7 +97,7 @@ export function DashboardExample({ audience }: Readonly<{ audience: Audience }>)
                 <ExampleChart kind="performance" />
               </section>
             </div>
-            <section className="overflow-hidden rounded-xl border border-gray-200 bg-white">
+            <section className="overflow-hidden rounded-xl border border-gray-200 bg-surface">
               <div className="border-b border-gray-200 p-4">
                 <h2 className="text-lg font-semibold">{t('table.links.title')}</h2>
                 <p className="mt-1 text-sm font-medium text-indigo-700">{t('example.label')}</p>
@@ -113,7 +113,7 @@ export function DashboardExample({ audience }: Readonly<{ audience: Audience }>)
             </section>
           </div>
           <aside>
-            <section className="rounded-xl border border-gray-200 bg-white p-4">
+            <section className="rounded-xl border border-gray-200 bg-surface p-4">
               <h2 className="mb-3 text-lg font-semibold">{t('panel.sourceTraffic.title')}</h2>
               <ExampleChart kind="traffic" />
             </section>

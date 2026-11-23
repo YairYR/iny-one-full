@@ -14,8 +14,8 @@ export function GoogleButton({ onClick, children, disabled }: Readonly<Props>) {
       aria-label="Sign in with Google"
       className={clsx(
         "group relative inline-flex h-10 w-auto max-w-[400px] min-w-min select-none appearance-none",
-        "items-center justify-center overflow-hidden rounded-md border border-[#747775] bg-white",
-        "px-3 text-center font-sans text-sm text-[#1f1f1f] tracking-[0.25px]",
+        "items-center justify-center overflow-hidden rounded-md border border-[#747775] bg-white dark:border-[#8E918F] dark:bg-[#131314]",
+        "px-3 text-center font-sans text-sm text-[#1f1f1f] dark:text-[#E3E3E3] tracking-[0.25px]",
         "transition-all duration-200 ease-out",
         "hover:shadow-sm",
         "focus:outline-none",
@@ -27,7 +27,7 @@ export function GoogleButton({ onClick, children, disabled }: Readonly<Props>) {
     >
       {/* Capa de estado (hover/focus/active) */}
       <span
-        className="pointer-events-none absolute inset-0 bg-[#303030] opacity-0 transition-opacity duration-200
+        className="pointer-events-none absolute inset-0 bg-[#303030] dark:bg-white opacity-0 transition-opacity duration-200
                    group-hover:opacity-[0.08] group-focus:opacity-[0.12] group-active:opacity-[0.12]"
       />
 

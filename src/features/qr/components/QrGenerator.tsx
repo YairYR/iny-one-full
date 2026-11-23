@@ -42,7 +42,7 @@ export default function QrGenerator({ labels }: Readonly<Props>) {
   };
 
   return (
-    <Fieldset className="bg-white rounded-xl shadow-lg p-8">
+    <Fieldset className="bg-surface rounded-xl shadow-lg p-8">
       <Field>
         <Label className="block text-sm font-medium text-gray-700 mb-2">{labels.inputLabel}</Label>
         <div className="flex flex-col sm:flex-row gap-3">
@@ -57,7 +57,7 @@ export default function QrGenerator({ labels }: Readonly<Props>) {
           <Button
             type="button"
             onClick={handleGenerate}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center cursor-pointer"
+            className="bg-primary text-white px-6 py-3 rounded-lg font-medium hover:bg-primary-hover transition-colors flex items-center justify-center cursor-pointer"
           >
             <QrCode className="h-5 w-5 mr-2" />
             {labels.button}
