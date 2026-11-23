@@ -14,7 +14,7 @@ interface Props {
   onClose: () => void;
 }
 
-const INPUT_CLASS = `mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 text-sm shadow-sm
+const INPUT_CLASS = `mt-1 block w-full rounded-md border border-gray-300 bg-surface px-3 py-2 text-sm
   focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 focus:outline-none
   data-[invalid]:border-red-500`;
 
@@ -100,10 +100,9 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
 
   return (
     <Form action={formAction}>
-      <Fieldset className="mt-4 space-y-4" aria-label={t("modal.edit.title", { alias: alias || link.slug })}>
+      <Fieldset className="space-y-3" aria-label={t("modal.edit.title", { alias: alias || link.slug })}>
         <Input name="link_id" type="hidden" value={link.link_id} />
 
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4">
         <Field>
           <Label htmlFor="edit_destination" className="block text-sm font-medium text-gray-700">
             {t("modal.edit.destination_label")}
@@ -122,49 +121,50 @@ export default function EditLink({ link, t, onClose }: Readonly<Props>) {
             className={INPUT_CLASS}
           />
           {destinationError
-            ? <p id="edit_destination_help" className="mt-2 text-sm text-red-600" role="alert">{destinationError}</p>
-            : <p id="edit_destination_help" className="mt-2 text-sm text-gray-500">{t("modal.edit.destination_help")}</p>}
+            ? <p id="edit_destination_help" className="mt-1 text-sm text-red-600" role="alert">{destinationError}</p>
+            : <p id="edit_destination_help" className="mt-1 text-xs text-gray-500">{t("modal.edit.destination_help")}</p>}
         </Field>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <Field>
+            <Label htmlFor="edit_alias" className="block text-sm font-medium text-gray-700">
+              {t("modal.edit.alias_label")}
+            </Label>
+            <Input
+              id="edit_alias"
+              name="alias"
+              type="text"
+              value={alias}
+              onChange={onChangeAlias}
+              maxLength={ALIAS_MAX_LENGTH}
+              aria-invalid={Boolean(aliasError)}
+              aria-describedby={aliasError ? "alias-error" : "alias-help"}
+              className={INPUT_CLASS}
+            />
+            {aliasError
+              ? <p className="mt-1 text-sm text-red-600" id="alias-error" role="alert">{aliasError}</p>
+              : <p className="mt-1 text-xs text-gray-500" id="alias-help">{t("modal.edit.alias_help")}</p>}
+          </Field>
+
+          {/* El enlace no cambia al editar: el slug es la clave y es inmutable. */}
+          <div>
+            <p className="block text-sm font-medium text-gray-700">{t("modal.edit.short_url")}</p>
+            <p className="mt-1 truncate rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-sm font-medium text-gray-600">iny.one/{link.slug}</p>
+          </div>
         </div>
 
-        <div className="rounded-xl border border-gray-200 bg-surface p-4">
-        <UtmFields utm={utm} onChange={onChangeUtm} />
-        {utmError && <p className="text-sm text-red-600" role="alert">{utmError}</p>}
+        <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+          <UtmFields utm={utm} onChange={onChangeUtm} compact />
+          {utmError && <p className="mt-2 text-sm text-red-600" role="alert">{utmError}</p>}
         </div>
-
-        <div className="rounded-xl border border-gray-200 bg-surface p-4">
-        <Field>
-          <Label htmlFor="edit_alias" className="block text-sm font-medium text-gray-700">
-            {t("modal.edit.alias_label")}
-          </Label>
-          <Input
-            id="edit_alias"
-            name="alias"
-            type="text"
-            value={alias}
-            onChange={onChangeAlias}
-            maxLength={ALIAS_MAX_LENGTH}
-            aria-invalid={Boolean(aliasError)}
-            aria-describedby={aliasError ? "alias-error" : "alias-help"}
-            className={INPUT_CLASS}
-          />
-          {aliasError
-            ? <p className="mt-2 text-sm text-red-600" id="alias-error" role="alert">{aliasError}</p>
-            : <p className="mt-2 text-sm text-gray-500" id="alias-help">{t("modal.edit.alias_help")}</p>}
-        </Field>
-        </div>
-
-        {/* El enlace no cambia al editar: el slug es la clave y es inmutable. */}
-        <p className="rounded-md bg-gray-50 px-3 py-2 text-sm text-gray-600">
-          {t("modal.edit.short_url")}: <span className="font-medium">iny.one/{link.slug}</span>
-        </p>
 
         {serverError && (
           <p className="text-sm text-red-600" role="alert">{serverError}</p>
         )}
       </Fieldset>
 
-      <div className="mt-6 flex justify-end gap-2">
+      {/* Fijo al pie del área con scroll: guardar siempre queda a la vista. */}
+      <div className="sticky bottom-0 -mx-4 mt-4 flex justify-end gap-2 border-t border-gray-200 bg-surface px-4 py-3 sm:-mx-5 sm:px-5">
         <Button
           type="button"
           onClick={onClose}

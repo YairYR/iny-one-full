@@ -175,6 +175,39 @@ Rules:
 - Indigo focus ring.
 - Clearly distinguish disabled and invalid states.
 
+### Modals and Dialogs
+
+Modals must show the task at a glance; scrolling is a fallback for small
+viewports, not the default.
+
+Structure:
+- The panel is a flex column: fixed header (title + close), a body that is the
+  only scroll area (`min-h-0 flex-1 overflow-y-auto`) and, for forms, a sticky
+  footer with the actions. Title, close and Save stay visible at any height.
+- Height: `max-h-[calc(100dvh-2rem)]` from `sm`; never a fixed height. Use
+  `dvh`, not `vh`, so mobile browser bars do not hide the footer.
+- Width by content: forms `max-w-3xl`, analytics `max-w-6xl`, single
+  previews (QR) `max-w-md`. Do not reuse one width for every mode.
+
+Responsive behavior:
+- Mobile (< sm): full-screen sheet (`h-dvh`, no radius or border), one column.
+- Tablet (sm–lg): centered panel; group short related fields in 2–3 columns.
+- Desktop (≥ lg): use the width before the height. Place secondary content
+  beside the primary content (e.g. breakdown charts next to the trend).
+
+Density inside modals:
+- Header `px-4 py-3` / `sm:px-5`; body `p-4` / `sm:px-5`; gaps `gap-3`.
+- Group fields in rows by meaning (destination full width; alias + short URL
+  side by side; UTM in one row) instead of one boxed section per field.
+- Helper text `text-xs`; only one tinted container per form for an optional
+  group (UTM).
+- KPI tiles: `px-3 py-2`, label `text-xs`, value `text-xl`.
+- Chart heights follow the viewport with a clamp, e.g.
+  `h-[clamp(16rem,48dvh,26rem)]`, with a fixed `h-52` fallback on mobile.
+- Hide chart legends when a single series is labelled by the card title.
+- Read-only values (short URL) are shown as disabled-looking fields in the
+  grid, not as separate banners.
+
 ### Popovers and Tooltips
 - Use Headless UI Popover.
 - White background.

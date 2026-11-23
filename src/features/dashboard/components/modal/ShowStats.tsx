@@ -74,8 +74,11 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
     }],
   };
 
+  const kpiCls = 'min-w-0 rounded-lg border border-gray-200 px-3 py-2';
+  const showBreakdown = canViewSensitiveStats && Boolean(data);
+
   return (
-    <div className="mt-5 space-y-5">
+    <div className="space-y-3">
       {error && (
         <div role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
           <p>{t('sectionError')}</p>
@@ -84,93 +87,97 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
         </div>
       )}
 
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-medium uppercase tracking-wide text-gray-500">{t('modal.stats.destination')}</p>
-          <p className="mt-1 truncate font-medium text-gray-900" title={link.destination}>{link.destination}</p>
-          <p className="mt-1 break-all text-sm text-indigo-700">iny.one/{link.slug}</p>
+          <p className="truncate text-sm font-medium text-gray-900" title={link.destination}>
+            <span className="sr-only">{t('modal.stats.destination')}: </span>{link.destination}
+          </p>
+          <p className="truncate text-sm text-indigo-700">iny.one/{link.slug}</p>
         </div>
-        <div className="flex items-center gap-2">
-          <a
-            href={`${localizedPath(ROUTES.DASHBOARD_LINK_DETAILS, locale)}?id=${encodeURIComponent(link.link_id)}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-indigo-600"
-          >
-            {t('modal.stats.openDetails')}
-          </a>
+        <div className="flex shrink-0 flex-wrap items-center gap-2">
           {canViewSensitiveStats && (
-          <div className="inline-flex rounded-lg border border-gray-200 p-1" aria-label={t('modal.stats.rangeLabel')}>
+          <div className="inline-flex rounded-lg border border-gray-200 p-0.5" role="group" aria-label={t('modal.stats.rangeLabel')}>
             {ranges.map((days) => (
               <button key={days} type="button" onClick={() => setRange(days)}
                 aria-pressed={range === days}
-                className={`rounded-md px-3 py-1.5 text-sm font-medium focus-visible:outline-2 focus-visible:outline-indigo-600 ${range === days ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-50'}`}>
+                className={`rounded-md px-2.5 py-1 text-sm font-medium focus-visible:outline-2 focus-visible:outline-indigo-600 cursor-pointer ${range === days ? 'bg-primary text-white' : 'text-gray-600 hover:bg-gray-50'}`}>
                 {t('modal.stats.rangeDays', { days } as never)}
               </button>
             ))}
           </div>
           )}
+          <a
+            href={`${localizedPath(ROUTES.DASHBOARD_LINK_DETAILS, locale)}?id=${encodeURIComponent(link.link_id)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-indigo-600"
+          >
+            {t('modal.stats.openDetails')}
+          </a>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <article className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
-          <p className="text-sm text-gray-500">{t('modal.stats.periodClicks')}</p>
-          <p className="mt-1 text-2xl font-bold text-indigo-700">{isLoading ? '—' : format.number(totalPeriod)}</p>
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+        <article className="min-w-0 rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2">
+          <p className="truncate text-xs text-gray-500">{t('modal.stats.periodClicks')}</p>
+          <p className="text-xl font-bold text-indigo-700">{isLoading ? '—' : format.number(totalPeriod)}</p>
         </article>
-        <article className="rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">{t('modal.stats.countries')}</p>
-          <p className="mt-1 truncate text-xl font-semibold">{countryTop}</p>
+        <article className={kpiCls}>
+          <p className="truncate text-xs text-gray-500">{t('modal.stats.totalClicks')}</p>
+          <p className="text-xl font-semibold">{link.clicks == null ? t('noData') : format.number(link.clicks)}</p>
         </article>
-        <article className="rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">{t('modal.stats.devices')}</p>
-          <p className="mt-1 truncate text-xl font-semibold">{deviceTop}</p>
+        <article className={kpiCls}>
+          <p className="truncate text-xs text-gray-500">{t('modal.stats.countries')}</p>
+          <p className="truncate text-lg font-semibold">{countryTop}</p>
         </article>
-        <article className="rounded-xl border border-gray-200 p-4">
-          <p className="text-sm text-gray-500">{t('modal.stats.totalClicks')}</p>
-          <p className="mt-1 text-2xl font-semibold">{link.clicks == null ? t('noData') : format.number(link.clicks)}</p>
+        <article className={kpiCls}>
+          <p className="truncate text-xs text-gray-500">{t('modal.stats.devices')}</p>
+          <p className="truncate text-lg font-semibold">{deviceTop}</p>
         </article>
       </div>
 
-      <section className="rounded-xl border border-gray-200 bg-surface p-4">
-        <h3 className="mb-3 font-semibold">{t('modal.stats.clickTrend')}</h3>
-        <div className="h-64">
-          {isLoading
-            ? <SkeletonRectangle />
-            : <Line
-                data={{
-                  labels: daily.map((item) => item.date),
-                  datasets: [{
-                    label: t('table.links.headers.clicks'),
-                    data: daily.map((item) => item.clicks),
-                    borderColor: DASHBOARD_CHART_COLORS.indigo,
-                    backgroundColor: DASHBOARD_CHART_COLORS.indigoFill,
-                    fill: true,
-                    tension: 0.25,
-                  }],
-                }}
-                options={{ maintainAspectRatio: false, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }}
-                aria-hidden="true" />}
-        </div>
-        <ul className="sr-only">{daily.map((item) => <li key={item.date}>{item.date}: {format.number(item.clicks)}</li>)}</ul>
-      </section>
+      {/* En escritorio la tendencia y los desgloses comparten fila; la altura sigue al viewport. */}
+      <div className={`grid grid-cols-1 gap-3 ${showBreakdown ? 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]' : ''}`}>
+        <section className="rounded-lg border border-gray-200 bg-surface p-3">
+          <h3 className="mb-2 text-sm font-semibold">{t('modal.stats.clickTrend')}</h3>
+          <div className={showBreakdown ? 'h-52 lg:h-[clamp(16rem,48dvh,26rem)]' : 'h-52 sm:h-[clamp(13rem,42dvh,22rem)]'}>
+            {isLoading
+              ? <SkeletonRectangle />
+              : <Line
+                  data={{
+                    labels: daily.map((item) => item.date),
+                    datasets: [{
+                      label: t('table.links.headers.clicks'),
+                      data: daily.map((item) => item.clicks),
+                      borderColor: DASHBOARD_CHART_COLORS.indigo,
+                      backgroundColor: DASHBOARD_CHART_COLORS.indigoFill,
+                      fill: true,
+                      tension: 0.25,
+                    }],
+                  }}
+                  options={{ maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }}
+                  aria-hidden="true" />}
+          </div>
+          <ul className="sr-only">{daily.map((item) => <li key={item.date}>{item.date}: {format.number(item.clicks)}</li>)}</ul>
+        </section>
 
-      {canViewSensitiveStats && data && (
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <section className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-            <h3 className="mb-3 font-semibold">{t('modal.stats.countries')}</h3>
-            {countryChart.labels.length
-              ? <div className="h-52"><Pie data={countryChart} options={{ maintainAspectRatio: false }} aria-hidden="true" /></div>
-              : <p className="text-sm text-gray-500">{t('noData')}</p>}
-          </section>
-          <section className="rounded-xl border border-gray-200 bg-surface p-4">
-            <h3 className="mb-3 font-semibold">{t('modal.stats.devices')}</h3>
-            {deviceChart.labels.length
-              ? <div className="h-52"><Bar data={deviceChart} options={{ maintainAspectRatio: false, indexAxis: 'y', scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }} aria-hidden="true" /></div>
-              : <p className="text-sm text-gray-500">{t('noData')}</p>}
-          </section>
-        </div>
-      )}
+        {showBreakdown && (
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
+            <section className="min-w-0 rounded-lg border border-gray-200 bg-gray-50 p-3">
+              <h3 className="mb-2 text-sm font-semibold">{t('modal.stats.countries')}</h3>
+              {countryChart.labels.length
+                ? <div className="h-40 lg:h-[clamp(7rem,20dvh,10.5rem)]"><Pie data={countryChart} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } } }} aria-hidden="true" /></div>
+                : <p className="text-sm text-gray-500">{t('noData')}</p>}
+            </section>
+            <section className="min-w-0 rounded-lg border border-gray-200 bg-surface p-3">
+              <h3 className="mb-2 text-sm font-semibold">{t('modal.stats.devices')}</h3>
+              {deviceChart.labels.length
+                ? <div className="h-40 lg:h-[clamp(7rem,20dvh,10.5rem)]"><Bar data={deviceChart} options={{ maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }} aria-hidden="true" /></div>
+                : <p className="text-sm text-gray-500">{t('noData')}</p>}
+            </section>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

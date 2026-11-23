@@ -11,7 +11,7 @@ export default function ShowQr({ link, t }: Readonly<Props>) {
   const shortUrl = `https://iny.one/${link.slug}`;
 
   return (
-    <div className="mt-4 min-w-72">
+    <div>
       <p className="text-sm text-gray-500 mb-1">{t("modal.stats.destination")}</p>
       <p className="font-medium truncate mb-4" title={link.destination}>{link.destination}</p>
 

@@ -41,7 +41,7 @@ describe('ThemeToggle', () => {
   it('switches the theme, persists it and updates its accessible label', async () => {
     render(<ThemeToggle />);
 
-    fireEvent.click(screen.getByRole('button', { name: translations.Navigation.themeDark }));
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: translations.Navigation.themeDark })); });
 
     expect(document.documentElement).toHaveClass('dark');
     expect(localStorage.getItem(THEME_STORAGE_KEY)).toBe('dark');
@@ -51,11 +51,12 @@ describe('ThemeToggle', () => {
   it('tracks system changes only while the user has not chosen a theme', async () => {
     render(<ThemeToggle />);
 
-    act(() => systemListener?.({ matches: true }));
+    await act(async () => systemListener?.({ matches: true }));
     expect(document.documentElement).toHaveClass('dark');
 
-    fireEvent.click(await screen.findByRole('button', { name: translations.Navigation.themeLight }));
-    act(() => systemListener?.({ matches: true }));
+    const lightButton = await screen.findByRole('button', { name: translations.Navigation.themeLight });
+    await act(async () => { fireEvent.click(lightButton); });
+    await act(async () => systemListener?.({ matches: true }));
     expect(document.documentElement).not.toHaveClass('dark');
   });
 });
