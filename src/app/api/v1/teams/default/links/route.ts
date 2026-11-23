@@ -36,7 +36,13 @@ export const GET = withPrivateErrorHandling(async (request: NextRequest) => {
   }
 
   return successResponse({
-    urls: result.data.map(({ name, ...link }) => ({ ...link, alias: name })),
+    urls: result.data.map(({ name, utms, ...link }) => ({
+      ...link,
+      alias: name,
+      utm_source: Array.isArray(utms) ? utms[0]?.utm_source ?? null : utms?.utm_source ?? null,
+      utm_medium: Array.isArray(utms) ? utms[0]?.utm_medium ?? null : utms?.utm_medium ?? null,
+      utm_campaign: Array.isArray(utms) ? utms[0]?.utm_campaign ?? null : utms?.utm_campaign ?? null,
+    })),
     pagination: { page, pageSize, total: result.count },
   });
 });
