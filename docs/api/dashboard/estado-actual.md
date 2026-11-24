@@ -13,7 +13,7 @@ ni una medición de rendimiento. Las rutas de pagos y webhooks quedan fuera de a
 | `GET /api/v1/teams/default/links?page=N&pageSize=5\|10\|20` | Tabla de enlaces | Equipo por defecto, permiso `links.read`; `pageSize` (por defecto 20) lo elige el selector de filas y se pagina en servidor. Tras editar se invalidan las páginas. La búsqueda y la ordenación de la tabla solo afectan a la página visible. |
 | `GET /api/v1/dashboard/links/{link_id}` | Modal de estadísticas | Se solicita al abrir el detalle de un enlace. |
 | `GET /api/v1/dashboard/links` | Listado heredado por usuario | Conservado por compatibilidad; no alimenta la tabla actual. |
-| `POST /api/v1/account/personal-setup` | Configuración personal | Guarda perfil y equipo en una operación atómica. `/api/v1/teams/personal` conserva el mismo contrato como alias de compatibilidad. |
+| `POST /api/v1/account/personal-setup` | Configuración personal | Guarda perfil y equipo en una operación atómica.|
 | `updateLinkAction` | Edición de alias y destino | Server Action, no endpoint HTTP de producto. |
 
 El resumen sin filtros mantiene una respuesta completa de compatibilidad. La
