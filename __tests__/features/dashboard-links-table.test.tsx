@@ -124,10 +124,16 @@ it('opens the same row actions using right click or the visible button', async (
   const row = screen.getByRole('row', { name: /zebra/ });
   fireEvent.contextMenu(row);
   const menu = await screen.findByRole('menu');
+  expect(menu).toHaveStyle({ left: '0px', top: '0px' });
   fireEvent.click(within(menu).getByRole('menuitem', { name: 'tools.edit' }));
   expect(onEdit).toHaveBeenCalledWith(links[0]);
   fireEvent.click(screen.getByRole('button', { name: 'tools.openMenu: apple' }));
   expect(await screen.findByRole('menu')).toBeInTheDocument();
   fireEvent.click(within(screen.getByRole('menu')).getByRole('menuitem', { name: /tools.details/ }));
   expect(push).toHaveBeenCalledWith('/dashboard/link/details?id=2');
+
+  const gear = screen.getByRole('button', { name: 'tools.openMenu: apple' });
+  fireEvent.contextMenu(gear, { clientX: 320, clientY: 240 });
+  const contextMenu = await screen.findByRole('menu');
+  expect(contextMenu).toHaveStyle({ left: '320px', top: '240px' });
 });

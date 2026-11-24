@@ -122,6 +122,16 @@ Rules:
 - Hover states must be subtle.
 - Provide visible focus states.
 
+### Tables and Context Menus
+- The links table keeps the gear control and right-click menu as separate
+  interactions. The gear opens the standard anchored menu; right-click opens
+  the row actions at the exact pointer position.
+- Right-click menus use a fixed, viewport-clamped position and a `z-[70]`
+  stacking level above dialogs. Keep the native browser menu suppressed only
+  for valid table rows.
+- Context menu actions use the same disabled state and reason text as the gear
+  menu. Opening it must not depend on hover or on the gear remaining open.
+
 ### Cards
 - White background.
 - Rounded-xl corners.

@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useState } from "react";
 import type { Row } from "@tanstack/react-table";
 import { flexRender } from "@tanstack/react-table";
 import type { UserUrl } from "@/features/dashboard/types/types";
@@ -6,15 +6,20 @@ import type { ITool } from "./LinkTools";
 import { LinkTools } from "./LinkTools";
 
 export function TableRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: ITool<UserUrl>[] }>) {
-  const menuRef = useRef<HTMLButtonElement>(null);
+  const [contextMenuRequest, setContextMenuRequest] = useState<{ x: number; y: number; nonce: number } | null>(null);
 
   return (
-    <tr className="group" onContextMenu={(event) => {
-      if (!menuRef.current) return;
-      event.preventDefault();
-      if (menuRef.current.getAttribute("aria-expanded") !== "true") menuRef.current.click();
-      menuRef.current.focus();
-    }}>
+    <tr
+      className="group"
+      onContextMenu={(event) => {
+        event.preventDefault();
+        setContextMenuRequest((current) => ({
+          x: event.clientX,
+          y: event.clientY,
+          nonce: (current?.nonce ?? 0) + 1,
+        }));
+      }}
+    >
       {row.getVisibleCells().map((cell) => {
         const isShort = cell.column.id === "short";
         const isActions = cell.column.id === "actions";
@@ -31,7 +36,7 @@ export function TableRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: IT
               </span>
             ) : isActions ? (
               <div className="flex justify-center">
-                <LinkTools tools={tools} link={row.original} buttonRef={menuRef} linkLabel={row.original.slug} />
+                <LinkTools tools={tools} link={row.original} linkLabel={row.original.slug} contextMenuRequest={contextMenuRequest} />
               </div>
             ) : (
               <div className="truncate" title={cell.column.id === "destination" ? row.original.destination : undefined}>
