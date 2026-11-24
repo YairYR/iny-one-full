@@ -16,17 +16,12 @@ import { z } from "zod";
 dayjs.extend(utc);
 
 const log = logger.child({ route: 'api/v1/dashboard/summary' });
-const PAGE_SIZE = 20;
 const TOP_LINKS = 5;
 const ID_PAGE_SIZE = 500;
 const kpiNames = ['total_links', 'total_clicks', 'top_country', 'last_clicks', 'traffic', 'week', 'performance'] as const;
 const kpiSchema = z.enum(kpiNames);
 
 const paramsSchema = z.object({
-  page: z.string().regex(/^\d+$/).transform((value) => Math.max(1, Number(value)))
-    .refine((page) => Number.isSafeInteger(page) && Number.isSafeInteger(page * PAGE_SIZE))
-    .optional(),
-  links: z.literal('true').optional(),
   kpi: z.string().min(1).transform((value) => value.split(','))
     .pipe(z.array(kpiSchema).min(1)).optional(),
 });
@@ -40,9 +35,8 @@ const summarySchema = z.object({
 
 export const GET = withPrivateErrorHandling(async (request: NextRequest) => {
   const params = paramsSchema.parse(Object.fromEntries(request.nextUrl.searchParams.entries()));
-  const all = params.kpi === undefined && params.links === undefined;
+  const all = params.kpi === undefined;
   const requested = new Set(all ? kpiNames : params.kpi ?? []);
-  const includeLinks = all || params.links === 'true';
   const includeSummary = requested.has('total_clicks') || requested.has('top_country')
     || requested.has('last_clicks') || requested.has('week');
 
@@ -55,19 +49,16 @@ export const GET = withPrivateErrorHandling(async (request: NextRequest) => {
   const teamId = access.team_id;
   const teamRepo = getTeamRepository(supabase_service);
   const statsRepo = getStatsRepository(supabase_service);
-  const page = params.page ?? 1;
 
-  const [links, linksCount, topLinks, summary, refererStats] = await Promise.all([
-    includeLinks ? teamRepo.getLinks(teamId, (page - 1) * PAGE_SIZE, PAGE_SIZE) : null,
-    requested.has('total_links') && !includeLinks ? teamRepo.getLinksCount(teamId) : null,
+  const [linksCount, topLinks, summary, refererStats] = await Promise.all([
+    requested.has('total_links') ? teamRepo.getLinksCount(teamId) : null,
     requested.has('performance') ? teamRepo.getTopLinks(teamId, TOP_LINKS) : null,
     includeSummary ? statsRepo.getDashboardStatsSummary(teamId) : null,
     requested.has('traffic') ? loadTraffic(teamRepo, statsRepo, teamId) : null,
   ]);
 
-  assertNoError({ links, linksCount, topLinks, summary });
-  if ((links && (!links.data || links.count == null)) || (linksCount && linksCount.count == null)
-    || (topLinks && !topLinks.data)) {
+  assertNoError({ linksCount, topLinks, summary });
+  if ((linksCount && linksCount.count == null) || (topLinks && !topLinks.data)) {
     log.error('missing dashboard query data');
     throw new ApiError(ERROR.INTERNAL_ERROR, 'Error fetching dashboard data', { status: 500 });
   }
@@ -80,17 +71,7 @@ export const GET = withPrivateErrorHandling(async (request: NextRequest) => {
   const summaryData = parsedSummary?.data;
   const now = dayjs().utc();
   const response = successResponse({
-    ...(links && {
-      urls: (links.data ?? []).map(({ name, utms, ...link }) => ({
-        ...link,
-        alias: name,
-        utm_source: Array.isArray(utms) ? utms[0]?.utm_source ?? null : utms?.utm_source ?? null,
-        utm_medium: Array.isArray(utms) ? utms[0]?.utm_medium ?? null : utms?.utm_medium ?? null,
-        utm_campaign: Array.isArray(utms) ? utms[0]?.utm_campaign ?? null : utms?.utm_campaign ?? null,
-      })),
-      pagination: { page, pageSize: PAGE_SIZE, total: links.count ?? 0 },
-    }),
-    ...(!all && requested.has('total_links') && { totalLinks: links?.count ?? linksCount?.count }),
+    ...(!all && requested.has('total_links') && { totalLinks: linksCount?.count }),
     ...(topLinks && {
       topLinks: (topLinks.data ?? []).map(({ slug, clicks }) => ({ slug: slug ?? '', clicks: clicks ?? 0 })),
     }),
