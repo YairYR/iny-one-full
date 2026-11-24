@@ -108,7 +108,7 @@ export function LinksTable({
   return (
     <section className="overflow-hidden rounded-xl border border-gray-200 bg-surface" aria-labelledby="links-title">
       <div className="border-b border-gray-200 px-4 py-3">
-        {total > 0 ? (
+        {total > 0 || isLoading ? (
           <TableToolbar
             title={t("table.links.title")}
             subtitle={t("table.links.subtitle", { value: total })}
@@ -128,6 +128,7 @@ export function LinksTable({
             searchField={searchField}
             onSearchFieldChange={setSearchField}
             badge={badge}
+            disabled={isLoading}
           />
         ) : (
           <div className="flex min-w-0 items-center gap-2">
@@ -138,8 +139,8 @@ export function LinksTable({
         )}
         <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1 text-xs text-gray-500">
           <span>{t("table.links.clicksNote")}{total > 0 && <> {t("table.links.pageOnly")} {t("table.links.resizeHelp")}</>}</span>
-          {total > 0 && (
-            <button type="button" onClick={() => table.resetColumnSizing()} className="font-medium text-indigo-700 underline focus-visible:outline-2 focus-visible:outline-indigo-600">
+          {(total > 0 || isLoading) && (
+            <button type="button" disabled={isLoading} onClick={() => table.resetColumnSizing()} className="font-medium text-indigo-700 underline focus-visible:outline-2 focus-visible:outline-indigo-600 disabled:cursor-not-allowed disabled:text-gray-400 disabled:no-underline">
               {t("table.links.resetWidths")}
             </button>
           )}
@@ -240,6 +241,7 @@ export function LinksTable({
         previous={t("table.links.pagination.previous")}
         next={t("table.links.pagination.next")}
         label={t("table.links.pagination.label")}
+        disabled={isLoading}
         onPageChange={onPageChange}
       />
     </section>

@@ -97,8 +97,14 @@ it('resizes columns with keyboard or mouse and resets their widths', () => {
 });
 
 it('keeps the table structure and height while the first page is loading', () => {
-  render(<LinksTable links={[]} total={0} page={1} totalPages={1} isLoading onPageChange={jest.fn()} onEdit={jest.fn()} />);
+  render(<LinksTable links={[]} total={0} page={1} totalPages={2} isLoading onPageChange={jest.fn()} onEdit={jest.fn()}
+    pageSize={20} onPageSizeChange={jest.fn()} />);
   expect(screen.getByRole('table')).toBeInTheDocument();
+  expect(screen.getByLabelText('table.links.search')).toBeDisabled();
+  expect(screen.getByLabelText('table.links.searchField')).toBeDisabled();
+  expect(screen.getByLabelText('table.links.rowSize')).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'table.links.resetWidths' })).toBeDisabled();
+  expect(screen.getByRole('button', { name: 'table.links.pagination.next' })).toBeDisabled();
   expect(screen.getAllByRole('status').every((element) => element.textContent === 'loading')).toBe(true);
   const loadingRegion = screen.getAllByRole('region').find((element) => element.hasAttribute('aria-busy'));
   expect(loadingRegion).toHaveClass('h-[clamp(18rem,62dvh,44rem)]');
