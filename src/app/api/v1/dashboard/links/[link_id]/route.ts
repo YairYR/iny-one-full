@@ -10,7 +10,7 @@ import { isLoggedIn } from "@/data/dto/user-dto";
 import { ApiError, InsufficientPermissionsError, ResourceNotFoundError, SessionNotFoundError, ValidationError } from "@/lib/api/errors";
 import { ERROR } from "@/lib/api/error-codes";
 import logger from "@/lib/logger";
-import { hasTeamPermission } from "@/features/authorization/helpers/access";
+import { hasTeamPermissions } from "@/features/authorization/helpers/access";
 import { getTeamRepository } from "@/infra/db/team.repository";
 import { uuid, z } from 'zod';
 
@@ -49,10 +49,15 @@ export const GET = withPrivateErrorHandling(async (_request: NextRequest, ctx: R
   if (!range.success) throw new ValidationError();
   const rangeDays = Number(range.data);
 
-  const [canReadLinks, canViewStats, canViewSensitiveStats] = await Promise.all([
-    hasTeamPermission(linkTeam.team_id, 'links.read'),
-    hasTeamPermission(linkTeam.team_id, 'stats.view'),
-    hasTeamPermission(linkTeam.team_id, 'stats.view_sensitive'),
+  const {
+    "links.read": canReadLinks,
+    "stats.view": canViewStats,
+    "stats.view_sensitive": canViewSensitiveStats,
+  } = await hasTeamPermissions(linkTeam.team_id, [
+    'links.read',
+    'stats.view',
+    'stats.view_sensitive',
+    'links.update'
   ]);
 
   if (!canReadLinks || !canViewStats) {
