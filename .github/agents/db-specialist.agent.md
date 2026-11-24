@@ -121,7 +121,11 @@ All database changes must be delivered through Supabase migrations.
 - Migrations must be atomic, safe and documented.
 - Include rollback instructions where feasible; explicitly identify irreversible operations.
 - Never modify an existing migration that may have already been applied.
-- Do not apply migrations automatically.
+- NEVER execute or apply migrations under any circumstances, including local or remote databases.
+  Do not use `supabase migration up`, `supabase db reset`, `supabase db push`,
+  `apply_migration`, `execute_sql`, direct DDL, or any equivalent command.
+  The agent may only create or review migration files and report what must be reviewed.
+  The developer must always apply every migration manually after reviewing it.
 - All migrations must be reviewed and approved by a developer before implementation.
 - Do not modify database schemas directly as a substitute for migration files.
 
