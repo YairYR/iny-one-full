@@ -5,7 +5,7 @@ import utc from "dayjs/plugin/utc";
 import { useFormatter, useLocale } from "next-intl";
 import { UserUrlStats } from "@/features/dashboard/types/types";
 import { useLinkStatsCommon } from "@/features/dashboard/hooks/useLinkStatsCommon";
-import { SkeletonRectangle } from "@/components/Skeleton/Skeleton";
+import { SkeletonChart, SkeletonKpi } from "@/components/Skeleton/Skeleton";
 import { localizedPath } from "@/i18n/routes";
 import { ROUTES } from "@/lib/routes";
 import { DASHBOARD_CATEGORY_COLORS, DASHBOARD_CHART_COLORS } from "@/features/dashboard/helpers/chart-palette";
@@ -14,15 +14,15 @@ dayjs.extend(utc);
 
 const Line = dynamic(() => import("@/features/dashboard/components/charts").then((module) => module.Line), {
   ssr: false,
-  loading: () => <div className="h-full w-full animate-pulse rounded-lg bg-gray-100" aria-hidden="true" />,
+  loading: () => <SkeletonChart className="h-full w-full" />,
 });
 const Bar = dynamic(() => import("@/features/dashboard/components/charts").then((module) => module.Bar), {
   ssr: false,
-  loading: () => <div className="h-full w-full animate-pulse rounded-lg bg-gray-100" aria-hidden="true" />,
+  loading: () => <SkeletonChart className="h-full w-full" bars={4} />,
 });
 const Pie = dynamic(() => import("@/features/dashboard/components/charts").then((module) => module.Pie), {
   ssr: false,
-  loading: () => <div className="h-full w-full animate-pulse rounded-lg bg-gray-100" aria-hidden="true" />,
+  loading: () => <SkeletonChart className="h-full w-full" bars={1} />,
 });
 
 interface Props {
@@ -75,10 +75,11 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
   };
 
   const kpiCls = 'min-w-0 rounded-lg border border-gray-200 px-3 py-2';
-  const showBreakdown = canViewSensitiveStats && Boolean(data);
+  const showBreakdown = canViewSensitiveStats && (Boolean(data) || isLoading);
 
   return (
     <div className="space-y-3">
+      {isLoading && <p role="status" className="sr-only">{t('loading')}</p>}
       {error && (
         <div role="alert" className="rounded-lg bg-red-50 p-3 text-sm text-red-600">
           <p>{t('sectionError')}</p>
@@ -117,24 +118,33 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-        <article className="min-w-0 rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2">
-          <p className="truncate text-xs text-gray-500">{t('modal.stats.periodClicks')}</p>
-          <p className="text-xl font-bold text-indigo-700">{isLoading ? '—' : format.number(totalPeriod)}</p>
-        </article>
-        <article className={kpiCls}>
-          <p className="truncate text-xs text-gray-500">{t('modal.stats.totalClicks')}</p>
-          <p className="text-xl font-semibold">{link.clicks == null ? t('noData') : format.number(link.clicks)}</p>
-        </article>
-        <article className={kpiCls}>
-          <p className="truncate text-xs text-gray-500">{t('modal.stats.countries')}</p>
-          <p className="truncate text-lg font-semibold">{countryTop}</p>
-        </article>
-        <article className={kpiCls}>
-          <p className="truncate text-xs text-gray-500">{t('modal.stats.devices')}</p>
-          <p className="truncate text-lg font-semibold">{deviceTop}</p>
-        </article>
-      </div>
+      {isLoading ? (
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4" aria-busy="true" aria-label={t('loading')}>
+          <SkeletonKpi emphasized />
+          <SkeletonKpi />
+          <SkeletonKpi />
+          <SkeletonKpi />
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          <article className="min-w-0 rounded-lg border border-indigo-100 bg-indigo-50 px-3 py-2">
+            <p className="truncate text-xs text-gray-500">{t('modal.stats.periodClicks')}</p>
+            <p className="text-xl font-bold text-indigo-700">{format.number(totalPeriod)}</p>
+          </article>
+          <article className={kpiCls}>
+            <p className="truncate text-xs text-gray-500">{t('modal.stats.totalClicks')}</p>
+            <p className="text-xl font-semibold">{link.clicks == null ? t('noData') : format.number(link.clicks)}</p>
+          </article>
+          <article className={kpiCls}>
+            <p className="truncate text-xs text-gray-500">{t('modal.stats.countries')}</p>
+            <p className="truncate text-lg font-semibold">{countryTop}</p>
+          </article>
+          <article className={kpiCls}>
+            <p className="truncate text-xs text-gray-500">{t('modal.stats.devices')}</p>
+            <p className="truncate text-lg font-semibold">{deviceTop}</p>
+          </article>
+        </div>
+      )}
 
       {/* En escritorio la tendencia y los desgloses comparten fila; la altura sigue al viewport. */}
       <div className={`grid grid-cols-1 gap-3 ${showBreakdown ? 'lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]' : ''}`}>
@@ -142,7 +152,7 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
           <h3 className="mb-2 text-sm font-semibold">{t('modal.stats.clickTrend')}</h3>
           <div className={showBreakdown ? 'h-52 lg:h-[clamp(16rem,48dvh,26rem)]' : 'h-52 sm:h-[clamp(13rem,42dvh,22rem)]'}>
             {isLoading
-              ? <SkeletonRectangle />
+              ? <SkeletonChart className="h-full w-full" />
               : <Line
                   data={{
                     labels: daily.map((item) => item.date),
@@ -165,13 +175,17 @@ export default function ShowStats({ link, t, canViewSensitiveStats = false }: Re
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-1">
             <section className="min-w-0 rounded-lg border border-gray-200 bg-gray-50 p-3">
               <h3 className="mb-2 text-sm font-semibold">{t('modal.stats.countries')}</h3>
-              {countryChart.labels.length
+              {isLoading
+                ? <SkeletonChart className="h-40 lg:h-[clamp(7rem,20dvh,10.5rem)]" bars={1} />
+                : countryChart.labels.length
                 ? <div className="h-40 lg:h-[clamp(7rem,20dvh,10.5rem)]"><Pie data={countryChart} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { boxWidth: 10 } } } }} aria-hidden="true" /></div>
                 : <p className="text-sm text-gray-500">{t('noData')}</p>}
             </section>
             <section className="min-w-0 rounded-lg border border-gray-200 bg-surface p-3">
               <h3 className="mb-2 text-sm font-semibold">{t('modal.stats.devices')}</h3>
-              {deviceChart.labels.length
+              {isLoading
+                ? <SkeletonChart className="h-40 lg:h-[clamp(7rem,20dvh,10.5rem)]" bars={4} />
+                : deviceChart.labels.length
                 ? <div className="h-40 lg:h-[clamp(7rem,20dvh,10.5rem)]"><Bar data={deviceChart} options={{ maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }} aria-hidden="true" /></div>
                 : <p className="text-sm text-gray-500">{t('noData')}</p>}
             </section>

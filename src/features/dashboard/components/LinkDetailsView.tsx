@@ -11,12 +11,22 @@ import { ROUTES } from "@/lib/routes";
 import { useLinkStatsCommon } from "@/features/dashboard/hooks/useLinkStatsCommon";
 import type { UserUrlStats } from "@/features/dashboard/types/types";
 import { DASHBOARD_CATEGORY_COLORS, DASHBOARD_CHART_COLORS } from "@/features/dashboard/helpers/chart-palette";
+import { SkeletonBlock, SkeletonChart, SkeletonKpi } from "@/components/Skeleton/Skeleton";
 
 dayjs.extend(utc);
 
-const Line = dynamic(() => import("@/features/dashboard/components/charts").then((module) => module.Line), { ssr: false });
-const Bar = dynamic(() => import("@/features/dashboard/components/charts").then((module) => module.Bar), { ssr: false });
-const Pie = dynamic(() => import("@/features/dashboard/components/charts").then((module) => module.Pie), { ssr: false });
+const Line = dynamic(() => import("@/features/dashboard/components/charts").then((module) => module.Line), {
+  ssr: false,
+  loading: () => <SkeletonChart className="h-full w-full" />,
+});
+const Bar = dynamic(() => import("@/features/dashboard/components/charts").then((module) => module.Bar), {
+  ssr: false,
+  loading: () => <SkeletonChart className="h-full w-full" bars={4} />,
+});
+const Pie = dynamic(() => import("@/features/dashboard/components/charts").then((module) => module.Pie), {
+  ssr: false,
+  loading: () => <SkeletonChart className="h-full w-full" bars={1} />,
+});
 
 interface Props {
   link: UserUrlStats;
@@ -61,7 +71,7 @@ export default function LinkDetailsView({ link, initialRange, canViewSensitiveSt
   const btn = "inline-flex h-9 items-center gap-2 rounded-lg border border-gray-300 px-3 text-sm font-medium text-gray-700 hover:bg-gray-50 focus-visible:outline-2 focus-visible:outline-indigo-600";
   const kpis = [
     [t('modal.stats.totalClicks'), link.clicks == null ? t('noData') : format.number(link.clicks)],
-    [t('modal.stats.periodClicks'), isLoading ? '—' : format.number(periodClicks)],
+    [t('modal.stats.periodClicks'), format.number(periodClicks)],
     [t('details.created'), format.dateTime(new Date(link.created_at), { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' })],
     [t('details.destinationCount'), countries.length + devices.length + browsers.length ? format.number(countries.length + devices.length + browsers.length) : t('noData')],
   ];
@@ -70,6 +80,7 @@ export default function LinkDetailsView({ link, initialRange, canViewSensitiveSt
   return (
     <main className="min-h-screen bg-gray-50 px-4 py-5 md:px-6 lg:px-8">
       <div className="mx-auto max-w-7xl space-y-4">
+        {isLoading && <p role="status" className="sr-only">{t('loading')}</p>}
         <header className="rounded-xl border border-gray-200 bg-surface px-4 py-3 sm:px-5">
           <Link href={ROUTES.DASHBOARD} className="inline-flex items-center gap-1.5 text-xs font-medium text-indigo-700 hover:text-indigo-900">
             <ArrowLeft size={14} aria-hidden="true" />
@@ -118,21 +129,30 @@ export default function LinkDetailsView({ link, initialRange, canViewSensitiveSt
           </div>}
         </div>
 
-        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-          {kpis.map(([label, value], index) => (
-            <article key={label} className={`min-w-0 rounded-xl border px-4 py-3 ${index === 0 ? 'border-indigo-200 bg-indigo-50' : 'border-gray-200 bg-surface'}`}>
-              <p className="truncate text-xs text-gray-500">{label}</p>
-              <p className={`mt-0.5 truncate text-xl ${index === 0 ? 'font-bold text-indigo-700' : 'font-semibold text-gray-900'}`}>{value}</p>
-            </article>
-          ))}
-        </div>
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-busy="true" aria-label={t('loading')}>
+            <SkeletonKpi emphasized />
+            <SkeletonKpi />
+            <SkeletonKpi />
+            <SkeletonKpi />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            {kpis.map(([label, value], index) => (
+              <article key={label} className={`min-w-0 rounded-xl border px-4 py-3 ${index === 0 ? 'border-indigo-200 bg-indigo-50' : 'border-gray-200 bg-surface'}`}>
+                <p className="truncate text-xs text-gray-500">{label}</p>
+                <p className={`mt-0.5 truncate text-xl ${index === 0 ? 'font-bold text-indigo-700' : 'font-semibold text-gray-900'}`}>{value}</p>
+              </article>
+            ))}
+          </div>
+        )}
 
         {/* La tendencia es la lectura principal; países y dispositivos la acompañan al lado en escritorio. */}
         <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
           <section className="rounded-xl border border-gray-200 bg-surface p-4">
             <h3 className="mb-2 font-semibold">{t('modal.stats.clickTrend')}</h3>
             <div className="h-64 lg:h-[clamp(18rem,50dvh,28rem)]">
-              {isLoading ? <div className="h-full animate-pulse rounded-lg bg-gray-100" /> : <Line
+              {isLoading ? <SkeletonChart className="h-full w-full" /> : <Line
                 data={{ labels: daily.map((item) => item.date), datasets: [{
                   label: t('table.links.headers.clicks'), data: daily.map((item) => item.clicks),
                   borderColor: DASHBOARD_CHART_COLORS.indigo, backgroundColor: DASHBOARD_CHART_COLORS.indigoFill, fill: true, tension: 0.25,
@@ -144,13 +164,17 @@ export default function LinkDetailsView({ link, initialRange, canViewSensitiveSt
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-1">
             <section className="rounded-xl border border-gray-200 bg-gray-50 p-4">
               <h3 className="mb-2 font-semibold">{t('modal.stats.countries')}</h3>
-              {countries.length
+              {isLoading
+                ? <SkeletonChart className={breakdownHeight} bars={1} />
+                : countries.length
                 ? <div className={breakdownHeight}><Pie data={{ labels: countries.slice(0, 8).map((item) => item.country_code), datasets: [{ data: countries.slice(0, 8).map((item) => item.clicks), backgroundColor: [...DASHBOARD_CATEGORY_COLORS] }] }} options={{ maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }} aria-hidden="true" /></div>
                 : <p className="text-sm text-gray-500">{t('noData')}</p>}
             </section>
             <section className="rounded-xl border border-gray-200 bg-surface p-4">
               <h3 className="mb-2 font-semibold">{t('modal.stats.devices')}</h3>
-              {devices.length
+              {isLoading
+                ? <SkeletonChart className={breakdownHeight} bars={4} />
+                : devices.length
                 ? <div className={breakdownHeight}><Bar data={{ labels: devices.slice(0, 8).map((item) => item.device_type), datasets: [{ label: t('table.links.headers.clicks'), data: devices.slice(0, 8).map((item) => item.clicks), backgroundColor: devices.slice(0, 8).map((_, index) => DASHBOARD_CATEGORY_COLORS[(index + 1) % DASHBOARD_CATEGORY_COLORS.length]) }] }} options={{ maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 } } } }} aria-hidden="true" /></div>
                 : <p className="text-sm text-gray-500">{t('noData')}</p>}
             </section>
@@ -159,12 +183,16 @@ export default function LinkDetailsView({ link, initialRange, canViewSensitiveSt
 
         {canViewSensitiveStats && (
           <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-            <Breakdown title={t('modal.stats.browsers')} rows={browsers.map((item) => [item.browser, item.clicks] as const)} format={format.number} />
-            <Breakdown title={t('details.utm')} rows={[
+            {isLoading
+              ? <BreakdownSkeleton title={t('modal.stats.browsers')} />
+              : <Breakdown title={t('modal.stats.browsers')} rows={browsers.map((item) => [item.browser, item.clicks] as const)} format={format.number} />}
+            {isLoading
+              ? <BreakdownSkeleton title={t('details.utm')} />
+              : <Breakdown title={t('details.utm')} rows={[
               [t('details.utmSource'), link.utm_source ?? null],
               [t('details.utmMedium'), link.utm_medium ?? null],
               [t('details.utmCampaign'), link.utm_campaign ?? null],
-            ]} format={format.number} />
+            ]} format={format.number} />}
           </div>
         )}
       </div>
@@ -184,6 +212,19 @@ function Breakdown({ title, rows, format }: Readonly<{ title: string; rows: read
           </div>
         ))}
       </dl> : <p className="text-sm text-gray-500">—</p>}
+    </section>
+  );
+}
+
+function BreakdownSkeleton({ title }: Readonly<{ title: string }>) {
+  return (
+    <section className="rounded-xl border border-gray-200 bg-surface p-4" aria-busy="true">
+      <h3 className="mb-2 font-semibold">{title}</h3>
+      <div className="space-y-1.5" aria-hidden="true">
+        <SkeletonBlock className="h-8 w-full" />
+        <SkeletonBlock className="h-8 w-full" />
+        <SkeletonBlock className="h-8 w-full" />
+      </div>
     </section>
   );
 }
