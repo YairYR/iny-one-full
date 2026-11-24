@@ -17,11 +17,19 @@ const links = jest.mocked(getDashboardLinks);
 beforeEach(() => {
   jest.clearAllMocks();
   kpis.mockResolvedValue({
-    totalLinks: 40,
-    summary: { date_start: '2026-01-01', date_end: '2026-01-07', date_grouping: 'day', stats: [], clicks_last_24h: 0 },
-    all_time: { clicks: 0, top_countries: [] },
+    range: { date_start: '2026-01-01', date_end: '2026-01-07' },
+    summary: {
+      last_clicks: 0,
+      total_links: 40,
+      total_clicks: 0,
+      week: [],
+      top_country: [],
+    },
   });
-  insights.mockResolvedValue({ topLinks: [], refererStats: [] });
+  insights.mockResolvedValue({
+    range: { date_start: '2026-01-01', date_end: '2026-01-07' },
+    summary: { performance: [], traffic: [] },
+  });
   links.mockImplementation(async (page) => ({ urls: [], pagination: { page, pageSize: 20, total: 40 } }));
 });
 

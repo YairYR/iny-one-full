@@ -4,7 +4,7 @@
 import { NextRequest } from 'next/server';
 
 const isLoggedIn = jest.fn();
-const hasTeamPermission = jest.fn();
+const hasTeamPermissions = jest.fn();
 const getLinkById = jest.fn();
 const getClicksBetweenDates = jest.fn();
 const getClicksToday = jest.fn();
@@ -13,7 +13,7 @@ const getLinkBreakdown = jest.fn();
 jest.mock('@/infra/db/supabase_service', () => ({ supabase_service: {} }));
 jest.mock('@/lib/supabase/server', () => ({ createClient: jest.fn().mockResolvedValue({}) }));
 jest.mock('@/data/dto/user-dto', () => ({ isLoggedIn }));
-jest.mock('@/features/authorization/helpers/access', () => ({ hasTeamPermission }));
+jest.mock('@/features/authorization/helpers/access', () => ({ hasTeamPermissions }));
 jest.mock('@/infra/db/team.repository', () => ({ getTeamRepository: () => ({ getLinkById }) }));
 jest.mock('@/infra/db/stats.repository', () => ({
   getStatsRepository: () => ({ getClicksBetweenDates, getClicksToday, getLinkBreakdown }),
@@ -33,7 +33,12 @@ describe('GET /api/v1/dashboard/links/[link_id]', () => {
     jest.clearAllMocks();
     isLoggedIn.mockResolvedValue(true);
     getLinkById.mockResolvedValue({ data: { team_id: 'team-1' }, error: null });
-    hasTeamPermission.mockResolvedValue(true);
+    hasTeamPermissions.mockResolvedValue({
+      'links.read': true,
+      'stats.view': true,
+      'stats.view_sensitive': true,
+      'links.update': true,
+    });
     getClicksBetweenDates.mockResolvedValue({ data: [{ date: '2026-01-01', total_clicks: 1 }] });
     getClicksToday.mockResolvedValue({ count: 2 });
     getLinkBreakdown.mockResolvedValue({ data: {} });
@@ -61,7 +66,12 @@ describe('GET /api/v1/dashboard/links/[link_id]', () => {
   });
 
   it('rejects a link the current user cannot read', async () => {
-    hasTeamPermission.mockResolvedValue(false);
+    hasTeamPermissions.mockResolvedValue({
+      'links.read': false,
+      'stats.view': false,
+      'stats.view_sensitive': false,
+      'links.update': false,
+    });
 
     const response = await call();
 
@@ -71,12 +81,21 @@ describe('GET /api/v1/dashboard/links/[link_id]', () => {
 
   it('checks permission for the team that owns the link', async () => {
     await call();
-    expect(hasTeamPermission).toHaveBeenCalledWith('team-1', 'links.read');
-    expect(hasTeamPermission).toHaveBeenCalledWith('team-1', 'stats.view');
+    expect(hasTeamPermissions).toHaveBeenCalledWith('team-1', [
+      'links.read',
+      'stats.view',
+      'stats.view_sensitive',
+      'links.update',
+    ]);
   });
 
   it('requires statistics permission even if the link is readable', async () => {
-    hasTeamPermission.mockImplementation((_team, permission) => Promise.resolve(permission === 'links.read'));
+    hasTeamPermissions.mockResolvedValue({
+      'links.read': true,
+      'stats.view': false,
+      'stats.view_sensitive': false,
+      'links.update': true,
+    });
     expect((await call()).status).toBe(404);
     expect(getClicksBetweenDates).not.toHaveBeenCalled();
   });
@@ -86,7 +105,7 @@ describe('GET /api/v1/dashboard/links/[link_id]', () => {
     const response = await call();
     expect(response.status).toBe(500);
     expect(response.headers.get('cache-control')).toBe('private, no-store');
-    expect(hasTeamPermission).not.toHaveBeenCalled();
+    expect(hasTeamPermissions).not.toHaveBeenCalled();
   });
 
   it.each([
@@ -118,8 +137,12 @@ describe('GET /api/v1/dashboard/links/[link_id]', () => {
   });
 
   it('allows 30-day statistics only with sensitive statistics permission', async () => {
-    hasTeamPermission.mockImplementation((_team, permission) =>
-      Promise.resolve(permission !== 'stats.view_sensitive'));
+    hasTeamPermissions.mockResolvedValue({
+      'links.read': true,
+      'stats.view': true,
+      'stats.view_sensitive': false,
+      'links.update': true,
+    });
     expect((await call(linkId, '?range=30')).status).toBe(403);
     expect(getClicksBetweenDates).not.toHaveBeenCalled();
   });

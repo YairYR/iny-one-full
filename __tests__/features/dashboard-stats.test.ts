@@ -93,8 +93,8 @@ describe('calcUserStats', () => {
       ],
     }));
 
-    expect(traffic.Instagram.value).toBe(75);
-    expect(traffic.Direct.value).toBe(25);
+    expect(traffic['https://www.instagram.com/'].value).toBe(75);
+    expect(traffic[''].value).toBe(25);
     expect(Object.values(traffic).every((item) => Number.isFinite(item.value))).toBe(true);
   });
 
@@ -103,7 +103,7 @@ describe('calcUserStats', () => {
       refererStats: [{ referer: 'https://www.google.com/', count: 0 }],
     }));
 
-    expect(traffic.Google.value).toBe(0);
+    expect(traffic['https://www.google.com/'].value).toBe(0);
   });
 });
 
