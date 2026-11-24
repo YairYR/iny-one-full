@@ -218,7 +218,7 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
         </div>
       ) : (
         <div role="region" aria-labelledby="links-title" tabIndex={0} className="isolate max-h-[clamp(18rem,62dvh,44rem)] overflow-auto focus-visible:outline-2 focus-visible:outline-indigo-600">
-          <table className="table-fixed border-separate border-spacing-0 text-left text-sm" style={{ width: table.getTotalSize() }}>
+          <table className="table-fixed border-separate border-spacing-0 text-left text-sm" style={{ minWidth: table.getTotalSize() }}>
             <colgroup>{table.getVisibleLeafColumns().map((column) => <col key={column.id} style={{ width: column.getSize() }} />)}</colgroup>
             <thead>
               {table.getHeaderGroups().map((group) => (
@@ -283,5 +283,5 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
 }
 
 function SpanShortLink({ hostname, slug }: Readonly<{ hostname: string, slug: string }>) {
-  return <p className="text-sm text-gray-900"><span className="text-xs text-gray-500">{hostname}/</span>{slug}</p>;
+  return <p className="text-sm text-gray-900"><span className="hidden md:block text-xs text-gray-500">{hostname}/</span>{slug}</p>;
 }
