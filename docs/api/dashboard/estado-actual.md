@@ -10,7 +10,7 @@ ni una medición de rendimiento. Las rutas de pagos y webhooks quedan fuera de a
 |---|---|---|
 | `GET /api/v1/dashboard/summary?kpi=total_links,total_clicks,top_country,last_clicks,week` | KPI y actividad | SWR solicita el grupo cada 60 segundos. |
 | `GET /api/v1/dashboard/summary?kpi=traffic,performance` | Tráfico y ranking | Se solicita cada 300 segundos, sin revalidación al enfocar. |
-| `GET /api/v1/teams/default/links?page=N&pageSize=5\|10\|20` | Tabla de enlaces | Equipo por defecto, permiso `links.read`; `pageSize` (por defecto 20) lo elige el selector de filas y se pagina en servidor. Tras editar se invalidan las páginas. La búsqueda y la ordenación de la tabla solo afectan a la página visible. |
+| `GET /api/v1/teams/[team_id]/links?page=N&pageSize=5\|10\|20` | Tabla de enlaces | `team_id` acepta un UUID o `default`; requiere `links.read`. `default` se resuelve al equipo personal por defecto y cada API reutiliza el mismo resolver. `pageSize` (por defecto 20) lo elige el selector de filas y se pagina en servidor. Tras editar se invalidan las páginas. La búsqueda y la ordenación de la tabla solo afectan a la página visible. |
 | `GET /api/v1/dashboard/links/{link_id}` | Modal de estadísticas | Se solicita al abrir el detalle de un enlace. |
 | `GET /api/v1/dashboard/links` | Listado heredado por usuario | Conservado por compatibilidad; no alimenta la tabla actual. |
 | `POST /api/v1/account/personal-setup` | Configuración personal | Guarda perfil y equipo en una operación atómica.|
@@ -27,7 +27,7 @@ Referencias: [hook de SWR](../../../src/features/dashboard/hooks/useStatsCommon.
 [servicios del dashboard](../../../src/features/dashboard/services/getStats.ts),
 [resumen](../../../src/app/api/v1/dashboard/summary/route.ts),
 [detalle](../../../src/app/api/v1/dashboard/links/%5Blink_id%5D/route.ts),
-[listado por equipo](../../../src/app/api/v1/teams/default/links/route.ts),
+[listado por equipo](../../../src/app/api/v1/teams/%5Bteam_id%5D/links/route.ts),
 [configuración personal](../../../src/app/api/v1/account/personal-setup/route.ts) y
 [edición](../../../src/features/dashboard/actions/edit_link.actions.ts).
 

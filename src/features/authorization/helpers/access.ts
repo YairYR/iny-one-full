@@ -34,6 +34,30 @@ export const getDefaultTeamAccess = cache(async function getDefaultTeamAccess(pe
     return repository.getDefaultTeamAccess(permission);
 });
 
+export const teamSelectorSchema = z.union([
+    z.literal('default'),
+    z.uuid(),
+]);
+
+export const resolveTeamSelector = cache(async function resolveTeamSelector(
+    teamSelector: string,
+    permission: Permission,
+) {
+    const selector = teamSelectorSchema.parse(teamSelector);
+    if (selector === 'default') {
+        const access = await getDefaultTeamAccess(permission);
+        return {
+            teamId: access.team_id,
+            permitted: access.permitted,
+        };
+    }
+
+    return {
+        teamId: selector,
+        permitted: await hasTeamPermission(selector, permission),
+    };
+});
+
 export const getEffectiveService = cache(async function getEffectiveService() {
     const service = await getAccessService();
     return service.getService();
