@@ -179,9 +179,11 @@ Los tests que tocan Server Components cortan en la frontera de datos (`@/data/dt
 
 Nada se borra: lo que no está referenciado se conserva marcado, por si retoma uso en una build futura. Dos convenciones, según el caso.
 
+`SkeletonTable` está activo y se usa en la tabla de enlaces del dashboard como estado de carga, con opciones para filas, columnas, anchos, altura máxima y cabecera fija. Los exports `SkeletonCircle`, `SkeletonTriangle` y `SkeletonUser` siguen sin referencias.
+
 **Comentado con cabecera `INACTIVO`** cuando es una unidad completa que ya no se compila: `infra/db/order.repository.ts`, `infra/db/payment.repository.ts`, `infra/payments/catalogs.repository.ts` (catálogo de productos de PayPal), `ALLOWED_ORIGINS` y `PAYPAL_CLIENT_ID` en `constants.ts`, `retryWithCancel` en `lib/utils/retry.ts`, `findByEmail` / `getCurrentUserId` / `getUrls` en `user.repository.ts`, y `getStatsUrls` / `getStatsUrlsCurrentUser` / `getClicksBetween` en `stats.repository.ts`.
 
-**Anotado con `/** INACTIVO */` pero activo** cuando es un export suelto dentro de un módulo en uso, donde comentarlo sólo añadiría ruido: las variantes `SkeletonCircle`, `SkeletonTable`, `SkeletonTriangle` y `SkeletonUser`; `addToSessionStorage`, `getCart` y `clearCart` en `lib/utils/localstorage.ts`; `getPlans` en `services.repository.ts`; los tipos `ILink`, `OrderPay` y `UserRepository`; y `formats` en `i18n/request.ts`.
+**Anotado con `/** INACTIVO */` pero activo** cuando es un export suelto dentro de un módulo en uso, donde comentarlo sólo añadiría ruido: las variantes `SkeletonCircle`, `SkeletonTriangle` y `SkeletonUser`; `addToSessionStorage`, `getCart` y `clearCart` en `lib/utils/localstorage.ts`; `getPlans` en `services.repository.ts`; los tipos `ILink`, `OrderPay` y `UserRepository`; y `formats` en `i18n/request.ts`.
 
 También quedan marcados los barrels vacíos `features/users/index.ts` y `features/payments/index.ts`; el `noindex` del área privada vive en `app/(user)/layout.tsx`.
 

@@ -105,7 +105,6 @@ export function SkeletonUser() {
   )
 }
 
-/** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
 export interface SkeletonTableProps {
   rows?: number;
   columns?: number;
