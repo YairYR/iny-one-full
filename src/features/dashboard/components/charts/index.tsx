@@ -70,17 +70,41 @@ function useChartTheme(): boolean {
 
 function ThemedLine(props: Readonly<Props<'line'>>) {
   const dark = useChartTheme();
-  return <LineBase key={dark ? 'dark' : 'light'} {...props} data={themeData(props.data, dark)} />;
+  return <LineBase
+    key={dark ? 'dark' : 'light'}
+    {...props}
+    data={themeData(props.data, dark)}
+    onContextMenu={(event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    }}
+  />;
 }
 
 function ThemedBar(props: Readonly<Props<'bar'>>) {
   const dark = useChartTheme();
-  return <BarBase key={dark ? 'dark' : 'light'} {...props} data={themeData(props.data, dark)} />;
+  return <BarBase
+    key={dark ? 'dark' : 'light'}
+    {...props}
+    data={themeData(props.data, dark)}
+    onContextMenu={(event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    }}
+  />;
 }
 
 function ThemedPie(props: Readonly<Props<'pie'>>) {
   const dark = useChartTheme();
-  return <PieBase key={dark ? 'dark' : 'light'} {...props} data={themeData(props.data, dark)} />;
+  return <PieBase
+    key={dark ? 'dark' : 'light'}
+    {...props}
+    data={themeData(props.data, dark)}
+    onContextMenu={(event) => {
+      event.preventDefault();
+      event.stopPropagation();
+    }}
+  />;
 }
 
 // Se conserva la firma genérica de react-chartjs-2 para no endurecer los tipos de quien los usa.
