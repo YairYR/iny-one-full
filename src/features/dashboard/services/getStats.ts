@@ -6,13 +6,28 @@ export async function getStatsCommon(page = 1): Promise<UserDashboardStats | nul
   return fetchData<UserDashboardStats>(`/api/v1/dashboard/summary?page=${page}`);
 }
 
-export type DashboardKpis = {
-  totalLinks: number;
-  summary: Pick<DashboardStatsSummary['summary'], 'date_start' | 'date_end' | 'date_grouping' | 'stats' | 'clicks_last_24h'>;
-  all_time: Pick<DashboardStatsSummary['all_time'], 'clicks' | 'top_countries'>;
-};
+export interface DashboardSummary {
+  range: {
+    date_start: string;
+    date_end: string;
+  };
+  summary: {
+    last_clicks: number;
+    total_links: number;
+    total_clicks: number;
+    week: { date: string; clicks: number; }[];
+    top_country: { name: string; value: number; }[];
+    performance: { slug: string; clicks: number; }[];
+    traffic: { referer: string; count: number; }[];
+  };
+}
 
-export type DashboardInsights = Pick<UserDashboardStats, 'topLinks' | 'refererStats'>;
+export type DashboardKpis = Pick<DashboardSummary, 'range'> &
+    { summary: Pick<DashboardSummary['summary'], 'last_clicks'|'total_links'|'total_clicks'|'week'|'top_country'> };
+
+export type DashboardInsights = Pick<DashboardSummary, 'range'> &
+    { summary: Pick<DashboardSummary['summary'], 'performance'|'traffic'> };
+
 export type DashboardLinks = Pick<UserDashboardStats, 'urls' | 'pagination'>;
 
 async function fetchDashboardData<T>(url: string): Promise<T> {

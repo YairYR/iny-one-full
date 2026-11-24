@@ -526,12 +526,7 @@ isOneToOne: true
 "get_personal_setup":
 { Args: Record<PropertyKey, never>; Returns: Json
                            },
-"get_dashboard_stats_summary":
-{ Args: { "p_date_grouping"?: string,"p_end_date": string,"p_link_ids": (string)[],"p_start_date": string }; Returns: Json
-                           } |
-{ Args: { "p_team_id": string }; Returns: Json
-                           } |
-{ Args: { "p_end_date": string,"p_start_date": string,"p_team_id": string }; Returns: Json
+"get_dashboard_stats_summary": { Args: { "p_team_id": string, "p_kpis": string[], "p_start_date": string, "p_end_date": string }; Returns: Json
                            },
 "get_effective_service":
 { Args: Record<PropertyKey, never>; Returns: {

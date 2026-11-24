@@ -46,9 +46,12 @@ export function getStatsRepository(db: DbInstance)  {
         });
     },
 
-    async getDashboardStatsSummary(teamId: string) {
+    async getDashboardStatsSummary(teamId: string, kpis: string[], startDate: Date, endDate: Date) {
       return db.rpc('get_dashboard_stats_summary', {
         p_team_id: teamId,
+        p_kpis: kpis,
+        p_start_date: startDate.toISOString().split('T')[0],
+        p_end_date: endDate.toISOString().split('T')[0],
       })
     },
 

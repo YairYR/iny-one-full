@@ -47,22 +47,24 @@ export const useUserDashboard = () => {
 
   const stats = useMemo(() => ({
     general: {
-      totalLinks: kpis.data?.totalLinks,
-      totalClicks: kpis.data?.all_time.clicks,
-      clicksLast24h: kpis.data?.summary.clicks_last_24h,
-      topCountry: kpis.data?.all_time.top_countries?.[0]?.name ?? t('noData'),
+      totalLinks: kpis.data?.summary.total_links,
+      totalClicks: kpis.data?.summary.total_clicks,
+      clicksLast24h: kpis.data?.summary.last_clicks,
+      topCountry: kpis.data?.summary.top_country?.[0].name ?? t('noData'),
     },
     links: links.data?.urls ?? [],
     pagination: links.data?.pagination,
-    topLinks: insights.data?.topLinks ?? [],
-    traffic: insights.data ? calcRefererStats(insights.data.refererStats) : {},
-    week: kpis.data ? fillDays(kpis.data.summary.stats, {
-      startDate: dayjs(kpis.data.summary.date_start).utc(),
-      endDate: dayjs(kpis.data.summary.date_end).utc(),
+    topLinks: insights.data?.summary.performance ?? [],
+    traffic: insights.data ? calcRefererStats(insights.data.summary.traffic) : {},
+    week: kpis.data ? fillDays(kpis.data.summary.week, {
+      startDate: dayjs(kpis.data.range.date_start).utc(),
+      endDate: dayjs(kpis.data.range.date_end).utc(),
     }) : undefined,
   }), [kpis.data, insights.data, links.data, t]);
 
   const traffic = Object.values(stats?.traffic ?? {});
+
+  console.log()
 
   const clicks_week = {
     labels: stats.week?.daysKey.map((key) => t(key as never)),

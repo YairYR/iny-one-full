@@ -98,8 +98,7 @@ export function calcRefererStats(stats: IRefererStat[]) {
   let total = 0;
   for (const stat of stats) {
     total += stat.count;
-    const referer = stat.referer;
-    const category = categorizeReferer(referer);
+    const category = stat.referer; //categorizeReferer(referer);
 
     if (category in referersCount) {
       referersCount[category].count += stat.count;
