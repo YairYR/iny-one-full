@@ -174,6 +174,34 @@ Rules:
 - Table scroll areas use `max-h-[clamp(18rem,62dvh,44rem)]` so the toolbar and
   pagination stay reachable.
 
+### Loading Skeletons
+- Use skeletons only while real data is loading. Keep the same component,
+  hierarchy, grid, dimensions and scroll area that will be used by the loaded
+  state; never replace a dashboard section with a generic card or pop-in.
+- Preserve layout stability: a first-load skeleton must reserve the same height
+  and width as the real content. Use `DASHBOARD_CHART_HEIGHT` for chart
+  placeholders and `h-[clamp(18rem,62dvh,44rem)]` for table bodies.
+- Mark loading regions with `role="status"` or `aria-busy="true"` and visible
+  translated loading text. Skeleton shapes themselves must be `aria-hidden`.
+  Do not announce every animated row.
+- Use a purpose-specific component:
+  - `SkeletonKpi` for KPI tiles.
+  - `SkeletonChart` for chart areas; adjust `bars` to resemble bars or trend
+    placeholders and `className` to match the real chart height.
+  - `SkeletonCard` for a compact content block with text lines.
+  - `SkeletonTable` for tabular data. Configure `rows`, `columns`,
+    `columnWidths`, `minWidth`, `maxHeight`, `showHeader`, `stickyHeader`,
+    `labelledBy` and `className` to match the real table structure.
+  - `SkeletonBlock` for a custom, one-line placeholder with a flexible
+    `className`, rounded style and optional inline style.
+- Use `SkeletonRectangle` only for a legacy, already-defined rectangular
+  loading block. Prefer the purpose-specific components for new UI.
+- Skeletons are neutral placeholders, not example data. Do not add fake values,
+  fake charts or example badges to a loading state. Example data is for demo,
+  empty or setup states and must follow the separate Example Data rules.
+- If cached data exists while a refresh runs, keep the real content visible and
+  show a small loading status rather than replacing it with a skeleton.
+
 ### Example Data
 - Example (demo, empty, setup) dashboards mirror the real layout exactly:
   same components, order, grids and table. Only the data and the markers
