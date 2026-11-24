@@ -20,6 +20,7 @@ interface Props {
   total: number;
   page: number;
   totalPages: number;
+  isLoading?: boolean;
   onPageChange: (page: number) => void;
   pageSize?: number;
   onPageSizeChange?: (size: number) => void;
@@ -71,7 +72,7 @@ function LinkRow({ row, tools }: Readonly<{ row: Row<UserUrl>; tools: ITool<User
   );
 }
 
-export function LinksTable({ links, total, page, totalPages, onPageChange, pageSize = 20, onPageSizeChange, onOpen, onEdit, onQr, permissions = { canEdit: false, canViewStats: false }, readOnlyReason, badge }: Readonly<Props>) {
+export function LinksTable({ links, total, page, totalPages, isLoading = false, onPageChange, pageSize = 20, onPageSizeChange, onOpen, onEdit, onQr, permissions = { canEdit: false, canViewStats: false }, readOnlyReason, badge }: Readonly<Props>) {
   const t = useTranslations('DashboardPage');
   const format = useFormatter();
   const locale = useLocale();
@@ -206,23 +207,59 @@ export function LinksTable({ links, total, page, totalPages, onPageChange, pageS
           <span>{t('table.links.clicksNote')}{total > 0 && <> {t('table.links.pageOnly')} {t('table.links.resizeHelp')}</>}</span>
           {total > 0 && <button type="button" onClick={() => table.resetColumnSizing()} className="font-medium text-indigo-700 underline focus-visible:outline-2 focus-visible:outline-indigo-600">{t('table.links.resetWidths')}</button>}
         </div>
-        <p role="status" className={copyStatus ? `mt-2 text-sm ${copyStatus === 'error' ? 'text-red-600' : 'text-green-600'}` : 'sr-only'}>
-          {copyStatus && t(copyStatus === 'success' ? 'tools.copied' : 'tools.copyError')}
+        <p role="status" className={isLoading ? 'mt-2 text-xs font-medium text-gray-600' : copyStatus ? `mt-2 text-sm ${copyStatus === 'error' ? 'text-red-600' : 'text-green-600'}` : 'sr-only'}>
+          {isLoading ? t('loading') : copyStatus && t(copyStatus === 'success' ? 'tools.copied' : 'tools.copyError')}
         </p>
       </div>
 
-      {visibleLinks.length === 0 ? (
+      {isLoading && visibleLinks.length === 0 ? (
+        <div role="region" aria-labelledby="links-title" aria-busy="true" className="isolate h-[clamp(18rem,62dvh,44rem)] overflow-auto">
+          <table className="w-full table-fixed border-separate border-spacing-0 text-left text-sm" style={{ minWidth: table.getTotalSize() }}>
+            <colgroup>{table.getVisibleLeafColumns().map((column) => <col key={column.id} style={{ width: column.getSize() }} />)}</colgroup>
+            <thead>
+              {table.getHeaderGroups().map((group) => (
+                <tr key={group.id}>
+                  {group.headers.map((header) => (
+                    <th key={header.id} scope="col"
+                      className={`${header.column.id === 'short' ? 'left-0 z-40' : header.column.id === 'actions' ? 'right-0 z-40' : 'z-30'} sticky top-0 border-b border-gray-200 bg-gray-50 px-3 py-2 text-left font-semibold`}>
+                      {header.column.id === 'actions'
+                        ? <span className="sr-only">{flexRender(header.column.columnDef.header, header.getContext())}</span>
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                    </th>
+                  ))}
+                </tr>
+              ))}
+            </thead>
+            <tbody>
+              <tr>
+                <td colSpan={table.getVisibleLeafColumns().length} className="border-b border-gray-200 px-3 py-3">
+                  <p role="status" className="text-sm font-medium text-gray-600">{t('loading')}</p>
+                </td>
+              </tr>
+              {Array.from({ length: Math.min(Math.max(pageSize, 5), 10) }, (_, rowIndex) => (
+                <tr key={rowIndex} aria-hidden="true">
+                  {table.getVisibleLeafColumns().map((column) => (
+                    <td key={column.id} className="border-b border-gray-200 px-3 py-3">
+                      <div className="h-4 animate-pulse rounded bg-gray-200" />
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      ) : visibleLinks.length === 0 ? (
         <div className="p-6 text-sm text-gray-600">
           <p>{total === 0 ? t('table.links.empty') : t('table.links.noResults')}</p>
           {total === 0 && <Link href={ROUTES.HOME} className="mt-3 inline-block font-medium text-indigo-600 underline">{t('button.newLink')}</Link>}
         </div>
       ) : (
-        <div role="region" aria-labelledby="links-title" tabIndex={0} className="isolate max-h-[clamp(18rem,62dvh,44rem)] overflow-auto focus-visible:outline-2 focus-visible:outline-indigo-600">
-          <table className="table-fixed border-separate border-spacing-0 text-left text-sm" style={{ minWidth: table.getTotalSize() }}>
+        <div role="region" aria-labelledby="links-title" tabIndex={0} className="isolate h-[clamp(18rem,62dvh,44rem)] overflow-auto focus-visible:outline-2 focus-visible:outline-indigo-600">
+          <table className="w-full table-fixed border-separate border-spacing-0 text-left text-sm" style={{ minWidth: table.getTotalSize() }}>
             <colgroup>{table.getVisibleLeafColumns().map((column) => <col key={column.id} style={{ width: column.getSize() }} />)}</colgroup>
             <thead>
               {table.getHeaderGroups().map((group) => (
-                <tr key={group.id}>
+                <tr key={group.id} className="select-none">
                   {group.headers.map((header) => {
                     const column = header.column;
                     const direction = column.getIsSorted();

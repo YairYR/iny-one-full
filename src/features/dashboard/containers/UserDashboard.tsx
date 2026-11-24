@@ -116,12 +116,13 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
         </div>
 
         <div>
-          {status(linksRequest)}
-          {linksRequest.data && <LinksTable links={stats.links} total={stats.pagination?.total ?? 0}
+          {linksRequest.error && status(linksRequest)}
+          <LinksTable links={stats.links} total={stats.pagination?.total ?? 0}
+            isLoading={Boolean(linksRequest.isLoading)}
             page={page} totalPages={totalPages} onPageChange={setPage}
             pageSize={pageSize} onPageSizeChange={setPageSize}
             onOpen={onClickStats} onEdit={onClickEdit} onQr={onClickQr}
-            permissions={{ canEdit: canEditLinks, canViewStats }} />}
+            permissions={{ canEdit: canEditLinks, canViewStats }} />
         </div>
       </div>
       <LinkDetailModal modal={modal} onClose={onCloseModal} canViewSensitiveStats={canViewSensitiveStats} />

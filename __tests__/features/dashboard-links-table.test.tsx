@@ -96,6 +96,14 @@ it('resizes columns with keyboard or mouse and resets their widths', () => {
   expect(resize).toHaveAttribute('aria-valuenow', '160');
 });
 
+it('keeps the table structure and height while the first page is loading', () => {
+  render(<LinksTable links={[]} total={0} page={1} totalPages={1} isLoading onPageChange={jest.fn()} onEdit={jest.fn()} />);
+  expect(screen.getByRole('table')).toBeInTheDocument();
+  expect(screen.getAllByRole('status').every((element) => element.textContent === 'loading')).toBe(true);
+  const loadingRegion = screen.getAllByRole('region').find((element) => element.hasAttribute('aria-busy'));
+  expect(loadingRegion).toHaveClass('h-[clamp(18rem,62dvh,44rem)]');
+});
+
 it('asks the server for the selected page size instead of hiding loaded rows', () => {
   const { onPageSizeChange } = renderTable(10);
   expect(screen.getByLabelText('table.links.rowSize')).toHaveValue('10');
