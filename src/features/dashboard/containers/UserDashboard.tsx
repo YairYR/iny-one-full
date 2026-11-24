@@ -10,9 +10,10 @@ import { useUserDashboard } from "@/features/dashboard/hooks/useUserDashboard";
 import { useFormatter } from "next-intl";
 import { DashboardExample, ExampleChart, TrafficList } from "@/features/dashboard/components/DashboardExample";
 import { DASHBOARD_CHART_HEIGHT, DashboardCard } from "@/features/dashboard/components/DashboardCard";
+import { SkeletonChart, SkeletonKpi } from "@/components/Skeleton/Skeleton";
 
 const ChartSkeleton = () => (
-  <div className="h-full w-full animate-pulse rounded-lg bg-gray-100" aria-hidden="true" />
+  <SkeletonChart className="h-full w-full" />
 );
 const Line = dynamic(() => import("@/features/dashboard/components/charts").then((m) => m.Line), { ssr: false, loading: ChartSkeleton });
 const Bar = dynamic(() => import("@/features/dashboard/components/charts").then((m) => m.Bar), { ssr: false, loading: ChartSkeleton });
@@ -68,6 +69,14 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
             <Kpi title={t("panel.clicksLast24h.title")} value={number(stats.general.clicksLast24h)} />
             <Kpi title={t("panel.topCountry.title")} value={stats.general.topCountry ?? t('noData')} />
           </div>}
+          {!kpis.data && kpis.isLoading && (
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-busy="true" aria-label={t("loading")}>
+              <SkeletonKpi emphasized />
+              <SkeletonKpi />
+              <SkeletonKpi />
+              <SkeletonKpi />
+            </div>
+          )}
         </div>
 
         {/* Tres gráficos en una fila en escritorio; la tabla va a todo el ancho para mostrar más columnas. */}
@@ -87,7 +96,7 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
             </> : kpis.data ? <>
               <div className={`${DASHBOARD_CHART_HEIGHT} w-full`}><Line data={clicks_week} options={chartOptions} aria-hidden="true" /></div>
               <ul className="sr-only">{stats.week?.days.map((day, i) => <li key={day}>{day}: {number(stats.week?.clicks[i])}</li>)}</ul>
-            </> : <p className="text-sm text-gray-500">{kpis.error ? t('sectionError') : t('loading')}</p>}
+            </> : kpis.isLoading ? <SkeletonChart className={`${DASHBOARD_CHART_HEIGHT} w-full`} /> : <p className="text-sm text-gray-500">{kpis.error ? t('sectionError') : t('loading')}</p>}
           </DashboardCard>
 
           <DashboardCard tone="subtle" title={t("panel.performancePerLink.title")} subtitle={t("panel.performancePerLink.subtitle", { top: top_by_clicks })}>
@@ -99,6 +108,7 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
               <div className={`${DASHBOARD_CHART_HEIGHT} w-full`}><Bar data={clicks_top} options={chartOptions} aria-hidden="true" /></div>
               <ul className="sr-only">{stats.topLinks.slice(0, top_by_clicks).map((link) => <li key={link.slug}>{link.slug}: {number(link.clicks)}</li>)}</ul>
             </> : null)}
+            {!insights.data && insights.isLoading && <SkeletonChart className={`${DASHBOARD_CHART_HEIGHT} w-full`} bars={4} />}
           </DashboardCard>
 
           <DashboardCard title={t("panel.sourceTraffic.title")} className="md:col-span-2 xl:col-span-1">
@@ -112,6 +122,16 @@ export function UserDashboard({ canViewSensitiveStats = false, canEditLinks = fa
               <p className="mb-2 text-sm text-gray-500">{t('noTraffic')}</p>
               <ExampleChart kind="traffic" />
             </>)}
+            {!insights.data && insights.isLoading && (
+              <div className="flex h-40 items-center gap-4 lg:h-[clamp(8rem,17dvh,11rem)]" aria-busy="true" aria-label={t("loading")}>
+                <SkeletonChart className="h-full w-1/2" bars={1} />
+                <div className="flex-1 space-y-2" aria-hidden="true">
+                  <SkeletonChart className="h-4 w-full" bars={1} />
+                  <SkeletonChart className="h-4 w-full" bars={1} />
+                  <SkeletonChart className="h-4 w-full" bars={1} />
+                </div>
+              </div>
+            )}
           </DashboardCard>
         </div>
 

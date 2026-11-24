@@ -1,4 +1,54 @@
 import React from "react";
+import type { CSSProperties } from "react";
+
+export interface SkeletonBlockProps {
+  className?: string;
+  rounded?: "sm" | "md" | "lg" | "full";
+  style?: CSSProperties;
+}
+
+export function SkeletonBlock({ className = "h-4 w-full", rounded = "md", style }: Readonly<SkeletonBlockProps>) {
+  const roundedClass = { sm: "rounded-sm", md: "rounded", lg: "rounded-lg", full: "rounded-full" }[rounded];
+  return <span aria-hidden="true" style={style} className={`block animate-pulse bg-gray-200 ${roundedClass} ${className}`} />;
+}
+
+export function SkeletonCard({ className = "", lines = 3 }: Readonly<{ className?: string; lines?: number }>) {
+  return (
+    <div aria-hidden="true" className={`rounded-xl border border-gray-200 bg-surface p-4 ${className}`}>
+      <SkeletonBlock className="h-4 w-1/3" />
+      <div className="mt-3 space-y-2">
+        {Array.from({ length: lines }, (_, index) => (
+          <SkeletonBlock key={index} className={`h-4 ${index === lines - 1 ? "w-1/2" : "w-full"}`} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function SkeletonKpi({ emphasized = false, className = "" }: Readonly<{ emphasized?: boolean; className?: string }>) {
+  return (
+    <div aria-hidden="true" className={`rounded-xl border px-4 py-3 ${emphasized ? "border-indigo-100 bg-indigo-50" : "border-gray-200 bg-surface"} ${className}`}>
+      <SkeletonBlock className="h-3 w-2/3" />
+      <SkeletonBlock className="mt-2 h-6 w-1/3" />
+    </div>
+  );
+}
+
+export function SkeletonChart({ className = "h-48 lg:h-[clamp(11rem,24dvh,15rem)]", bars = 7 }: Readonly<{ className?: string; bars?: number }>) {
+  const heights = ["35%", "58%", "46%", "72%", "63%", "88%", "78%"];
+  return (
+    <div aria-hidden="true" className={`flex items-end gap-2 ${className}`}>
+      {Array.from({ length: bars }, (_, index) => (
+        <SkeletonBlock
+          key={index}
+          className="flex-1"
+          rounded="sm"
+          style={{ height: bars === 1 ? "100%" : heights[index % heights.length] }}
+        />
+      ))}
+    </div>
+  );
+}
 
 export function SkeletonRectangle() {
   return (
@@ -56,58 +106,78 @@ export function SkeletonUser() {
 }
 
 /** INACTIVO: exportado pero sin referencias en el repositorio (rev. 2026-08-09). */
-export function SkeletonTable({ rows = 2 }: Readonly<{ rows?: number }>) {
-  const rowArray = (rows > 0) ? Array.from({ length: rows }) : [];
-  return (
-    <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead>
-        <tr>
-          <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
-          </th>
-          <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            <div className="h-4 bg-gray-300 rounded w-1/2"></div>
-          </th>
-          <th className="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-            <div className="h-4 bg-gray-300 rounded w-full"></div>
-          </th>
+export interface SkeletonTableProps {
+  rows?: number;
+  columns?: number;
+  columnWidths?: readonly (number | string)[];
+  minWidth?: number | string;
+  maxHeight?: number | string;
+  className?: string;
+  showHeader?: boolean;
+  stickyHeader?: boolean;
+  labelledBy?: string;
+}
 
-        </tr>
-        </thead>
-        <tbody className="bg-surface divide-y divide-gray-200">
-        {rowArray.map((_, i) => (
-          (i % 2 === 0)
-            ? (
-              <tr key={`skeleton-row-${i}`}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse w-2/3"></div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse w-full"></div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse w-1/3"></div>
-                </td>
-              </tr>
-            )
-            : (
-              <tr key={`skeleton-row-${i}`}>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse w-3/4"></div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse w-1/2"></div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="h-6 bg-gray-200 rounded animate-pulse w-full"></div>
-                </td>
-              </tr>
-            )
-          )
+export function SkeletonTable({
+  rows = 2,
+  columns = 3,
+  columnWidths,
+  minWidth,
+  maxHeight,
+  className = "",
+  showHeader = true,
+  stickyHeader = false,
+  labelledBy,
+}: Readonly<SkeletonTableProps>) {
+  const rowArray = rows > 0 ? Array.from({ length: rows }) : [];
+  const widthAt = (index: number) => columnWidths?.[index] ?? undefined;
+  const style = {
+    ...(minWidth != null ? { minWidth: typeof minWidth === "number" ? `${minWidth}px` : minWidth } : {}),
+    ...(maxHeight != null ? { maxHeight: typeof maxHeight === "number" ? `${maxHeight}px` : maxHeight } : {}),
+  };
+  return (
+    <div
+      role="region"
+      aria-busy="true"
+      aria-labelledby={labelledBy}
+      className={`w-full overflow-auto ${className}`}
+      style={style}
+    >
+      <table className="w-full table-fixed border-separate border-spacing-0 text-left text-sm" style={{ tableLayout: "fixed" }}>
+        {columnWidths && (
+          <colgroup>
+            {Array.from({ length: columns }, (_, index) => (
+              <col key={index} style={{ width: typeof widthAt(index) === "number" ? `${widthAt(index)}px` : widthAt(index) }} />
+            ))}
+          </colgroup>
         )}
+        {showHeader && (
+          <thead>
+            <tr>
+              {Array.from({ length: columns }, (_, index) => (
+                <th
+                  key={index}
+                  scope="col"
+                  className={`border-b border-gray-200 bg-gray-50 px-3 py-2 ${stickyHeader ? "sticky top-0 z-30" : ""}`}
+                >
+                  <SkeletonBlock className={`h-4 ${index % 3 === 0 ? "w-3/4" : index % 3 === 1 ? "w-1/2" : "w-full"}`} />
+                </th>
+              ))}
+            </tr>
+          </thead>
+        )}
+        <tbody>
+          {rowArray.map((_, rowIndex) => (
+            <tr key={rowIndex} aria-hidden="true">
+              {Array.from({ length: columns }, (_, columnIndex) => (
+                <td key={columnIndex} className="border-b border-gray-200 px-3 py-3">
+                  <SkeletonBlock className={`h-4 ${(rowIndex + columnIndex) % 3 === 0 ? "w-3/4" : (rowIndex + columnIndex) % 3 === 1 ? "w-full" : "w-1/2"}`} />
+                </td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
-  )
+  );
 }
